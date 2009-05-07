@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+  <creaturescan>
+    <updatecheck url="http://85.214.58.178/phpBB2/latest.txt"/>
+  </creaturescan>
+  <raids maxraids24h="5"/>
+  <game count="7">
+    <site index="0" name="ogame.de"/>
+    <site index="1" name="ogame.org"/>
+    <site index="2" name="ogame.fr"/>
+    <site index="3" name="ogame.com.tr"/>
+    <site index="4" name="ogame.nl"/>
+    <site index="5" name="ogame.ru"/>
+    <site index="6" name="ogame.dk"/>
+  </game>
+  <planets count="15">
+    <planet1 maxtemp="123"/>
+    <planet2 maxtemp="123"/>
+    <planet3 maxtemp="120"/>
+    <planet4 maxtemp="66.7"/>
+    <planet5 maxtemp="64.5"/>
+    <planet6 maxtemp="63"/>
+    <planet7 maxtemp="41"/>
+    <planet8 maxtemp="39"/>
+    <planet9 maxtemp="36"/>
+    <planet10 maxtemp="14.5"/>
+    <planet11 maxtemp="12"/>
+    <planet12 maxtemp="11"/>
+    <planet13 maxtemp="-43"/>
+    <planet14 maxtemp="-44"/>
+    <planet15 maxtemp="-46"/>
+  </planets>
+  <units groupcount="5">
+    <group0 count="4" xml="resources">
+      <unit0 xml="met"/>
+      <unit1 xml="crys"/>
+      <unit2 xml="deut"/>
+      <unit3 xml="energ"/>
+    </group0>
+    <group1 count="14" xml="fleets">
+      <unit0 xml="scs" met="2000" crys="2000"/>
+      <unit1 xml="lcs" met="6000" crys="6000"/>
+      <unit2 xml="lf" met="3000" crys="1000"/>
+      <unit3 xml="hf" met="6000" crys="4000"/>
+      <unit4 xml="cru" met="20000" crys="7000" deut="2000"/>
+      <unit5 xml="bs" met="45000" crys="15000"/>
+      <unit6 xml="cs" met="10000" crys="20000" deut="10000"/>
+      <unit7 xml="recy" met="10000" crys="6000" deut="2000"/>
+      <unit8 xml="esp" crys="1000"/>
+      <unit9 xml="bomb" met="50000" crys="25000" deut="15000"/>
+      <unit10 xml="solsat" crys="2000" deut="500"/>
+      <unit11 xml="destr" met="60000" crys="50000" deut="15000"/>
+      <unit12 xml="rip" met="5000000" crys="4000000" deut="1000000"/>
+      <unit13 xml="bcru" met="30000" crys="40000" deut="15000"/>
+    </group1>
+    <group2 count="10" xml="defence">
+      <unit0 xml="msl" met="2000"/>
+      <unit1 xml="sl" met="1500" crys="500"/>
+      <unit2 xml="hl" met="6000" crys="2000"/>
+      <unit3 xml="gaus" met="20000" crys="15000" deut="2000"/>
+      <unit4 xml="ion" met="2000" crys="6000"/>
+      <unit5 xml="pc" met="50000" crys="50000" deut="30000"/>
+      <unit6 xml="ssd" met="10000" crys="10000"/>
+      <unit7 xml="lsd" met="50000" crys="50000"/>
+      <unit8 xml="abm" met="8000" deut="2000" ignoreFight="1"/>
+      <unit9 xml="inter" met="12500" crys="2500" deut="10000" ignoreFight="1"/>
+    </group2>
+    <group3 count="18" xml="buildings">
+      <unit0 xml="metm"/>
+      <unit1 xml="crysm"/>
+      <unit2 xml="deuts"/>
+      <unit3 xml="solp"/>
+      <unit4 xml="fusp"/>
+      <unit5 xml="robot"/>
+      <unit6 xml="nani"/>
+      <unit7 xml="shipy"/>
+      <unit8 xml="mets"/>
+      <unit9 xml="crys"/>
+      <unit10 xml="dtank"/>
+      <unit11 xml="rlab"/>
+      <unit12 xml="terra"/>
+      <unit13 xml="allydep"/>
+      <unit14 xml="silo"/>
+      <unit15 xml="lunb"/>
+      <unit16 xml="phalanx"/>
+      <unit17 xml="jumpg"/>
+    </group3>
+    <group4 count="16" xml="research">
+      <unit0 xml="spiot"/>
+      <unit1 xml="comput"/>
+      <unit2 xml="weapt"/>
+      <unit3 xml="shieldt"/>
+      <unit4 xml="armourt"/>
+      <unit5 xml="energt"/>
+      <unit6 xml="hypt"/>
+      <unit7 xml="combut"/>
+      <unit8 xml="impe"/>
+      <unit9 xml="hype"/>
+      <unit10 xml="lasert"/>
+      <unit11 xml="iont"/>
+      <unit12 xml="plasmat"/>
+      <unit13 xml="intergal"/>
+      <unit14 xml="expedt"/>
+      <unit15 xml="gravi"/>
+    </group4>
+  </units>
+</data>
