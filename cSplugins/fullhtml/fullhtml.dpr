@@ -5,23 +5,24 @@ uses
   Classes,
   IniFiles,
   Dialogs,
-  OGame_Types,
   clipbrd,
   Windows,
-  LibXmlParser,
-  LibXmlComps,
   DateUtils,
   StrUtils,
-  readsource in '..\readsource.pas',
-  readsource_cs in '..\readsource_cs.pas',
+  OGame_Types in '..\..\OGame_Types.pas',
+  CoordinatesRanges in '..\..\CoordinatesRanges.pas',
+  Languages in '..\..\Languages.pas',
+  SelectLanguage in '..\..\SelectLanguage.pas' {FRM_SelectLanguage},
   ReadPhalanxScan_fullhtml in '..\ReadAndParse\ReadPhalanxScan_fullhtml.pas',
   ReadReport_Text in '..\ReadAndParse\ReadReport_Text.pas',
   ReadSolsysStats_fullhtml in '..\ReadAndParse\ReadSolsysStats_fullhtml.pas',
+  readsource in '..\readsource.pas',
+  readsource_cs in '..\readsource_cs.pas',
   call_fleet in '..\ReadAndParse\call_fleet.pas';
 
 type
   TScanReadOptions = record
-    
+
   end;
   TSys_Read_Options = record
     ReadType: (sysrtTabs, sysrtTltip, sysrtHtml);
