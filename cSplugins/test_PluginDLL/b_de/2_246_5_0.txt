@@ -1,0 +1,42 @@
+<report gala="2" sys="246" pos="5" time="1233937984" planet="Kolonie" player="Miggi" activ="0" cspio="0" creator=""><resources met="81424" crys="74239" deut="19683" energ="753"/><fleets/><defence msl="15" ssd="1"/><buildings metm="10" crysm="9" deuts="6" solp="12" robot="2" shipy="2"/></report>
+
+  15 von 63 
+Von: 	Flottenkommando
+An: 	creature
+Betreff: 	Kolonie [2:246:5]
+Datum: 	02-06 16:33:04
+
+    * löschen
+
+Rohstoffe auf Kolonie [2:246:5] (Spieler 'Miggi')
+am 02-06 16:33:04
+	
+Metall:	81.424 	Kristall: 	74.239
+Deuterium:	19.683 	Energie: 	753
+	
+Aktivität
+Aktivität
+Aktivität bedeutet, dass entweder der gescannte Spieler in dieser Zeit auf dem Planeten aktiv war oder ein anderer Spieler mit diesem Planeten Flottenkontakt hatte.
+Dein Sondenscan fand keine Anomalien in der Atmosphäre des Planeten. Eine Aktivität auf diesem Planeten innerhalb der letzten Stunde kann daher fast ausgeschlossen werden.
+Flotten
+Verteidigung
+Raketenwerfer	15	Kleine Schildkuppel	1
+Gebäude
+Metallmine	10	Kristallmine	9
+Deuteriumsynthetisierer	6	Solarkraftwerk	12
+Roboterfabrik	2	Raumschiffswerft	2
+Chance auf Spionageabwehr: 0 %
+Angreifen
+
+Achtung
+
+-
+Ja
+Nein
+
+Hinweis
+
+-
+Ok
+
+
