@@ -3,8 +3,6 @@ program TEST;
 uses
   Forms,
   DLL_plugin_TEST in 'DLL_plugin_TEST.pas' {FRM_MainTest},
-  Bericht_Frame in '..\Bericht_Frame.pas' {Frame_Bericht: TFrame},
-  Notizen in '..\Notizen.pas' {FRM_Notizen},
   Sources in 'Sources.pas' {FRM_Sources},
   SolSys in 'SolSys.pas' {FRM_Solsys},
   Scan in 'Scan.pas' {FRM_Scan},
@@ -24,7 +22,9 @@ uses
   ThreadProtocolObject in '..\..\ThreadProtocolObject.pas',
   NetUniverseTree in '..\..\UniverseTree\NetUniverseTree.pas',
   UniTree in '..\..\UniverseTree\UniTree.pas',
-  TIReadPlugin in '..\..\ReadPlugins\TIReadPlugin.pas';
+  TIReadPlugin in '..\..\ReadPlugins\TIReadPlugin.pas',
+  Bericht_Frame in '..\..\Bericht_Frame.pas' {Frame_Bericht: TFrame},
+  Notizen in '..\..\Notizen.pas' {FRM_Notizen};
 
 {$R *.res}
 
