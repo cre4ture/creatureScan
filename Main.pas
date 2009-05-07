@@ -1,0 +1,2005 @@
+unit Main;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, OGame_Types, Prog_Unit, Inifiles, Galaxy_Explorer, Grids, ExtCtrls,
+  Bericht_Frame, ComCtrls, Menus, Suche, shellapi, Buttons,
+  AppEvnts, jpeg, Math, ImgList, VirtualTrees, cS_DB_solsysFile, cS_DB_reportFile,
+  clipbrd, ClipboardViewerForm, EditScan, stringlistedit, xmldom,
+  XMLIntf, msxmldom, XMLDoc, cs_XML, oFight, clipbrdfunctions, UniTree,
+  frm_pos_size_ini, MusiPlayer, TIReadPlugin;
+
+const
+  Transporter_space = 25000;
+  Transporter_oil = 50;
+  Schlachtschiff_space = 1500;
+  Schlachtschiff_oil = 500;
+
+  WM_MOUSESpezialKeyDown  = $020B;
+  WM_MOUSESpezialKeyUp  = $020C;
+
+  svk_back = $00010000;
+  svk_forward = $00020000;
+
+type
+  TSuchInetTyp = (sitPlayer, sitAllanz);
+  TSuchInetVorlage = record
+    Allianz, Spieler, Name: String;
+  end;
+  TAngriffsLogig = (al_Drago,al_PlanDB);
+  TPlayerOptions = Record
+    Transporter: TShip;
+    Schlachtschiff: TShip;
+    StartPlanet: TPlanetPosition;
+    Flugzeit_u: Int64;
+    AngriffsLogig: TAngriffsLogig;
+    SuchInet: TSuchInetVorlage;
+    ServerPort: Word;
+    phpPost: String;
+    StartSystray: Boolean;
+
+    //BeepSound
+    Beep_SoundFile: String;
+
+    //Fleets:
+    Fleet_ShowArivalMessage: boolean;
+    Fleet_AMSG_Time_s: Integer;
+    Fleet_alert: Boolean;
+    Fleet_Soundfile: String;
+    Fleet_auto_time_sync: Boolean;
+  end;
+  TFRM_Main = class(TClipboardViewer)
+    MainMenu1: TMainMenu;
+    Datenbank1: TMenuItem;
+    NeuerGalaxyExplorer1: TMenuItem;
+    StatusBar1: TStatusBar;
+    Info1: TMenuItem;
+    TrayIconPopup: TPopupMenu;
+    MainWindow1: TMenuItem;
+    N1: TMenuItem;
+    Close1: TMenuItem;
+    Beenden1: TMenuItem;
+    NetConnections1: TMenuItem;
+    Fenster1: TMenuItem;
+    Dir: TMenuItem;
+    Import2: TMenuItem;
+    Export1: TMenuItem;
+    N5: TMenuItem;
+    P_ExplorerDock: TPanel;
+    OpenDialog1: TOpenDialog;
+    alsandererBenutzerneustarten1: TMenuItem;
+    Einstellungen1: TMenuItem;
+    P_Scan: TPanel;
+    Frame_Bericht2: TFrame_Bericht;
+    Info2: TMenuItem;
+    updatecheck1: TMenuItem;
+    TIM_Start: TTimer;
+    il_trayicon: TImageList;
+    Zwischenablageberwachen1: TMenuItem;
+    SuchenErsetzen1: TMenuItem;
+    Panel1: TPanel;
+    lst_others: TListView;
+    BTN_Paste: TButton;
+    BTN_Copy: TButton;
+    Splitter1: TSplitter;
+    Panel2: TPanel;
+    P_WF: TPanel;
+    LBL_WF_1: TLabel;
+    LBL_WF_0_1: TLabel;
+    LBL_WF_2: TLabel;
+    LBL_WF_3: TLabel;
+    Test1: TMenuItem;
+    LBL_WF_0_2: TLabel;
+    LBL_WF_0_3: TLabel;
+    Languagefile1: TMenuItem;
+    N3: TMenuItem;
+    Funktionen1: TMenuItem;
+    Scanslschen1: TMenuItem;
+    Statistiken1: TMenuItem;
+    Einlesen1: TMenuItem;
+    ApplicationEvents1: TApplicationEvents;
+    TIM_afterClipboardchange: TTimer;
+    NewScan1: TMenuItem;
+    N2: TMenuItem;
+    VergelicheSysDateimitDB1: TMenuItem;
+    N4: TMenuItem;
+    writeunitsinconstsxml1: TMenuItem;
+    XMLDocument1: TXMLDocument;
+    VergleicheScanDateimitDB1: TMenuItem;
+    N6: TMenuItem;
+    SaveClipboardtoFile1: TMenuItem;
+    SaveDialog1: TSaveDialog;
+    POST1: TMenuItem;
+    TIM_FakeCV: TTimer;
+    N7: TMenuItem;
+    exportxml1: TMenuItem;
+    Timer1: TTimer;
+    selectkoordranges1: TMenuItem;
+    ScansDatumLschen1: TMenuItem;
+    Frame_Bericht1: TFrame_Bericht;
+    N8: TMenuItem;
+    Flottenbersicht1: TMenuItem;
+    Notizen1: TMenuItem;
+    neueSuche1: TMenuItem;
+    Universumsbersicht1: TMenuItem;
+    Listenansicht1: TMenuItem;
+    IL_ScanSize: TImageList;
+    N9: TMenuItem;
+    frmevents1: TMenuItem;
+    PopupMenu1: TPopupMenu;
+    Lschen1: TMenuItem;
+    BTN_Liste: TButton;
+    BTN_Suche: TButton;
+    BTN_Universum: TButton;
+    Galaxie1: TMenuItem;
+    btn_fight_start: TButton;
+    popup_auftrag: TPopupMenu;
+    Angriff1: TMenuItem;
+    Spionage1: TMenuItem;
+    N10: TMenuItem;
+    Raideintragen1: TMenuItem;
+    procedure Raideintragen1Click(Sender: TObject);
+    procedure Spionage1Click(Sender: TObject);
+    procedure Angriff1Click(Sender: TObject);
+    procedure btn_fight_startClick(Sender: TObject);
+    procedure BTN_PasteClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure BTN_CopyClick(Sender: TObject);
+    procedure lst_othersSelectItem(Sender: TObject; Item: TListItem;
+      Selected: Boolean);
+    procedure FormCreate(Sender: TObject);
+    procedure lst_othersCompare(Sender: TObject; Item1, Item2: TListItem;
+      Data: Integer; var Compare: Integer);
+    procedure BTN_DeleteClick(Sender: TObject);
+    procedure NeuerGalaxyExplorer1Click(Sender: TObject);
+    procedure Info1Click(Sender: TObject);
+    procedure MainWindow1Click(Sender: TObject);
+    procedure Beenden1Click(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure StatusBar1DrawPanel(StatusBar: TStatusBar;
+      Panel: TStatusPanel; const Rect: TRect);
+    procedure DirClick(Sender: TObject);
+    procedure Export1Click(Sender: TObject);
+    procedure BTN_GalaxieClick(Sender: TObject);
+    procedure P_ExplorerDockResize(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure Import2Click(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure lst_othersColumnClick(Sender: TObject; Column: TListColumn);
+    procedure alsandererBenutzerneustarten1Click(Sender: TObject);
+    procedure Einstellungen1Click(Sender: TObject);
+    procedure Frame_Bericht1Copy1Click(Sender: TObject);
+    procedure Frame_Bericht1KopiereinTabellenform1Click(Sender: TObject);
+    procedure P_WFResize(Sender: TObject);
+    procedure BTN_UniversumClick(Sender: TObject);
+    procedure BTN_SucheClick(Sender: TObject);
+    procedure BTN_ListeClick(Sender: TObject);
+    procedure BTN_TopmostClick(Sender: TObject);
+    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure updatecheck1Click(Sender: TObject);
+    procedure TIM_StartTimer(Sender: TObject);
+    procedure Zwischenablageberwachen1Click(Sender: TObject);
+    procedure SuchenErsetzen1Click(Sender: TObject);
+    procedure Languagefile1Click(Sender: TObject);
+    procedure Scanslschen1Click(Sender: TObject);
+    procedure Einlesen1Click(Sender: TObject);
+    procedure NetConnections1Click(Sender: TObject);
+    procedure ApplicationEvents1Message(var Msg: tagMSG;
+      var Handled: Boolean);
+    procedure TIM_afterClipboardchangeTimer(Sender: TObject);
+    procedure TrayIconPopupPopup(Sender: TObject);
+    procedure lst_othersKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure NewScan1Click(Sender: TObject);
+    procedure VergelicheSysDateimitDB1Click(Sender: TObject);
+    procedure writeunitsinconstsxml1Click(Sender: TObject);
+    procedure VergleicheScanDateimitDB1Click(Sender: TObject);
+    procedure SaveClipboardtoFile1Click(Sender: TObject);
+    procedure POST1Click(Sender: TObject);
+    procedure TIM_FakeCVTimer(Sender: TObject);
+    procedure Frame_Bericht1Timer1Timer(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+    procedure ScansDatumLschen1Click(Sender: TObject);
+    procedure Frame_Bericht1Timer2Timer(Sender: TObject);
+    procedure Flottenbersicht1Click(Sender: TObject);
+    procedure Notizen1Click(Sender: TObject);
+    procedure neueSuche1Click(Sender: TObject);
+    procedure Universumsbersicht1Click(Sender: TObject);
+    procedure Listenansicht1Click(Sender: TObject);
+    procedure Frame_Bericht1PB_BDblClick(Sender: TObject);
+    procedure Frame_Bericht1PB_BPaint(Sender: TObject);
+    procedure StatusBar1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+  published
+    procedure FormClipboardContentChanged(Sender: TObject);
+  private
+    session_id: string;
+
+    beenden: boolean;
+    eee: integer;
+    IniFile: String;
+    CloseToSystray: Boolean;
+    FakeCVClipbrdSequenceNumber: DWORD;
+    _____time: TDateTime;
+    _____mittelwehrt: Integer;
+    topmost: boolean;
+    procedure call_fleet_link(pos: TPlanetPosition; job: TFleetEventType);
+    procedure SearchList(nr: integer; pos: TPlanetPosition);
+    procedure PaintScan(scan: TScanBericht);
+    procedure Wellenangriff(Scan: TScanbericht);
+    procedure LoadOptions;
+    procedure SaveOptions;
+    procedure ODB_UniTree_ReportChanged(Sender: TObject; Pos: TPlanetPosition);
+    procedure ODB_UniTree_SolSysChanged(Sender: TObject; Pos: TPlanetPosition);
+    procedure SaveLoad_SimpleOptions(ini: TIniFile; save: boolean);
+    procedure ShowExplorerPanel;
+    procedure ShowScanPanel;
+    procedure LangPluginOnAskMoon(Sender: TLangPlugIn;
+      Report: TScanBericht; var isMoon, Handled: Boolean);
+  protected
+    procedure SetCVActive(B: Boolean); override;
+  public
+    TrayIco: TTrayIcon;
+    DockExplorer: TExplorer;
+    PlayerOptions: TPlayerOptions;
+    Einstellungen: set of (soAddNewScanToList,
+                           soShowScanCountMessage,
+                           soBeepByWatchClipboard,
+                           soUniCheck,
+                           soAutoUpdateCheck,
+                           soStartupServer
+                           );
+    LastClipBoard: String;       //LastClipboard wird nurnoch gesetzt, wenn das programm selber in die Zwischenablage setzt, die nicht verarbeitet werden sollen! (z.b. Copy_button)
+    SoundModul: TMusiPlayer;
+    procedure ShowScan(NR: integer); overload;
+    procedure ShowScan(Pos: TPlanetPosition); overload;
+    function NewExplorer: TExplorer;
+    procedure RightClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure Play_Alert_Sound(filename: string);
+    procedure RefreshDBListSize(Sender: TObject);
+
+    procedure RefreshExplorers(P: TPlanetPosition);
+
+    function NewSearch: TFRM_Suche;
+    procedure ShowGalaxie(Pos: TPlanetPosition);
+    procedure ShowSmallScan(P: TPlanetPosition);
+    procedure OpenInBrowser(url: String);
+    procedure SetTrayIcon_;
+    procedure RaidDialog(Position: TPlanetPosition); overload;
+    function RaidDialog(var Fleet: TFleetEvent): boolean; overload;
+    procedure SucheImInet(Typ: TSuchInetTyp; Allianz, Player: String; Uni: Integer);
+    procedure ClipbrdReadScan;
+    procedure ClipbrdReadSys;
+    procedure ShowSearchPlayer(name: string);
+    procedure ShowSearchAlly(ally: string);
+    procedure Show;
+    { Public-Deklarationen }
+  end;
+const
+  GeneralSection = 'UserOptions';
+
+var
+  FRM_Main: TFRM_Main;
+  explorer : array of TExplorer;
+  suchen : array of TFRM_Suche;
+
+
+implementation
+
+uses Notizen, Favoriten, Info,
+  Uebersicht, Connections, Export, Einstellungen, Suchen_Ersetzen,
+  KB_List, Add_KB, Languages, Delete_Scans,
+  Stats_Einlesen, DateUtils, _test_POST, ComConst, StrUtils;
+
+{$R *.DFM}
+
+procedure TFRM_Main.RightClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+
+end;
+
+procedure TFRM_Main.BTN_PasteClick(Sender: TObject);
+begin
+  ClipbrdReadScan;
+end;
+
+procedure TFRM_Main.FormDestroy(Sender: TObject);
+begin
+  ODataBase.LanguagePlugIn.OnAskMoon := nil;
+
+  SaveOptions;
+  Stopp;
+  Beenden := True;
+  SoundModul.Free;
+  TrayIco.free;
+end;
+
+procedure TFRM_Main.BTN_CopyClick(Sender: TObject);
+var s: string;
+begin
+  s := ODataBase.LanguagePlugIn.ScanToStr(Frame_Bericht1.Bericht,False);
+  LastClipBoard := s;
+  Clipboard.AsText := s;
+end;
+
+procedure TFRM_Main.ShowScan(Pos: TPlanetPosition);
+var scan: TScanBericht;
+    info: TSystemPlanet;
+    snr: Integer;
+begin
+  //ACHTUNG: Überladene Funktionen rufen sich nicht gegenseitig auf!
+
+  // Ändere Titel
+  Application.Title := 'cS [' + PositionToStrMond(Pos) + ']';
+
+  // Zeigt Generic Scan:
+  scan := ODataBase.UniTree.genericReport(Pos);
+  if scan.Head.Time_u >= 0 then
+  begin
+    // Suche Liste
+    SearchList(-1,scan.Head.Position);
+  end
+  else
+  begin
+    lst_others.Clear;    //Wenn nicht, zeige Sonnensystem-Informationen:
+    snr := ODataBase.UniTree.UniSys(Pos.P[0],Pos.P[1]);
+    if snr >= 0 then
+    begin
+      info := ODataBase.Systeme[snr].Planeten[Pos.P[2]];
+      Frame_Bericht1.ShowPlanetInfo(Pos,info);
+
+      ShowScanPanel();
+    end
+    else
+    begin
+      ShowScan(-1);   //Wenn keine Sonnensystem vorhanden, Zeige NIX!
+    end;
+  end;
+end;
+
+procedure TFRM_Main.ShowScan(NR: integer);
+var scan: TScanBericht;
+begin
+  //ACHTUNG: Überladene Funktionen rufen sich nicht gegenseitig auf!
+  
+  if ((NR >= 0)and(NR < ODataBase.Berichte.Count)) then
+  begin
+    scan := ODataBase.berichte[nr];
+
+    SearchList(nr,scan.Head.Position);
+    Application.Title := 'cS [' + PositionToStrMond(scan.Head.Position) + ']';
+    PaintScan(scan);
+  end
+  else
+  begin
+    Frame_Bericht1.Clear;
+    lst_others.Clear;
+  end;
+end;
+
+procedure TFRM_Main.lst_othersSelectItem(Sender: TObject; Item: TListItem;
+  Selected: Boolean);
+var Scan: TScanBericht;
+    nr: integer;
+begin
+  if Selected then
+  begin
+    nr := StrToInt(item.SubItems[0]);
+    if nr >= 0 then
+      Scan := ODataBase.Berichte[nr]
+    else
+      Scan := ODataBase.UniTree.genericReport(Frame_Bericht1.Bericht.Head.Position);
+       
+    PaintScan(Scan);
+  end;
+end;
+
+procedure TFRM_Main.FormCreate(Sender: TObject);
+begin
+  topmost := false;
+  StatusBar1.Panels[0].Text := STR_topmost;
+
+  TrayIco := TTrayIcon.Create(Self);
+  TrayIco.Icons := il_trayicon;
+  TrayIco.IconIndex := -1;
+  Caption := Caption + ' Uni ' + inttostr(ODataBase.UserUni) + ' User: ' + ODataBase.Username;
+  TrayIco.Hint := FRM_Main.Caption;
+  TrayIco.PopupMenu := TrayIconPopup;
+  TrayIco.OnDblClick := MainWindow1Click;
+  TrayIco.Visible := true;
+
+
+  SoundModul := TMusiPlayer.Create(Self);
+
+  if SaveCaptions then SaveAllCaptions(Self,LangFile);
+  if LoadCaptions then LoadAllCaptions(Self,LangFile);
+
+  LastClipBoard := clipboard.AsText;
+
+  OnClipboardContentChanged := FormClipboardContentChanged;
+  beenden := false;
+  eee := 0;
+  ODataBase.UniTree.OnSolSysChanged := ODB_UniTree_SolSysChanged;
+  ODataBase.UniTree.OnReportChanged := ODB_UniTree_ReportChanged;
+  IniFile := ODataBase.PlayerInf;
+  Frame_Bericht2.Style := 2;
+
+  LoadOptions;
+  if PlayerOptions.StartSystray then
+    Visible := False;
+
+  DockExplorer := TExplorer.Create(self, 1, 'Explorer_Main');
+  DockExplorer.dock(P_ExplorerDock,rect(0,0,P_ExplorerDock.ClientWidth,P_ExplorerDock.ClientHeight));
+  DockExplorer.Initialise(ODataBase.UserPosition);
+  DockExplorer.show;
+
+  LoadFormSizePos(IniFile,self);
+  RefreshDBListSize(Self);
+
+  ODataBase.LanguagePlugIn.OnAskMoon := LangPluginOnAskMoon;
+
+  StatusBar1.DoubleBuffered := True;
+end;
+
+procedure TFRM_Main.lst_othersCompare(Sender: TObject; Item1,
+  Item2: TListItem; Data: Integer; var Compare: Integer);
+begin
+  if StrToDateTime(Item1.SubItems[1]) > StrToDateTime(Item2.SubItems[1]) then
+  begin
+    Compare := -1;
+  end
+  else
+  begin
+    Compare := 1;
+  end;
+end;
+
+procedure TFRM_Main.BTN_DeleteClick(Sender: TObject);
+var p: TPlanetPosition;
+    item: TListItem;
+    list: TStringList;
+    i, ID: integer;
+begin
+  if lst_others.Selected = nil then
+    Exit;
+  
+  ID := strtoint(lst_others.Selected.SubItems[0]);
+  if ID < 0 then
+    Exit;
+  
+
+  if Application.MessageBox(
+       PChar(STR_Scans_Loeschen_text),
+       PChar(STR_Scans_Loeschen_title),
+       MB_OKCANCEL)
+     <> ID_OK then Exit;
+
+
+  //wichtig: der löschvorgang muss von hohem index zu niedrigen gehen!
+  if lst_others.SelCount > 0 then
+  begin
+    list := TStringList.Create;
+    p := ODataBase.Berichte[ID].Head.Position;
+    item := lst_others.Items[0];
+    while item <> nil do
+    begin
+      if item.Selected then
+      begin
+        list.Add(item.SubItems[0]);
+        item.Delete;
+      end;
+      if lst_others.Items.Count > 0 then
+      begin
+        if lst_others.Items[0].Selected then
+          item := lst_others.Items[0]
+        else                                 
+          item := lst_others.GetNextItem(lst_others.Items[0],sdAll,[isSelected]);
+      end
+      else
+        item := nil;
+    end;
+    list.Sort;
+    for i := list.Count-1 downto 0 do //rückwärts, weil, wenn du einen niederen index löscht, es sein kann, das die höheren nichtmehr stimmen, wohl aber die drunnter!
+      ODataBase.UniTree.DeleteReport(strtoint(list[i]));
+
+    list.Free;
+    lst_others.Items.Clear;
+    if (ODataBase.Uni[p.P[0],p.P[1]].Planeten[p.P[2],p.Mond].ScanBericht >= 0) then
+      ShowScan(ODataBase.Uni[p.P[0],p.P[1]].Planeten[p.P[2],p.Mond].ScanBericht);
+  end;
+end;
+
+function TFRM_Main.NewExplorer: TExplorer;
+var i : integer;
+begin
+  i := 0;
+  while (i < length(Explorer))and(Explorer[i].Visible) do
+  begin
+    inc(i);
+  end;
+
+  if i + 1 >= length(Explorer) then
+  begin
+    setlength(explorer,i+1);
+  end;
+
+  if explorer[i] = nil then explorer[i] := TExplorer.Create(Self,0,'Explorer_Extra_' + IntToStr(i));
+  
+  explorer[i].Initialise(ODataBase.UserPosition);
+  explorer[i].show;
+  Result := explorer[i];
+end;
+
+procedure TFRM_Main.NeuerGalaxyExplorer1Click(Sender: TObject);
+begin
+  NewExplorer;
+end;
+
+procedure TFRM_Main.Info1Click(Sender: TObject);
+begin
+  FRM_Info.ShowModal;
+end;
+
+procedure TFRM_Main.MainWindow1Click(Sender: TObject);
+begin
+  Show;
+  SetFocus;
+  BringToFront;
+end;
+
+procedure TFRM_Main.SearchList(nr: integer; pos: TPlanetPosition);
+var i: integer;                //nr -> damit ich weis welchen zum selektieren
+    item, gitem: TListItem;
+    list: TReportTimeList;
+    stime: TDateTime;
+    posscan: TScanBericht;
+begin
+  lst_others.Items.BeginUpdate;
+  posscan := Frame_Bericht1.Bericht;
+  posscan.Head.Position := pos;
+  Frame_Bericht1.Bericht := posscan;
+
+  try
+    lst_others.Items.Clear;
+
+    // Füge generic hinzu:
+    item := lst_others.Items.Add;
+    item.Caption := 'generic';
+    item.SubItems.Add('-1');  // SCAN ID
+    item.SubItems.Add(DateTimeToStr(now()+99999));  // Date
+    gitem := item;
+
+
+    list := ODataBase.UniTree.GetPlanetReportList(pos);
+    for i := 0 to length(list)-1 do
+    begin
+      item := lst_others.Items.Add;
+      stime := UnixToDateTime(list[i].Time_u);
+      if trunc(stime) = trunc(now) then //wenn Gleicher Tag
+        item.Caption := TimeToStr(stime)
+      else
+        item.Caption := DateTimeToStr(stime);
+
+      item.SubItems.add(inttostr(list[i].ID));
+      if (list[i].ID = nr) then
+        item.Selected := true;
+      item.SubItems.Add(DateTimeToStr(stime));
+
+      //Zähle vorhandene Scangruppen:
+      item.ImageIndex := GetScanGrpCount(ODataBase.Berichte[list[i].ID]);
+    end;
+
+    // Wenn NR nicht gefunden, generic markieren
+    if lst_others.Selected = nil then
+      gitem.Selected := true;
+
+  finally
+    lst_others.Items.EndUpdate;
+  end;
+end;
+
+procedure TFRM_Main.Beenden1Click(Sender: TObject);
+begin
+  Beenden := true;
+  Close;
+end;
+
+procedure TFRM_Main.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+  CanClose := (not CloseToSystray) or beenden or not((Mouse.CursorPos.x > Left + Width - 50)and(Mouse.CursorPos.x < Left + Width + 50)and
+                             (Mouse.CursorPos.y > Top - 50)and(Mouse.CursorPos.y < Top + 50));
+  Beenden := CanClose;
+  if not CanClose then
+  begin
+    DockExplorer.Hide;
+    Hide;
+  end
+  else
+  begin
+    inc(eee);
+    if eee = 1 then
+    begin
+      TrayIco.Visible := false;
+      DockExplorer.Release;
+      //Close;
+    end; 
+  end;
+end;
+
+procedure TFRM_Main.StatusBar1DrawPanel(StatusBar: TStatusBar;
+  Panel: TStatusPanel; const Rect: TRect);
+//var re : TRect;
+var c: TColor;
+begin
+  with StatusBar.Canvas do
+  begin
+    {re := Rect;
+    re.Right := trunc((Rect.Right-Rect.Left) * (StrToInt(Panel.Text) / 100)) + Rect.Left;
+    Brush.Color := StatusBar.Color;
+    FillRect(Rect);
+    Brush.Color := clBlue;
+    FillRect(re);}
+    case StrToInt(Panel.Text) of
+    0..70: c := clLime;
+    71..200: c := clYellow;
+    else c := clRed;
+    end;
+    Brush.Color := c;
+    FillRect(Rect);
+    TextOut(Rect.Left,Rect.Top,Panel.Text);
+  end;
+end;
+
+procedure TFRM_Main.RefreshDBListSize(Sender: TObject);
+begin
+  StatusBar1.Panels[2].Text := STR_Scanberichte + ': ' + IntToStr(ODataBase.Berichte.Count);
+  StatusBar1.Panels[3].Text := STR_Systeme + ': ' + IntToStr(ODataBase.Systeme.Count);
+end;
+
+procedure TFRM_Main.DirClick(Sender: TObject);
+begin
+  WinExec(PChar('"explorer" "' + ExtractFileDir(application.exename)), SW_SHOWNORMAL);
+end;
+
+procedure TFRM_Main.Export1Click(Sender: TObject);
+begin
+  FRM_Export.Show;
+end;
+
+procedure TFRM_Main.BTN_GalaxieClick(Sender: TObject);
+begin
+  if P_Scan.Visible then
+  begin
+    if ValidPosition(Frame_Bericht1.Bericht.Head.Position) then
+      ShowGalaxie(Frame_Bericht1.Bericht.Head.Position)
+    else
+      ShowGalaxie(ODataBase.UserPosition);
+  end
+  else
+  begin
+    ShowScanPanel;
+  end;
+end;
+
+procedure TFRM_Main.P_ExplorerDockResize(Sender: TObject);
+begin
+  if DockExplorer <> nil then
+  begin
+    DockExplorer.Width := P_ExplorerDock.ClientWidth;
+    Frame_Bericht2.Height := P_ExplorerDock.ClientHeight - DockExplorer.Height;
+  end;
+end;
+
+procedure TFRM_Main.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if key = integer('W') then
+  begin
+    BTN_GalaxieClick(Sender);
+  end;
+end;
+
+procedure TFRM_Main.Import2Click(Sender: TObject);
+begin
+  if OpenDialog1.Execute then
+  begin
+    ODataBase.ImportFile(OpenDialog1.FileName);
+  end;
+end;
+
+procedure TFRM_Main.FormShow(Sender: TObject);
+begin
+  if DockExplorer <> nil then
+    DockExplorer.Show;
+end;
+
+procedure TFRM_Main.lst_othersColumnClick(Sender: TObject;
+  Column: TListColumn);
+var i : integer;
+begin
+  for i := 0 to lst_others.Items.Count-1 do
+    lst_others.Items[i].Selected := true;
+end;
+
+procedure TFRM_Main.alsandererBenutzerneustarten1Click(Sender: TObject);
+begin
+  login := true;
+  Beenden1Click(self);
+end;
+
+procedure TFRM_Main.Einstellungen1Click(Sender: TObject);
+var i: integer;
+    form: TFRM_Einstellungen;
+begin
+  Form := TFRM_Einstellungen.Create(self);
+  
+  for i := 0 to length(FRM_Favoriten.FleetDefRessValues)-1 do
+    Form.FDRessValues[i] := FRM_Favoriten.FleetDefRessValues[i];
+  for i := 0 to length(FRM_Favoriten.FleetDefValues)-1 do
+    Form.FDValues[i] := FRM_Favoriten.FleetDefValues[i];
+
+
+  form.CH_AddNewScan.Checked := soAddNewScanToList in Einstellungen;
+  form.CH_ShowCountScan.Checked := soShowScanCountMessage in Einstellungen;
+  form.CH_Clipboard.Checked := CVActive;
+  form.txt_beep_sound_file.Text := PlayerOptions.Beep_SoundFile;
+  form.CH_Unicheck.Checked := soUniCheck in Einstellungen;
+  form.CH_Beep.Checked := soBeepByWatchClipboard in Einstellungen;
+  form.CH_AutoDelete.Checked := ODataBase.DeleteScansWhenAddSys;
+  form.ch_startupServer.Checked := soStartupServer in Einstellungen;
+  form.TXT_ServerStartPort.Text := IntToStr(PlayerOptions.ServerPort);
+  form.CH_change_sys.Checked := DockExplorer.folgeeingelesenenSystemen1.Checked;
+
+  form.TXT_SS.Text := LBL_WF_0_2.Caption;
+  form.TXT_gT.Text := LBL_WF_0_3.Caption;
+  form.TXT_Schlachter_Laderaum.Text := IntToStr(PlayerOptions.Schlachtschiff.space);
+  form.TXT_Transporter_Laderaum.Text := IntToStr(PlayerOptions.Transporter.space);
+  form.TXT_Schlachter_Treibstoff.Text := IntToStr(PlayerOptions.Schlachtschiff.oil);
+  form.TXT_Transporter_Treibstoff.Text := IntToStr(PlayerOptions.Transporter.oil);
+
+  form.TXT_RaidStart.Text := PositionToStrMond(PlayerOptions.StartPlanet);
+  form.TXT_Flugzeit.Text := TimeToStr(UnixToDateTime(PlayerOptions.Flugzeit_u));
+
+  form.redHours := ODataBase.redHours;
+  form.TXT_maxhourstoadd.Text := IntToStr(trunc(ODataBase.MaxTimeToAdd*24));
+  if PlayerOptions.AngriffsLogig = al_Drago then form.RB_Dragologic.Checked := True
+  else form.RB_PlanDBlogic.Checked := True;
+  form.CH_AutoUpdate.Checked := soAutoUpdateCheck in Einstellungen;
+  form.CH_MiniSysTray.Checked := CloseToSystray;
+
+  //Flotteneinstellugen (Raid-List)
+  form.cb_fleet_popup_enabled.Checked := PlayerOptions.Fleet_ShowArivalMessage;
+  form.txts_fleet_popup_time_s.Value := PlayerOptions.Fleet_AMSG_Time_s;
+  form.txt_fleet_alert_sound.Text := PlayerOptions.Fleet_Soundfile;
+  form.cb_fleet_alert_sound.Checked := PlayerOptions.Fleet_alert;
+  form.cb_auto_serverzeit.Checked := PlayerOptions.Fleet_auto_time_sync;
+
+  with cSServer.Users do
+  begin
+    LockUsers;
+    try
+      if (UserCount > 0) then
+      begin
+        form.ClientGroup := Users[0];
+
+        setlength(form.Groups,UserCount-1);
+        for i := 1 to UserCount-1 do
+          form.Groups[i-1] := Users[i];
+      end
+      else
+      begin
+        setlength(form.Groups,0);
+      end;
+    finally
+      UnlockUsers;
+    end;
+  end;
+
+  form.TXT_Allysuche.Text := PlayerOptions.SuchInet.Allianz;
+  form.TXT_Spielersuche.Text := PlayerOptions.SuchInet.Spieler;
+  form.TXT_SuchenName.Text := PlayerOptions.SuchInet.Name;
+
+  form.RB_Explorer_nurDatum.Checked := explorer_Zeitformat = ezf_Datum;
+  form.RB_Explorer_genaueZeitangabe.Checked := explorer_Zeitformat = ezf_DatumUhrzeit;
+  form.CH_explorer_MouseOver.Checked := explorer_mouseover;
+  form.TXT_TF_markierung_groesse.Text := IntToStr(explorer_TF_Size);
+
+  //Fake ClipboadViewer (für Linux/Wine)
+  form.CB_FakeClipbrdViewer.Checked := TIM_FakeCV.Enabled;
+  form.TXT_FakeCVIntervall.Text := IntToStr(TIM_FakeCV.Interval);
+
+  //Start im Hintergrund (minimze to systray at start)
+  form.cb_start_systray.Checked := PlayerOptions.StartSystray;
+
+  form.cb_auto_fav_list.Checked := (FRM_Favoriten.ListType = flt_all_auto_list);
+
+
+  if Form.ShowModal = mrOK then
+  begin
+    for i := 0 to length(FRM_Favoriten.FleetDefRessValues)-1 do
+       FRM_Favoriten.FleetDefRessValues[i] := Form.FDRessValues[i];
+    for i := 0 to length(FRM_Favoriten.FleetDefValues)-1 do
+       FRM_Favoriten.FleetDefValues[i] := Form.FDValues[i];
+
+    Einstellungen := [];
+    if form.CH_AddNewScan.Checked then include(Einstellungen,soAddNewScanToList);
+    if form.CH_ShowCountScan.Checked then include(Einstellungen,soShowScanCountMessage);
+    CVActive := form.CH_Clipboard.Checked;
+    if form.CH_Beep.Checked then include(Einstellungen,soBeepByWatchClipboard);
+    PlayerOptions.Beep_SoundFile := form.txt_beep_sound_file.Text;
+    if form.CH_Unicheck.Checked then Include(Einstellungen,soUniCheck);
+    DockExplorer.folgeeingelesenenSystemen1.Checked := form.CH_change_sys.Checked;
+    ODataBase.DeleteScansWhenAddSys := form.CH_AutoDelete.Checked;
+    if form.ch_startupServer.Checked then Include(Einstellungen,soStartupServer);
+    PlayerOptions.ServerPort := StrToInt(form.TXT_ServerStartPort.Text);
+
+    LBL_WF_0_2.Caption := form.TXT_SS.Text;
+    LBL_WF_0_3.Caption := form.TXT_gT.Text;
+    PlayerOptions.Schlachtschiff.space := StrToIntDef(form.TXT_Schlachter_Laderaum.Text,PlayerOptions.Schlachtschiff.space);
+    PlayerOptions.Transporter.space := StrToIntDef(form.TXT_Transporter_Laderaum.Text,PlayerOptions.Transporter.space);
+    PlayerOptions.Schlachtschiff.oil := StrToIntDef(form.TXT_Schlachter_Treibstoff.Text,PlayerOptions.Schlachtschiff.oil);
+    PlayerOptions.Transporter.oil := StrToIntDef(form.TXT_Transporter_Treibstoff.Text,PlayerOptions.Transporter.oil);
+
+    PlayerOptions.StartPlanet := StrToPosition(form.TXT_RaidStart.Text);
+    try
+      PlayerOptions.Flugzeit_u := DateTimeToUnix(StrToTime(form.TXT_Flugzeit.Text));
+    except
+      ShowMessage(STR_MSG_Cant_ReadFlyTime);
+    end;
+
+    ODataBase.redHours := form.redHours;
+    ODataBase.MaxTimeToAdd := StrToIntDef(form.TXT_maxhourstoadd.Text,trunc(ODataBase.MaxTimeToAdd*24))/24;
+    if form.RB_Dragologic.Checked then PlayerOptions.AngriffsLogig := al_Drago
+    else PlayerOptions.AngriffsLogig := al_PlanDB;
+    if form.CH_AutoUpdate.Checked then include(Einstellungen,soAutoUpdateCheck);
+    CloseToSystray := form.CH_MiniSysTray.Checked;
+
+    with cSServer.Users do
+    begin
+      LockUsers;
+      try
+        if (UserCount = 0) then
+          AddUser(form.ClientGroup)
+        else Users[0] := form.ClientGroup;
+
+        UserCount := 1 + length(form.Groups);
+
+        for i := 0 to length(form.Groups)-1 do
+          Users[i+1] := form.Groups[i];
+      finally
+        UnlockUsers;
+      end;
+    end;
+
+    PlayerOptions.SuchInet.Allianz := form.TXT_Allysuche.Text;
+    PlayerOptions.SuchInet.Spieler := form.TXT_Spielersuche.Text;
+    PlayerOptions.SuchInet.Name := form.TXT_SuchenName.Text;
+
+    if form.RB_Explorer_nurDatum.Checked then explorer_Zeitformat := ezf_Datum else explorer_Zeitformat := ezf_DatumUhrzeit;
+    explorer_mouseover := form.CH_explorer_MouseOver.Checked;
+    explorer_TF_Size := StrToInt(form.TXT_TF_markierung_groesse.Text);
+
+    //Fake ClipboadViewer (für Linux/Wine)
+    TIM_FakeCV.Enabled := form.CB_FakeClipbrdViewer.Checked;
+    TIM_FakeCV.Interval := StrToInt(form.TXT_FakeCVIntervall.Text);
+
+    //Start im Hintergrund (minimze to systray at start)
+    PlayerOptions.StartSystray := form.cb_start_systray.Checked;
+
+    //Flotteneinstellugen (Raid-List)
+    PlayerOptions.Fleet_ShowArivalMessage := form.cb_fleet_popup_enabled.Checked;
+    PlayerOptions.Fleet_AMSG_Time_s := form.txts_fleet_popup_time_s.Value;
+    PlayerOptions.Fleet_Soundfile := form.txt_fleet_alert_sound.Text;
+    PlayerOptions.Fleet_alert := form.cb_fleet_alert_sound.Checked;
+    PlayerOptions.Fleet_auto_time_sync := form.cb_auto_serverzeit.Checked;
+
+    if form.cb_auto_fav_list.Checked then
+      FRM_Favoriten.ListType := flt_all_auto_list
+    else
+      FRM_Favoriten.ListType := flt_list;
+  end;
+  Form.free;
+end;
+
+procedure TFRM_Main.ODB_UniTree_ReportChanged(Sender: TObject; Pos: TPlanetPosition);
+var nr: Integer;
+begin
+  nr := ODataBase.UniTree.UniReport(pos);
+  if (soAddNewScanToList in Einstellungen)and(nr >= 0)and
+     (
+      (ODataBase.MaxTimeToAdd = 0)or
+      (now-UnixToDateTime(ODataBase.Berichte[nr].Head.Time_u) < ODataBase.MaxTimeToAdd)
+      ) then
+    FRM_Favoriten.Add(Pos);
+
+  ODB_UniTree_SolSysChanged(Sender,Pos);
+
+  //Aktualisiere EigeneScan-Liste:
+  if (SamePlanet(Pos, Frame_Bericht1.Bericht.Head.Position)) then
+  begin
+    ShowScan(pos);
+  end;
+end;
+
+procedure TFRM_Main.RefreshExplorers(P: TPlanetPosition);
+var i: integer;
+begin
+  for i := 0 to length(Explorer)-1 do
+    if explorer[i].Visible = true then
+      explorer[i].NewSysAtPos(P);
+      
+  if DockExplorer <> nil then
+    DockExplorer.NewSysAtPos(P);
+end;
+
+procedure TFRM_Main.ODB_UniTree_SolSysChanged(Sender: TObject;
+  Pos: TPlanetPosition);
+begin
+  RefreshDBListSize(Self);
+  RefreshExplorers(Pos);
+end;
+
+procedure TFRM_Main.Frame_Bericht1Copy1Click(Sender: TObject);
+begin
+  Frame_Bericht1.Copy1Click(Sender);
+end;
+
+procedure TFRM_Main.Frame_Bericht1KopiereinTabellenform1Click(
+  Sender: TObject);
+begin
+  Frame_Bericht1.KopiereinTabellenform1Click(Sender);
+end;
+
+procedure TFRM_Main.P_WFResize(Sender: TObject);
+begin
+  LBL_WF_1.Left := LBL_WF_0_1.Left + LBL_WF_0_1.Width;
+  LBL_WF_1.Width := (P_WF.ClientWidth - LBL_WF_0_1.Left - LBL_WF_0_1.Width)div 3;
+  LBL_WF_2.Left := LBL_WF_1.Left + LBL_WF_1.Width;
+  LBL_WF_2.Width := LBL_WF_1.Width;
+  LBL_WF_3.Left := LBL_WF_2.Left + LBL_WF_2.Width;
+  LBL_WF_3.Width := P_WF.ClientWidth - LBL_WF_3.Left-2;
+end;
+
+procedure TFRM_Main.PaintScan(scan: TScanBericht);
+var gpi: TPlayerInformation;
+begin
+  Frame_Bericht1.Bericht := NewScanBericht(Scan);
+
+  if P_Scan.Visible = false then
+  begin
+    ShowScanPanel;
+  end;
+
+  //Suche Forschungen:
+  with Frame_Bericht1.Bericht do
+  if (Bericht[sg_Forschung][0] = -1) then
+  begin
+    gpi := ODataBase.UniTree.Player.GetPlayerInfo(Head.Spieler);
+    if (gpi.Name <> '') then
+    begin
+      Frame_Bericht1.Add_PlayerInfo(gpi);
+    end;
+  end;
+  Frame_Bericht1.Report_Refresh;
+  Wellenangriff(Frame_Bericht1.Bericht);
+end;
+
+procedure TFRM_Main.BTN_UniversumClick(Sender: TObject);
+begin
+  FRM_Uebersicht.Show;
+end;
+
+procedure TFRM_Main.call_fleet_link(pos: TPlanetPosition; job: TFleetEventType);
+{var s: string;
+begin
+  s := getFleetLink(pos, job);
+  if s <> '' then
+    ShellExecute(Self.Handle,'open',PChar(s),'','',0);
+end;}
+begin
+  ODataBase.LanguagePlugIn.CallFleet(pos, job);
+end;
+
+
+function TFRM_Main.NewSearch: TFRM_Suche;
+var i : integer;
+begin
+  i := 0;
+  while (i < length(Suchen))and(Suchen[i].Visible) do
+  begin
+    inc(i);
+  end;
+
+  if i >= length(Suchen) then
+  begin
+    setlength(Suchen,i+1);
+  end else Suchen[i].Free;
+
+  Suchen[i] := TFRM_Suche.Create(FRM_Main);
+
+  Result := Suchen[i];
+  Suchen[i].Show;
+end;
+
+procedure TFRM_Main.BTN_SucheClick(Sender: TObject);
+begin
+  NewSearch;
+end;
+
+procedure TFRM_Main.BTN_ListeClick(Sender: TObject);
+begin
+  FRM_Favoriten.show;
+end;
+
+procedure TFRM_Main.ShowGalaxie(pos: TPlanetPosition);
+begin
+  DockExplorer.Initialise(Pos);
+  ShowExplorerPanel;
+  BringToFront;
+end;
+
+procedure TFRM_Main.ShowSmallScan(P: TPlanetPosition);
+var i: integer;
+    gpi: TPlayerInformation;
+begin
+  i := ODataBase.UniTree.UniReport(P);
+  if (i >= 0) then
+  begin
+    P_ExplorerDockResize(self);
+    Frame_Bericht2.Bericht := ODataBase.UniTree.genericReport(P);
+    with Frame_Bericht2.Bericht do
+      if (Bericht[sg_Forschung][0] = -1) then
+      begin
+        gpi := ODataBase.UniTree.Player.GetPlayerInfo(Head.Spieler);
+        if (gpi.Name <> '') then
+        begin
+          Frame_Bericht2.Add_PlayerInfo(gpi);
+        end;
+      end;
+    Frame_Bericht2.Report_Refresh;
+  end
+  else
+  begin
+    Frame_Bericht2.Clear;
+  end;
+end;
+
+procedure TFRM_Main.Spionage1Click(Sender: TObject);
+begin
+  call_fleet_link(Frame_Bericht1.Bericht.Head.Position, fet_espionage);
+end;
+
+procedure TFRM_Main.OpenInBrowser(url: String);
+var TSI: TStartupInfo;
+    TPI: TProcessInformation;
+const X = 0;
+      Y = 0;
+      Xs = 500;
+      Ys = 500;
+begin
+  FillChar(TSI,sizeof(TSI),0);
+  TSI.dwX := X;
+  TSI.dwY := Y;
+  TSI.dwXSize := Xs;
+  TSI.dwYSize := Ys;
+  TSI.dwFlags := STARTF_USEPOSITION or STARTF_USESIZE;
+  CreateProcess(nil,PCHAR(url),nil,nil,False,NORMAL_PRIORITY_CLASS,nil,nil,TSI,TPI);
+end;
+
+procedure TFRM_Main.Wellenangriff(Scan: TScanbericht);
+var Ress,TR_Transporter,TR_Schlachtschiff: integer;
+{$IFDEF spacepioneers} Ress2: integer; {$ENDIF}
+    WBRec_Schl: TWBRec;
+    WBRec_Trans: TWBRec;
+begin
+  Ress := Frame_Bericht1.Bericht.Bericht[sg_Rohstoffe][0]+
+          Frame_Bericht1.Bericht.Bericht[sg_Rohstoffe][1]+
+          Frame_Bericht1.Bericht.Bericht[sg_Rohstoffe][2];
+  {$IFNDEF spacepioneers}
+  if PlayerOptions.AngriffsLogig = al_Drago then
+  begin
+    WBRec_Schl.Scan := Scan;
+    WBRec_Schl.StartPlanet := PlayerOptions.StartPlanet;
+    WBRec_Schl.ZielPlanet := Scan.Head.Position;
+    WBRec_Schl.Ship := PlayerOptions.Schlachtschiff;
+    WBRec_Trans := WBRec_Schl;
+    WBRec_Trans.Ship := PlayerOptions.Transporter;
+
+    Ress := Ress div 2;
+    LBL_WF_1.Caption := FloatToStrF(Ress,ffNumber,60000000,0) + #10 + #13 +
+                        IntToStr(CalcDragoShips(WBRec_Schl,1)) + #10 + #13 +
+                        IntToStr(CalcDragoShips(WBRec_Trans,1));
+    Ress := Ress div 2;
+    LBL_WF_2.Caption := FloatToStrF(Ress,ffNumber,60000000,0) + #10 + #13 +
+                        IntToStr(CalcDragoShips(WBRec_Schl,2)) + #10 + #13 +
+                        IntToStr(CalcDragoShips(WBRec_Trans,2));
+    Ress := Ress div 2;
+    LBL_WF_3.Caption := FloatToStrF(Ress,ffNumber,60000000,0) + #10 + #13 +
+                        IntToStr(CalcDragoShips(WBRec_Schl,3)) + #10 + #13 +
+                        IntToStr(CalcDragoShips(WBRec_Trans,3));
+  end
+  else
+  begin
+    Ress := Ress div 2;
+    TR_Transporter := 0;
+    TR_Schlachtschiff := 0;
+    LBL_WF_1.Caption := FloatToStrF(Ress,ffNumber,60000000,0) + #10 + #13 +
+                        IntToStr(ceil(Ress / (PlayerOptions.Schlachtschiff.space-TR_Schlachtschiff))) + #10 + #13 +
+                        IntToStr(ceil(Ress / (PlayerOptions.Transporter.space-TR_Transporter)));
+    Ress := Ress div 2;
+    LBL_WF_2.Caption := FloatToStrF(Ress,ffNumber,60000000,0) + #10 + #13 +
+                        IntToStr(ceil(Ress / (PlayerOptions.Schlachtschiff.space-TR_Schlachtschiff))) + #10 + #13 +
+                        IntToStr(ceil(Ress / (PlayerOptions.Transporter.space-TR_Transporter)));
+    Ress := Ress div 2;
+    LBL_WF_3.Caption := FloatToStrF(Ress,ffNumber,60000000,0) + #10 + #13 +
+                        IntToStr(ceil(Ress / (PlayerOptions.Schlachtschiff.space-TR_Schlachtschiff))) + #10 + #13 +
+                        IntToStr(ceil(Ress / (PlayerOptions.Transporter.space-TR_Transporter)));
+  end;
+  {$ELSE}
+  Ress2 := Ress;
+  Ress := Ress div 2;
+
+  LBL_WF_1.Caption := IntToStrKP(Ress) + ' / ' + IntToStrKP(trunc(Ress2*0.6)) + #10 + #13 +
+                      IntToStr(ceil(Ress / (PlayerOptions.Schlachtschiff.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Schlachtschiff.space))) + #10 + #13 +
+                      IntToStr(ceil(Ress / (PlayerOptions.Transporter.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Transporter.space)));
+
+  Ress2 := Ress2 - trunc(Ress2 * 0.6);
+  Ress := Ress div 2;
+
+  LBL_WF_2.Caption := IntToStrKP(Ress) + ' / ' + IntToStrKP(trunc(Ress2*0.6)) + #10 + #13 +
+                      IntToStr(ceil(Ress / (PlayerOptions.Schlachtschiff.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Schlachtschiff.space))) + #10 + #13 +
+                      IntToStr(ceil(Ress / (PlayerOptions.Transporter.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Transporter.space)));
+
+  Ress2 := Ress2 - trunc(Ress2 * 0.6);
+  Ress := Ress div 2;
+
+  LBL_WF_3.Caption := IntToStrKP(Ress) + ' / ' + IntToStrKP(trunc(Ress2*0.6)) + #10 + #13 +
+                      IntToStr(ceil(Ress / (PlayerOptions.Schlachtschiff.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Schlachtschiff.space))) + #10 + #13 +
+                      IntToStr(ceil(Ress / (PlayerOptions.Transporter.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Transporter.space)));
+  {$ENDIF}
+end;
+
+procedure TFRM_Main.BTN_TopmostClick(Sender: TObject);
+begin
+  topmost := not topmost;
+
+  {if BTN_Topmost.Down then
+    FormStyle := fsStayOnTop
+  else
+    FormStyle := fsNormal;} //alt (hatt manchmal komische probleme mit Kernel.dll gemacht (erst nach winXP-themeunterstützung)
+  if topmost
+    then SetWindowPos(Handle,HWND_TOPMOST,0,0,0,0,SWP_NOMOVE OR SWP_NOSIZE)
+    else SetWindowPos(Handle,HWND_NOTOPMOST,0,0,0,0,SWP_NOMOVE OR SWP_NOSIZE);
+
+  if topmost
+    then StatusBar1.Panels[0].Text := STR_normal
+    else StatusBar1.Panels[0].Text := STR_topmost;
+end;
+
+procedure TFRM_Main.FormMouseWheel(Sender: TObject; Shift: TShiftState;
+  WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+begin
+  if P_Scan.Visible then
+    Frame_Bericht1.OnMouseWheel(Sender,Shift,WheelDelta,MousePos,Handled)
+  else Frame_Bericht2.OnMouseWheel(Sender,Shift,WheelDelta,MousePos,Handled);
+end;
+
+procedure TFRM_Main.updatecheck1Click(Sender: TObject);
+var aktuell: string;
+begin
+  aktuell := CheckNewestVersion;
+  if (aktuell <= VNumber)and(aktuell <> '') then
+    ShowMessage(STR_MSG_Aktuellste_Version)
+  else
+    if aktuell <> '' then
+    begin
+      if Application.MessageBox(PCHar(STR_MSG_aktuellere_Version + aktuell + #13 + #10 + STR_ASK_Homepage_oeffnen),PChar(STR_Neue_Version),MB_YESNO or MB_ICONQUESTION) = idYes then
+      begin
+        ShellExecute(Self.Handle,'open',PChar('http://www.creatureScan.creax.de'),'','',0);
+      end;
+    end
+    else
+      ShowMessage(STR_MSG_konnte_aktuellste_Version_nicht_ermitteln);
+end;
+
+procedure TFRM_Main.TIM_StartTimer(Sender: TObject);
+var Version: String;
+    OldFile: String;
+begin
+  TIM_Start.Enabled := False;
+
+  //Alte Scandatei importieren
+  OldFile := ODataBase.SaveDir + inttostr(ODataBase.LangIndex) + '_Spioarchiv' + IntToStr(ODataBase.UserUni) + '.csscan.old';
+  if FileExists(OldFile) then
+  begin
+    ODataBase.ImportFile(OldFile);
+    if Application.MessageBox(PChar(STR_ScanImportFertig_loeschn),'cS Import',MB_YESNO) = idYes then
+      DeleteFile(OldFile)
+    else RenameFile(OldFile,OldFile+'.csscan');
+  end;
+  //Alte Sysdatei Importieren
+  OldFile := ODataBase.SaveDir + Inttostr(ODataBase.LangIndex) + '_Universum' + IntToStr(ODataBase.UserUni) + '.cssys.old';
+  if FileExists(OldFile) then
+  begin
+    ODataBase.ImportFile(OldFile);
+    if Application.MessageBox(PChar(STR_SysImportFertig_loeschn),'cS Import',MB_YESNO) = idYes then
+      DeleteFile(OldFile)
+    else RenameFile(OldFile,OldFile+'.cssys');
+  end;
+
+  if soAutoUpdateCheck in Einstellungen then
+  begin
+    Version := CheckNewestVersion;
+    if (Version <> '')and(Version > VNumber) then
+      if Application.MessageBox(PCHar(STR_MSG_aktuellere_Version + Version + #13 + #10 + STR_ASK_Homepage_oeffnen),PChar(STR_Neue_Version),MB_YESNO or MB_ICONQUESTION) = idYes then
+      begin
+        ShellExecute(Self.Handle,'open',PChar('http://www.creatureScan.creax.de'),'','',0);
+      end;
+  end;
+  if (soStartupServer in Einstellungen) then
+  begin
+    FRM_Connections.SpinEdit1.Value := PlayerOptions.ServerPort;
+    FRM_Connections.CheckBox1.Checked := True;
+  end;
+
+  if (PlayerOptions.StartSystray) then
+  begin
+    //siehe CloseQuery!
+    DockExplorer.Hide;
+    Hide;
+  end;
+end;
+
+procedure TFRM_Main.Zwischenablageberwachen1Click(Sender: TObject);
+begin
+  Zwischenablageberwachen1.Checked := not Zwischenablageberwachen1.Checked;
+  CVActive := Zwischenablageberwachen1.Checked;
+end;
+
+procedure TFRM_Main.SetCVActive(B: Boolean);
+begin
+  inherited;
+  SetTrayIcon_();
+end;
+
+procedure TFRM_Main.SetTrayIcon_;
+begin  //aktualisiert das TrayIcon
+  if CVActive then
+    TrayIco.IconIndex := 1
+  else
+    TrayIco.IconIndex := 0;
+  {if CVActive then
+    TrayIco.Icons := cs_aktive
+  else TrayIco.Icons := cs_deaktive;
+  TrayIco.Animate := True;
+  TrayIco.AnimateInterval := 0;}
+end;
+
+procedure TFRM_Main.SuchenErsetzen1Click(Sender: TObject);
+begin
+  FRM_Suchen_Ersetzen.Show;
+end;
+
+procedure TFRM_Main.Languagefile1Click(Sender: TObject);
+begin
+  LanguageFile(ExtractFilePath(Application.ExeName)+'Lang\de_muster.cSlgn');
+end;
+
+function TFRM_Main.RaidDialog(var Fleet: TFleetEvent): boolean;
+var form: TFRM_Add_Raid;
+begin
+  form := TFRM_Add_Raid.Create(self);
+  try
+    form.Fleet := Fleet;
+    if Fleet.head.arrival_time_u = -1 then
+      form.ResetTime(PlayerOptions.Flugzeit_u);
+
+    Result := form.ShowModal = mrOK;
+    if Result then
+    begin
+      Fleet := form.Fleet;
+      Fleet.head.unique_id := -3; // "Selbstgemacht" (Per hand eingegeben")
+    end;
+  finally
+    form.Free;
+  end;
+end;
+
+procedure TFRM_Main.RaidDialog(Position: TPlanetPosition);
+var SB: TScanBericht;
+    rd: TFleetEvent;
+     g, i: Integer;
+begin
+  if not ValidPosition(Position) then
+    exit;
+
+  fillchar(rd,sizeof(rd),0);
+
+  rd.head.eventtype := fet_attack;
+  rd.head.origin := PlayerOptions.StartPlanet;
+  rd.head.target := Position;
+
+  g := ODataBase.UniTree.UniReport(Position);
+  if g >= 0 then
+  begin
+    SB := ODataBase.Berichte[g];
+    if length(SB.Bericht[sg_Rohstoffe]) = 4 then
+    begin
+      SetLength(rd.ress,3);
+      for i := 0 to 2 do
+        rd.ress[i] := SB.Bericht[sg_Rohstoffe][i] div 2;
+    end;
+  end
+  else
+  begin
+    // Trotzdem muss des Ress-Array gefüllt werden:
+    SetLength(rd.ress,3);
+    for i := 0 to 2 do
+      rd.ress[i] := 0;
+  end;
+
+  rd.head.arrival_time_u := -1; //siehe überladene Funktion
+
+  if RaidDialog(rd) then
+  begin
+    ODataBase.FleetBoard.AddFleet(rd);
+  end;
+end;
+
+procedure TFRM_Main.Raideintragen1Click(Sender: TObject);
+begin
+  RaidDialog(Frame_Bericht1.Bericht.Head.Position);
+end;
+
+procedure TFRM_Main.Scanslschen1Click(Sender: TObject);
+begin
+  FRM_Delete_Scans.Show;
+end;
+
+procedure TFRM_Main.SucheImInet(Typ: TSuchInetTyp; Allianz, Player: String;
+  Uni: Integer);
+var s: string;
+procedure SetzePlatzhalter(var Line: String; Variable, Wert: string);
+var i: integer;
+begin
+  i := pos(Variable,s);
+  if i > 0 then
+  begin
+    s := copy(s,1,i-1) + Wert + copy(s,i+length(Variable),length(s)-i);
+  end;
+end;
+begin
+  case Typ of
+    sitPlayer: s := PlayerOptions.SuchInet.Spieler;
+    sitAllanz: s := PlayerOptions.SuchInet.Allianz;
+  else s := '';
+  end;
+  SetzePlatzhalter(s,'%P',Player);
+  SetzePlatzhalter(s,'%A',Allianz);
+  SetzePlatzhalter(s,'%U',IntToStr(Uni));
+  ShellExecute(Self.Handle,'open',PChar(s),'','',0);
+end;
+
+procedure TFRM_Main.LoadOptions;
+var ini: TIniFile;
+begin
+  ini := TIniFile.Create(IniFile);
+  Dir.Visible := ini.ReadBool(GeneralSection,'ShowDirButton',False);
+  Test1.Visible := Dir.Visible;
+  Einstellungen := [];
+  if ini.ReadBool(GeneralSection,'AddNewScanToList',true) then include(Einstellungen,soAddNewScanToList);
+  if ini.ReadBool(GeneralSection,'ShowScanCountMessage',false) then include(Einstellungen,soShowScanCountMessage);
+  if ini.ReadBool(GeneralSection,'BeepByWatchClipboard',false) then include(Einstellungen,soBeepByWatchClipboard);
+  if ini.readBool(GeneralSection,'soUniCheck',false) then include(Einstellungen,soUniCheck);
+  if ini.ReadBool(GeneralSection,'soStartupServer',false) then include(Einstellungen,soStartupServer);
+  CVActive := ini.ReadBool(GeneralSection,'WatchClipboard',false);
+  PlayerOptions.ServerPort := ini.ReadInteger(GeneralSection,'StartupServerPort',44456);
+
+  LBL_WF_0_2.Caption := ini.ReadString(GeneralSection,'Schlachtschiff_Name',LBL_WF_0_2.Caption);
+  LBL_WF_0_3.Caption := ini.ReadString(GeneralSection,'Transporter_Name',LBL_WF_0_3.Caption);
+
+  PlayerOptions.Transporter.space := ini.ReadInteger(GeneralSection,'Transporter_space',Transporter_space);
+  PlayerOptions.Transporter.oil := ini.ReadInteger(GeneralSection,'Transporter_oil',Transporter_oil);
+  PlayerOptions.Schlachtschiff.space := ini.ReadInteger(GeneralSection,'Schlachtschiff_space',Schlachtschiff_space);
+  PlayerOptions.Schlachtschiff.oil := ini.ReadInteger(GeneralSection,'Schlachtschiff_oil',Schlachtschiff_oil);
+
+  PlayerOptions.StartPlanet := StrToPosition(ini.ReadString(GeneralSection,'RaidPlanet',PositionToStrMond(ODataBase.UserPosition)));
+  PlayerOptions.Flugzeit_u := StrToInt64Def(ini.ReadString(GeneralSection,'Flugzeit',''),60*50);
+  PlayerOptions.AngriffsLogig := TAngriffslogig(ini.ReadInteger(GeneralSection,'AngriffsLogig',0));
+  if ini.ReadBool(GeneralSection,'AutoUpdateCheck',True) then include(Einstellungen,soAutoUpdateCheck);
+  CloseToSystray := ini.ReadBool(GeneralSection,'CloseToSysTray',True);
+  PlayerOptions.SuchInet.Name := ini.ReadString(GeneralSection,'Suche_Name','ostat.de');
+  PlayerOptions.SuchInet.Spieler := ini.ReadString(GeneralSection,'Suche_Spieler','http://uni%U.ostat.de/index.php?ext=player&name=%P');
+  PlayerOptions.SuchInet.Allianz := ini.ReadString(GeneralSection,'Suche_Allianz','http://uni%U.ostat.de/index.php?ext=allyueber&name=%A');
+
+  PlayerOptions.phpPost := ini.ReadString(GeneralSection,'phpPOSTAdrs','');
+
+  //Fake ClipboadViewer (für Linux/Wine)
+  TIM_FakeCV.Enabled := ini.ReadBool(GeneralSection, 'FakeCVEnabled', TIM_FakeCV.Enabled);
+  TIM_FakeCV.Interval := ini.ReadInteger(GeneralSection, 'FakeCVInterval', TIM_FakeCV.Interval);
+
+  //Start im Hintergrund (minimze to systray at start)
+  PlayerOptions.StartSystray := ini.ReadBool(GeneralSection, 'StartSystray', false);
+
+  SaveLoad_SimpleOptions(ini,false);
+
+  Frame_Bericht1.LoadOptions(ini);
+  Frame_Bericht2.LoadOptions(ini);
+
+  explorer_load(ini); //generelle explorer-einstellungen
+
+  ini.Free;
+end;
+
+procedure TFRM_Main.SaveOptions;
+var ini: TIniFile;
+begin
+  SaveFormSizePos(IniFile,self);
+
+  ini := TIniFile.Create(IniFile);
+
+  ini.WriteBool(GeneralSection,'AddNewScanToList',soAddNewScanToList in Einstellungen);
+  ini.WriteBool(GeneralSection,'ShowScanCountMessage',soShowScanCountMessage in Einstellungen);
+  ini.WriteBool(GeneralSection,'BeepByWatchClipboard',soBeepByWatchClipboard in Einstellungen);
+  ini.WriteBool(GeneralSection,'soUniCheck',soUniCheck in Einstellungen);
+  ini.WriteBool(GeneralSection,'AutoUpdateCheck',soAutoUpdateCheck in Einstellungen);
+  ini.WriteBool(GeneralSection,'CloseToSysTray',CloseToSystray);
+  ini.WriteBool(GeneralSection,'WatchClipboard',CVActive);
+  ini.WriteBool(GeneralSection,'soStartupServer',soStartupServer in Einstellungen);
+
+  ini.WriteString(GeneralSection,'Schlachtschiff_Name',LBL_WF_0_2.Caption);
+  ini.WriteString(GeneralSection,'Transporter_Name',LBL_WF_0_3.Caption);
+
+  ini.WriteInteger(GeneralSection,'StartupServerPort',PlayerOptions.ServerPort);
+  ini.WriteInteger(GeneralSection,'Transporter_space',PlayerOptions.Transporter.space);
+  ini.WriteInteger(GeneralSection,'Transporter_oil',PlayerOptions.Transporter.oil);
+  ini.WriteInteger(GeneralSection,'Schlachtschiff_space',PlayerOptions.Schlachtschiff.space);
+  ini.WriteInteger(GeneralSection,'Schlachtschiff_oil',PlayerOptions.Schlachtschiff.oil);
+
+  ini.WriteString(GeneralSection,'RaidPlanet',PositionToStrMond(PlayerOptions.StartPlanet));
+  ini.WriteString(GeneralSection,'Flugzeit',IntToStr(PlayerOptions.Flugzeit_u));
+  ini.WriteInteger(GeneralSection,'AngriffsLogig',integer(PlayerOptions.AngriffsLogig));
+  ini.WriteString(GeneralSection,'Suche_Name',PlayerOptions.SuchInet.Name);
+  ini.WriteString(GeneralSection,'Suche_Spieler',PlayerOptions.SuchInet.Spieler);
+  ini.WriteString(GeneralSection,'Suche_Allianz',PlayerOptions.SuchInet.Allianz);
+
+  ini.WriteString(GeneralSection,'phpPOSTAdrs',PlayerOptions.phpPost);
+
+  //Fake ClipboadViewer (für Linux/Wine)
+  ini.WriteBool(GeneralSection, 'FakeCVEnabled', TIM_FakeCV.Enabled);
+  ini.WriteInteger(GeneralSection, 'FakeCVInterval', TIM_FakeCV.Interval);
+
+  //Start im Hintergrund (minimze to systray at start)
+  ini.WriteBool(GeneralSection, 'StartSystray', PlayerOptions.StartSystray);
+
+  SaveLoad_SimpleOptions(ini,true);
+
+  Frame_Bericht1.SaveOptions(ini);
+  Frame_Bericht2.SaveOptions(ini);
+
+  explorer_save(ini); //generelle explorer-einstellungen
+
+  ini.UpdateFile;
+  ini.free;
+end;
+
+procedure TFRM_Main.Einlesen1Click(Sender: TObject);
+var dialog: TFRM_Stats_Einlesen;
+    tim_en: Boolean;
+begin
+  tim_en := CVActive;
+  CVActive := False;
+  dialog := TFRM_Stats_Einlesen.Create(Self);
+
+  dialog.TXT_punkte.Text := IntToStrKP(ODataBase.Stats_own);
+  dialog.TXT_fleet.Text := IntToStrKP(ODataBase.FleetStats_own);
+  dialog.TXT_Ally.Text := IntToStrKP(ODataBase.AllyStats_own);
+
+  if dialog.ShowModal = mrOK then
+  begin
+    ODataBase.Stats_own := ReadInt(dialog.TXT_punkte.Text, 1);
+    ODataBase.FleetStats_own := ReadInt(dialog.TXT_fleet.Text, 1);
+    ODataBase.AllyStats_own := ReadInt(dialog.TXT_Ally.Text, 1);
+  end;
+  dialog.free;
+  CVActive := tim_en;
+end;
+
+procedure TFRM_Main.FormClipboardContentChanged(Sender: TObject);
+begin
+  TIM_afterClipboardchange.Enabled := True;
+end;
+
+procedure TFRM_Main.NetConnections1Click(Sender: TObject);
+begin
+  FRM_Connections.show;
+end;
+
+procedure TFRM_Main.Angriff1Click(Sender: TObject);
+begin
+  call_fleet_link(Frame_Bericht1.Bericht.Head.Position, fet_attack);
+end;
+
+procedure TFRM_Main.ApplicationEvents1Message(var Msg: tagMSG;
+  var Handled: Boolean);
+var key: word;
+begin
+  if Msg.message = WM_MOUSESpezialKeyUp then
+  begin
+    key := integer('W');
+    if (Msg.WParam and svk_back) > 0 then
+      KeyDown(key,[]);
+    {if (message.WParam and svk_forward) > 0 then
+      Label1.Caption := 'vor up';}
+  end;
+end;
+
+procedure TFRM_Main.TIM_afterClipboardchangeTimer(Sender: TObject);
+var Text, Html: string;
+    i: integer;
+begin
+  TIM_afterClipboardchange.Enabled := False;
+
+  i := 0;
+  while (i < 10)and(not OpenClipboard) do
+  begin
+    sleep(20);
+    inc(i);
+  end;
+  if i >= 10 then Exit;
+  
+  try
+    Html := GetClipboardHtml;
+    if ClipboardHasText then
+      Text := GetClipboardText
+    else
+    begin
+      Text := Html;
+    end;
+  finally
+    CloseClipboard;
+  end;
+
+  if ((Text <> LastClipBoard)) then
+  begin
+
+    ODataBase.LanguagePlugIn.SetReadSourceText(text);
+    ODataBase.LanguagePlugIn.SetReadSourceHTML(html);
+
+    if
+       (
+         (not(soUniCheck in Einstellungen))or
+         (ODataBase.LanguagePlugIn.CheckClipboardUni())
+       )
+       then
+    begin
+      if (ODataBase.LeseMehrereScanberichte() > 0)or
+         (ODataBase.LeseSystem())or
+         (ODataBase.LeseStats()) then
+      begin
+        //Erfolgreich Eingelesen
+        if soBeepByWatchClipboard in Einstellungen then
+          Play_Alert_Sound(PlayerOptions.Beep_SoundFile);
+
+      end;
+    end;
+
+  end;
+end;
+
+procedure TFRM_Main.TrayIconPopupPopup(Sender: TObject);
+begin
+  Zwischenablageberwachen1.Checked := CVActive;
+end;
+
+procedure TFRM_Main.lst_othersKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if key = VK_DELETE then
+  begin
+    BTN_DeleteClick(self);
+  end;
+end;
+
+procedure TFRM_Main.NewScan1Click(Sender: TObject);
+var FRM: TFRM_EditScan;
+begin
+  FRM := TFRM_EditScan.Create(self);
+  If FRM.ShowModal = idOK then
+  begin
+    ODataBase.UniTree.AddNewReport(FRM.GetScan);
+  end;
+  FRM.Release;
+end;
+
+procedure TFRM_Main.VergelicheSysDateimitDB1Click(Sender: TObject);
+var sysfile: TcSSolSysDB_for_File;
+    sys: TSystemCopy;
+    i, s: integer;
+    m: string;
+    FRM: TFRM_StringlistEdit;
+begin
+  if OpenDialog1.Execute then
+  begin
+    sysfile := TcSSolSysDB_for_File.Create(OpenDialog1.FileName,-1);
+    FRM := TFRM_StringlistEdit.Create(self);
+    FRM.Show;
+    for i := 0 to sysfile.SysCount-1 do
+    begin
+      sys := sysfile[i];
+      s := ODataBase.Uni[sys.System.P[0],sys.System.P[1]].SystemCopy;
+      if s >= 0 then
+        m := CompareSys(sys,ODataBase.Systeme[s])
+      else m := ('Sys nicht vorhanden: ' + PositionToStr_(sys.System));
+
+      if m <> '' then FRM.Memo1.Lines.Add(m);
+    end;
+    sysfile.Free;
+    FRM.Memo1.Lines.Add('Fertig!');
+  end;
+end;
+
+procedure TFRM_Main.writeunitsinconstsxml1Click(Sender: TObject);
+function FindOrAddNode(ParentNode: IXMLNode; name: String): IXMLNode;
+begin
+  Result := ParentNode.ChildNodes.FindNode(name);
+  if Result = nil then
+    Result := ParentNode.AddChild(name);
+end;
+var j: integer;
+    sg: TScanGroup;
+    unitsNode, groupNode, node: IXMLNode;
+begin
+  XMLDocument1.Active := false;
+  XMLDocument1.XML.Text := '<?xml version="1.0" encoding="UTF-8"?><data></data>';
+
+  if FileExists('consts.xml') then
+    XMLDocument1.LoadFromFile('consts.xml');
+
+  XMLDocument1.Active := True;
+
+  unitsNode := FindOrAddNode(XMLDocument1.DocumentElement,'units');
+  unitsNode.Attributes['groupcount'] := SF_Group_Count;
+  for sg := low(sg) to high(sg) do
+  begin
+    groupNode := FindOrAddNode(unitsNode,'group' + IntToStr(Integer(sg)));
+    groupNode.Attributes['count'] := scanfilecounts[sg];
+    groupNode.Attributes['xml'] := xspio_idents[sg,0];
+    for j := 0 to ScanFileCounts[sg]-1 do
+    begin
+      node := FindOrAddNode(groupNode,'unit' + IntToStr(j));
+      node.Attributes['xml'] := xspio_idents[sg,j+1];
+    end;
+  end;
+  XMLDocument1.SaveToFile('consts.xml');
+end;
+
+procedure TFRM_Main.VergleicheScanDateimitDB1Click(Sender: TObject);
+var ScanFile: TcSReportDB_for_File;
+    FRM: TFRM_StringlistEdit;
+    i, j: integer;
+    Scan: TScanBericht;
+    found: Boolean;
+    m: string;
+begin
+  If OpenDialog1.Execute then
+  begin
+    ScanFile := TcSReportDB_for_File.Create(OpenDialog1.FileName,-1);
+    FRM := TFRM_StringlistEdit.Create(self);
+    FRM.Show;
+    for i := 0 to Scanfile.ScanCount-1 do
+    begin
+      Scan := ScanFile[i];
+      found := False;
+      m := '';
+      for j := 0 to ODataBase.Berichte.Count-1 do
+        if SamePlanet(ODataBase.Berichte[j].Head.Position,Scan.Head.Position)and
+                     (ODataBase.Berichte[j].Head.Time_u = Scan.Head.Time_u) then
+        begin
+          found := true;
+          m := CompareScans(Scan, ODataBase.Berichte[j]);
+          break;
+        end;
+
+      if not found then m := ' Nicht gefunden!';
+
+      if m <> '' then
+      begin
+        m := PositionToStrMond(Scan.Head.Position) + m;
+        FRM.Memo1.Lines.Add(m);
+      end;
+    end;
+    ScanFile.Free;
+    FRM.Memo1.Lines.Add('Fertig!');
+  end;
+end;
+
+procedure TFRM_Main.SaveClipboardtoFile1Click(Sender: TObject);
+var filename: string;
+begin
+  if SaveDialog1.Execute then
+  begin
+    filename := SaveDialog1.FileName;
+    if ExtractFileExt(filename) = '' then
+      filename := filename + '.txt';
+
+    clipbrdfunctions.SaveClipboardtoFile(filename,
+      ODataBase.LanguagePlugIn.PluginFilename,
+      ODataBase.LanguagePlugIn.PlugInName,
+      ODataBase.LangIndex,
+      ODataBase.UserUni);
+  end;
+end;
+
+procedure TFRM_Main.POST1Click(Sender: TObject);
+begin
+  FRM_POST_TEST.Show;
+end;
+
+procedure TFRM_Main.ClipbrdReadScan;
+var r: integer;
+    s: string;
+begin
+  ODataBase.LanguagePlugIn.SetReadSourceText(clipboard.AsText + ' ');
+  r := ODataBase.LeseMehrereScanberichte();
+  if r > 0 then
+  begin
+    if soShowScanCountMessage in Einstellungen then
+      ShowMessage(IntToStr(r) + ' ' + STR_Scans_gespeichert);
+  end
+  else
+    ShowMessage(STR_konnte_keine_Scans_suslesen);
+end;
+
+procedure TFRM_Main.ClipbrdReadSys;
+var s: string;
+begin
+  ODataBase.LanguagePlugIn.SetReadSourceText(GetClipboardText);
+  ODataBase.LanguagePlugIn.SetReadSourceHTML(GetClipboardHtml);
+  ODataBase.LeseSystem();
+end;
+
+procedure TFRM_Main.TIM_FakeCVTimer(Sender: TObject);
+var nsn: DWORD;
+begin
+  nsn := GetClipboardSequenceNumber;
+  if (nsn <> FakeCVClipbrdSequenceNumber)and CVActive then
+    TIM_afterClipboardchange.Enabled := True;
+  FakeCVClipbrdSequenceNumber := nsn;
+end;
+
+procedure TFRM_Main.Frame_Bericht1Timer1Timer(Sender: TObject);
+begin
+  Frame_Bericht1.tim_next_fleetTimer(Sender);
+  Wellenangriff(Frame_Bericht1.Bericht);
+end;
+
+procedure TFRM_Main.Timer1Timer(Sender: TObject);
+var d: Integer;
+
+const count = 20;
+begin
+  if TComponent(Sender).Tag = 0 then
+  begin
+    _____time := now;
+    _____mittelwehrt := 1;
+    TComponent(Sender).Tag := 1;
+  end;
+
+  d := Trunc((now-_____time)*24*60*60*1000);
+
+  if d < 10 then
+  begin
+    //zu kurze zeiten nicht werten!
+    exit;
+  end;
+
+  _____mittelwehrt := trunc(((_____mittelwehrt*count) + d)/(count+1));
+
+  StatusBar1.Panels[1].Text := IntToStr(_____mittelwehrt);//  IntToStr(d);
+  _____time := Now;
+end;
+
+procedure TFRM_Main.ScansDatumLschen1Click(Sender: TObject);
+var s: string;
+    u_t, su_t: Int64;
+    i: integer;
+begin
+  if InputQuery('Scans eines bestimmten Datums löschen:', 'Datum:', s) then
+  begin
+    u_t := DateTimeToUnix(StrToDate(s));
+
+    for i := ODataBase.Berichte.Count-1 downto 0 do
+    begin
+      su_t := ODataBase.Berichte[i].Head.Time_u;
+      if (su_t >= u_t)and(su_t < u_t + 60*60*24) then
+        ODataBase.UniTree.DeleteReport(i);
+    end;
+  end;
+end;
+
+
+procedure TFRM_Main.Frame_Bericht1Timer2Timer(Sender: TObject);
+begin
+  Frame_Bericht1.Timer2Timer(Sender);
+
+end;
+
+procedure TFRM_Main.Flottenbersicht1Click(Sender: TObject);
+begin
+  FRM_KB_List.Show;
+end;
+
+procedure TFRM_Main.Notizen1Click(Sender: TObject);
+begin
+  FRM_Notizen.Show;
+end;
+
+procedure TFRM_Main.neueSuche1Click(Sender: TObject);
+begin
+  NewSearch;
+end;
+
+procedure TFRM_Main.Universumsbersicht1Click(Sender: TObject);
+begin
+  FRM_Uebersicht.Show;
+end;
+
+procedure TFRM_Main.Listenansicht1Click(Sender: TObject);
+begin
+  FRM_Favoriten.show;
+end;
+
+procedure TFRM_Main.Frame_Bericht1PB_BDblClick(Sender: TObject);
+begin
+  BTN_GalaxieClick(Sender);
+end;
+
+procedure TFRM_Main.SaveLoad_SimpleOptions(ini: TIniFile; save: boolean);
+//Diese Funktion tut beides, laden und speichern. Sie soll Tipparbeit sparen
+//und schützt vor Copy-Paste Fehlern
+
+  procedure DoOption(const Section, Ident, Default: string; var Value: String); overload;
+  begin
+    if save then
+      ini.WriteString(Section,Ident,Value)
+    else
+      Value := ini.ReadString(Section,Ident,Default);
+  end;
+
+  procedure DoOption(const Section, Ident: String; Default: Boolean; var Value: Boolean); overload;
+  begin
+    if save then
+      ini.WriteBool(Section,Ident,Value)
+    else
+      Value := ini.ReadBool(Section,Ident,Default);
+  end;
+
+  procedure DoOption(const Section, Ident: String; Default: Integer; var Value: Integer); overload;
+  begin
+    if save then
+      ini.WriteInteger(Section,Ident,Value)
+    else
+      Value := ini.ReadInteger(Section,Ident,Default);
+  end;
+
+begin
+  //BeepSoundfile
+  DoOption(GeneralSection,'Beep_SoundFile'           ,'.\data\read_sound.wav'   ,PlayerOptions.Beep_SoundFile);
+
+  //Flotten:
+  DoOption(GeneralSection,'fleet_ShowArivalMessage'  ,true                      ,PlayerOptions.Fleet_ShowArivalMessage);
+  DoOption(GeneralSection,'fleet_AMSG_time_s'        ,240                       ,PlayerOptions.Fleet_AMSG_Time_s);
+  DoOption(GeneralSection,'fleet_alert_sound'        ,true                      ,PlayerOptions.Fleet_alert);
+  DoOption(GeneralSection,'fleet_alert_sound_file'   ,'.\data\3_beep.wav'       ,PlayerOptions.Fleet_Soundfile);
+  DoOption(GeneralSection,'fleet_auto_time_sync'     ,false                     ,PlayerOptions.Fleet_auto_time_sync);
+
+end;
+
+procedure TFRM_Main.Play_Alert_Sound(filename: string);
+begin
+  if FileExists(filename) then
+  begin
+    FRM_Main.SoundModul.PlayFile(filename);
+  end
+  else
+  begin
+    beep;
+  end;
+end;
+
+
+procedure TFRM_Main.ShowExplorerPanel;
+begin
+//  BTN_Galaxie.Caption := '&Scan';
+  Galaxie1.Caption := '  <Scan>  ';
+
+  P_Scan.Visible := false;
+  P_ExplorerDock.Visible := True;  
+end;
+
+procedure TFRM_Main.ShowScanPanel;
+begin
+  P_Scan.Visible := true;
+  P_ExplorerDock.Visible := False;
+
+//  BTN_Galaxie.Caption := '&Galaxie';
+  Galaxie1.Caption := '<Galaxie>';
+end;
+
+procedure TFRM_Main.Frame_Bericht1PB_BPaint(Sender: TObject);
+begin
+  Frame_Bericht1.PB_BPaint(Sender);
+
+end;
+
+procedure TFRM_Main.StatusBar1MouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var X1,X2: integer;
+begin
+  X1 := StatusBar1.Panels[0].Width +
+        StatusBar1.Panels[1].Width +
+        StatusBar1.Panels[2].Width +
+        StatusBar1.Panels[3].Width;
+  X2 := X1 + StatusBar1.Panels[4].Width;
+
+  if (X > X1)and(X < X2) then
+    FRM_KB_List.Show;
+
+  if (X < StatusBar1.Panels[0].Width) then
+  begin
+    BTN_TopmostClick(Sender);
+  end;
+end;
+
+procedure TFRM_Main.ShowSearchAlly(ally: string);
+var FRM: TFRM_Suche;
+begin
+  FRM := FRM_Main.NewSearch;
+  FRM.TXT_ally.Text := ally;
+  FRM.BTN_SucheClick(self);
+end;
+
+procedure TFRM_Main.ShowSearchPlayer(name: string);
+var FRM: TFRM_Suche;
+begin
+  FRM := FRM_Main.NewSearch;
+  FRM.TXT_Player.Text := name;
+  FRM.BTN_SucheClick(self);
+end;
+
+procedure TFRM_Main.Show;
+begin
+  if WindowState = wsMinimized then
+    WindowState := wsNormal;
+  inherited Show;
+  Application.Restore;
+  Application.BringToFront;
+end;
+
+procedure TFRM_Main.LangPluginOnAskMoon(Sender: TLangPlugIn;
+  Report: TScanBericht; var isMoon, Handled: Boolean);
+var sys, planet: integer;
+begin
+  sys := ODataBase.UniTree.UniSys(Report.Head.Position.P[0],
+                                  Report.Head.Position.P[1]);
+  if sys >= 0 then
+  with ODataBase.Systeme[sys] do
+  begin
+    planet := Report.Head.Position.P[2];
+    //Wenn es keinen Mond an dieser stelle gitb, brauchste auchnet fragen!
+    Handled := (Planeten[planet].MondSize = 0);
+    isMoon := false;
+  end;
+end;
+
+procedure TFRM_Main.btn_fight_startClick(Sender: TObject);
+begin
+  popup_auftrag.Popup(Mouse.CursorPos.X, Mouse.CursorPos.Y);
+end;
+
+end.
