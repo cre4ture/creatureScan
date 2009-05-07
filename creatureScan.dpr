@@ -56,7 +56,7 @@ uses
   FavFilter in 'FavFilter.pas' {FRM_Filter},
   _test_POST in '_test_POST.pas' {FRM_POST_TEST},
   oFight in 'oFight.pas',
-  SDBFile in '..\lib\uli\TSDBFile\SDBFile.pas',
+  SDBFile in 'D:\lib\uli\TSDBFile\SDBFile.pas',
   cS_DB_reportFile in 'cS_DB_reportFile.pas',
   cS_DB in 'cS_DB.pas',
   cS_networking in 'cS_networking.pas',
@@ -68,21 +68,9 @@ uses
   OtherTime in 'OtherTime.pas',
   languagemodul in 'languagemodul.pas',
   langmodform in 'langmodform.pas',
-  html in '..\lib\uli\htmllib\html.pas',
-  parser in '..\lib\uli\htmllib\parser.pas',
-  FastStringFuncs in '..\lib\HTMLParser\Dependencies\faststrings\FastStringFuncs.pas',
-  FastStrings in '..\lib\HTMLParser\Dependencies\faststrings\FastStrings.pas',
-  topmost_uh in '..\lib\uli\topmost_uh.pas',
-  notifywindow in '..\lib\uli\notifyWindow\notifywindow.pas' {frm_notify},
-  frm_pos_size_ini in '..\lib\uli\frm_pos_size_ini.pas',
   sliding_window in 'sliding_window.pas',
   notify_fleet_arrival in 'notify_fleet_arrival.pas' {frm_fleet_arrival},
-  MusiPlayer in '..\lib\uli\musiPlayer\MusiPlayer.pas',
-  LibXmlComps in '..\lib\xmlparser\LibXmlComps.pas',
-  LibXmlParser in '..\lib\xmlparser\LibXmlParser.pas',
-  zeit_sync in '..\Ogame_tools\zeit_sync\zeit_sync.pas',
-  EditScan in 'EditScan.pas' {FRM_EditScan},
-  TemplateReplace in '..\lib\uli\TemplateReplace.pas';
+  EditScan in 'EditScan.pas' {FRM_EditScan};
 
 {$R *.RES}
 
