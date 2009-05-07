@@ -1,0 +1,14 @@
+<report gala="3" sys="83" pos="9" moon="true" time="1206007530" planet="Mond" player="xxxx" activ="900" cspio="1" creator=""><resources deut="9247"/><fleets esp="1" rip="5"/><defence/><buildings robot="5" lunb="4" phalanx="3" jumpg="1"/></report>
+Rohstoffe auf Mond [3:83:9] (Spieler 'xxxx')
+am 03-20 10:05:30
+Metall: 0 Kristall: 0
+Deuterium: 9.247 Energie: 0
+Dein Sondenscan hat Anomalien in der Atmosphäre des Planeten festgestellt, die auf eine Aktivität innerhalb der letzten 15 Minuten hindeuten.
+Flotten
+Todesstern 5 Spionagesonde 1
+Verteidigung
+Gebäude
+Roboterfabrik 5 Mondbasis 4
+Sensorphalanx 3 Sprungtor 1
+Chance auf Spionageabwehr:1%
+Angreifen

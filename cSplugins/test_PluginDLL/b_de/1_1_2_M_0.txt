@@ -1,0 +1,41 @@
+<report gala="1" sys="1" pos="2" moon="true" time="1231180835" planet="grundfunktion" player="ICH" activ="3060" cspio="99" creator=""><resources met="1000000" crys="1000" deut="1" energ="2"/><fleets scs="3" lcs="4" lf="5" hf="6" cru="7" bs="8" cs="9" recy="1" esp="2" bomb="3" solsat="4" destr="5" rip="6" bcru="7"/><defence msl="8" sl="9" hl="10000" gaus="2" ion="3" pc="4" ssd="5" lsd="6" abm="7" inter="8"/><buildings metm="9" crysm="1" deuts="2" solp="3" fusp="4" robot="5" nani="6" shipy="7" mets="8" crys="9" dtank="1" rlab="2" terra="3" allydep="4" silo="5" lunb="6" phalanx="7" jumpg="8"/><research spiot="9" comput="1" weapt="2" shieldt="3" armourt="4" energt="5" hypt="6" combut="7" impe="8" hype="9" lasert="1" iont="2" plasmat="3" intergal="4" expedt="5" gravi="6"/></report>
+Rohstoffe auf grundfunktion (Mond) [1:1:2] (Spieler 'ICH')
+am 1-5 18:40:35
+Metall:	1.000.000	Kristall:	1.000
+Deuterium:	1	Energie:	2
+Aktivität
+Dein Sondenscan hat Anomalien in der Atmosphäre des Planeten festgestellt, die auf eine Aktivität innerhalb der letzten 51 Minuten hindeuten.
+Flotten
+Kleiner Transporter	3	Großer Transporter	4
+Leichter Jäger	5	Schwerer Jäger	6
+Kreuzer	7	Schlachtschiff	8
+Kolonieschiff	9	Recycler	1
+Spionagesonde	2	Bomber	3
+Solarsatellit	4	Zerstörer	5
+Todesstern	6	Schlachtkreuzer	7
+Verteidigung
+Raketenwerfer	8	Leichtes Lasergeschütz	9
+Schweres Lasergeschütz	10.000	Gaußkanone	2
+Ionengeschütz	3	Plasmawerfer	4
+Kleine Schildkuppel	5	Große Schildkuppel	6
+Abfangrakete	7	Interplanetarrakete	8
+Gebäude
+Metallmine	9	Kristallmine	1
+Deuteriumsynthetisierer	2	Solarkraftwerk	3
+Fusionskraftwerk	4	Roboterfabrik	5
+Nanitenfabrik	6	Raumschiffswerft	7
+Metallspeicher	8	Kristallspeicher	9
+Deuteriumtank	1	Forschungslabor	2
+Terraformer	3	Allianzdepot	4
+Raketensilo	5	Mondbasis	6
+Sensorphalanx	7	Sprungtor	8
+Forschung
+Spionagetechnik	9	Computertechnik	1
+Waffentechnik	2	Schildtechnik	3
+Raumschiffpanzerung	4	Energietechnik	5
+Hyperraumtechnik	6	Verbrennungstriebwerk	7
+Impulstriebwerk	8	Hyperraumantrieb	9
+Lasertechnik	1	Ionentechnik	2
+Plasmatechnik	3	Intergalaktisches Forschungsnetzwerk	4
+Expeditionstechnik	5	Gravitonforschung	6
+Chance auf Spionageabwehr:99%
