@@ -14,11 +14,10 @@ uses
   StrUtils,
   readsource in '..\readsource.pas',
   readsource_cs in '..\readsource_cs.pas',
-  ReadPhalanxScan_fullhtml in '..\..\ReadAndParse\ReadPhalanxScan_fullhtml.pas',
-  ReadReport_Text in '..\..\ReadAndParse\ReadReport_Text.pas',
-  ReadSolsysStats_fullhtml in '..\..\ReadAndParse\ReadSolsysStats_fullhtml.pas',
-  regexpname in '..\..\..\lib\uli\regexpname.pas',
-  call_fleet in '..\..\ReadAndParse\call_fleet.pas';
+  ReadPhalanxScan_fullhtml in '..\ReadAndParse\ReadPhalanxScan_fullhtml.pas',
+  ReadReport_Text in '..\ReadAndParse\ReadReport_Text.pas',
+  ReadSolsysStats_fullhtml in '..\ReadAndParse\ReadSolsysStats_fullhtml.pas',
+  call_fleet in '..\ReadAndParse\call_fleet.pas';
 
 type
   TScanReadOptions = record
