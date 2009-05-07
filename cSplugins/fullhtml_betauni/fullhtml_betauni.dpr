@@ -12,15 +12,12 @@ uses
   LibXmlComps,
   DateUtils,
   StrUtils,
-  ReadPhalanxScan_fullhtml_betauni in '..\..\ReadAndParse\ReadPhalanxScan_fullhtml_betauni.pas',
-  ReadReport_Text in '..\..\ReadAndParse\ReadReport_Text.pas',
-  ReadSolsysStats_fullhtml_betauni in '..\..\ReadAndParse\ReadSolsysStats_fullhtml_betauni.pas',
-  readsource_cs in '..\readsource_cs.pas',
+  ReadPhalanxScan_fullhtml_betauni in '..\ReadAndParse\ReadPhalanxScan_fullhtml_betauni.pas',
+  ReadReport_Text in '..\ReadAndParse\ReadReport_Text.pas',
+  ReadSolsysStats_fullhtml_betauni in '..\ReadAndParse\ReadSolsysStats_fullhtml_betauni.pas',
   readsource in '..\readsource.pas',
-  Languages in '..\..\Languages.pas',
-  SelectLanguage in '..\..\SelectLanguage.pas' {FRM_SelectLanguage},
-  regexpname in '..\..\..\lib\uli\regexpname.pas',
-  call_fleet in '..\..\ReadAndParse\call_fleet.pas';
+  call_fleet in '..\ReadAndParse\call_fleet.pas',
+  readsource_cs in '..\readsource_cs.pas';
 
 type
   TScanReadOptions = record
