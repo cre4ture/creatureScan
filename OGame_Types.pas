@@ -40,11 +40,20 @@ const
                                               (1{Gebäude},2{TritMine}));
   fsc_4_Forschung = 22;
   {$ELSE}
+  // Flotten
   fsc_1_Flotten = 14;
   fleet_group = sg_Flotten;
+
+  sb_SolSat = 10;
+  
+  // Verteidigung
   fsc_2_Verteidigung = 10;
   def_group = sg_Verteidigung;
   fsc_3_Gebaeude = 18;
+
+  sb_Abfangraketen = 8;
+  sb_InterplanetarRaketen = 9;
+
 
   //sb_Terraformer: TScanData = (3{Gebäude},12{Mondbasis});
   sb_Metall = 0;
@@ -63,17 +72,19 @@ const
   sb_Speicher_array: array[rtMetal..rtDeuterium] of Integer = ((8{Metallspeicher}),
                                                            (9{Kristallspeicher}),
                                                            (10{Deuteriumtank}));
+  sb_SolKW = 3; //Solarkraftwerk
   sb_FusionsKW = 4{FKW};
+
+  //Forschungen
   fsc_4_Forschung = 16;
   sb_Waffentechnik = 2;
   sb_Schildtechnik = 3;
   sb_Raumschiffpanzerung = 4;
+  sb_Energietechnik = 5;
   sb_Intergal_ForschNetz = 13{Intergal.Forsch.Netz};
   sb_Expeditionstechnik = 14{Expeditionstechnik};
   sb_Gravitonforschung = 15{Gravitonforschung};
 
-  sb_Abfangraketen = 8;
-  sb_InterplanetarRaketen = 9;
   {$ENDIF}
 
   ScanFileCounts: array[TScanGroup] of integer =
@@ -285,6 +296,8 @@ function ReadIntEx(s: string; p: integer; IgnoreChars: string = '';
 procedure SortPlanetScanList(var List: TReportTimeList;
   Typ: TPlanetScanListSortType);
 function GetMineEnergyConsumption(Scan: TScanbericht): Integer;
+function calcPlanetTemp(solsatenergy: single): single;
+function calcSolSatEnergy(Scan: TScanBericht): Integer;
 function calcProduktionsFaktor(Scan: TScanBericht; var needed_energy: Integer): single;
 function GetMineProduction_(Scan: TScanBericht; const SpeedFactor: Single;
   const Mine: TRessType; prod_faktor: single): Integer;
@@ -906,6 +919,44 @@ begin
     if stufe >= 0 then
       Result := Result + Ceil( konst_a[mine]*stufe*IntPower(1.1, stufe) );
   end;
+end;
+
+function calcPlanetTemp(solsatenergy: single): single;
+begin
+  solsatenergy := solsatenergy + 0.5; // Aufgrund Abrundung bei Energieberechnung in OGame
+                                      // kann der "Echte" Wert zwischen
+                                      // Solsatenergy und (Solsatenergy+1) liegen
+                                      // -> Mittelwert ist meist genauer
+
+  if OGame_IsBetaUni then
+    Result := (solsatenergy * 6) - 160
+  else
+    Result := (solsatenergy - 20) * 4;
+end;
+
+function calcSolSatEnergy(Scan: TScanBericht): Integer;
+var enrgy_SolKW, enrgy_FusionKW, gesammt: integer;
+    stufe_SolKW, stufe_FusionKW, anzahl_solsat: integer;
+    stufe_energytech: Integer;
+begin
+  Result := -1;
+
+  gesammt := Scan.Bericht[sg_Rohstoffe][sb_Ress_array[rtEnergy]];
+  
+  stufe_SolKW := Scan.Bericht[sg_Gebaeude][sb_SolKW];
+  if stufe_SolKW < 0 then Exit;
+  
+  stufe_FusionKW := Scan.Bericht[sg_Gebaeude][sb_FusionsKW];
+  if stufe_FusionKW < 0 then Exit;
+
+  anzahl_solsat := Scan.Bericht[sg_Flotten][sb_SolSat];
+  if anzahl_solsat <= 0 then Exit;
+
+  enrgy_SolKW := trunc( 20*stufe_SolKW* IntPower(1.1,stufe_SolKW) );
+  enrgy_FusionKW := trunc( 30*stufe_FusionKW*
+             IntPower((1.05 + sb_Energietechnik * 0.01),stufe_FusionKW) );
+
+  Result := trunc((gesammt - enrgy_SolKW - enrgy_FusionKW) / anzahl_solsat);
 end;
 
 function calcProduktionsFaktor(Scan: TScanBericht; var needed_energy: Integer): single;

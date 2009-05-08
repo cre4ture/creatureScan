@@ -97,6 +97,9 @@ type
     mineprod_h: array[TRessType] of Integer;
     energy_consumption: Integer;
     produktionsfaktor: single;
+    solsatenergy: integer;
+    planettemp: single;
+    planettemp_str: string;
     //Beute durch Raids, die in der History verzeichnet sind
     loot_since_scan: array[TRessType] of Integer;
 
@@ -885,6 +888,18 @@ end;
 procedure TFrame_Bericht.calcMineProductionAndEnergy;
 var m: TRessType;
 begin
+  solsatenergy := calcSolSatEnergy(Bericht);
+  if solsatenergy <> -1 then
+  begin
+    planettemp := calcPlanetTemp(solsatenergy);
+    planettemp_str := '~ ' + FloatToStr(planettemp) + ' °C';
+  end
+  else
+  begin
+    planettemp := -99999;
+    planettemp_str := 'n/a';
+  end;
+
   produktionsfaktor := calcProduktionsFaktor(Bericht, energy_consumption);
   if Length(Bericht.Bericht[sg_Gebaeude]) > 0 then
   for m := low(m) to high(m) do
@@ -1171,6 +1186,7 @@ end;
 
 procedure TFrame_Bericht._DrawProduktion_(var line: integer; Zeile, ya: integer);
 var x: integer;
+    s: string;
 begin
   with PB_B.Canvas do
   begin
@@ -1192,6 +1208,21 @@ begin
      tst_rep.Bericht[sg_Rohstoffe][2] := mineprod_h[rtDeuterium];
      tst_rep.Bericht[sg_Rohstoffe][3] := 0;
      _DrawNormal_Group(sg_Rohstoffe, false, false, 2, line, Zeile, ya, tst_rep, cl_text_color);
+     _DrawLine_(5,line*Zeile+ya, (PB_B.Width div 2) -5,
+        'Produktionsfaktor:', IntToStr(round(produktionsfaktor*100)) + '%');
+
+     if solsatenergy = -1 then
+       s := 'n/a'
+     else
+       s := IntToStr(solsatenergy);
+       
+     _DrawLine_((PB_B.Width div 2)+5,line*Zeile+ya, PB_B.Width-5,
+        'Energie/Solarsatellit:', s);
+     inc(line);
+     _DrawLine_(5,line*Zeile+ya, (PB_B.Width div 2) -5,
+        'Temperatur:', planettemp_str);
+//     _DrawLine_((PB_B.Width div 2)+5,line*Zeile+ya, PB_B.Width-5,
+//        'Solarsatelit:', IntToStr(solsatenergy));
 
      //Zeit Rohstoffproduktion
      inc(line);
