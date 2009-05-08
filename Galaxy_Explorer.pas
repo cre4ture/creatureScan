@@ -251,7 +251,9 @@ begin
     s := STR_SonnenSystem + inttostr(position.P[0]) + ':' + inttostr(position.P[1]);
     if haveSystem then
     begin
-      LBL_SysHead.Font.Color := AlterToColor_dt(Now - UnixToDateTime(Time_u),ODataBase.redHours[rh_Systems]);
+      LBL_SysHead.Font.Color := AlterToColor_dt(
+               ODataBase.FleetBoard.GameTime.Time -
+               UnixToDateTime(Time_u),ODataBase.redHours[rh_Systems]);
       case explorer_Zeitformat of
       ezf_Datum:
         s := s + STR_Datum + DateToStr(UnixToDateTime(Time_u));
@@ -567,7 +569,9 @@ begin
     p.P[2] := node.Index+1;
     p.Mond := Column = col_Mond;
     i := ODataBase.UniTree.UniReport(p);
-    if i >= 0 then TargetCanvas.Font.Color := AlterToColor_dt(now-UnixToDateTime(ODataBase.Berichte[i].Head.Time_u),ODataBase.redHours[rh_Scans])
+    if i >= 0 then TargetCanvas.Font.Color := AlterToColor_dt(
+           ODataBase.FleetBoard.GameTime.Time -
+           UnixToDateTime(ODataBase.Berichte[i].Head.Time_u),ODataBase.redHours[rh_Scans])
       else TargetCanvas.Font.Color := VST_System.Font.Color;
   end
   else
@@ -779,7 +783,8 @@ begin
       scan := UniTree.UniReport(FPhalanxList[i]);
       if scan >= 0 then
       begin
-        alter := now - UnixToDateTime(Berichte[scan].Head.Time_u);
+        alter := ODataBase.FleetBoard.GameTime.Time -
+                 UnixToDateTime(Berichte[scan].Head.Time_u);
         IL_Explorer_symbols.BkColor := AlterToColor_dt(alter,redHours[rh_Systems]);
         IL_Explorer_symbols.draw(PaintBox1.Canvas,1+i*18,1,0);
         inc(i);

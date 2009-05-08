@@ -18,8 +18,8 @@
 		<Compiler>
 			<Compiler Name="A">8</Compiler>
 			<Compiler Name="B">0</Compiler>
-			<Compiler Name="C">0</Compiler>
-			<Compiler Name="D">0</Compiler>
+			<Compiler Name="C">1</Compiler>
+			<Compiler Name="D">1</Compiler>
 			<Compiler Name="E">0</Compiler>
 			<Compiler Name="F">0</Compiler>
 			<Compiler Name="G">1</Compiler>
@@ -27,7 +27,7 @@
 			<Compiler Name="I">1</Compiler>
 			<Compiler Name="J">1</Compiler>
 			<Compiler Name="K">0</Compiler>
-			<Compiler Name="L">0</Compiler>
+			<Compiler Name="L">1</Compiler>
 			<Compiler Name="M">0</Compiler>
 			<Compiler Name="N">1</Compiler>
 			<Compiler Name="O">1</Compiler>
@@ -40,7 +40,7 @@
 			<Compiler Name="V">1</Compiler>
 			<Compiler Name="W">0</Compiler>
 			<Compiler Name="X">1</Compiler>
-			<Compiler Name="Y">0</Compiler>
+			<Compiler Name="Y">2</Compiler>
 			<Compiler Name="Z">1</Compiler>
 			<Compiler Name="ShowHints">True</Compiler>
 			<Compiler Name="ShowWarnings">True</Compiler>
@@ -125,7 +125,7 @@
 			<Directories Name="PackageDCPOutputDir"></Directories>
 			<Directories Name="SearchPath">.\cSdeps;.\ReadPlugins</Directories>
 			<Directories Name="Packages">vcl;rtl;vclx;indy;inet;xmlrtl;vclie;inetdbbde;inetdbxpress;dbrtl;dsnap;dsnapcon;vcldb;soaprtl;VclSmp;dbexpress;dbxcds;inetdb;bdertl;vcldbx;webdsnap;websnap;adortl;ibxpress;teeui;teedb;tee;dss;visualclx;visualdbclx;vclactnband;vclshlctrls;IntrawebDB_50_70;Intraweb_50_70;Rave50CLX;Rave50VCL;dclOfficeXP;VirtualTreesD7;lib</Directories>
-			<Directories Name="Conditionals"></Directories>
+			<Directories Name="Conditionals">delphi</Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
 			<Directories Name="UsePackages">False</Directories>
 		</Directories>

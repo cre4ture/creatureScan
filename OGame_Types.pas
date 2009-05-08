@@ -285,9 +285,11 @@ function ReadIntEx(s: string; p: integer; IgnoreChars: string = '';
 procedure SortPlanetScanList(var List: TReportTimeList;
   Typ: TPlanetScanListSortType);
 function GetMineEnergyConsumption(Scan: TScanbericht): Integer;
+function calcProduktionsFaktor(Scan: TScanBericht; var needed_energy: Integer): single;
 function GetMineProduction_(Scan: TScanBericht; const SpeedFactor: Single;
-  const Mine: TRessType): Integer;
-function MineProduction(Stufe: Integer; Mine: TRessType; planetPos: integer): integer;
+  const Mine: TRessType; prod_faktor: single): Integer;
+function MineProduction(Stufe: Integer; Mine: TRessType; planetPos: integer;
+  prod_faktor: single): Integer;
 procedure Initialise(XML_Data_File: string);
 function CalcTF(Scan: TScanBericht; DefInTF: Boolean): Tresources;
 function FusionsKWDeut(stufe: integer): integer;
@@ -906,8 +908,22 @@ begin
   end;
 end;
 
+function calcProduktionsFaktor(Scan: TScanBericht; var needed_energy: Integer): single;
+begin
+  needed_energy := GetMineEnergyConsumption(Scan);
+  if needed_energy <> 0 then
+  begin
+    Result := Scan.Bericht[sg_Rohstoffe][sb_Ress_array[rtEnergy]]
+                         / needed_energy;
+
+    if Result > 1 then Result := 1;
+  end
+  else
+    Result := 1;
+end;
+
 function GetMineProduction_(Scan: TScanBericht; const SpeedFactor: Single;
-  const Mine: TRessType): Integer;
+  const Mine: TRessType; prod_faktor: single): Integer;
 //var M: TRessType;
 begin
   if Scan.Head.Position.Mond then  //UHO: 26.08.08 Monde haben keine Produktion!!
@@ -924,11 +940,22 @@ begin
         for M := omMetal to omDeuterium do
           Result := Result + MineProduction(Scan.Bericht[sg_Gebaeude,sb_Mine_array[M]],M,Scan.Head.Position.P[2]);
       end;                                       }
-    rtMetal: Result := {Grundeinkommen 20met} 20 + MineProduction(Scan.Bericht[sg_Gebaeude,sb_Mine_array[Mine]],Mine,Scan.Head.Position.P[2]);
-    rtKristal: Result := {Grundeinkommen 10kris} 10 + MineProduction(Scan.Bericht[sg_Gebaeude,sb_Mine_array[Mine]],Mine,Scan.Head.Position.P[2]);
+    rtMetal: Result := {Grundeinkommen 20met} 20 +
+        MineProduction(Scan.Bericht[sg_Gebaeude,sb_Mine_array[Mine]],
+                        Mine,
+                        Scan.Head.Position.P[2],
+                        prod_faktor);
+    rtKristal: Result := {Grundeinkommen 10kris} 10 +
+        MineProduction(Scan.Bericht[sg_Gebaeude,sb_Mine_array[Mine]],
+                        Mine,
+                        Scan.Head.Position.P[2],
+                        prod_faktor);
     rtDeuterium:
       begin
-        Result := MineProduction(Scan.Bericht[sg_Gebaeude,sb_Mine_array[Mine]],Mine,Scan.Head.Position.P[2]);
+        Result := MineProduction(Scan.Bericht[sg_Gebaeude,sb_Mine_array[Mine]],
+                                  Mine,
+                                  Scan.Head.Position.P[2],
+                                  prod_faktor);
         Result := Result - FusionsKWDeut(Scan.Bericht[sg_Gebaeude,sb_FusionsKW]);
       end;
     rtEnergy: Result := 0; {Es gibt keine Mine für Energie ^^}
@@ -940,7 +967,8 @@ begin
   end;
 end;
 
-function MineProduction(Stufe: Integer; Mine: TRessType; planetPos: integer): integer;
+function MineProduction(Stufe: Integer; Mine: TRessType; planetPos: integer;
+  prod_faktor: single): integer;
 begin
   if Stufe <= 0 then
     Result := 0
@@ -953,6 +981,8 @@ begin
     else
       raise Exception.Create('MineProduction: Unknown type of mine for calculation!');
     end;
+
+    Result := trunc(Result * prod_faktor);
   end;
 end;
 
