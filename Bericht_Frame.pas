@@ -75,7 +75,7 @@ type
     procedure DrawShortStyle;
     function GetShowProduction: Boolean;
     procedure SetShowProduction(const B: Boolean);
-    procedure calcMineProduction;
+    procedure calcMineProductionAndEnergy;
     procedure _DrawNormal_Group(sg: TScangroup;
       header, show_zero_items: boolean; cols: integer; var y: integer; rowheight: integer;
       ya: integer; scan: TScanBericht; text_color: TColor);
@@ -95,6 +95,8 @@ type
     plugin: TLangPlugIn;
     DontShowRaids: Boolean;
     mineprod_h: array[TRessType] of Integer;
+    energy_consumption: Integer;
+    produktionsfaktor: single;
     //Beute durch Raids, die in der History verzeichnet sind
     loot_since_scan: array[TRessType] of Integer;
 
@@ -140,10 +142,11 @@ begin
   //copy original
   Bericht_calc := NewScanBericht(Bericht_orig);
 
+  calcMineProductionAndEnergy;
+
   //calculate production:
   if calc_resources then
   begin
-    calcMineProduction;
     alter_h := (ODataBase.FleetBoard.GameTime.UnixTime - (Bericht.Head.time_u)) / 60 / 60;
 
     for m := rtMetal to rtDeuterium do
@@ -879,14 +882,15 @@ begin
   Leerstellenweglassen1.Checked := not F_HideEmptySpace;
 end;
 
-procedure TFrame_Bericht.calcMineProduction;
+procedure TFrame_Bericht.calcMineProductionAndEnergy;
 var m: TRessType;
 begin
+  produktionsfaktor := calcProduktionsFaktor(Bericht, energy_consumption);
   if Length(Bericht.Bericht[sg_Gebaeude]) > 0 then
   for m := low(m) to high(m) do
   begin
     mineprod_h[m] := trunc(
-                         GetMineProduction_(Bericht, speedfactor, m)
+                         GetMineProduction_(Bericht, speedfactor, m, produktionsfaktor)
                          );
   end;
 end;
@@ -995,10 +999,8 @@ begin
 end;
 
 function TFrame_Bericht.getEnergyField: THTMLElement;
-var energy_consumption: Integer;
-    eleft, efull: string;
+var eleft, efull: string;
 begin
-  energy_consumption := GetMineEnergyConsumption(Bericht);
   Result := THTMLElement.Create(nil, 'item');
   //Beschriftung:
   Result.AttributeValue['left'] := plugIn.SBItems[sg_Rohstoffe][sb_Energie+1];
@@ -1185,9 +1187,9 @@ begin
 
      //Minenproduktion:
      Setlength(tst_rep.Bericht[sg_Rohstoffe], ScanFileCounts[sg_Rohstoffe]);
-     tst_rep.Bericht[sg_Rohstoffe][0] := GetMineProduction_(Bericht, speedfactor, rtMetal);
-     tst_rep.Bericht[sg_Rohstoffe][1] := GetMineProduction_(Bericht, speedfactor, rtKristal);
-     tst_rep.Bericht[sg_Rohstoffe][2] := GetMineProduction_(Bericht, speedfactor, rtDeuterium);
+     tst_rep.Bericht[sg_Rohstoffe][0] := mineprod_h[rtMetal];
+     tst_rep.Bericht[sg_Rohstoffe][1] := mineprod_h[rtKristal];
+     tst_rep.Bericht[sg_Rohstoffe][2] := mineprod_h[rtDeuterium];
      tst_rep.Bericht[sg_Rohstoffe][3] := 0;
      _DrawNormal_Group(sg_Rohstoffe, false, false, 2, line, Zeile, ya, tst_rep, cl_text_color);
 

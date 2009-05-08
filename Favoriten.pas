@@ -33,6 +33,8 @@ type
     v_Ress: array[TRessType] of Integer;
     v_Ress_all: Integer;
     v_Ress_div_Def: integer;
+    needed_energy: Integer;
+    prod_faktor: single;
     MProductionAll: Integer;
     TF: TResources;
     notes: TNotizArray;
@@ -903,10 +905,12 @@ begin
                    report.Bericht[sg_Rohstoffe,2]; // m+k+d!
 
 
+        prod_faktor := calcProduktionsFaktor(report, needed_energy);
         MProductionAll := 0;
         for m := low(m) to high(m) do
         begin
-          MProduction[m] := GetMineProduction_(report, ODataBase.SpeedFactor, m);
+          MProduction[m] := GetMineProduction_(report, ODataBase.SpeedFactor,
+                                 m, prod_faktor);
           MProductionAll := MProductionAll + MProduction[m];
         end;
 
