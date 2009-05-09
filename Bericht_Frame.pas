@@ -1195,6 +1195,7 @@ begin
    begin
      inc(line);
      Brush.Color := clgreen;
+     Font.Color := cl_text_color;
      Rectangle(0,line*Zeile,PB_B.Width,line*Zeile+Zeile);
      x := 0; //erste spalte
      TextOut(5,line*Zeile+ya,STR_Produktion);
@@ -1229,6 +1230,7 @@ begin
         'Temperatur:', planettemp_str);
 //     _DrawLine_((PB_B.Width div 2)+5,line*Zeile+ya, PB_B.Width-5,
 //        'Solarsatelit:', IntToStr(solsatenergy));
+     inc(line);
 
      //Zeit Rohstoffproduktion
      inc(line);
