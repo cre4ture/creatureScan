@@ -949,12 +949,15 @@ begin
   stufe_FusionKW := Scan.Bericht[sg_Gebaeude][sb_FusionsKW];
   if stufe_FusionKW < 0 then Exit;
 
+  stufe_energytech := Scan.Bericht[sg_Forschung][sb_Energietechnik];
+  if stufe_energytech < 0 then Exit;
+
   anzahl_solsat := Scan.Bericht[sg_Flotten][sb_SolSat];
   if anzahl_solsat <= 0 then Exit;
 
   enrgy_SolKW := trunc( 20*stufe_SolKW* IntPower(1.1,stufe_SolKW) );
   enrgy_FusionKW := trunc( 30*stufe_FusionKW*
-             IntPower((1.05 + sb_Energietechnik * 0.01),stufe_FusionKW) );
+             IntPower((1.05 + stufe_energytech * 0.01),stufe_FusionKW) );
 
   Result := trunc((gesammt - enrgy_SolKW - enrgy_FusionKW) / anzahl_solsat);
 end;

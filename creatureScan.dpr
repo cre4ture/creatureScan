@@ -72,8 +72,6 @@ uses
   notify_fleet_arrival in 'notify_fleet_arrival.pas' {frm_fleet_arrival},
   EditScan in 'EditScan.pas' {FRM_EditScan};
 
-{$E scr}
-
 {$R *.RES}
 
 const
