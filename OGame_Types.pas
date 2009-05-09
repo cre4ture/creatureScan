@@ -370,6 +370,7 @@ begin
    unternommen.}
 
   Result := False;
+
   If (Report.Bericht[sg_Gebaeude,sb_Mine_array[rtMetal]] > 0)or
      (Report.Bericht[sg_Gebaeude,sb_Mine_array[rtKristal]] > 0)or
      (Report.Bericht[sg_Gebaeude,sb_Mine_array[rtDeuterium]] > 0) then
@@ -381,7 +382,14 @@ begin
   begin
     Result := True;      //Sicher ein Mond!
     Report.Head.Position.Mond := True;
+  end
+  else if (Report.Bericht[sg_Verteidigung][sb_Abfangraketen] > 0) or
+          (Report.Bericht[sg_Verteidigung][sb_InterplanetarRaketen] > 0) then
+  begin
+    Result := True;      //Sicher kein Mond!
+    Report.Head.Position.Mond := false;
   end;
+       
 end;
 
 
