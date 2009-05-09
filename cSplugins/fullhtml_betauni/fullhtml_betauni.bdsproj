@@ -125,7 +125,7 @@
 			<Directories Name="PackageDCPOutputDir"></Directories>
 			<Directories Name="SearchPath">D:\devel\lib\xmlparser;D:\devel\creatureScan;D:\devel\lib\uli\htmllib;D:\devel\lib\TRegExpr\Source</Directories>
 			<Directories Name="Packages"></Directories>
-			<Directories Name="Conditionals"></Directories>
+			<Directories Name="Conditionals">delphi</Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
 			<Directories Name="UsePackages">False</Directories>
 		</Directories>
