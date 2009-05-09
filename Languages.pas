@@ -105,7 +105,7 @@ const
   STR_Not_Awailable: string = 'n/a';
   STR_Tage: string = ' Tage ';  //auch bei Favoriten verwendet!
   STR_Alter: string = 'Alter: ';
-  STR_Produktion: string = 'Produktion/h';
+  STR_Produktion: string = 'Produktion/h (PlanetInfo)';
   STR_Truemmerfeld_frmt: string = ' TF: %.0n Metall %.0n Kristall ~ %.0n Recycler';
 
   //Einstellungen
