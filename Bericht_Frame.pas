@@ -1208,8 +1208,14 @@ begin
      tst_rep.Bericht[sg_Rohstoffe][2] := mineprod_h[rtDeuterium];
      tst_rep.Bericht[sg_Rohstoffe][3] := 0;
      _DrawNormal_Group(sg_Rohstoffe, false, false, 2, line, Zeile, ya, tst_rep, cl_text_color);
+
+     if produktionsfaktor = -1 then
+       s := 'n/a'
+     else
+       s := IntToStr(round(produktionsfaktor*100)) + '%';
+       
      _DrawLine_(5,line*Zeile+ya, (PB_B.Width div 2) -5,
-        'Produktionsfaktor:', IntToStr(round(produktionsfaktor*100)) + '%');
+        'Produktionsfaktor:', s);
 
      if solsatenergy = -1 then
        s := 'n/a'

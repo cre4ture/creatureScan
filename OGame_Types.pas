@@ -973,15 +973,20 @@ end;
 function calcProduktionsFaktor(Scan: TScanBericht; var needed_energy: Integer): single;
 begin
   needed_energy := GetMineEnergyConsumption(Scan);
-  if needed_energy <> 0 then
+  if needed_energy >= 0 then
   begin
-    Result := Scan.Bericht[sg_Rohstoffe][sb_Ress_array[rtEnergy]]
-                         / needed_energy;
+    if needed_energy = 0 then
+      Result := 1
+    else
+    begin
+      Result := Scan.Bericht[sg_Rohstoffe][sb_Ress_array[rtEnergy]]
+                           / needed_energy;
 
-    if Result > 1 then Result := 1;
+      if Result > 1 then Result := 1;
+    end;
   end
   else
-    Result := 1;
+    Result := -1;
 end;
 
 function GetMineProduction_(Scan: TScanBericht; const SpeedFactor: Single;
