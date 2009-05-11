@@ -234,8 +234,6 @@ object FRM_Main: TFRM_Main
         ParentFont = False
         TabOrder = 2
         OnDblClick = Frame_Bericht1PB_BDblClick
-        ExplicitLeft = -1
-        ExplicitTop = -4
         object lbl_title: TLabel
           Left = 8
           Top = 16

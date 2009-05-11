@@ -520,53 +520,10 @@ begin
 end;
 
 procedure TFRM_KB_List.paste1Click(Sender: TObject);
-var count, i, j: integer;
-    fleet: TFleetEvent;
 begin
   ODataBase.LanguagePlugIn.SetReadSourceText(FRM_Main.GetClipboardText);
   ODataBase.LanguagePlugIn.SetReadSourceHTML(FRM_Main.GetClipboardHtml);
-
-  count := ODataBase.LanguagePlugIn.ReadPhalanxScan();
-
-  if count > 0 then
-  begin
-    //Vorher alle eingelesenen Flotten löschen:
-    // (damit alle "frisch" wieder eingelesen werden)
-    i := 0;
-    while (i < ODataBase.FleetBoard.Fleets.Count) do
-    begin
-      with ODataBase.FleetBoard.Fleets[i] do
-      begin
-        if (head.player = ODataBase.Username)and
-           (head.unique_id >= 0) then
-          ODataBase.FleetBoard.DeleteFleet(i)
-        else
-          inc(i);
-      end;
-    end;
-  end;
-
-  for i := 0 to count -1 do
-  begin
-    if ODataBase.LanguagePlugIn.ReadPhalanxScanGet(fleet) then
-    begin
-      if (fleet.head.eventtype <> fet_espionage){ and
-         (not ((fef_return in fleet.head.eventflags) and
-                (fef_own in fleet.head.eventflags)))} then
-      begin
-        j := ODataBase.UniTree.UniReport(fleet.head.target);
-        if j >= 0 then
-        begin
-          fleet.ress[0] := ODataBase.Berichte[j].Bericht[sg_Rohstoffe][0] div 2;
-          fleet.ress[1] := ODataBase.Berichte[j].Bericht[sg_Rohstoffe][1] div 2;
-          fleet.ress[2] := ODataBase.Berichte[j].Bericht[sg_Rohstoffe][2] div 2;
-        end;
-
-        fleet.head.player := ODataBase.Username;
-        ODataBase.FleetBoard.AddFleet(fleet);
-      end;
-    end;
-  end;
+  ODataBase.LeseFleets();
 end;
 
 procedure TFRM_KB_List.VST_RAIDInitNode(Sender: TBaseVirtualTree;
