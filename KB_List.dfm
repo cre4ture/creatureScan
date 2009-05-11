@@ -232,7 +232,7 @@ object FRM_KB_List: TFRM_KB_List
         109
         27)
       object btn_pasteEvents: TButton
-        Left = 2
+        Left = 4
         Top = 2
         Width = 99
         Height = 23

@@ -1596,7 +1596,8 @@ begin
     begin
       if (ODataBase.LeseMehrereScanberichte() > 0)or
          (ODataBase.LeseSystem())or
-         (ODataBase.LeseStats()) then
+         (ODataBase.LeseStats())or
+         (ODataBase.LeseFleets()) then
       begin
         //Erfolgreich Eingelesen
         if soBeepByWatchClipboard in Einstellungen then

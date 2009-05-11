@@ -127,6 +127,7 @@ type
 
 
 
+    function LeseFleets(): Boolean;
     function GetPlayerAtPos(planet: TPlanetPosition; addstatus: boolean = true): string;
     property InitialisedF: boolean read Initialised;
     constructor Create(Init: Boolean; UserDir: string; ACLHost: TcSServer);
@@ -178,6 +179,54 @@ implementation
 
 uses Mond_Abfrage, Languages, Connections, cS_XML, Export,
   SDBFile;
+
+
+function TOgameDataBase.LeseFleets(): Boolean;
+var count, i, j: integer;
+    fleet: TFleetEvent;
+begin
+  count := LanguagePlugIn.ReadPhalanxScan();
+
+  if count > 0 then
+  begin
+    //Vorher alle eingelesenen Flotten löschen:
+    // (damit alle "frisch" wieder eingelesen werden)
+    i := 0;
+    while (i < FleetBoard.Fleets.Count) do
+    begin
+      with FleetBoard.Fleets[i] do
+      begin
+        if (head.player = Username)and
+           (head.unique_id >= 0) then
+          FleetBoard.DeleteFleet(i)
+        else
+          inc(i);
+      end;
+    end;
+  end;
+
+  for i := 0 to count -1 do
+  begin
+    if LanguagePlugIn.ReadPhalanxScanGet(fleet) then
+    begin
+      if (fleet.head.eventtype <> fet_espionage){ and
+         (not ((fef_return in fleet.head.eventflags) and
+                (fef_own in fleet.head.eventflags)))} then
+      begin
+        j := UniTree.UniReport(fleet.head.target);
+        if j >= 0 then
+        begin
+          fleet.ress[0] := Berichte[j].Bericht[sg_Rohstoffe][0] div 2;
+          fleet.ress[1] := Berichte[j].Bericht[sg_Rohstoffe][1] div 2;
+          fleet.ress[2] := Berichte[j].Bericht[sg_Rohstoffe][2] div 2;
+        end;
+
+        fleet.head.player := Username;
+        FleetBoard.AddFleet(fleet);
+      end;
+    end;
+  end;
+end;
 
 function TOgameDataBase.GetPlayerAtPos(planet: TPlanetPosition;
   addstatus: boolean = true): string;
