@@ -297,6 +297,7 @@ object FRM_Main: TFRM_Main
           Width = 56
           Height = 13
           Caption = 'Quick Start:'
+          Visible = False
         end
         object Label6: TLabel
           Left = 8
@@ -307,6 +308,7 @@ object FRM_Main: TFRM_Main
           Caption = 
             'Spionageberichte und Sonnensysteme werden automatisch eingelesen' +
             ': Im Browser: Strg+A, Strg+C '
+          Visible = False
           WordWrap = True
         end
         object Label7: TLabel
@@ -318,6 +320,7 @@ object FRM_Main: TFRM_Main
           Caption = 
             'Mit der Scanliste kann man seine Spionagebrichte verwalten und s' +
             'ortieren.'
+          Visible = False
           WordWrap = True
         end
         object Label8: TLabel
@@ -329,6 +332,7 @@ object FRM_Main: TFRM_Main
           Caption = 
             'Mit dem Galaxy-Explorer kann man durch die Sonnensysteme klicken' +
             '.'
+          Visible = False
           WordWrap = True
         end
         object Label9: TLabel
@@ -338,6 +342,7 @@ object FRM_Main: TFRM_Main
           Height = 41
           AutoSize = False
           Caption = 'Die Spionageberichte werden dann hier im Hauptfenster angezeigt.'
+          Visible = False
           WordWrap = True
         end
       end
