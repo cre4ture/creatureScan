@@ -83,7 +83,7 @@ object FRM_Favoriten: TFRM_Favoriten
       Width = 153
       Height = 21
       Style = csDropDownList
-      ItemHeight = 0
+      ItemHeight = 13
       TabOrder = 1
       OnChange = CB_KoordsChange
     end

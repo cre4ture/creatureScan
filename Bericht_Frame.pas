@@ -145,9 +145,19 @@ begin
   //copy original
   Bericht_calc := NewScanBericht(Bericht_orig);
 
+  //Set Forschung:
+  if f_use_player_info then
+  begin
+    for i := 0 to ScanFileCounts[sg_Forschung]-1 do
+    begin
+      Bericht_calc.Bericht[sg_Forschung][i] := player_info.Research[i];
+    end;
+    dt_forschungsdate := UnixToDateTime(player_info.ResearchTime_u);
+  end;
+
   calcMineProductionAndEnergy;
 
-  //calculate production:
+  //calculate ress_now:
   if calc_resources then
   begin
     alter_h := (ODataBase.FleetBoard.GameTime.UnixTime - (Bericht.Head.time_u)) / 60 / 60;
@@ -157,16 +167,6 @@ begin
       Bericht_calc.Bericht[sg_Rohstoffe][sb_Ress_array[m]] :=
         CalcScanRess_Now(Bericht_orig, m, alter_h, mineprod_h[m]);
     end;
-  end;
-
-  //Set Forschung:
-  if f_use_player_info then
-  begin
-    for i := 0 to ScanFileCounts[sg_Forschung]-1 do
-    begin
-      Bericht_calc.Bericht[sg_Forschung][i] := player_info.Research[i];
-    end;
-    dt_forschungsdate := UnixToDateTime(player_info.ResearchTime_u);
   end;
 
   Refresh;
