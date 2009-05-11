@@ -140,6 +140,18 @@ type
     Spionage1: TMenuItem;
     N10: TMenuItem;
     Raideintragen1: TMenuItem;
+    p_startscreen: TPanel;
+    lbl_title: TLabel;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
+    procedure Label4Click(Sender: TObject);
     procedure Raideintragen1Click(Sender: TObject);
     procedure Spionage1Click(Sender: TObject);
     procedure Angriff1Click(Sender: TObject);
@@ -287,6 +299,8 @@ var
   explorer : array of TExplorer;
   suchen : array of TFRM_Suche;
 
+procedure callLink(url: string);
+
 
 implementation
 
@@ -400,6 +414,8 @@ end;
 
 procedure TFRM_Main.FormCreate(Sender: TObject);
 begin
+  lbl_title.Caption := lbl_title.Caption + VNumber;
+
   topmost := false;
   StatusBar1.Panels[0].Text := STR_topmost;
 
@@ -969,6 +985,7 @@ var gpi: TPlayerInformation;
 begin
   Frame_Bericht1.Bericht := NewScanBericht(Scan);
 
+  p_startscreen.Visible := False;
   if P_Scan.Visible = false then
   begin
     ShowScanPanel;
@@ -1237,7 +1254,7 @@ begin
     if (Version <> '')and(Version > VNumber) then
       if Application.MessageBox(PCHar(STR_MSG_aktuellere_Version + Version + #13 + #10 + STR_ASK_Homepage_oeffnen),PChar(STR_Neue_Version),MB_YESNO or MB_ICONQUESTION) = idYes then
       begin
-        ShellExecute(Self.Handle,'open',PChar('http://www.creatureScan.creax.de'),'','',0);
+        callLink('http://www.creatureScan.creax.de');
       end;
   end;
   if (soStartupServer in Einstellungen) then
@@ -1396,7 +1413,7 @@ begin
   if ini.ReadBool(GeneralSection,'BeepByWatchClipboard',false) then include(Einstellungen,soBeepByWatchClipboard);
   if ini.readBool(GeneralSection,'soUniCheck',false) then include(Einstellungen,soUniCheck);
   if ini.ReadBool(GeneralSection,'soStartupServer',false) then include(Einstellungen,soStartupServer);
-  CVActive := ini.ReadBool(GeneralSection,'WatchClipboard',false);
+  CVActive := ini.ReadBool(GeneralSection,'WatchClipboard',true);
   PlayerOptions.ServerPort := ini.ReadInteger(GeneralSection,'StartupServerPort',44456);
 
   LBL_WF_0_2.Caption := ini.ReadString(GeneralSection,'Schlachtschiff_Name',LBL_WF_0_2.Caption);
@@ -1981,6 +1998,14 @@ begin
   Application.BringToFront;
 end;
 
+procedure TFRM_Main.Label4Click(Sender: TObject);
+begin
+  with sender as TLabel do
+  begin
+    callLink(Caption);
+  end;
+end;
+
 procedure TFRM_Main.LangPluginOnAskMoon(Sender: TLangPlugIn;
   Report: TScanBericht; var isMoon, Handled: Boolean);
 var sys, planet: integer;
@@ -2000,6 +2025,11 @@ end;
 procedure TFRM_Main.btn_fight_startClick(Sender: TObject);
 begin
   popup_auftrag.Popup(Mouse.CursorPos.X, Mouse.CursorPos.Y);
+end;
+
+procedure callLink(url: string);
+begin
+  ShellExecute(0,'open',PChar(url),'','',0);
 end;
 
 end.

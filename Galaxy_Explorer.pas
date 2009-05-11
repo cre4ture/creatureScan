@@ -8,21 +8,6 @@ uses
   ImgList, VirtualTrees, clipbrd, ToolWin, inifiles, VSTPopup,
   StringListEdit, VTHeaderPopup, DateUtils, UniTree, frm_pos_size_ini;
 
-const
-  col_Pos = 0;
-  col_Planet = 1;
-  col_Mond = 2;
-  col_TF = 3;
-  col_Player = 4;
-  col_Ally = 5;
-  col_Notizen = 6;
-  col_Punkte = 7;
-  col_Platz = 8;
-  col_Fleetpunkte = 9;
-  col_Fleetplatz = 10;
-  col_Allypunkte = 11;
-  col_Allyplatz = 12;
-
 type
   TExplorerZeitFormat = (ezf_Datum, ezf_DatumUhrzeit);
   TExplorer = class(TForm)
@@ -62,6 +47,7 @@ type
     SB_PasteSystem: TSpeedButton;
     folgeeingelesenenSystemen1: TMenuItem;
     N4: TMenuItem;
+    procedure SB_PasteSystemClick(Sender: TObject);
     procedure folgeeingelesenenSystemen1Click(Sender: TObject);
     //procedure PaintBox1Paint(Sender: TObject);
     procedure TXT_GalaxyKeyPress(Sender: TObject; var Key: Char);
@@ -151,10 +137,7 @@ type
   protected
     PROCEDURE CreateParams(VAR Params: TCreateParams); OVERRIDE;
   end;
-  
-const
-  lineheigth = 20;
-  IconWidth = 16;
+
 
 var
   explorer_Zeitformat: TExplorerZeitFormat;
@@ -170,6 +153,25 @@ procedure explorer_load(ini: TIniFile);
 implementation
 
 uses Main, Notizen, Favoriten, Suche, Languages, Types;
+
+const
+  lineheigth = 20;
+  IconWidth = 16;
+const
+  col_Pos = 0;
+  col_Planet = 1;
+  col_Mond = 2;
+  col_TF = 3;
+  col_Player = 4;
+  col_Ally = 5;
+  col_Notizen = 6;
+  col_Punkte = 7;
+  col_Platz = 8;
+  col_Fleetpunkte = 9;
+  col_Fleetplatz = 10;
+  col_Allypunkte = 11;
+  col_Allyplatz = 12;
+
 
 {$R *.DFM}
 
@@ -317,8 +319,12 @@ end;
 procedure TExplorer.SB_PasteScanClick(Sender: TObject);
 begin
   FRM_Main.ClipbrdReadScan;
-  FRM_Main.ClipbrdReadSys;
 end;                                                                                       
+
+procedure TExplorer.SB_PasteSystemClick(Sender: TObject);
+begin
+  FRM_Main.ClipbrdReadSys;
+end;
 
 procedure TExplorer.Playernamenkopieren1Click(Sender: TObject);
 begin

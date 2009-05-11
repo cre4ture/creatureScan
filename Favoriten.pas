@@ -800,11 +800,14 @@ end;
 procedure TFRM_Favoriten.VST_ScanListClick(Sender: TObject);
 var menu: TPopupMenu;
     b: Boolean;
+    HitInfo: THitInfo;
 begin
-  if VST_ScanList.FocusedColumn = col_Notizen then
+  VST_ScanList.GetHitTestInfoAt(VST_clickpos.X, VST_clickpos.Y, true, HitInfo);
+  if (HitInfo.HitColumn = fcol_Notizen) and
+     (HitInfo.HitNode <> nil) then
   begin
-    VST_ScanList.OnGetPopupMenu(VST_ScanList,VST_ScanList.FocusedNode,
-                        col_Notizen,Mouse.CursorPos,B,menu);
+    VST_ScanList.OnGetPopupMenu(VST_ScanList,HitInfo.HitNode,
+                        fcol_Notizen,Mouse.CursorPos,B,menu);
     menu.Popup(Mouse.CursorPos.X,Mouse.CursorPos.Y);
   end;
 end;
@@ -1119,7 +1122,7 @@ begin
     for i := 0 to length(items)-1 do
     begin
       FRM_Notizen.ImageList1.draw(TargetCanvas,
-                                  CellRect.Left + 3 + i*IconWidth,
+                                  CellRect.Left + 3 + i*FRM_Notizen.ImageList1.Width,
                                   CellRect.Top + (CellRect.Bottom-CellRect.Top-FRM_Notizen.ImageList1.Height)div 2,
                                   items[i].Image);
     end;

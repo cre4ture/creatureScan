@@ -227,7 +227,7 @@ object Explorer: TExplorer
       Height = 21
       Caption = 'System einlesen'
       Flat = True
-      OnClick = SB_PasteScanClick
+      OnClick = SB_PasteSystemClick
     end
     object TXT_Galaxy: TEdit
       Left = 164

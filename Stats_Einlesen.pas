@@ -39,6 +39,8 @@ type
 
 implementation
 
+uses main;
+
 {$R *.DFM}
 
 procedure TFRM_Stats_Einlesen.PaintBox3Paint(Sender: TObject);
@@ -76,7 +78,8 @@ begin
     d := St.Datum[i*100+1];
     while d <> -1 do
     begin
-      Canvas.Brush.Color := AlterToColor_dt(now - D,ODataBase.redHours[rh_Stats]);
+      Canvas.Brush.Color := AlterToColor_dt(
+         ODataBase.FleetBoard.GameTime.Time - D,ODataBase.redHours[rh_Stats]);
       Canvas.Rectangle(0,i*16,Width,i*16+16);
       Canvas.TextOut(4,i*16+1,DateTimeToStr(D));
 
