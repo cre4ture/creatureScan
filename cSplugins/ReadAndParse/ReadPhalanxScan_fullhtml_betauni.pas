@@ -344,6 +344,7 @@ var el, tag_ul: THTMLElement;
 
     fet: TFleetEventType;
 begin
+  sec := 0;
   Result := false;
   FillChar(fleet, sizeof(fleet), 0);
 
