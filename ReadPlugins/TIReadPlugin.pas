@@ -437,7 +437,7 @@ function TLangPlugIn.ReadPhalanxScan(): integer;
 begin
   if Assigned(PReadPhalanxScan) then
     Result := PReadPhalanxScan(rs_handle)
-  else Result := 0;
+  else Result := -1;
 end;
 
 function TLangPlugIn.ReadPhalanxScanGet(out fleet: TFleetEvent): Boolean;

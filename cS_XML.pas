@@ -1054,7 +1054,6 @@ end;
 
 function StringToFleetJobFlags(s: string): TFleetEventFlags;
 var flag: TFleetEventFlag;
-    l: integer;
 begin
   Result := [];
   s := s + ' ';
@@ -1121,7 +1120,6 @@ end;
 function parse_fleet(parser: TXMLParser; var fleet: TFleetEvent): Boolean;
 
   function parse_fleet_info: boolean;
-  var ress: TInfoArray;
   begin
     Result := True;
     if (parser.CurName = xflt_origintag) then

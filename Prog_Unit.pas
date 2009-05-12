@@ -40,7 +40,7 @@ const
   pi_TSyncRaids      = 1029;
   pi_TSyncStats      = 1030;
 
-const VNumber = '1.8c';
+const VNumber = '1.8d';
       
 
 {$DEFINE oanzahl}  //ohne Anzahl!! -- brauchts nirgends mehr!
@@ -187,7 +187,8 @@ var count, i, j: integer;
 begin
   count := LanguagePlugIn.ReadPhalanxScan();
 
-  if count > 0 then
+  Result := (count >= 0);
+  if Result then
   begin
     //Vorher alle eingelesenen Flotten löschen:
     // (damit alle "frisch" wieder eingelesen werden)
@@ -197,7 +198,11 @@ begin
       with FleetBoard.Fleets[i] do
       begin
         if (head.player = Username)and
-           (head.unique_id >= 0) then
+           (head.unique_id >= 0)and
+           (
+             (GetPlayerAtPos(head.origin, false) = Username)or
+             (GetPlayerAtPos(head.target, false) = Username)
+           ) then
           FleetBoard.DeleteFleet(i)
         else
           inc(i);

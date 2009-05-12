@@ -229,8 +229,6 @@ type
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
-    session_id: string;
-
     beenden: boolean;
     eee: integer;
     IniFile: String;
@@ -1760,7 +1758,6 @@ end;
 
 procedure TFRM_Main.ClipbrdReadScan;
 var r: integer;
-    s: string;
 begin
   ODataBase.LanguagePlugIn.SetReadSourceText(clipboard.AsText + ' ');
   r := ODataBase.LeseMehrereScanberichte();
@@ -1774,7 +1771,6 @@ begin
 end;
 
 procedure TFRM_Main.ClipbrdReadSys;
-var s: string;
 begin
   ODataBase.LanguagePlugIn.SetReadSourceText(GetClipboardText);
   ODataBase.LanguagePlugIn.SetReadSourceHTML(GetClipboardHtml);
