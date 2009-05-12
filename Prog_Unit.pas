@@ -187,7 +187,7 @@ var count, i, j: integer;
 begin
   count := LanguagePlugIn.ReadPhalanxScan();
 
-  Result := (count >= 0);
+  Result := (count > 0);
   if Result then
   begin
     //Vorher alle eingelesenen Flotten löschen:
