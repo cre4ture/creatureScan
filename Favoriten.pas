@@ -737,7 +737,7 @@ end;
 procedure TFRM_Favoriten.VST_ScanListGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
   var CellText: WideString);
-var i, snr: Integer;
+var i: Integer;
     scan: TScanBericht;
     fav: TFav;
 begin
@@ -1032,8 +1032,7 @@ begin
 end;
 
 procedure TFRM_Favoriten.VST_ScanListDblClick(Sender: TObject);
-var d, g: integer;
-    Column: Integer;
+var Column: Integer;
     s: widestring;
 begin
   //Berechen Spalte:

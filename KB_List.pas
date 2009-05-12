@@ -569,7 +569,7 @@ begin
 end;
 
 procedure TFRM_KB_List.Timer1Timer(Sender: TObject);
-var i, frm_index, next_f: integer;
+var i, next_f: integer;
     fleet: TFleetEvent;
     zeit: int64;
     frm: Tfrm_fleet_arrival;
@@ -578,7 +578,6 @@ begin
   // Zeige Serverzeit:
   lbl_servertime.Caption := DateTimeToStr(ODataBase.FleetBoard.GameTime.Time);
 
-  frm_index := 0;
   next_f := -1;
 
   if FRM_Main.PlayerOptions.Fleet_ShowArivalMessage then

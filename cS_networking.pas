@@ -505,7 +505,6 @@ var p: pointer;
     Vinf: TLoginData;
     cscond: TcSConnectionData;
 begin
-  success := False;
   while Socket.GetPacket(p,size) do
   try
     if (size = sizeof(TLoginData)) then
@@ -573,7 +572,6 @@ end;
 procedure TcSServer.FLoginMergeOnNewSocket(Sender: TObject;
   Socket: TSplitSocket);
 var VInf: TLoginData;
-    NdLogin: Boolean;
 begin
   if TcSSocketMultiplex(Socket.HostSocket).Master then
   begin

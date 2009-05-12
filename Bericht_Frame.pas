@@ -87,7 +87,6 @@ type
     function GetShowStorage: Boolean;
     function countShips(scan: TScanbericht): Integer;
     procedure DrawPlanetInfo;
-    procedure calc_loot;
     procedure LastActivity_Out(var x: integer; y: integer);
     procedure _DrawProduktion_(var line: integer; Zeile, ya: integer);
     { Private-Deklarationen }
@@ -229,7 +228,7 @@ var s : string;
     xml: THTMLElement;
     xml_root: THTMLElement;
     a_color: TColor;
-    energy_consumption, sheight: integer;
+    sheight: integer;
 begin
  with PB_B.Canvas do
  begin
@@ -1014,7 +1013,7 @@ begin
 end;
 
 function TFrame_Bericht.getEnergyField: THTMLElement;
-var eleft, efull: string;
+var eleft: string;
 begin
   Result := THTMLElement.Create(nil, 'item');
   //Beschriftung:
@@ -1143,23 +1142,6 @@ begin
   PB_B.Refresh;
 end;
 
-procedure TFrame_Bericht.calc_loot;
-var i: integer;
-    m: TRessType;
-    flt: TFleetEvent;
-begin
-  //Clear
-  for m := low(m) to high(m) do
-    loot_since_scan[m] := 0;
-
-  //Search
-  for i := 0 to ODataBase.FleetBoard.History.Count -1 do
-  begin
-    flt := ODataBase.FleetBoard.History[i];
-    // Das Geht so nicht.... ICH BRAUCHE EINE STARTZEIT!!! if (flt.head.arrival_time_u 
-  end;
-end;
-
 procedure TFrame_Bericht.LastActivity_Out(var x: integer; y: integer);
 var s: string;
 begin
@@ -1185,8 +1167,7 @@ begin
 end;
 
 procedure TFrame_Bericht._DrawProduktion_(var line: integer; Zeile, ya: integer);
-var x: integer;
-    s: string;
+var s: string;
 begin
   with PB_B.Canvas do
   begin
@@ -1197,7 +1178,6 @@ begin
      Brush.Color := clgreen;
      Font.Color := cl_text_color;
      Rectangle(0,line*Zeile,PB_B.Width,line*Zeile+Zeile);
-     x := 0; //erste spalte
      TextOut(5,line*Zeile+ya,STR_Produktion);
      Brush.Color := clblack;
      //inc(y); //nächste zeile
@@ -1236,7 +1216,6 @@ begin
      inc(line);
      Brush.Color := clgreen;
      Rectangle(0,line*Zeile,PB_B.Width,line*Zeile+Zeile);
-     x := 0; //erste spalte
      TextOut(5,line*Zeile+ya, plugin.SBItems[sg_Rohstoffe][0] + '/(' + STR_Produktion + ')');
      Brush.Color := clblack;
 
@@ -1276,7 +1255,6 @@ begin
    begin
      Brush.Color := clgreen;
      Rectangle(0,line*Zeile,PB_B.Width,line*Zeile+Zeile);
-     x := 0; //erste spalte
      TextOut(5,line*Zeile+ya, 'Lagerkapazität');
      Brush.Color := clblack;
      //inc(y); //nächste zeile
