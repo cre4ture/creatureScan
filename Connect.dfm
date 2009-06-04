@@ -75,7 +75,7 @@ object FRM_Connect: TFRM_Connect
     PopupMenu = PopupMenu1
     TabOrder = 7
     OnClick = ListBox1Click
-    OnDblClick = Verbinden1Click
+    OnDblClick = ListBox1DblClick
   end
   object btn_ok: TButton
     Left = 92

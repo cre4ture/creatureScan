@@ -24,6 +24,7 @@ type
     txt_pw: TEdit;
     Label5: TLabel;
     cb_save_pw: TCheckBox;
+    procedure ListBox1DblClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btn_okClick(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
@@ -135,6 +136,14 @@ begin
     txt_pw.Text :=
          history.ChildElements[ListBox1.itemindex].AttributeValue['pass'];
     cb_save_pw.Checked := txt_pw.Text <> '';
+  end;
+end;
+
+procedure TFRM_Connect.ListBox1DblClick(Sender: TObject);
+begin
+  if ListBox1.ItemIndex >= 0 then
+  begin
+    Verbinden1Click(Sender);
   end;
 end;
 
