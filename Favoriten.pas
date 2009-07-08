@@ -843,6 +843,8 @@ begin
     //Berechnete Rohstoffe (Produktion mit einberechnet!)
     25..29,31: if getIntValColumn(Column, Fav1) > getIntValColumn(Column, Fav2) then
               Result := 1 else Result := -1;
+//    30: if Fav1.notes then, ka wie des genau mit den notizen klappen soll (nach welcher regel?)
+        
   else
     VST_ScanListGetText(Sender,Node1,Column,ttNormal,s1);
     VST_ScanListGetText(Sender,Node2,Column,ttNormal,s2);
