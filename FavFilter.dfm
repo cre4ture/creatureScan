@@ -1,9 +1,9 @@
 object FRM_Filter: TFRM_Filter
   Left = 428
   Top = 224
-  Width = 317
-  Height = 258
   Caption = 'Filter'
+  ClientHeight = 231
+  ClientWidth = 309
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,12 +11,11 @@ object FRM_Filter: TFRM_Filter
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
-  Position = poDefaultPosOnly
   OnCreate = FormCreate
   OnShow = FormShow
   DesignSize = (
     309
-    228)
+    231)
   PixelsPerInch = 96
   TextHeight = 13
   object Fav_Pages: TPageControl
@@ -24,7 +23,7 @@ object FRM_Filter: TFRM_Filter
     Top = 0
     Width = 309
     Height = 193
-    ActivePage = TS_Def_Fleet_Stat
+    ActivePage = TS_Koordinaten
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
     object TS_Alter: TTabSheet
@@ -236,8 +235,8 @@ object FRM_Filter: TFRM_Filter
         Height = 77
         AutoSize = False
         Caption = 
-          'Zum Bearbeiten des Filters, verwende den Hacken "aktuellen Filte' +
-          'r anzeigen/editieren" im Fenster Universums'#252'bersicht'
+          'Zum Bearbeiten des Filters, verwende den Haken "aktuellen Filter' +
+          ' anzeigen/editieren" im Fenster Universums'#252'bersicht'
         WordWrap = True
       end
       object CB_KoordB: TComboBox
@@ -250,6 +249,7 @@ object FRM_Filter: TFRM_Filter
         ItemIndex = 0
         TabOrder = 0
         Text = 'area1'
+        OnChange = CB_KoordBChange
         Items.Strings = (
           'area1'
           'area2')

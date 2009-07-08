@@ -93,6 +93,7 @@ type
     Button4: TButton;
     cb_stat_negativ: TCheckBox;
     Label1: TLabel;
+    procedure CB_KoordBChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure TXT_Status_mitKeyPress(Sender: TObject; var Key: Char);
@@ -358,6 +359,11 @@ begin
   end;
 end;
 
+procedure TFRM_Filter.CB_KoordBChange(Sender: TObject);
+begin
+  Button3.Enabled := CB_KoordB.ItemIndex >= 0;
+end;
+
 procedure TFRM_Filter.Refresh_CB_KoordB;
 var i: Integer;
 begin
@@ -372,6 +378,7 @@ procedure TFRM_Filter.FormShow(Sender: TObject);
 begin
   Refresh_CB_KoordB;
   Fav_Pages.ActivePageIndex := 0;
+  CB_KoordB.OnChange(Sender);
 end;
 
 function TPlanetRangeList.AddPlanetRange(pr: TPlanetRange): Integer;
