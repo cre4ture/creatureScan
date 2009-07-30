@@ -100,8 +100,8 @@ begin
     text := ClipBoard.AsText;
     if Text <> LastClipBoard then
     begin
-      ODataBase.LanguagePlugIn.SetReadSourceText(text);
-      ODataBase.LanguagePlugIn.SetReadSourceHTML(ReadClipboardHtml);
+      ODataBase.LanguagePlugIn.SetReadSourceText(text, ODataBase.FleetBoard.GameTime.UnixTime);
+      ODataBase.LanguagePlugIn.SetReadSourceHTML(ReadClipboardHtml, ODataBase.FleetBoard.GameTime.UnixTime);
 
       LastClipBoard := Text;//Memo1.Lines.Text;
       begin

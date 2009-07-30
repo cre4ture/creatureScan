@@ -78,7 +78,6 @@ type
     TIM_Start: TTimer;
     il_trayicon: TImageList;
     Zwischenablageberwachen1: TMenuItem;
-    SuchenErsetzen1: TMenuItem;
     Panel1: TPanel;
     lst_others: TListView;
     BTN_Paste: TButton;
@@ -151,6 +150,8 @@ type
     Label7: TLabel;
     Label8: TLabel;
     Label9: TLabel;
+    Label10: TLabel;
+    phpSync1: TMenuItem;
     procedure Label4Click(Sender: TObject);
     procedure Raideintragen1Click(Sender: TObject);
     procedure Spionage1Click(Sender: TObject);
@@ -226,6 +227,7 @@ type
     procedure Frame_Bericht1PB_BPaint(Sender: TObject);
     procedure StatusBar1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure phpSync1Click(Sender: TObject);
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
@@ -305,7 +307,8 @@ implementation
 uses Notizen, Favoriten, Info,
   Uebersicht, Connections, Export, Einstellungen, Suchen_Ersetzen,
   KB_List, Add_KB, Languages, Delete_Scans,
-  Stats_Einlesen, DateUtils, _test_POST, ComConst, StrUtils;
+  Stats_Einlesen, DateUtils, _test_POST, ComConst, StrUtils, sync_cS_db_engine,
+  SDBFile;
 
 {$R *.DFM}
 
@@ -364,6 +367,7 @@ begin
       info := ODataBase.Systeme[snr].Planeten[Pos.P[2]];
       Frame_Bericht1.ShowPlanetInfo(Pos,info);
 
+      p_startscreen.Visible := false;
       ShowScanPanel();
     end
     else
@@ -1003,6 +1007,11 @@ begin
   Wellenangriff(Frame_Bericht1.Bericht);
 end;
 
+procedure TFRM_Main.phpSync1Click(Sender: TObject);
+begin
+  frm_sync_cS_db_engine.show();
+end;
+
 procedure TFRM_Main.BTN_UniversumClick(Sender: TObject);
 begin
   FRM_Uebersicht.Show;
@@ -1227,6 +1236,7 @@ var Version: String;
 begin
   TIM_Start.Enabled := False;
 
+  (* Wird hoffentlich nicht mehr benötigt!!!
   //Alte Scandatei importieren
   OldFile := ODataBase.SaveDir + inttostr(ODataBase.LangIndex) + '_Spioarchiv' + IntToStr(ODataBase.UserUni) + '.csscan.old';
   if FileExists(OldFile) then
@@ -1244,7 +1254,7 @@ begin
     if Application.MessageBox(PChar(STR_SysImportFertig_loeschn),'cS Import',MB_YESNO) = idYes then
       DeleteFile(OldFile)
     else RenameFile(OldFile,OldFile+'.cssys');
-  end;
+  end; *)
 
   if soAutoUpdateCheck in Einstellungen then
   begin
@@ -1582,8 +1592,8 @@ begin
   if ((Text <> LastClipBoard)) then
   begin
 
-    ODataBase.LanguagePlugIn.SetReadSourceText(text);
-    ODataBase.LanguagePlugIn.SetReadSourceHTML(html);
+    ODataBase.LanguagePlugIn.SetReadSourceText(text, ODataBase.FleetBoard.GameTime.UnixTime);
+    ODataBase.LanguagePlugIn.SetReadSourceHTML(html, ODataBase.FleetBoard.GameTime.UnixTime);
 
     if
        (
@@ -1633,20 +1643,26 @@ begin
 end;
 
 procedure TFRM_Main.VergelicheSysDateimitDB1Click(Sender: TObject);
-var sysfile: TcSSolSysDB_for_File;
+var sysfile: TcSSolSysDBFile;
     sys: TSystemCopy;
     i, s: integer;
     m: string;
     FRM: TFRM_StringlistEdit;
 begin
+  OpenDialog1.FileName := 'SolsysDB';
   if OpenDialog1.Execute then
   begin
-    sysfile := TcSSolSysDB_for_File.Create(OpenDialog1.FileName,-1);
+    // You better use TcSSolSysDBFile!!!
+    sysfile := TcSSolSysDBFile.Create(OpenDialog1.FileName);
     FRM := TFRM_StringlistEdit.Create(self);
     FRM.Show;
-    for i := 0 to sysfile.SysCount-1 do
+
+    if sysfile.Universe <> ODataBase.UserUni then
+      FRM.Memo1.Lines.Add('Universe: ' + IntToStr(sysfile.Universe));
+
+    for i := 0 to sysfile.Count-1 do
     begin
-      sys := sysfile[i];
+      sys := sysfile.SolSys[i];
       s := ODataBase.Uni[sys.System.P[0],sys.System.P[1]].SystemCopy;
       if s >= 0 then
         m := CompareSys(sys,ODataBase.Systeme[s])
@@ -1695,21 +1711,27 @@ begin
 end;
 
 procedure TFRM_Main.VergleicheScanDateimitDB1Click(Sender: TObject);
-var ScanFile: TcSReportDB_for_File;
+var ScanFile: TcSReportDBFile;
     FRM: TFRM_StringlistEdit;
     i, j: integer;
     Scan: TScanBericht;
     found: Boolean;
     m: string;
 begin
+  OpenDialog1.FileName := 'ScanDB';
   If OpenDialog1.Execute then
   begin
-    ScanFile := TcSReportDB_for_File.Create(OpenDialog1.FileName,-1);
+    // You better use TcSReportDBFile!!!
+    ScanFile := TcSReportDBFile.Create(OpenDialog1.FileName);
     FRM := TFRM_StringlistEdit.Create(self);
     FRM.Show;
-    for i := 0 to Scanfile.ScanCount-1 do
+
+      if ScanFile.Universe <> ODataBase.UserUni then
+    FRM.Memo1.Lines.Add('Universe: ' + IntToStr(ScanFile.Universe));
+
+    for i := 0 to Scanfile.Count-1 do
     begin
-      Scan := ScanFile[i];
+      Scan := ScanFile.Reports[i];
       found := False;
       m := '';
       for j := 0 to ODataBase.Berichte.Count-1 do
@@ -1746,7 +1768,7 @@ begin
     clipbrdfunctions.SaveClipboardtoFile(filename,
       ODataBase.LanguagePlugIn.PluginFilename,
       ODataBase.LanguagePlugIn.PlugInName,
-      ODataBase.LangIndex,
+      ODataBase.game_domain,
       ODataBase.UserUni);
   end;
 end;
@@ -1759,7 +1781,7 @@ end;
 procedure TFRM_Main.ClipbrdReadScan;
 var r: integer;
 begin
-  ODataBase.LanguagePlugIn.SetReadSourceText(clipboard.AsText + ' ');
+  ODataBase.LanguagePlugIn.SetReadSourceText(clipboard.AsText + ' ', ODataBase.FleetBoard.GameTime.UnixTime);
   r := ODataBase.LeseMehrereScanberichte();
   if r > 0 then
   begin
@@ -1772,8 +1794,8 @@ end;
 
 procedure TFRM_Main.ClipbrdReadSys;
 begin
-  ODataBase.LanguagePlugIn.SetReadSourceText(GetClipboardText);
-  ODataBase.LanguagePlugIn.SetReadSourceHTML(GetClipboardHtml);
+  ODataBase.LanguagePlugIn.SetReadSourceText(GetClipboardText, ODataBase.FleetBoard.GameTime.UnixTime);
+  ODataBase.LanguagePlugIn.SetReadSourceHTML(GetClipboardHtml, ODataBase.FleetBoard.GameTime.UnixTime);
   ODataBase.LeseSystem();
 end;
 

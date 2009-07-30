@@ -33,6 +33,7 @@ type
     E_Planet: TEdit;
     Label1: TLabel;
     cb_TF_calc: TComboBox;
+    Label2: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormPaint(Sender: TObject);
     procedure E_GalaKeyPress(Sender: TObject; var Key: Char);
@@ -41,7 +42,7 @@ type
   private
     { Private-Deklarationen }
   public
-    LanguageIndex: Integer;
+    game_domain: string;
     Universe: Integer;
     DefInTF: Boolean;
     GalaCount, SysCount: Integer;
@@ -62,7 +63,7 @@ uses Prog_Unit;
 function TFRM_Spielerdaten.Execute: boolean;
 var i: integer;
 begin
-  CB_OGame_Language.ItemIndex := LanguageIndex;
+  CB_OGame_Language.Text := game_domain;
   E_Uni.Value := Universe;
   CH_DefInTF.Checked := DefInTF;
   txt_speedfaktor.Text := FloatToStr(SpeedFaktor);
@@ -86,7 +87,7 @@ begin
   Result := (ShowModal = mrOk);
   if Result then
   begin
-    LanguageIndex := CB_OGame_Language.ItemIndex;
+    game_domain := CB_OGame_Language.Text;
     Universe := E_Uni.Value;
     DefInTF := CH_DefInTF.Checked;
     SpeedFaktor := StrToFloat(txt_speedfaktor.Text);

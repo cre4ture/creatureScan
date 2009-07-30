@@ -70,7 +70,10 @@ uses
   langmodform in 'langmodform.pas',
   sliding_window in 'sliding_window.pas',
   notify_fleet_arrival in 'notify_fleet_arrival.pas' {frm_fleet_arrival},
-  EditScan in 'EditScan.pas' {FRM_EditScan};
+  EditScan in 'EditScan.pas' {FRM_EditScan},
+  zeit_sync in '..\Ogame_tools\zeit_sync\zeit_sync.pas',
+  config_cS_db_engine in 'config_cS_db_engine.pas' {frm_config_cS_engine},
+  sync_cS_db_engine in 'sync_cS_db_engine.pas' {frm_sync_cS_db_engine};
 
 {$R *.RES}
 
@@ -206,6 +209,7 @@ begin
   Application.CreateForm(TFRM_Favoriten, FRM_Favoriten);
   Application.CreateForm(TFRM_Info, FRM_Info);
   Application.CreateForm(TFRM_EditScan, FRM_EditScan);
+  Application.CreateForm(Tfrm_sync_cS_db_engine, frm_sync_cS_db_engine);
   Application.Run;
 
   FRM_Chat.Free;

@@ -49,7 +49,7 @@ object FRM_SelectPlugin: TFRM_SelectPlugin
     Height = 21
     Style = csDropDownList
     Anchors = [akLeft, akTop, akRight]
-    ItemHeight = 13
+    ItemHeight = 0
     TabOrder = 0
   end
   object BTN_OK: TButton

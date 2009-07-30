@@ -9,7 +9,7 @@ uses
 const
   PluginSection = 'ioplugin';
   PluginName = 'name';
-  PluginLangIndex = 'langindex';
+  PluginDomain = 'game_domain';
 
 type
   TFRM_SelectPlugin = class(TForm)
@@ -28,9 +28,9 @@ type
     PlugInDir: String;
     { Private-Deklarationen }
   public
-    LanguageIndex: integer;
+    game_domain: String;
     PluginFile: String;
-    constructor Create(AOwner: TComponent; LangIndex: Integer);
+    constructor Create(AOwner: TComponent; agame_domain: String);
     { Public-Deklarationen }
   end;
 
@@ -57,7 +57,7 @@ begin
       if FileExists(PlugInDir + f.Name) then
       begin
         ini := TIniFile.Create(PlugInDir + f.Name);
-        if ini.ReadInteger(PluginSection,PluginLangIndex,-1) = LanguageIndex then
+        if ini.ReadString(PluginSection,PluginDomain,'--n/a--') = game_domain then
         begin
           PluginFileList.Add(PlugInDir + f.Name);
           CB_PluginA.Items.Add(ini.ReadString(PluginSection,PluginName,'--error--'));
@@ -77,9 +77,9 @@ begin
   PluginFileList.Free;
 end;
 
-constructor TFRM_SelectPlugin.Create(AOwner: TComponent; LangIndex: Integer);
+constructor TFRM_SelectPlugin.Create(AOwner: TComponent; agame_domain: String);
 begin
-  LanguageIndex := LangIndex;
+  game_domain := agame_domain;
   inherited Create(AOwner);
 end;
 

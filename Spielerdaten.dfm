@@ -3,8 +3,8 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
   Top = 195
   BorderStyle = bsDialog
   Caption = 'Playerinfos'
-  ClientHeight = 308
-  ClientWidth = 301
+  ClientHeight = 409
+  ClientWidth = 343
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,14 +16,14 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
   OnCreate = FormCreate
   OnPaint = FormPaint
   DesignSize = (
-    301
-    308)
+    343
+    409)
   PixelsPerInch = 96
   TextHeight = 13
   object LBL_PlayerI1: TLabel
     Left = 4
     Top = 4
-    Width = 293
+    Width = 331
     Height = 29
     AutoSize = False
     Caption = 
@@ -34,27 +34,27 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
   object GB_PlayerI1: TGroupBox
     Left = 4
     Top = 36
-    Width = 293
-    Height = 165
+    Width = 331
+    Height = 258
     Caption = ' OGame '
     TabOrder = 0
     object LBL_PlayerI2: TLabel
-      Left = 8
-      Top = 44
+      Left = 48
+      Top = 75
       Width = 53
       Height = 13
       Caption = 'Universum:'
     end
     object LBL_PlayerI3: TLabel
-      Left = 8
-      Top = 72
+      Left = 48
+      Top = 102
       Width = 51
       Height = 13
       Caption = 'Parameter:'
     end
     object lbl_Speedfaktor: TLabel
-      Left = 148
-      Top = 44
+      Left = 48
+      Top = 121
       Width = 61
       Height = 13
       Hint = 'auch Bruchzahlen m'#246'glich'
@@ -62,17 +62,24 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
       Caption = 'Speedfaktor:'
     end
     object Label1: TLabel
-      Left = 87
-      Top = 68
+      Left = 48
+      Top = 145
       Width = 94
       Height = 13
       Hint = 'auch Bruchzahlen m'#246'glich'
       Alignment = taRightJustify
       Caption = 'TF Berechnung (%):'
     end
+    object Label2: TLabel
+      Left = 48
+      Top = 29
+      Width = 201
+      Height = 13
+      Caption = 'OGame Domainname (ohne http://www. !)'
+    end
     object E_Uni: TSpinEdit
-      Left = 76
-      Top = 40
+      Left = 228
+      Top = 75
       Width = 53
       Height = 22
       MaxValue = 2147483647
@@ -82,14 +89,13 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
       OnChange = E_UniChange
     end
     object CB_OGame_Language: TComboBox
-      Left = 8
-      Top = 16
-      Width = 277
+      Left = 48
+      Top = 48
+      Width = 233
       Height = 21
       Hint = 
         'w'#228'hle hier ob du in den deutschen Unis (ogame.de) oder in den en' +
         'lischen (ogame.or) oder.... spielst'
-      Style = csDropDownList
       ItemHeight = 13
       ParentShowHint = False
       ShowHint = True
@@ -105,8 +111,8 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
     end
     object RB_GalaCount9: TRadioButton
       Tag = 9
-      Left = 8
-      Top = 108
+      Left = 48
+      Top = 186
       Width = 233
       Height = 17
       Caption = '9 Galaxien 499 Sonnensysteme'
@@ -116,8 +122,8 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
     end
     object RB_GalaCount19: TRadioButton
       Tag = 19
-      Left = 8
-      Top = 124
+      Left = 48
+      Top = 202
       Width = 233
       Height = 17
       Caption = '19 Galaxien 499 Sonnensysteme'
@@ -125,32 +131,32 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
     end
     object RB_GalaCount50: TRadioButton
       Tag = 50
-      Left = 8
-      Top = 140
+      Left = 48
+      Top = 218
       Width = 233
       Height = 17
       Caption = '50 Galaxien 100 Sonnensysteme'
       TabOrder = 7
     end
     object CH_DefInTF: TCheckBox
-      Left = 8
-      Top = 88
-      Width = 277
+      Left = 48
+      Top = 166
+      Width = 235
       Height = 17
       Caption = 'Verteidigung ins Tr'#252'mmerfeld'
       TabOrder = 4
     end
     object txt_speedfaktor: TEdit
-      Left = 216
-      Top = 40
+      Left = 214
+      Top = 118
       Width = 69
       Height = 21
       TabOrder = 2
       Text = '1.0'
     end
     object cb_TF_calc: TComboBox
-      Left = 188
-      Top = 64
+      Left = 186
+      Top = 139
       Width = 97
       Height = 21
       Hint = 
@@ -165,8 +171,8 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
     end
   end
   object BTN_OK: TButton
-    Left = 152
-    Top = 278
+    Left = 258
+    Top = 376
     Width = 77
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -174,10 +180,11 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
     Default = True
     TabOrder = 3
     OnClick = BTN_OKClick
+    ExplicitTop = 311
   end
   object BTN_Abbrechen: TButton
-    Left = 72
-    Top = 278
+    Left = 178
+    Top = 376
     Width = 77
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -185,11 +192,12 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
     Caption = 'Abbrechen'
     ModalResult = 2
     TabOrder = 2
+    ExplicitTop = 311
   end
   object GroupBox1: TGroupBox
     Left = 4
-    Top = 204
-    Width = 293
+    Top = 300
+    Width = 331
     Height = 69
     Caption = ' Spieler: '
     TabOrder = 1
@@ -208,15 +216,15 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
       Caption = 'Hauptplanet:'
     end
     object Label5: TLabel
-      Left = 208
-      Top = 44
+      Left = 120
+      Top = 43
       Width = 3
       Height = 13
       Caption = ':'
     end
     object Label6: TLabel
-      Left = 252
-      Top = 44
+      Left = 164
+      Top = 43
       Width = 3
       Height = 13
       Caption = ':'
@@ -224,22 +232,22 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
     object E_Spielername: TEdit
       Left = 88
       Top = 16
-      Width = 197
+      Width = 233
       Height = 21
       TabOrder = 0
     end
     object E_Gala: TEdit
-      Left = 180
-      Top = 40
-      Width = 25
+      Left = 88
+      Top = 39
+      Width = 29
       Height = 21
       TabOrder = 1
       Text = '0'
       OnKeyPress = E_GalaKeyPress
     end
     object E_System: TEdit
-      Left = 212
-      Top = 40
+      Left = 124
+      Top = 39
       Width = 37
       Height = 21
       TabOrder = 2
@@ -247,8 +255,8 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
       OnKeyPress = E_GalaKeyPress
     end
     object E_Planet: TEdit
-      Left = 256
-      Top = 40
+      Left = 168
+      Top = 39
       Width = 29
       Height = 21
       TabOrder = 3

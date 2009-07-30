@@ -184,6 +184,13 @@ type
     constructor Create(AOwner: TComponent); override;
   end;
 
+  TFleetsInfoSourceType = (fist_none, fist_events, fist_phalanx);
+  TFleetsInfoSource = record
+    typ: TFleetsInfoSourceType;
+    count: integer;
+    planet: TPlanetPosition;
+    time: Int64;
+  end;
   PFleetEventScan = ^TFleetEventScan;
   TFleetEventScanType = (fes_none, fes_own, fes_phalanx, fes_manuel);
   TFleetEventScan = record
@@ -329,9 +336,24 @@ function CalcScanRess_Now(Scan: TScanBericht; const Mine: TRessType;
   alter_h: single; production_per_h: integer): Integer;
 function GetStorageSize(scan: TScanBericht; resstype: TRessType): integer;
 function GetScanGrpCount(Scan: TScanBericht): integer;
+function domainTolangindex(domain: string): integer;
 
 
 implementation
+
+function domainTolangindex(domain: string): integer;
+  var i: integer;
+  begin
+    Result := -1;
+    for i := 0 to length(game_sites) - 1 do
+    begin
+      if domain = game_sites[i] then
+      begin
+        Result := i;
+        break;
+      end;
+    end;
+  end;
 
 function NewScanBericht(Source: TScanBericht): TScanBericht;
 var j: integer;
