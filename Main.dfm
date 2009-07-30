@@ -2,7 +2,7 @@ object FRM_Main: TFRM_Main
   Left = 676
   Top = 115
   Caption = 'creatureScan'
-  ClientHeight = 449
+  ClientHeight = 544
   ClientWidth = 533
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -25,16 +25,17 @@ object FRM_Main: TFRM_Main
     Left = 0
     Top = 0
     Width = 533
-    Height = 430
+    Height = 525
     Align = alClient
     BevelOuter = bvNone
     Color = clBlack
     TabOrder = 0
     Visible = False
     OnResize = P_ExplorerDockResize
+    ExplicitHeight = 506
     inline Frame_Bericht2: TFrame_Bericht
       Left = 0
-      Top = 301
+      Top = 396
       Width = 533
       Height = 129
       HorzScrollBar.Style = ssHotTrack
@@ -47,7 +48,7 @@ object FRM_Main: TFRM_Main
       PopupMenu = Frame_Bericht2.PopupMenu1
       TabOrder = 0
       TabStop = True
-      ExplicitTop = 301
+      ExplicitTop = 377
       ExplicitWidth = 533
       ExplicitHeight = 129
       inherited PB_B: TPaintBox
@@ -59,11 +60,11 @@ object FRM_Main: TFRM_Main
         ExplicitWidth = 517
         inherited LBL_Raid24_Info: TLabel
           Left = 354
-          ExplicitLeft = 353
+          ExplicitLeft = 354
         end
         inherited BTN_Last24: TSpeedButton
           Left = 438
-          ExplicitLeft = 437
+          ExplicitLeft = 438
         end
       end
     end
@@ -72,32 +73,34 @@ object FRM_Main: TFRM_Main
     Left = 0
     Top = 0
     Width = 533
-    Height = 430
+    Height = 525
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitHeight = 506
     object Splitter1: TSplitter
       Left = 429
       Top = 0
-      Height = 430
+      Height = 525
       Align = alRight
       MinSize = 20
       ResizeStyle = rsLine
-      ExplicitHeight = 474
+      ExplicitHeight = 430
     end
     object Panel2: TPanel
       Left = 0
       Top = 0
       Width = 429
-      Height = 430
+      Height = 525
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitHeight = 506
       inline Frame_Bericht1: TFrame_Bericht
         Left = 0
         Top = 0
         Width = 429
-        Height = 383
+        Height = 478
         HorzScrollBar.Style = ssHotTrack
         VertScrollBar.Style = ssHotTrack
         Align = alClient
@@ -110,7 +113,7 @@ object FRM_Main: TFRM_Main
         TabStop = True
         OnDblClick = Frame_Bericht1PB_BDblClick
         ExplicitWidth = 429
-        ExplicitHeight = 383
+        ExplicitHeight = 459
         inherited PB_B: TPaintBox
           Width = 429
           OnDblClick = Frame_Bericht1PB_BDblClick
@@ -143,7 +146,7 @@ object FRM_Main: TFRM_Main
       end
       object P_WF: TPanel
         Left = 0
-        Top = 383
+        Top = 478
         Width = 429
         Height = 47
         Align = alBottom
@@ -152,6 +155,7 @@ object FRM_Main: TFRM_Main
         ParentBackground = False
         TabOrder = 1
         OnResize = P_WFResize
+        ExplicitTop = 459
         object LBL_WF_1: TLabel
           Left = 164
           Top = 2
@@ -222,7 +226,7 @@ object FRM_Main: TFRM_Main
         Left = 0
         Top = 0
         Width = 429
-        Height = 383
+        Height = 478
         Align = alClient
         BevelOuter = bvNone
         Color = clBlack
@@ -234,18 +238,35 @@ object FRM_Main: TFRM_Main
         ParentFont = False
         TabOrder = 2
         OnDblClick = Frame_Bericht1PB_BDblClick
+        ExplicitHeight = 459
+        object Label10: TLabel
+          Left = 0
+          Top = 0
+          Width = 429
+          Height = 478
+          Align = alClient
+          AutoSize = False
+          Color = clBlack
+          ParentColor = False
+          OnDblClick = Frame_Bericht1PB_BDblClick
+          ExplicitTop = -4
+          ExplicitHeight = 383
+        end
         object lbl_title: TLabel
           Left = 8
           Top = 16
           Width = 213
           Height = 39
           Caption = 'creatureScan v'
+          Color = clBlack
           Font.Charset = ANSI_CHARSET
           Font.Color = clBlue
           Font.Height = -32
           Font.Name = 'Tahoma'
           Font.Style = []
+          ParentColor = False
           ParentFont = False
+          OnDblClick = Frame_Bericht1PB_BDblClick
         end
         object Label1: TLabel
           Left = 8
@@ -253,19 +274,24 @@ object FRM_Main: TFRM_Main
           Width = 24
           Height = 13
           Caption = 'Wiki:'
+          Color = clBlack
+          ParentColor = False
+          OnDblClick = Frame_Bericht1PB_BDblClick
         end
         object Label2: TLabel
           Left = 104
           Top = 80
-          Width = 167
+          Width = 194
           Height = 13
           Cursor = crHandPoint
-          Caption = 'http://creatureScan.creax.de/wiki/'
+          Caption = 'http://www.creatureScan.creax.de/wiki/'
+          Color = clBlack
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlue
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
+          ParentColor = False
           ParentFont = False
           OnClick = Label4Click
         end
@@ -275,19 +301,24 @@ object FRM_Main: TFRM_Main
           Width = 32
           Height = 13
           Caption = 'Forum:'
+          Color = clBlack
+          ParentColor = False
+          OnDblClick = Frame_Bericht1PB_BDblClick
         end
         object Label4: TLabel
           Left = 104
           Top = 99
-          Width = 144
+          Width = 171
           Height = 13
           Cursor = crHandPoint
-          Caption = 'http://creatureScan.creax.de/'
+          Caption = 'http://www.creatureScan.creax.de/'
+          Color = clBlack
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlue
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
+          ParentColor = False
           ParentFont = False
           OnClick = Label4Click
         end
@@ -297,6 +328,8 @@ object FRM_Main: TFRM_Main
           Width = 56
           Height = 13
           Caption = 'Quick Start:'
+          Color = clBlack
+          ParentColor = False
           Visible = False
         end
         object Label6: TLabel
@@ -308,6 +341,8 @@ object FRM_Main: TFRM_Main
           Caption = 
             'Spionageberichte und Sonnensysteme werden automatisch eingelesen' +
             ': Im Browser: Strg+A, Strg+C '
+          Color = clBlack
+          ParentColor = False
           Visible = False
           WordWrap = True
         end
@@ -320,6 +355,8 @@ object FRM_Main: TFRM_Main
           Caption = 
             'Mit der Scanliste kann man seine Spionagebrichte verwalten und s' +
             'ortieren.'
+          Color = clBlack
+          ParentColor = False
           Visible = False
           WordWrap = True
         end
@@ -332,6 +369,8 @@ object FRM_Main: TFRM_Main
           Caption = 
             'Mit dem Galaxy-Explorer kann man durch die Sonnensysteme klicken' +
             '.'
+          Color = clBlack
+          ParentColor = False
           Visible = False
           WordWrap = True
         end
@@ -342,6 +381,8 @@ object FRM_Main: TFRM_Main
           Height = 41
           AutoSize = False
           Caption = 'Die Spionageberichte werden dann hier im Hauptfenster angezeigt.'
+          Color = clBlack
+          ParentColor = False
           Visible = False
           WordWrap = True
         end
@@ -351,18 +392,19 @@ object FRM_Main: TFRM_Main
       Left = 432
       Top = 0
       Width = 101
-      Height = 430
+      Height = 525
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 506
       DesignSize = (
         101
-        430)
+        525)
       object lst_others: TListView
         Left = 3
         Top = 63
         Width = 96
-        Height = 297
+        Height = 392
         Anchors = [akLeft, akTop, akRight, akBottom]
         Columns = <
           item
@@ -382,6 +424,7 @@ object FRM_Main: TFRM_Main
         OnCompare = lst_othersCompare
         OnKeyDown = lst_othersKeyDown
         OnSelectItem = lst_othersSelectItem
+        ExplicitHeight = 373
       end
       object BTN_Paste: TButton
         Left = 2
@@ -405,39 +448,42 @@ object FRM_Main: TFRM_Main
       end
       object BTN_Liste: TButton
         Left = 2
-        Top = 360
+        Top = 455
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
         Caption = 'Scan &Liste'
         TabOrder = 3
         OnClick = BTN_ListeClick
+        ExplicitTop = 436
       end
       object BTN_Suche: TButton
         Left = 2
-        Top = 408
+        Top = 503
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
         Caption = 'Su&chen'
         TabOrder = 5
         OnClick = BTN_SucheClick
+        ExplicitTop = 484
       end
       object BTN_Universum: TButton
         Left = 2
-        Top = 384
+        Top = 479
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
         Caption = '&Universum'
         TabOrder = 4
         OnClick = BTN_UniversumClick
+        ExplicitTop = 460
       end
     end
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 430
+    Top = 525
     Width = 533
     Height = 19
     Panels = <
@@ -458,10 +504,11 @@ object FRM_Main: TFRM_Main
         Width = 110
       end
       item
-        Width = 500
+        Width = 253
       end>
     OnMouseDown = StatusBar1MouseDown
     OnDrawPanel = StatusBar1DrawPanel
+    ExplicitTop = 506
   end
   object MainMenu1: TMainMenu
     Left = 284
@@ -524,6 +571,10 @@ object FRM_Main: TFRM_Main
       object N8: TMenuItem
         Caption = '-'
       end
+      object phpSync1: TMenuItem
+        Caption = 'php-Sync'
+        OnClick = phpSync1Click
+      end
       object NetConnections1: TMenuItem
         Caption = 'Netz-Syncronisation'
         ShortCut = 16459
@@ -552,11 +603,6 @@ object FRM_Main: TFRM_Main
     end
     object Funktionen1: TMenuItem
       Caption = 'Fun&ktionen'
-      object SuchenErsetzen1: TMenuItem
-        Caption = 'Suchen && Ersetzen...'
-        ShortCut = 16466
-        OnClick = SuchenErsetzen1Click
-      end
       object Scanslschen1: TMenuItem
         Caption = 'Scans l'#246'schen...'
         ShortCut = 49228
@@ -867,7 +913,7 @@ object FRM_Main: TFRM_Main
     Left = 468
     Top = 120
     Bitmap = {
-      494C010106000900040006000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010106000800040006000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000180000001A0000000100200000000000C009
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

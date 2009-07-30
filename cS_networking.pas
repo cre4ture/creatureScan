@@ -518,7 +518,7 @@ begin
            (GalaxyCount = max_Galaxy)and
            (SolsysCount = max_Systems)and
            (PlanetCount = max_Planeten)and
-           (LangIndex = ODataBase.LangIndex) then
+           (LangIndex = domainTolangindex(ODataBase.game_domain)) then
         begin
           cscond := TcSConnectionData(TSocketMultiplex(Socket.HostSocket).LockData('TcSServer.FLoginMergeOnNewPacket_ReadThread'));
           with cscond do
@@ -909,7 +909,7 @@ begin
   Result.GalaxyCount := max_Galaxy;
   Result.SolsysCount := max_Systems;
   Result.PlanetCount := max_Planeten;
-  Result.LangIndex := ODataBase.LangIndex;
+  Result.LangIndex := domainTolangindex(ODataBase.game_domain);
   Result.PlayerName := ODataBase.Username;
 end;
 

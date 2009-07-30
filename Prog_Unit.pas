@@ -104,7 +104,7 @@ type
     UniTree: TUniverseTree;
     UserPosition: TPlanetPosition;
     Username: TPlayerName;
-    LangIndex: Integer;
+    game_domain: string;
     UserUni: Integer;
     SaveDir, PlayerInf: String;
     Importing: Boolean;
@@ -184,10 +184,12 @@ uses Mond_Abfrage, Languages, Connections, cS_XML, Export,
 function TOgameDataBase.LeseFleets(): Boolean;
 var count, i, j: integer;
     fleet: TFleetEvent;
+    info: TFleetsInfoSource;
 begin
-  count := LanguagePlugIn.ReadPhalanxScan();
+  info := LanguagePlugIn.ReadPhalanxScan();
+  count := info.count;
 
-  Result := (count > 0);
+  Result := (count > 0)and(info.typ = fist_events);
   if Result then
   begin
     //Vorher alle eingelesenen Flotten löschen:
@@ -340,7 +342,7 @@ begin
   ini.WriteBool('UserOptions', 'DefInTF', DefInTF);
   ini.WriteFloat('UserOptions', 'SpeedFactor', SpeedFactor);
   ini.WriteString('UserOptions', 'PluginFile', LanguagePlugIn.PluginFilename);
-  ini.WriteInteger('UserOptions', 'LanguageIndex', LangIndex);
+  ini.WriteString('UserOptions', 'ogame_domain', game_domain);
   ini.WriteInteger('UserOptions', 'Galaxy_Count', max_Galaxy);
   ini.WriteInteger('UserOptions', 'System_Count', max_Systems);
   ini.WriteFloat('UserOptions', 'tf_factor', truemmerfeld_faktor);
@@ -372,7 +374,10 @@ begin
   UserUni := ini.ReadInteger('UserOptions','Uni',-1);
   DefInTF := ini.ReadBool('UserOptions','DefInTF',False);
   SpeedFactor := ini.ReadFloat('UserOptions','SpeedFactor', 1);
-  LangIndex := ini.ReadInteger('UserOptions','LanguageIndex',0);
+  game_domain := ini.ReadString('UserOptions','ogame_domain','--n/a--');
+  if game_domain = '--n/a--' then  // for compatibility to old version
+    game_domain := game_sites[ini.ReadInteger('UserOptions','LanguageIndex',0)];
+
   LanguagePlugIn.PluginFilename := ini.ReadString('UserOptions','PluginFile','');
   DeleteScansWhenAddSys := ini.ReadBool('UserOptions','AutoDeleteScans',true);
 
@@ -811,16 +816,19 @@ var dialog: TFRM_SelectPlugin;
 begin
   chdir(ExtractFilePath(Application.ExeName));
   LanguagePlugIn.LoadPluginFile(LanguagePlugIn.PluginFilename, UserUni, PlayerInf);
-  Result := (not ForceDialog) and LanguagePlugIn.ValidFile and (LangIndex = LanguagePlugIn.LanguageIndex);
+  Result :=  (not ForceDialog) and
+             LanguagePlugIn.ValidFile and
+             (game_domain = LanguagePlugIn.game_domain);
   if not Result then
   begin
-    dialog := TFRM_SelectPlugin.Create(Application,LangIndex);
+    dialog := TFRM_SelectPlugin.Create(Application,game_domain);
     dialog.PluginFile := LanguagePlugIn.PluginFilename;
     if dialog.ShowModal = IDOK then
     begin
       LanguagePlugIn.LoadPluginFile(dialog.PluginFile, UserUni, PlayerInf);
       if not LanguagePlugIn.ValidFile then ShowMessage('Die Plugindatei ist fehlerhaft!');
-      Result := LanguagePlugIn.ValidFile and (LangIndex = LanguagePlugIn.LanguageIndex);
+      Result := LanguagePlugIn.ValidFile and
+                (game_domain = LanguagePlugIn.game_domain);
     end;
     dialog.free;
   end;
@@ -844,7 +852,7 @@ function TOgameDataBase.CheckUserOptions(ForceDialog: Boolean): boolean;
     spidaForm.IngameName := Username;
     spidaForm.Universe := UserUni;
     spidaForm.DefInTF := DefInTF;
-    spidaForm.LanguageIndex := LangIndex;
+    spidaForm.game_domain := game_domain;
     spidaForm.GalaCount := max_Galaxy;
     spidaForm.SysCount := max_Systems;
     spidaForm.HomePlanet := UserPosition;
@@ -867,7 +875,7 @@ function TOgameDataBase.CheckUserOptions(ForceDialog: Boolean): boolean;
       DefInTF := spidaForm.DefInTF;
       Username := spidaForm.IngameName;
       UserPosition := spidaForm.HomePlanet;
-      LangIndex := spidaForm.LanguageIndex;
+      game_domain := spidaForm.game_domain;
       SpeedFactor := spidaForm.SpeedFaktor;
       truemmerfeld_faktor := spidaForm.TF_factor;
     end;

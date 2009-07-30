@@ -1,10 +1,9 @@
 object FRM_StringlistEdit: TFRM_StringlistEdit
   Left = 350
   Top = 252
-  BorderStyle = bsDialog
   Caption = 'FRM_StringlistEdit'
-  ClientHeight = 209
-  ClientWidth = 190
+  ClientHeight = 207
+  ClientWidth = 188
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,23 +17,26 @@ object FRM_StringlistEdit: TFRM_StringlistEdit
   object Memo1: TMemo
     Left = 0
     Top = 0
-    Width = 190
-    Height = 176
+    Width = 188
+    Height = 174
     Align = alClient
+    ScrollBars = ssVertical
     TabOrder = 0
   end
   object Panel1: TPanel
     Left = 0
-    Top = 176
-    Width = 190
+    Top = 174
+    Width = 188
     Height = 33
     Align = alBottom
     TabOrder = 1
+    ExplicitTop = 176
+    ExplicitWidth = 190
     DesignSize = (
-      190
+      188
       33)
     object Button1: TButton
-      Left = 111
+      Left = 109
       Top = 4
       Width = 75
       Height = 25
@@ -43,9 +45,10 @@ object FRM_StringlistEdit: TFRM_StringlistEdit
       Default = True
       ModalResult = 1
       TabOrder = 0
+      ExplicitLeft = 111
     end
     object Button2: TButton
-      Left = 31
+      Left = 29
       Top = 4
       Width = 75
       Height = 25
@@ -54,6 +57,7 @@ object FRM_StringlistEdit: TFRM_StringlistEdit
       Caption = 'Abbrechen'
       ModalResult = 2
       TabOrder = 1
+      ExplicitLeft = 31
     end
   end
 end

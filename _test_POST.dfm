@@ -43,35 +43,30 @@ object FRM_POST_TEST: TFRM_POST_TEST
     Height = 13
     Caption = 'Protokoll:'
   end
-  object Edit1: TEdit
+  object txt_url: TEdit
     Left = 20
     Top = 16
-    Width = 533
+    Width = 537
     Height = 21
     TabOrder = 0
   end
   object Button4: TButton
-    Left = 20
-    Top = 272
-    Width = 129
+    Left = 113
+    Top = 216
+    Width = 104
     Height = 25
     Caption = 'StartSync_systems'
     TabOrder = 1
     OnClick = Button4Click
-  end
-  object pb_xml: TProgressBar
-    Left = 20
-    Top = 248
-    Width = 257
-    Height = 17
-    TabOrder = 2
   end
   object TXT_ges: TEdit
     Left = 20
     Top = 60
     Width = 101
     Height = 21
-    TabOrder = 3
+    Color = clBtnFace
+    ReadOnly = True
+    TabOrder = 2
     Text = 'TXT_ges'
   end
   object TXT_post: TEdit
@@ -79,56 +74,58 @@ object FRM_POST_TEST: TFRM_POST_TEST
     Top = 60
     Width = 97
     Height = 21
-    TabOrder = 4
+    Color = clBtnFace
+    ReadOnly = True
+    TabOrder = 3
     Text = 'TXT_post'
   end
   object Button9: TButton
-    Left = 152
-    Top = 272
-    Width = 129
+    Left = 223
+    Top = 216
+    Width = 105
     Height = 25
     Caption = 'StartSync_reports'
-    TabOrder = 5
+    TabOrder = 4
     OnClick = Button9Click
   end
-  object log: TMemo
-    Left = 20
-    Top = 104
+  object mem_log_all: TMemo
+    Left = 21
+    Top = 247
     Width = 537
-    Height = 121
+    Height = 51
     ScrollBars = ssVertical
-    TabOrder = 6
+    TabOrder = 5
   end
   object pb_pos: TProgressBar
-    Left = 280
-    Top = 248
-    Width = 277
+    Left = 19
+    Top = 192
+    Width = 537
+    Height = 17
+    TabOrder = 6
+  end
+  object pb_main: TProgressBar
+    Left = 19
+    Top = 172
+    Width = 537
     Height = 17
     TabOrder = 7
   end
-  object pb_main: TProgressBar
-    Left = 20
-    Top = 228
-    Width = 537
-    Height = 17
-    TabOrder = 8
-  end
   object Button1: TButton
-    Left = 484
-    Top = 272
+    Left = 483
+    Top = 216
     Width = 75
     Height = 25
     Caption = 'STOP'
-    TabOrder = 9
+    TabOrder = 8
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 348
-    Top = 272
+    Left = 347
+    Top = 216
     Width = 75
     Height = 25
     Caption = 'more...'
-    TabOrder = 10
+    TabOrder = 9
     OnClick = Button2Click
   end
   object Panel1: TPanel
@@ -138,7 +135,7 @@ object FRM_POST_TEST: TFRM_POST_TEST
     Height = 437
     BevelOuter = bvNone
     Caption = 'Panel1'
-    TabOrder = 11
+    TabOrder = 10
     object LBL_sys: TLabel
       Left = 20
       Top = 116
@@ -231,7 +228,7 @@ object FRM_POST_TEST: TFRM_POST_TEST
       MaxValue = 0
       MinValue = 0
       TabOrder = 7
-      Value = 5
+      Value = 15
     end
     object Button5: TButton
       Left = 432
@@ -287,14 +284,21 @@ object FRM_POST_TEST: TFRM_POST_TEST
       OnClick = Button7Click
     end
   end
-  object Memo3: TMemo
-    Left = 268
-    Top = 44
-    Width = 289
+  object mem_log: TMemo
+    Left = 19
+    Top = 107
+    Width = 538
     Height = 57
-    Lines.Strings = (
-      'Memo3')
+    TabOrder = 11
+  end
+  object Button10: TButton
+    Left = 19
+    Top = 216
+    Width = 88
+    Height = 25
+    Caption = 'Login'
     TabOrder = 12
+    OnClick = Button10Click
   end
   object IdHTTP1: TIdHTTP
     AllowCookies = False

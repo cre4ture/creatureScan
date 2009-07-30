@@ -541,7 +541,9 @@ begin
                              + xsys_group_time + '="' + IntToStr(sys.Time_u) + '"';
   empty := True;
   for i := 1 to max_Planeten do
-    if (sys.Planeten[i].Player <> '')or(Sys.Planeten[i].TF[0] + Sys.Planeten[i].TF[1] > 0) then
+    if (sys.Planeten[i].Player <> '')or
+       (sys.Planeten[i].PlanetName <> '')or  // Zerstörter Planet...
+       (Sys.Planeten[i].TF[0] + Sys.Planeten[i].TF[1] > 0) then
       with Sys.Planeten[i] do
       begin
         if empty then //beim ersten planeten, der hinzugefügt wird, solsys-tag schließen!

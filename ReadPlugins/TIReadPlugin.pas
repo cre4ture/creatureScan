@@ -6,7 +6,7 @@ uses
   Classes, OGame_Types, Windows, SysUtils, IniFiles, Dialogs, Languages;
 
 const
-  DLLVNumber = 21;
+  DLLVNumber = 22;
 
 type
   // ------------------------ DLL Interface ------------------------------------
@@ -30,13 +30,13 @@ type
   //Statistiken
   TReadStats = function(Handle: Integer; var Stats: TStat; var typ: TStatTypeEx): Boolean;
   //Phalanx-> Besserer Name: Ereignisse
-  TReadPhalanxScan = function(Handle: integer): integer;
+  TReadPhalanxScan = function(Handle: integer): TFleetsInfoSource;
   TGetPhalaxScan = function(fleet: pointer): Boolean; //use Read/WriteBufScan for FleetData!
 
   TReadSource_NewFunction = function: integer;
   TReadSource_FreeFunction = procedure (Handle: Integer);
-  TReadSource_SetTextFunction = function (Handle: Integer; text: PChar): Boolean;
-  TReadSource_SetHTMLFuncktion = function (Handle: Integer; html: PChar): Boolean;
+  TReadSource_SetTextFunction = function (Handle: Integer; text: PChar; server_time: int64): Boolean;
+  TReadSource_SetHTMLFuncktion = function (Handle: Integer; html: PChar; server_time: int64): Boolean;
 
   // ------------------------ DLL Interface ende -------------------------------
 
@@ -83,7 +83,7 @@ type
     procedure FillFakeElements;
   public
     PluginFilename: String;
-    LanguageIndex: TLanguage;
+    game_domain: string;
     Universe: integer;
     PlugInName: String;
     ValidFile: Boolean;
@@ -103,10 +103,10 @@ type
     procedure RunOptions;
     function StrToStatus(s: string): TStatus;
     function StatusToStr(Status: TStatus): String;
-    function ReadPhalanxScan(): integer;
+    function ReadPhalanxScan(): TFleetsInfoSource;
     function ReadPhalanxScanGet(out fleet: TFleetEvent): Boolean;
-    procedure SetReadSourceText(text: string);
-    procedure SetReadSourceHTML(html: string);
+    procedure SetReadSourceText(text: string; server_time: int64);
+    procedure SetReadSourceHTML(html: string; server_time: int64);
   end;
 
 implementation
@@ -240,14 +240,14 @@ begin
   if Result then
   begin
     ini := TIniFile.Create(IniFile);
-    LanguageIndex := ini.ReadInteger(section,'langindex',high(LanguageIndex));
+    game_domain := ini.ReadString(section,'game_domain','--n/a--');
     PluginFilename := IniFile;
     dllfile := ini.ReadString(section,'dllfile','');
     dllconfig := ini.ReadString(section,'configfile','');
     SBItemfile := ini.ReadString(section,'elements','');
     PlugInName := ini.ReadString(section,'name','');
     ChDir(ExtractFilePath(IniFile));
-    Result := (LanguageIndex <> high(LanguageIndex))
+    Result := (game_domain <> '--n/a--')
               and FileExists(dllconfig)
               and FileExists(dllfile)
               and (PlugInName <> '')
@@ -397,22 +397,22 @@ begin
   end;
 end;
 
-procedure TLangPlugIn.SetReadSourceHTML(html: string);
+procedure TLangPlugIn.SetReadSourceHTML(html: string; server_time: int64);
 begin
   if Assigned(PReadSource_SetHTML) then
   begin
-    PReadSource_SetHTML(rs_handle, PChar(html));
+    PReadSource_SetHTML(rs_handle, PChar(html), server_time);
   end
   else
     raise Exception.Create(
       'TLangPlugIn.SetReadSourceHTML: Plugin fehlerhaft, oder kein Plugin geladen!');
 end;
 
-procedure TLangPlugIn.SetReadSourceText(text: string);
+procedure TLangPlugIn.SetReadSourceText(text: string; server_time: int64);
 begin
   if Assigned(PReadSource_SetText) then
   begin
-    PReadSource_SetText(rs_handle, PChar(text));
+    PReadSource_SetText(rs_handle, PChar(text), server_time);
   end
   else
     raise Exception.Create(
@@ -433,11 +433,15 @@ begin
   else Result := [];
 end;
 
-function TLangPlugIn.ReadPhalanxScan(): integer;
+function TLangPlugIn.ReadPhalanxScan(): TFleetsInfoSource;
 begin
   if Assigned(PReadPhalanxScan) then
     Result := PReadPhalanxScan(rs_handle)
-  else Result := -1;
+  else
+  begin
+    Result.Count := 0;
+    Result.typ := fist_none;
+  end;
 end;
 
 function TLangPlugIn.ReadPhalanxScanGet(out fleet: TFleetEvent): Boolean;

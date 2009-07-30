@@ -219,7 +219,7 @@ begin
 
 
   url := 'http://uni' + IntToStr(ODataBase.UserUni) +
-                          '.' + game_sites[ODataBase.langindex] +
+                          '.' + ODataBase.game_domain +
                           '/robots.txt';
 
   ProgressBar1.Position := 0;
@@ -521,8 +521,8 @@ end;
 
 procedure TFRM_KB_List.paste1Click(Sender: TObject);
 begin
-  ODataBase.LanguagePlugIn.SetReadSourceText(FRM_Main.GetClipboardText);
-  ODataBase.LanguagePlugIn.SetReadSourceHTML(FRM_Main.GetClipboardHtml);
+  ODataBase.LanguagePlugIn.SetReadSourceText(FRM_Main.GetClipboardText, ODataBase.FleetBoard.GameTime.UnixTime);
+  ODataBase.LanguagePlugIn.SetReadSourceHTML(FRM_Main.GetClipboardHtml, ODataBase.FleetBoard.GameTime.UnixTime);
   ODataBase.LeseFleets();
 end;
 
