@@ -44,17 +44,25 @@ object FRM_Mond: TFRM_Mond
     Height = 404
     HorzScrollBar.Style = ssHotTrack
     VertScrollBar.Style = ssHotTrack
+    AutoScroll = True
     Color = clBlack
     ParentBackground = False
     ParentColor = False
     PopupMenu = Frame_Bericht1.PopupMenu1
     TabOrder = 0
+    TabStop = True
     Visible = False
+    ExplicitLeft = 8
+    ExplicitTop = 69
+    ExplicitWidth = 381
+    ExplicitHeight = 404
     inherited PB_B: TPaintBox
       Width = 381
+      ExplicitWidth = 381
     end
     inherited Panel1: TPanel
       Width = 381
+      ExplicitWidth = 381
     end
   end
   object Button1: TButton
