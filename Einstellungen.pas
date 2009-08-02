@@ -130,6 +130,7 @@ type
     cb_auto_fav_list: TCheckBox;
     GroupBox13: TGroupBox;
     cb_auto_serverzeit: TCheckBox;
+    cb_askmoon: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure LB_FDClick(Sender: TObject);
     procedure KeyPress_OnlyNumbers(Sender: TObject; var Key: Char);

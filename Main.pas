@@ -39,6 +39,7 @@ type
     ServerPort: Word;
     phpPost: String;
     StartSystray: Boolean;
+    AskMoon_enabled: Boolean;
 
     //BeepSound
     Beep_SoundFile: String;
@@ -250,7 +251,7 @@ type
     procedure SaveLoad_SimpleOptions(ini: TIniFile; save: boolean);
     procedure ShowExplorerPanel;
     procedure ShowScanPanel;
-    procedure LangPluginOnAskMoon(Sender: TLangPlugIn;
+    procedure LangPluginOnAskMoon(Sender: TOgameDataBase;
       Report: TScanBericht; var isMoon, Handled: Boolean);
   protected
     procedure SetCVActive(B: Boolean); override;
@@ -308,7 +309,7 @@ uses Notizen, Favoriten, Info,
   Uebersicht, Connections, Export, Einstellungen, Suchen_Ersetzen,
   KB_List, Add_KB, Languages, Delete_Scans,
   Stats_Einlesen, DateUtils, _test_POST, ComConst, StrUtils, sync_cS_db_engine,
-  SDBFile;
+  SDBFile, Mond_Abfrage;
 
 {$R *.DFM}
 
@@ -324,7 +325,7 @@ end;
 
 procedure TFRM_Main.FormDestroy(Sender: TObject);
 begin
-  ODataBase.LanguagePlugIn.OnAskMoon := nil;
+  ODataBase.OnAskMoon := nil;
 
   SaveOptions;
   Stopp;
@@ -458,7 +459,7 @@ begin
   LoadFormSizePos(IniFile,self);
   RefreshDBListSize(Self);
 
-  ODataBase.LanguagePlugIn.OnAskMoon := LangPluginOnAskMoon;
+  ODataBase.OnAskMoon := LangPluginOnAskMoon;
 
   StatusBar1.DoubleBuffered := True;
 end;
@@ -771,6 +772,7 @@ begin
   form.ch_startupServer.Checked := soStartupServer in Einstellungen;
   form.TXT_ServerStartPort.Text := IntToStr(PlayerOptions.ServerPort);
   form.CH_change_sys.Checked := DockExplorer.folgeeingelesenenSystemen1.Checked;
+  form.cb_askmoon.Checked := PlayerOptions.AskMoon_enabled;
 
   form.TXT_SS.Text := LBL_WF_0_2.Caption;
   form.TXT_gT.Text := LBL_WF_0_3.Caption;
@@ -852,6 +854,7 @@ begin
     if form.CH_Unicheck.Checked then Include(Einstellungen,soUniCheck);
     DockExplorer.folgeeingelesenenSystemen1.Checked := form.CH_change_sys.Checked;
     ODataBase.DeleteScansWhenAddSys := form.CH_AutoDelete.Checked;
+    PlayerOptions.AskMoon_enabled := form.cb_askmoon.Checked;
     if form.ch_startupServer.Checked then Include(Einstellungen,soStartupServer);
     PlayerOptions.ServerPort := StrToInt(form.TXT_ServerStartPort.Text);
 
@@ -1934,6 +1937,8 @@ begin
   DoOption(GeneralSection,'fleet_alert_sound_file'   ,'.\data\3_beep.wav'       ,PlayerOptions.Fleet_Soundfile);
   DoOption(GeneralSection,'fleet_auto_time_sync'     ,false                     ,PlayerOptions.Fleet_auto_time_sync);
 
+  // Nachfrage nach Mond:
+  DoOption(GeneralSection,'ask_moon_enabled'         ,true                      ,PlayerOptions.AskMoon_enabled);
 end;
 
 procedure TFRM_Main.Play_Alert_Sound(filename: string);
@@ -2025,19 +2030,17 @@ begin
   end;
 end;
 
-procedure TFRM_Main.LangPluginOnAskMoon(Sender: TLangPlugIn;
+procedure TFRM_Main.LangPluginOnAskMoon(Sender: TOgameDataBase;
   Report: TScanBericht; var isMoon, Handled: Boolean);
-var sys, planet: integer;
+var FRM_Mond: TFRM_Mond;
 begin
-  sys := ODataBase.UniTree.UniSys(Report.Head.Position.P[0],
-                                  Report.Head.Position.P[1]);
-  if sys >= 0 then
-  with ODataBase.Systeme[sys] do
+  if PlayerOptions.AskMoon_enabled then
   begin
-    planet := Report.Head.Position.P[2];
-    //Wenn es keinen Mond an dieser stelle gitb, brauchste auchnet fragen!
-    Handled := (Planeten[planet].MondSize = 0);
-    isMoon := false;
+    FRM_Mond := TFRM_Mond.Create(Self, Sender.LanguagePlugIn);
+    Beep;
+    Report.Head.Position.Mond := (FRM_Mond.Open(Report));
+    Handled := true;
+    FRM_Mond.free;
   end;
 end;
 

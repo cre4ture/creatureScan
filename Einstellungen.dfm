@@ -27,7 +27,7 @@ object FRM_Einstellungen: TFRM_Einstellungen
     Top = 0
     Width = 531
     Height = 200
-    ActivePage = TS_SuchLink
+    ActivePage = TS_ScansSysteme
     Anchors = [akLeft, akTop, akRight, akBottom]
     MultiLine = True
     ParentShowHint = False
@@ -35,10 +35,6 @@ object FRM_Einstellungen: TFRM_Einstellungen
     TabOrder = 2
     object TS_generell: TTabSheet
       Caption = 'generell'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label17: TLabel
         Left = 4
         Top = 64
@@ -140,20 +136,16 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TS_ScansSysteme: TTabSheet
       Caption = 'Scans/Systeme'
       ImageIndex = 6
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 0
         Top = 0
         Width = 337
-        Height = 97
+        Height = 151
         Caption = ' Scans '
         TabOrder = 0
         DesignSize = (
           337
-          97)
+          151)
         object Label13: TLabel
           Left = 28
           Top = 36
@@ -204,18 +196,27 @@ object FRM_Einstellungen: TFRM_Einstellungen
           Text = '48'
           OnKeyPress = KeyPress_OnlyNumbers
         end
+        object cb_askmoon: TCheckBox
+          Left = 8
+          Top = 88
+          Width = 325
+          Height = 17
+          Anchors = [akLeft, akTop, akRight]
+          Caption = 'Mondnachfrage bei Unklarheit aktivieren'
+          TabOrder = 4
+        end
       end
       object GroupBox12: TGroupBox
-        Left = 0
-        Top = 103
-        Width = 337
+        Left = 343
+        Top = 0
+        Width = 177
         Height = 42
         Caption = ' Scanliste/Favoriten '
         TabOrder = 1
         object cb_auto_fav_list: TCheckBox
           Left = 8
           Top = 16
-          Width = 306
+          Width = 166
           Height = 17
           Caption = 'Liste automatisch verwalten'
           TabOrder = 0
@@ -225,10 +226,6 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TabSheet1: TTabSheet
       Caption = 'Automatisches Einlesen'
       ImageIndex = 10
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox2: TGroupBox
         Left = 0
         Top = 4
@@ -346,10 +343,6 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TS_GalaxieExplorer: TTabSheet
       Caption = 'Galaxie-Explorer'
       ImageIndex = 8
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox7: TGroupBox
         Left = 4
         Top = 4
@@ -431,10 +424,6 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TS_FleetDef: TTabSheet
       Caption = 'Fleet/Def Punkte'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object LBL_FD: TLabel
         Left = 188
         Top = 72
@@ -479,10 +468,6 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TS_Angriffsberechnung: TTabSheet
       Caption = 'Angriffsberechnung'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox3: TGroupBox
         Left = 4
         Top = 0
@@ -624,10 +609,6 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TS_Farben: TTabSheet
       Caption = 'Farben'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object TC_Farben: TTabControl
         Left = 8
         Top = 8
@@ -714,10 +695,6 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TS_Direktverbindung: TTabSheet
       Caption = 'Rechte'
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label15: TLabel
         Left = 4
         Top = 112
@@ -842,10 +819,6 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TS_Notizen: TTabSheet
       Caption = 'Notizen'
       ImageIndex = 5
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Button4: TButton
         Left = 4
         Top = 4

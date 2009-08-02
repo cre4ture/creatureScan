@@ -78,6 +78,9 @@ type
   end;
 
   TNREvent = procedure(nr: integer) of object;
+  TOgameDataBase = class;
+  TOGameDataBase_AskMoon = procedure(Sender: TOGameDataBase; Report: TScanBericht;
+    var isMoon: Boolean; var Handled: Boolean) of object;
   TOgameDataBase = class(TObject)
   protected
     cS_NetServ: TcSServer;
@@ -96,6 +99,8 @@ type
     function GetAllyStats: TStatPoints;
     procedure ApplicationOnIdle(Sender: TObject; var Done: Boolean);
     function initFleetBoard: Boolean;
+    procedure langplugin_onaskmoonprocedure(Sender: TOGameDataBase; Report: TScanBericht;
+      var isMoon: Boolean; var Handled: Boolean);
   public
     //Alte Symbole: IMMER UniTree verwenden!
     Berichte: TcSReportDB;
@@ -118,6 +123,7 @@ type
     FleetBoard: TFleetBoard;
     DefInTF: Boolean;
     SpeedFactor: Single;
+    OnAskMoon: TOGameDataBase_AskMoon;
     property Uni[g,s: Integer]: TSonnenSystem read FUniRead;
     property Stats: TStatPoints read GetStats;
     property FleetStats: TStatPoints read GetFleetStats;
@@ -177,7 +183,7 @@ function Time_To_AgeStr_Ex(a_now, time: TDateTime): String;
 
 implementation
 
-uses Mond_Abfrage, Languages, Connections, cS_XML, Export,
+uses Languages, Connections, cS_XML, Export,
   SDBFile;
 
 
@@ -299,6 +305,7 @@ constructor TOgameDataBase.Create(Init: Boolean; UserDir: string;
   ACLHost: TcSServer);
 begin
   inherited Create;
+  OnAskMoon := nil;
   cS_NetServ := ACLHost;
 
   Application.OnIdle := ApplicationOnIdle;
@@ -787,19 +794,35 @@ end;
 function TOgameDataBase.LeseMehrereScanBerichte(): Integer;
 var Scan: TScanBericht;
     c: integer;
+    moon_unknown, phandled: boolean;
+    handle: integer;
 begin
   Result := 0;
-  c := LanguagePlugIn.ReadReports();
-  while LanguagePlugIn.GetReport(Scan) do
+  c := LanguagePlugIn.ReadReports(handle);
+  if (c >= 0)and(handle >= 0) then
   begin
-    Scan.Head.Creator := Username;
-    UniTree.AddNewReport(Scan);
-    inc(Result);
-  end;
+    try
+      while LanguagePlugIn.GetReport(handle, Scan, moon_unknown) do
+      begin
+        Scan.Head.Creator := Username;
 
-  if c <> Result then
-    raise Exception.Create('TOgameDataBase.LeseMehrereScanBerichte: Plugin fehlerhaft,' +
-      ' Anzahl einegelesener Scans stimmt nicht mit Rückgabewert überein!');
+        if moon_unknown then
+          langplugin_onaskmoonprocedure(Self, Scan,
+                                        Scan.Head.Position.Mond,
+                                        phandled);
+
+        UniTree.AddNewReport(Scan);
+        inc(Result);
+      end;
+    finally
+      LanguagePlugIn.ReadReports_ready(handle);
+    end;
+
+    if c <> Result then
+      raise Exception.Create('TOgameDataBase.LeseMehrereScanBerichte: Plugin fehlerhaft,' +
+        ' Anzahl einegelesener Scans stimmt nicht mit Rückgabewert überein!');
+
+  end;
 end;
 
 
@@ -1118,6 +1141,25 @@ function TOgameDataBase.initFleetBoard: Boolean;
 begin
   FleetBoard := TFleetBoard_NET.Create(SaveDir, UserUni, cS_NetServ);
   Result := True;
+end;
+
+procedure TOgameDataBase.langplugin_onaskmoonprocedure(Sender: TOGameDataBase; Report: TScanBericht;
+    var isMoon: Boolean; var Handled: Boolean);
+var sys, planet: integer;
+begin
+  sys := UniTree.UniSys(Report.Head.Position.P[0],
+                        Report.Head.Position.P[1]);
+  if sys >= 0 then
+  with ODataBase.Systeme[sys] do
+  begin
+    planet := Report.Head.Position.P[2];
+    // Wenn es keinen Mond an dieser stelle gibt, brauchste auchnet fragen!
+    Handled := (Planeten[planet].MondSize = 0);
+    isMoon := false;
+  end;
+
+  if (not Handled) and Assigned(OnAskMoon) then
+    OnAskMoon(Sender, Report, isMoon, Handled);
 end;
 
 end.

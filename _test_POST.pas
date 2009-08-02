@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, OGame_Types, StdCtrls, IdBaseComponent, IdComponent,
-  IdTCPConnection, IdTCPClient, IdHTTP, DateUtils, cS_XML, XMLDoc, xmldom,
+  IdTCPConnection, IdTCPClient, IdHTTP, IdURI, DateUtils, cS_XML, XMLDoc, xmldom,
   XMLIntf, msxmldom, shellapi, ExtCtrls, clientlogin, IdAuthentication,
   ComCtrls, LibXmlParser, LibXmlComps, Prog_unit, Spin, Inifiles, html;
 
@@ -79,6 +79,7 @@ type
     Scan: TScanbericht;
     Stop: Boolean;
     main_pc_start, main_pc_end: integer;
+    procedure sync_solsys_gala(gala: integer);
     procedure SetProgress(pc: integer);
     procedure SetMainProgress(pc_start, pc_end: integer);
     property ServerUni[p1,p2 : word]: Int64 read ReadServerUni write WriteServerUni;
@@ -86,7 +87,7 @@ type
     function SysToXMLString(sys: TSystemCopy): string;
     function ScanToXMLString(Scan: TScanBericht): string;
     function entflines(s: string): String;
-    procedure SetServerUniSize;
+    procedure SetServerUniSize(gala: integer; solsys: integer);
     function ParseAnswer(xml: string): integer;
     procedure Sync_Report(gala: Integer);
     procedure Sync_Systems(Sender: TObject);
@@ -240,7 +241,7 @@ begin
               pos[2] := StrToInt(parser.CurAttr.Value('planetcount'));
               if (pos[0] <> max_Galaxy)or(pos[1] <> max_Systems)or(pos[2] <> max_Planeten) then
                 raise Exception.Create('Server pos_count definitions are not compatible!')
-              else SetServerUniSize;
+              else SetServerUniSize(max_Galaxy, max_Systems);
             end;
 
             if parser.CurName = 'solsystime' then
@@ -304,6 +305,8 @@ begin
     if stop then break;
   end;
 
+  SetServerUniSize(0,0);
+
   TXT_ges.Text := TimeToStr(Now-start);
 end;
 
@@ -339,14 +342,14 @@ begin
     pb_main.Position := new;
 end;
 
-procedure TFRM_POST_TEST.SetServerUniSize;
+procedure TFRM_POST_TEST.SetServerUniSize(gala: integer; solsys: integer);
 var i,j: integer;
 begin
-  SetLength(FServerUni,max_Galaxy);
-  for i := 0 to max_Galaxy-1 do
+  SetLength(FServerUni,gala);
+  for i := 0 to gala-1 do
   begin
-    SetLength(FServerUni[i], max_Systems);
-    for j := 0 to max_Systems-1 do
+    SetLength(FServerUni[i], solsys);
+    for j := 0 to solsys-1 do
       FServerUni[i,j] := -1; //  n/a
   end;
 end;
@@ -564,111 +567,117 @@ begin
   log('request ready, start sync...',0);
 
   root := THTMLElement.Create(nil, 'root');
-  root.ParseHTMLCode(Memo2.Lines.Text);
+  try
+    root.ParseHTMLCode(Memo2.Lines.Text);
 
-  sinfo := root.FindChildTagPath_e('read/serverinfo');
-  snow := StrToInt64(sinfo.AttributeValue['time']);
-  Uni_pos[0] := StrToInt(sinfo.AttributeValue['galacount']);
-  Uni_pos[1] := StrToInt(sinfo.AttributeValue['syscount']);
-  Uni_pos[2] := StrToInt(sinfo.AttributeValue['planetcount']);
+    sinfo := root.FindChildTagPath_e('read/serverinfo');
+    snow := StrToInt64(sinfo.AttributeValue['time']);
+    Uni_pos[0] := StrToInt(sinfo.AttributeValue['galacount']);
+    Uni_pos[1] := StrToInt(sinfo.AttributeValue['syscount']);
+    Uni_pos[2] := StrToInt(sinfo.AttributeValue['planetcount']);
 
-  if (Uni_pos[0] <> max_Galaxy)or
-     (Uni_pos[1] <> max_Systems)or
-     (Uni_pos[2] <> max_Planeten) then
-    raise Exception.Create('Server pos_count definitions are not compatible!')
-  else SetServerUniSize;
+    if (Uni_pos[0] <> max_Galaxy)or
+       (Uni_pos[1] <> max_Systems)or
+       (Uni_pos[2] <> max_Planeten) then
+      raise Exception.Create('Server pos_count definitions are not compatible!');
 
-  log('check serverinfo completed',0);
+    log('check serverinfo completed',0);
 
-  times := root.FindChildTagPath_e('read/reporttimes');
+    times := root.FindChildTagPath_e('read/reporttimes');
 
-  if times.AttributeValue['gala'] <> inttostr(gala) then
-    raise Exception.Create('Falsche Galaxie in Response!');
+    if times.AttributeValue['gala'] <> inttostr(gala) then
+      raise Exception.Create('Falsche Galaxie in Response!');
 
-  pos.P[0] := gala;
-  pos.P[1] := 1;
-  pos.P[2] := 1;
-  pos.Mond := false;
+    pos.P[0] := gala;
+    pos.P[1] := 1;
+    pos.P[2] := 1;
+    pos.Mond := false;
 
-  abspos := PlanetPositionToAbsPlanetNr(pos);
-
-  for i := 0 to times.ChildCount - 1 do
-  begin
-    planet := times.ChildElements[i];
-
-    labspos := abspos;
-    pos.P[1] := StrToInt(planet.AttributeValue['sys']);
-    pos.P[2] := StrToInt(planet.AttributeValue['pos']);
-    pos.Mond := (planet.AttributeValue['moon'] = 'true');
     abspos := PlanetPositionToAbsPlanetNr(pos);
 
-    SendReports_between(labspos, abspos);
-    ScanList := GetPlanetReportList(Pos);
-    
-    sl := 0;
-    j := 0;
-    while (j < planet.ChildCount)and(sl < length(ScanList)) do
+    for i := 0 to times.ChildCount - 1 do
     begin
-      rtime := planet.ChildElements[j];
-      time_u := StrToInt64(rtime.AttributeValue['time']);
+      planet := times.ChildElements[i];
 
-      if ScanList[sl].Time_u > time_u then
-      begin  //Wenn lokal neuer als remote
-        SendID(sit_send, ScanList[sl].ID);
-        inc(sl);  //nächster lokaler
-      end
-      else
-      if ScanList[sl].Time_u < time_u then
-      begin  //Wenn remote neuer als lokal
+      labspos := abspos;
+      pos.P[1] := StrToInt(planet.AttributeValue['sys']);
+      pos.P[2] := StrToInt(planet.AttributeValue['pos']);
+      pos.Mond := (planet.AttributeValue['moon'] = 'true');
+      abspos := PlanetPositionToAbsPlanetNr(pos);
+
+      SendReports_between(labspos, abspos);
+      ScanList := GetPlanetReportList(Pos);
+
+      sl := 0;
+      j := 0;
+      while (j < planet.ChildCount)and(sl < length(ScanList)) do
+      begin
+        rtime := planet.ChildElements[j];
+        time_u := StrToInt64(rtime.AttributeValue['time']);
+
+        if ScanList[sl].Time_u > time_u then
+        begin  //Wenn lokal neuer als remote
+          SendID(sit_send, ScanList[sl].ID);
+          inc(sl);  //nächster lokaler
+        end
+        else
+        if ScanList[sl].Time_u < time_u then
+        begin  //Wenn remote neuer als lokal
+          SendID(sit_get, StrToInt(rtime.AttributeValue['id']));
+          inc(j);  //nächster remote
+        end
+        else
+        begin  //Wenn beide Zeiten gleich sind
+          inc(sl);  //Zähle beide weiter (sonst ist nix zu tun!)
+          inc(j);
+        end;
+      end;
+
+      // an dieser Stelle ist eine der beiden Listen durchgearbeitet
+      // jetzt muss der verbleibende Rest in der anderen Liste noch gesendet werden
+
+      while (j < planet.ChildCount) do  // remote Liste
+      begin
+        rtime := planet.ChildElements[j];
         SendID(sit_get, StrToInt(rtime.AttributeValue['id']));
-        inc(j);  //nächster remote
-      end
-      else
-      begin  //Wenn beide Zeiten gleich sind
-        inc(sl);  //Zähle beide weiter (sonst ist nix zu tun!)
         inc(j);
       end;
+
+      while (sl < length(ScanList)) do  // lokale Liste
+      begin
+        SendID(sit_send, ScanList[sl].ID);
+        inc(sl);
+      end;
+
+      SetPositionProgress(pos.P[1]);
+      inc(abspos);
     end;
 
-    // an dieser Stelle ist eine der beiden Listen durchgearbeitet
-    // jetzt muss der verbleibende Rest in der anderen Liste noch gesendet werden
+    // an dieser Stelle sind alle remote-Scans abgearbeitet,
+    // jetzt müssen noch verbleibende lokale scan gesendet werden
 
-    while (j < planet.ChildCount) do  // remote Liste
-    begin
-      rtime := planet.ChildElements[j];
-      SendID(sit_get, StrToInt(rtime.AttributeValue['id']));
-      inc(j);
-    end;
+    labspos := abspos;
+    pos.P[1] := max_Systems;
+    pos.P[2] := max_Planeten;
+    pos.Mond := true;
+    abspos := PlanetPositionToAbsPlanetNr(pos)
+              +1;  // siehe SendReports_between()
 
-    while (sl < length(ScanList)) do  // lokale Liste
-    begin
-      SendID(sit_send, ScanList[sl].ID);
-      inc(sl);  
-    end;
+    SendReports_between(labspos, abspos);
 
-    SetPositionProgress(pos.P[1]);
-    inc(abspos);
+    if (read <> '')or(write <> '') then
+      PostAndParseAnswer(read,write);
+      
+  finally
+    root.Free;
   end;
-
-  // an dieser Stelle sind alle remote-Scans abgearbeitet,
-  // jetzt müssen noch verbleibende lokale scan gesendet werden
-
-  labspos := abspos;
-  pos.P[1] := max_Systems;
-  pos.P[2] := max_Planeten;
-  pos.Mond := true;
-  abspos := PlanetPositionToAbsPlanetNr(pos)
-            +1;  // siehe SendReports_between()
-
-  SendReports_between(labspos, abspos);
-
-  if (read <> '')or(write <> '') then
-    PostAndParseAnswer(read,write);
-
+  
   TXT_ges.Text := TimeToStr(Now-start);
 end;
 
-
+procedure TFRM_POST_TEST.sync_solsys_gala(gala: integer);
+begin
+end;
 
 function TFRM_POST_TEST.PostAndParseAnswer(read, write: string): Boolean;
 begin
@@ -745,8 +754,8 @@ begin
   
   Memo1.Clear;
   Memo1.Lines.Add('action=login');
-  Memo1.Lines.Add('username='+user);
-  Memo1.Lines.Add('password='+pass);
+  Memo1.Lines.Add('username='+TIdURI.ParamsEncode(user));
+  Memo1.Lines.Add('password='+TIdURI.ParamsEncode(pass));
   Memo1.Lines.Add('xml=<read><serverinfo/></read>');
 
   POST;

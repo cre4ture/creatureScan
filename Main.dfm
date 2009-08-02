@@ -32,7 +32,6 @@ object FRM_Main: TFRM_Main
     TabOrder = 0
     Visible = False
     OnResize = P_ExplorerDockResize
-    ExplicitHeight = 506
     inline Frame_Bericht2: TFrame_Bericht
       Left = 0
       Top = 396
@@ -48,7 +47,7 @@ object FRM_Main: TFRM_Main
       PopupMenu = Frame_Bericht2.PopupMenu1
       TabOrder = 0
       TabStop = True
-      ExplicitTop = 377
+      ExplicitTop = 396
       ExplicitWidth = 533
       ExplicitHeight = 129
       inherited PB_B: TPaintBox
@@ -77,7 +76,6 @@ object FRM_Main: TFRM_Main
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitHeight = 506
     object Splitter1: TSplitter
       Left = 429
       Top = 0
@@ -95,7 +93,6 @@ object FRM_Main: TFRM_Main
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 506
       inline Frame_Bericht1: TFrame_Bericht
         Left = 0
         Top = 0
@@ -113,7 +110,7 @@ object FRM_Main: TFRM_Main
         TabStop = True
         OnDblClick = Frame_Bericht1PB_BDblClick
         ExplicitWidth = 429
-        ExplicitHeight = 459
+        ExplicitHeight = 478
         inherited PB_B: TPaintBox
           Width = 429
           OnDblClick = Frame_Bericht1PB_BDblClick
@@ -155,7 +152,6 @@ object FRM_Main: TFRM_Main
         ParentBackground = False
         TabOrder = 1
         OnResize = P_WFResize
-        ExplicitTop = 459
         object LBL_WF_1: TLabel
           Left = 164
           Top = 2
@@ -238,7 +234,6 @@ object FRM_Main: TFRM_Main
         ParentFont = False
         TabOrder = 2
         OnDblClick = Frame_Bericht1PB_BDblClick
-        ExplicitHeight = 459
         object Label10: TLabel
           Left = 0
           Top = 0
@@ -396,7 +391,6 @@ object FRM_Main: TFRM_Main
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 506
       DesignSize = (
         101
         525)
@@ -424,7 +418,6 @@ object FRM_Main: TFRM_Main
         OnCompare = lst_othersCompare
         OnKeyDown = lst_othersKeyDown
         OnSelectItem = lst_othersSelectItem
-        ExplicitHeight = 373
       end
       object BTN_Paste: TButton
         Left = 2
@@ -455,7 +448,6 @@ object FRM_Main: TFRM_Main
         Caption = 'Scan &Liste'
         TabOrder = 3
         OnClick = BTN_ListeClick
-        ExplicitTop = 436
       end
       object BTN_Suche: TButton
         Left = 2
@@ -466,7 +458,6 @@ object FRM_Main: TFRM_Main
         Caption = 'Su&chen'
         TabOrder = 5
         OnClick = BTN_SucheClick
-        ExplicitTop = 484
       end
       object BTN_Universum: TButton
         Left = 2
@@ -477,7 +468,6 @@ object FRM_Main: TFRM_Main
         Caption = '&Universum'
         TabOrder = 4
         OnClick = BTN_UniversumClick
-        ExplicitTop = 460
       end
     end
   end
@@ -508,7 +498,6 @@ object FRM_Main: TFRM_Main
       end>
     OnMouseDown = StatusBar1MouseDown
     OnDrawPanel = StatusBar1DrawPanel
-    ExplicitTop = 506
   end
   object MainMenu1: TMainMenu
     Left = 284

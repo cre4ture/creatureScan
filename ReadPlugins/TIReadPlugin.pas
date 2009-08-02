@@ -41,13 +41,12 @@ type
   // ------------------------ DLL Interface ende -------------------------------
 
   TLangPlugIn = class;
-  TLangPlugin_AskMoon = procedure(Sender: TLangPlugIn; Report: TScanBericht;
-    var isMoon: Boolean; var Handled: Boolean) of object;
   TLangPlugIn = class(TObject)
   private
     dllfile: string;
     SBItemfile: string;
     dllconfig: String;
+    rs_handle: integer;
   protected
     DllHandle: THandle;
     DllLoaded: boolean;
@@ -75,7 +74,6 @@ type
     PReadSource_SetHTML: TReadSource_SetHTMLFuncktion;
 
     SaveInf: string;
-    rs_handle: integer;
     function OpenDll: Boolean;
     procedure CloseDll;
     procedure AssignProcedures;
@@ -88,10 +86,11 @@ type
     PlugInName: String;
     ValidFile: Boolean;
     SBItems: array[TScanGroup] of TStringList;
-    OnAskMoon: TLangPlugin_AskMoon;
+    procedure ReadReports_ready(handle: integer);
     procedure CallFleet(pos: TPlanetPosition; job: TFleetEventType);
-    function GetReport(var Bericht: TScanBericht): Boolean;
-    function ReadReports(): Integer;
+    function GetReport(handle: integer; var Bericht: TScanBericht;
+      out moon_unknown: Boolean): Boolean;
+    function ReadReports(out handle: integer): Integer;
     constructor Create;
     function LoadPluginFile(IniFile: String; AUni: Integer; ASaveInf: String): boolean;
     function ScanToStr(SB: TScanBericht; AsTable: Boolean): String;
@@ -110,8 +109,6 @@ type
   end;
 
 implementation
-
-uses Mond_Abfrage;
 
 procedure TLangPlugIn.AssignProcedures;
 begin
@@ -306,17 +303,16 @@ begin
   else Result := False;
 end;
 
-function TLangPlugIn.GetReport(var Bericht: TScanBericht): Boolean;
+function TLangPlugIn.GetReport(handle: integer; var Bericht: TScanBericht;
+  out moon_unknown: Boolean): Boolean;
 var buf: pointer;
-    FRM_Mond: TFRM_Mond;
-    AskMond, handled, isMoon: Boolean;
 begin
   //Speicher reservieren
   GetMem(buf,ScanSize);
   try
     //DLL aufrufen:
     if Assigned(PGetScan) then
-      Result := PGetScan(rs_handle, buf, AskMond)
+      Result := PGetScan(handle, buf, moon_unknown)
     else Result := False;
 
     Bericht := ReadBufScan(buf);
@@ -324,7 +320,7 @@ begin
     FreeMem(buf);
   end;
 
-  if Result then
+  (*if Result then
   begin
     //Benutzer nach Mond fragen (nur wenn nicht eindeutig -> AskMond)
     if AskMond then
@@ -333,26 +329,38 @@ begin
       handled := false;
       if Assigned(OnAskMoon) then
         OnAskMoon(Self,Bericht,isMoon,handled);
-      //TODO: enferne abfrage hier komplett
+
       if handled then
         Bericht.Head.Position.Mond := isMoon
-      else
-      begin
-        FRM_Mond := TFRM_Mond.Create(nil, Self);
-        Beep;
-        Bericht.Head.Position.Mond := (FRM_Mond.Open(Bericht));
-        FRM_Mond.free;
-      end;
+
     end;
+  end;  *)
+end;
+
+function TLangPlugIn.ReadReports(out handle: integer): Integer;
+begin
+  handle := -1;
+  Result := -1;
+  //Dll aufrufen:
+  if Assigned(PReadScans) then
+  begin
+    Result := PReadScans(rs_handle);
+    handle := rs_handle;
+    if Assigned(PReadSource_New) then
+      rs_handle := PReadSource_New();  // prevent overwriting results
+                                       // by semi-parallel read-procedure
+                                       // NOT thread-save!!!
   end;
 end;
 
-function TLangPlugIn.ReadReports(): Integer;
+procedure TLangPlugIn.ReadReports_ready(handle: integer);
 begin
-  //Dll aufrufen:
-  if Assigned(PReadScans) then
-    Result := PReadScans(rs_handle)
-  else Result := 0;
+  if handle = rs_handle then
+    raise Exception.Create(
+      'TLangPlugIn.ReadReports_ready: someone tried to free own handle!!');
+
+  if Assigned(PReadSource_Free) then
+    PReadSource_Free(handle);
 end;
 
 function TLangPlugIn.ReadStats(var Stat: TStat; var typ: TStatTypeEx): Boolean;
