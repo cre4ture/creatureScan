@@ -520,10 +520,18 @@ begin
 end;
 
 procedure TFRM_KB_List.paste1Click(Sender: TObject);
+var handle: integer;
 begin
-  ODataBase.LanguagePlugIn.SetReadSourceText(FRM_Main.GetClipboardText, ODataBase.FleetBoard.GameTime.UnixTime);
-  ODataBase.LanguagePlugIn.SetReadSourceHTML(FRM_Main.GetClipboardHtml, ODataBase.FleetBoard.GameTime.UnixTime);
-  ODataBase.LeseFleets();
+  handle := ODataBase.LanguagePlugIn.ReadSource_New();
+  try
+    ODataBase.LanguagePlugIn.SetReadSourceText(handle,
+      FRM_Main.GetClipboardText, ODataBase.FleetBoard.GameTime.UnixTime);
+    ODataBase.LanguagePlugIn.SetReadSourceHTML(handle, 
+      FRM_Main.GetClipboardHtml, ODataBase.FleetBoard.GameTime.UnixTime);
+    ODataBase.LeseFleets(handle);
+  finally
+    ODataBase.LanguagePlugIn.ReadSource_Free(handle);
+  end;
 end;
 
 procedure TFRM_KB_List.VST_RAIDInitNode(Sender: TBaseVirtualTree;

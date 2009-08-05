@@ -1568,7 +1568,7 @@ end;
 
 procedure TFRM_Main.TIM_afterClipboardchangeTimer(Sender: TObject);
 var Text, Html: string;
-    i: integer;
+    i, handle: integer;
 begin
   TIM_afterClipboardchange.Enabled := False;
 
@@ -1595,28 +1595,36 @@ begin
   if ((Text <> LastClipBoard)) then
   begin
 
-    ODataBase.LanguagePlugIn.SetReadSourceText(text, ODataBase.FleetBoard.GameTime.UnixTime);
-    ODataBase.LanguagePlugIn.SetReadSourceHTML(html, ODataBase.FleetBoard.GameTime.UnixTime);
+    handle := ODataBase.LanguagePlugIn.ReadSource_New();
+    try
 
-    if
-       (
-         (not(soUniCheck in Einstellungen))or
-         (ODataBase.LanguagePlugIn.CheckClipboardUni())
-       )
-       then
-    begin
-      if (ODataBase.LeseMehrereScanberichte() > 0)or
-         (ODataBase.LeseSystem())or
-         (ODataBase.LeseStats())or
-         (ODataBase.LeseFleets()) then
+      ODataBase.LanguagePlugIn.SetReadSourceText(handle,
+        text, ODataBase.FleetBoard.GameTime.UnixTime);
+      ODataBase.LanguagePlugIn.SetReadSourceHTML(handle,
+        html, ODataBase.FleetBoard.GameTime.UnixTime);
+
+      if
+         (
+           (not(soUniCheck in Einstellungen))or
+           (ODataBase.LanguagePlugIn.CheckClipboardUni(handle))
+         )
+         then
       begin
-        //Erfolgreich Eingelesen
-        if soBeepByWatchClipboard in Einstellungen then
-          Play_Alert_Sound(PlayerOptions.Beep_SoundFile);
+        if (ODataBase.LeseMehrereScanberichte(handle) > 0)or
+           (ODataBase.LeseSystem(handle))or
+           (ODataBase.LeseStats(handle))or
+           (ODataBase.LeseFleets(handle)) then
+        begin
+          //Erfolgreich Eingelesen
+          if soBeepByWatchClipboard in Einstellungen then
+            Play_Alert_Sound(PlayerOptions.Beep_SoundFile);
 
+        end;
       end;
-    end;
 
+    finally
+      ODataBase.LanguagePlugIn.ReadSource_Free(handle);
+    end;
   end;
 end;
 
@@ -1782,24 +1790,38 @@ begin
 end;
 
 procedure TFRM_Main.ClipbrdReadScan;
-var r: integer;
+var r, handle: integer;
 begin
-  ODataBase.LanguagePlugIn.SetReadSourceText(clipboard.AsText + ' ', ODataBase.FleetBoard.GameTime.UnixTime);
-  r := ODataBase.LeseMehrereScanberichte();
-  if r > 0 then
-  begin
-    if soShowScanCountMessage in Einstellungen then
-      ShowMessage(IntToStr(r) + ' ' + STR_Scans_gespeichert);
-  end
-  else
-    ShowMessage(STR_konnte_keine_Scans_suslesen);
+  handle := ODataBase.LanguagePlugIn.ReadSource_New();
+  try
+    ODataBase.LanguagePlugIn.SetReadSourceText(handle,
+      clipboard.AsText + ' ', ODataBase.FleetBoard.GameTime.UnixTime);
+    r := ODataBase.LeseMehrereScanberichte(handle);
+    if r > 0 then
+    begin
+      if soShowScanCountMessage in Einstellungen then
+        ShowMessage(IntToStr(r) + ' ' + STR_Scans_gespeichert);
+    end
+    else
+      ShowMessage(STR_konnte_keine_Scans_suslesen);
+  finally
+    ODataBase.LanguagePlugIn.ReadSource_Free(handle);
+  end;
 end;
 
 procedure TFRM_Main.ClipbrdReadSys;
+var handle: integer;
 begin
-  ODataBase.LanguagePlugIn.SetReadSourceText(GetClipboardText, ODataBase.FleetBoard.GameTime.UnixTime);
-  ODataBase.LanguagePlugIn.SetReadSourceHTML(GetClipboardHtml, ODataBase.FleetBoard.GameTime.UnixTime);
-  ODataBase.LeseSystem();
+  handle := ODataBase.LanguagePlugIn.ReadSource_New();
+  try
+    ODataBase.LanguagePlugIn.SetReadSourceText(handle,
+      GetClipboardText, ODataBase.FleetBoard.GameTime.UnixTime);
+    ODataBase.LanguagePlugIn.SetReadSourceHTML(handle,
+      GetClipboardHtml, ODataBase.FleetBoard.GameTime.UnixTime);
+    ODataBase.LeseSystem(handle);
+  finally
+    ODataBase.LanguagePlugIn.ReadSource_Free(handle);
+  end;
 end;
 
 procedure TFRM_Main.TIM_FakeCVTimer(Sender: TObject);

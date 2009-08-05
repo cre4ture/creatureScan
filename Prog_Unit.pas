@@ -133,7 +133,7 @@ type
 
 
 
-    function LeseFleets(): Boolean;
+    function LeseFleets(handle: integer): Boolean;
     function GetPlayerAtPos(planet: TPlanetPosition; addstatus: boolean = true): string;
     property InitialisedF: boolean read Initialised;
     constructor Create(Init: Boolean; UserDir: string; ACLHost: TcSServer);
@@ -144,13 +144,13 @@ type
     procedure DeleteScansOfPlanet(Pos: TPlanetPosition);
     function GetSystemCopyNR(Pos: TPlanetposition): integer; overload;
     function GetSystemCopyNR(g,s: Integer): integer; overload;
-    function LeseMehrereScanBerichte(): Integer;
-    function LeseSystem(): Boolean;
+    function LeseMehrereScanBerichte(handle: integer): Integer;
+    function LeseSystem(handle: integer): Boolean;
     function SelectPlugIn(ForceDialog: boolean): Boolean;
     procedure SaveUserOptions;
     function CheckUserOptions(ForceDialog: Boolean): boolean;
     procedure ImportXML(Filename: String);
-    function LeseStats(): Boolean;
+    function LeseStats(handle: integer): Boolean;
     function GetLastActivity(pos: TPlanetPosition): int64;
     function GetPlayerStatusAtPos(pos: TPlanetPosition): string;
     function Time_To_AgeStr(time: TDateTime): String;
@@ -187,12 +187,12 @@ uses Languages, Connections, cS_XML, Export,
   SDBFile;
 
 
-function TOgameDataBase.LeseFleets(): Boolean;
+function TOgameDataBase.LeseFleets(handle: integer): Boolean;
 var count, i, j: integer;
     fleet: TFleetEvent;
     info: TFleetsInfoSource;
 begin
-  info := LanguagePlugIn.ReadPhalanxScan();
+  info := LanguagePlugIn.ReadPhalanxScan(handle);
   count := info.count;
 
   Result := (count > 0)and(info.typ = fist_events);
@@ -791,45 +791,38 @@ begin
 end;
 
 
-function TOgameDataBase.LeseMehrereScanBerichte(): Integer;
+function TOgameDataBase.LeseMehrereScanBerichte(handle: integer): Integer;
 var Scan: TScanBericht;
     c: integer;
     moon_unknown, phandled: boolean;
-    handle: integer;
 begin
   Result := 0;
   c := LanguagePlugIn.ReadReports(handle);
-  if (c >= 0)and(handle >= 0) then
+
+  while LanguagePlugIn.GetReport(handle, Scan, moon_unknown) do
   begin
-    try
-      while LanguagePlugIn.GetReport(handle, Scan, moon_unknown) do
-      begin
-        Scan.Head.Creator := Username;
+    Scan.Head.Creator := Username;
 
-        if moon_unknown then
-          langplugin_onaskmoonprocedure(Self, Scan,
-                                        Scan.Head.Position.Mond,
-                                        phandled);
+    if moon_unknown then
+      langplugin_onaskmoonprocedure(Self, Scan,
+                                    Scan.Head.Position.Mond,
+                                    phandled);
 
-        UniTree.AddNewReport(Scan);
-        inc(Result);
-      end;
-    finally
-      LanguagePlugIn.ReadReports_ready(handle);
-    end;
-
-    if c <> Result then
-      raise Exception.Create('TOgameDataBase.LeseMehrereScanBerichte: Plugin fehlerhaft,' +
-        ' Anzahl einegelesener Scans stimmt nicht mit Rückgabewert überein!');
-
+    UniTree.AddNewReport(Scan);
+    inc(Result);
   end;
+
+  if c <> Result then
+    raise Exception.Create('TOgameDataBase.LeseMehrereScanBerichte: Plugin fehlerhaft,' +
+      ' Anzahl einegelesener Scans stimmt nicht mit Rückgabewert überein!');
+
 end;
 
 
-function TOgameDataBase.LeseSystem(): Boolean;
+function TOgameDataBase.LeseSystem(handle: integer): Boolean;
 var Sys: TSystemCopy;
 begin
-  Result := LanguagePlugIn.ReadSystem(Sys);
+  Result := LanguagePlugIn.ReadSystem(handle, Sys);
   if Result then
     UniTree.AddNewSolSys(sys);
 end;
@@ -1037,7 +1030,7 @@ begin
   else Result := -1;
 end;
 
-function TOgameDataBase.LeseStats(): Boolean;
+function TOgameDataBase.LeseStats(handle: integer): Boolean;
 begin
   Result := False;
   //Geht leider nochnicht, da nochnicht alle plugins automatisch unterscheiden

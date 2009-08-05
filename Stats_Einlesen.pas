@@ -94,36 +94,45 @@ var st: TStat;
     st_typ: TStatTypeEx;
     text: string;
 
-    i: integer;
+    i, handle: integer;
 begin
   try
     text := ClipBoard.AsText;
     if Text <> LastClipBoard then
     begin
-      ODataBase.LanguagePlugIn.SetReadSourceText(text, ODataBase.FleetBoard.GameTime.UnixTime);
-      ODataBase.LanguagePlugIn.SetReadSourceHTML(ReadClipboardHtml, ODataBase.FleetBoard.GameTime.UnixTime);
+      handle := ODataBase.LanguagePlugIn.ReadSource_New();
+      try
 
-      LastClipBoard := Text;//Memo1.Lines.Text;
-      begin
-        if ODataBase.LanguagePlugIn.ReadStats(st,st_typ) then
+        ODataBase.LanguagePlugIn.SetReadSourceText(handle,
+          text, ODataBase.FleetBoard.GameTime.UnixTime);
+        ODataBase.LanguagePlugIn.SetReadSourceHTML(handle,
+          ReadClipboardHtml, ODataBase.FleetBoard.GameTime.UnixTime);
+
+        LastClipBoard := Text;//Memo1.Lines.Text;
         begin
-          ODataBase.Statistic.AddStats(st_typ.NameType,st_typ.PointType,st);
-          if CH_Beep.Checked then Beep;
-
-          // Suche nach eigenen Punkten:
-          for i := 0 to 99 do
+          if ODataBase.LanguagePlugIn.ReadStats(handle, st,st_typ) then
           begin
-            if st.Stats[i].Name = ODataBase.Username then
+            ODataBase.Statistic.AddStats(st_typ.NameType,st_typ.PointType,st);
+            if CH_Beep.Checked then Beep;
+
+            // Suche nach eigenen Punkten:
+            for i := 0 to 99 do
             begin
-              if (st_typ.PointType = sptPoints)and(st_typ.NameType = sntPlayer) then
+              if st.Stats[i].Name = ODataBase.Username then
               begin
-                TXT_punkte.Text := IntToStr(st.Stats[i].Punkte);
-                TXT_punkte.Color := clLime;
-                break;
+                if (st_typ.PointType = sptPoints)and(st_typ.NameType = sntPlayer) then
+                begin
+                  TXT_punkte.Text := IntToStr(st.Stats[i].Punkte);
+                  TXT_punkte.Color := clLime;
+                  break;
+                end;
               end;
             end;
           end;
-        end
+        end;
+
+      finally
+        ODataBase.LanguagePlugIn.ReadSource_Free(handle);
       end;
     end;
   except
