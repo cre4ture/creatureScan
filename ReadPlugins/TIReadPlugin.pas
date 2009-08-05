@@ -46,7 +46,6 @@ type
     dllfile: string;
     SBItemfile: string;
     dllconfig: String;
-    rs_handle: integer;
   protected
     DllHandle: THandle;
     DllLoaded: boolean;
@@ -86,26 +85,30 @@ type
     PlugInName: String;
     ValidFile: Boolean;
     SBItems: array[TScanGroup] of TStringList;
-    procedure ReadReports_ready(handle: integer);
+    function ReadSource_New: integer;
+    procedure ReadSource_Free(handle: integer);
     procedure CallFleet(pos: TPlanetPosition; job: TFleetEventType);
     function GetReport(handle: integer; var Bericht: TScanBericht;
       out moon_unknown: Boolean): Boolean;
-    function ReadReports(out handle: integer): Integer;
+    function ReadReports(handle: integer): Integer;
     constructor Create;
     function LoadPluginFile(IniFile: String; AUni: Integer; ASaveInf: String): boolean;
     function ScanToStr(SB: TScanBericht; AsTable: Boolean): String;
-    function ReadSystem(var Sys: TSystemCopy): Boolean;
+    function ReadSystem(handle: integer; var Sys: TSystemCopy): Boolean;
     destructor Destroy; override;
     function ReadRaidAuftrag(s: string; var Auftrag: TRaidAuftrag): Boolean;
-    function ReadStats(var Stat: TStat; var typ: TStatTypeEx): Boolean;
-    function CheckClipboardUni(): Boolean;
+    function ReadStats(handle: integer;
+      var Stat: TStat; var typ: TStatTypeEx): Boolean;
+    function CheckClipboardUni(handle: integer): Boolean;
     procedure RunOptions;
     function StrToStatus(s: string): TStatus;
     function StatusToStr(Status: TStatus): String;
-    function ReadPhalanxScan(): TFleetsInfoSource;
+    function ReadPhalanxScan(handle: integer): TFleetsInfoSource;
     function ReadPhalanxScanGet(out fleet: TFleetEvent): Boolean;
-    procedure SetReadSourceText(text: string; server_time: int64);
-    procedure SetReadSourceHTML(html: string; server_time: int64);
+    procedure SetReadSourceText(handle: integer;
+      text: string; server_time: int64);
+    procedure SetReadSourceHTML(handle: integer;
+      html: string; server_time: int64);
   end;
 
 implementation
@@ -145,20 +148,16 @@ begin
     raise Exception.Create('TLangPlugIn.CallFleet(): dll does not support this feature');
 end;
 
-function TLangPlugIn.CheckClipboardUni(): Boolean;
+function TLangPlugIn.CheckClipboardUni(handle: integer): Boolean;
 begin
   Result := Assigned(PCheckUni) and
-            PCheckUni(rs_handle);
+            PCheckUni(handle);
 end;
 
 procedure TLangPlugIn.CloseDll;
 begin
   if DllHandle <> 0 then
   begin
-    //ReadSource Handle löschen
-    if Assigned(PReadSource_Free) then
-      PReadSource_Free(rs_handle);
-
     if Assigned(PEndDll) then PEndDll;
     FreeLibrary(DllHandle);
     DllHandle := 0;
@@ -284,8 +283,6 @@ begin
       if V <> DllVNumber then
         ShowMessage(STR_MSG_Old_Dll);
 
-      // ReadSource Handle besorgen
-      rs_handle := PReadSource_New();
     end;
   end;
   if not DllLoaded then
@@ -337,44 +334,41 @@ begin
   end;  *)
 end;
 
-function TLangPlugIn.ReadReports(out handle: integer): Integer;
+function TLangPlugIn.ReadReports(handle: integer): Integer;
 begin
-  handle := -1;
-  Result := -1;
+  Result := 0;
   //Dll aufrufen:
   if Assigned(PReadScans) then
   begin
-    Result := PReadScans(rs_handle);
-    handle := rs_handle;
-    if Assigned(PReadSource_New) then
-      rs_handle := PReadSource_New();  // prevent overwriting results
-                                       // by semi-parallel read-procedure
-                                       // NOT thread-save!!!
+    Result := PReadScans(handle);
   end;
 end;
 
-procedure TLangPlugIn.ReadReports_ready(handle: integer);
+procedure TLangPlugIn.ReadSource_Free(handle: integer);
 begin
-  if handle = rs_handle then
-    raise Exception.Create(
-      'TLangPlugIn.ReadReports_ready: someone tried to free own handle!!');
-
   if Assigned(PReadSource_Free) then
     PReadSource_Free(handle);
 end;
 
-function TLangPlugIn.ReadStats(var Stat: TStat; var typ: TStatTypeEx): Boolean;
+function TLangPlugIn.ReadSource_New: integer;
+begin
+  if Assigned(PReadSource_New) then
+    Result := PReadSource_New();
+end;
+
+function TLangPlugIn.ReadStats(handle: integer;
+  var Stat: TStat; var typ: TStatTypeEx): Boolean;
 begin
   if Assigned(PReadStats) then
-    Result := PReadStats(rs_handle, Stat, typ)
+    Result := PReadStats(handle, Stat, typ)
   else Result := False;
 end;
 
-function TLangPlugIn.ReadSystem(var Sys: TSystemCopy): Boolean;
+function TLangPlugIn.ReadSystem(handle: integer; var Sys: TSystemCopy): Boolean;
 begin
   if Assigned(PReadSystem) then
   begin
-    Result := PReadSystem(rs_handle, Sys);
+    Result := PReadSystem(handle, Sys);
   end
   else Result := False;
 end;
@@ -405,22 +399,24 @@ begin
   end;
 end;
 
-procedure TLangPlugIn.SetReadSourceHTML(html: string; server_time: int64);
+procedure TLangPlugIn.SetReadSourceHTML(handle: integer;
+  html: string; server_time: int64);
 begin
   if Assigned(PReadSource_SetHTML) then
   begin
-    PReadSource_SetHTML(rs_handle, PChar(html), server_time);
+    PReadSource_SetHTML(handle, PChar(html), server_time);
   end
   else
     raise Exception.Create(
       'TLangPlugIn.SetReadSourceHTML: Plugin fehlerhaft, oder kein Plugin geladen!');
 end;
 
-procedure TLangPlugIn.SetReadSourceText(text: string; server_time: int64);
+procedure TLangPlugIn.SetReadSourceText(handle: integer;
+  text: string; server_time: int64);
 begin
   if Assigned(PReadSource_SetText) then
   begin
-    PReadSource_SetText(rs_handle, PChar(text), server_time);
+    PReadSource_SetText(handle, PChar(text), server_time);
   end
   else
     raise Exception.Create(
@@ -441,10 +437,10 @@ begin
   else Result := [];
 end;
 
-function TLangPlugIn.ReadPhalanxScan(): TFleetsInfoSource;
+function TLangPlugIn.ReadPhalanxScan(handle: integer): TFleetsInfoSource;
 begin
   if Assigned(PReadPhalanxScan) then
-    Result := PReadPhalanxScan(rs_handle)
+    Result := PReadPhalanxScan(handle)
   else
   begin
     Result.Count := 0;
