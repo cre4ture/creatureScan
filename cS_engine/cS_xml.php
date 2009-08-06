@@ -1,332 +1,143 @@
 <?php
 
-// Author: Ulrich Hornung
-//         aka creature
+/*
 
-function startElement_write($parser, $name, $attrs) 
-{
-  global $xmltmp;
-  global $solsys_table;
-  global $planet_table;
-  
-  $name = strtolower($name);
-  $attrs = array_change_key_case($attrs, CASE_LOWER);
-  
-  echo "<$name>";
-  
-  switch ($name)
-	{
-    case "solsys": 
-      $pos[0] = $attrs['gala'];
-      $pos[1] = $attrs['sys'];
-      $time = $attrs['time'];
-      
-      //Suche nach schon vorhandenen und neueren Solsys!
-      $sql = mysql_query("SELECT ID FROM `$solsys_table` 
-			                              WHERE `gala`='$pos[0]' 
-																		AND `sys`='$pos[1]' 
-																		AND `time`>='$time'");
-      
-      //wenns keinen Fehler in der abfrage gab und kein neures Solsys gefunden wurde
-      if ((!write_error($sql))and(!mysql_fetch_array($sql)))  
-      {
-        $attrs['timestamp'] = time();
-        $attrs['uploader'] = $_SESSION['username'];
-        $query = array_to_insertquery($solsys_table, $attrs);
-			  if (!mysql_query($query))
-		    {
-  		    echo "<error>".$query." ".mysql_error()."</error>";
-		    }
-	    	$xmltmp['solsysID'] = mysql_insert_id();
-			} else { $xmltmp['solsysID'] = NULL; }
-			break;
-			
-		case "planet":
-		  if ($xmltmp['solsysID'] != NULL)
-		  {
-		    //print_r($attrs);
-			  $attrs['solsysID'] = $xmltmp['solsysID'];
-			  $query = array_to_insertquery($planet_table,$attrs);
-			  //echo $query;
-				$sql = mysql_query($query);
-				write_error($sql);
-		  } 
-			break;
-		case "report":
-		    
-		    $moon_translate['0'] = '0';
-        $moon_translate[''] = '0';
-        $moon_translate['false'] = '0';
-        $moon_translate['1'] = '1';
-        $moon_translate['true'] = '1';
-		    
-		    $attrs['moon'] = $moon_translate[ign_udef_index($attrs,'moon')];
-		    $attrs['timestamp'] = time();
-		    $attrs['uploader'] = $_SESSION['username'];
-	
-		    $query = array_to_insertquery('report',$attrs);
-		    if (!mysql_query($query))
-		    {
-  		    echo "<error>".$query." ".mysql_error()."</error>";
-		    }
-		    $xmltmp['reportID'] = mysql_insert_id();
-		    xml_set_element_handler($parser, "startElement_write_report", "endElement_write_report");
-		  break;
-		  
-    default:
-      return_error('xml',0,'startElement_write: unexcepted tag: '.$name); 
-      break;
-  }
-}
-
-function endElement_write($parser, $name) 
-{
-  global $xmltmp, $xml_parser;
-  
-  $name = strtolower($name);
-  
-  switch ($name)
-	{
-    case "solsys": 
-      $xmltemp['solsysID'] = NULL;
-      break;
-      
-    case 'write':
-      xml_set_element_handler($xml_parser, "startElement", "endElement");
-      break;
-      
-/*    default:
-      return_error('xml',0,'endElement_write: unexcepted tag: '.$name); 
-      break;
+    Project: cS_engine
+    File: simpleXML-DOM - Interface
+    Author: Ulrich Hornung
+    Date: 05.08.2009
+    Type: function library (please use "require_once" instead of "include")
+    
+    Description:
+    
+    TODO
+    
 */
-  }
-  echo "</$name>";
-}
 
-function startElement_read($parser, $name, $attrs) 
+require_once "simplexmldom.php";
+
+/* converts a simplexmldom-structure to a report */
+function cSxml_sxml_to_report($xml)
 {
-  global $xmltmp, $solsys_table, $range, $pos_count, $report_table, $universe;
-  
-  $name = strtolower($name);
-  $attrs = array_change_key_case($attrs, CASE_LOWER);
-  
-  //echo "<$name>";
-  
-  switch ($name) {
-  case 'solsys_pos':
-    $pos[0] = $attrs['gala'];
-    $pos[1] = $attrs['sys'];
-    echo(getsys_xml($pos));
-    break; 
+  if ($xml['name'] != 'report')
+    return false;
     
-  case 'solsys_timestamp':
-    $from = $attrs['from'];
-    $to = $attrs['to'];
-    $query = "SELECT * FROM $solsys_table WHERE $range AND `timestamp`>='$from' AND `timestamp`<='$to'";
-    $sql = mysql_query($query);
-    if (!write_error($sql))
-    {
-      echo "<count>".mysql_num_rows($sql)."</count>";
-      echo (querytoxmlsys($sql));
-    }
-    break;
-    
-  case 'solsys_id':  //nur versuchsweise
-    $id = $attrs['id'];
-    $query = "SELECT * FROM $solsys_table WHERE $range AND `id`=$id";
-    echo $query;
-    $sql = mysql_query($query);
-    echo (mysql_error());
-    echo (querytoxmlsys($sql));
-    break;
-    
-  case 'report_id':
-    $id = $attrs['id'];
-    if ($s = getreport_xml($id))
-    {
-      echo $s;
-    }
-    else
-    {
-      return_error('report_request',0,'failed sending report with id '.$id);
-    }
-    break;
-    
-  case 'serverinfo':  //abfragen der uni-konstanten!
-    echo '<serverinfo universe="'.$universe.'"'.
-         ' time="'.time().'"'.
-         ' csvers="0.6" galacount="'.$pos_count[0].'"'.
-         ' syscount="'.$pos_count[1].'"'.
-         ' planetcount="'.$pos_count[2].'"/>';
-    break;
-    
-  case 'solsystimes_timestamp':
-    $from = ign_udef_index($attrs,'from');
-    $to = ign_udef_index($attrs,'to');
-    $query = "SELECT `gala` , `sys` , `time` FROM $solsys_table WHERE $range";
-		if ($from != '') $query = $query." AND `timestamp`>='$from'";
-		if ($to != '') $query = $query." AND `timestamp`<='$to'";
-    //echo $query;
-    $sql = mysql_query($query);
-    if (!write_error($sql))
-    {
-      echo '<queryinfo count="'.mysql_num_rows($sql).'" />';;
-      while ($sys = mysql_fetch_array($sql, MYSQL_ASSOC))  
-      {
-        echo '<solsystime gala="'.$sys['gala'].'" sys="'.$sys['sys'].'" time="'.$sys['time'].'" />';
-      }
-    }
-    break;
-    
-  case 'reporttimes_gala':
-    $gala = $attrs['gala'];
-    $query = "SELECT id, sys, pos, moon, time
-              FROM `$report_table`
-              WHERE (gala = '$gala')
-              ORDER BY sys ASC, pos ASC, moon ASC, time DESC";
-    
-    $sql = mysql_query($query);
-    if (!write_error($sql))
-    {
-      //echo '<queryinfo count="'.mysql_num_rows($sql).'"/>';
-      
-      $moon_translate['0'] = 'false';
-      $moon_translate[''] = 'false';
-      $moon_translate['false'] = 'false';
-      $moon_translate['1'] = 'true';
-      $moon_translate['true'] = 'true';
-      
-      $sys = 0;
-      $pos = 0;
-      echo "<reporttimes gala=\"$gala\">";
-      while ($report = mysql_fetch_array($sql, MYSQL_ASSOC))  
-      {
-        if ($report['sys'] != $sys or 
-            $report['pos'] != $pos or
-            $report['moon'] != $moon )
-        {
-          if ($pos != 0) echo '</planet>';
-          $sys = $report['sys'];
-          $pos = $report['pos'];
-          $moon = $report['moon'];
-          echo '<planet sys="'.$sys.'" pos="'.$pos.'" moon="'.$moon_translate[$moon].'">'; 
-        }
-        
-        echo '<reporttime time="'.$report['time'].'" id="'.$report['id'].'"/>';
-      }
-      if ($sys != 0) echo '</planet>';
-      echo "</reporttimes>";
-      
-    }
-    break; 
-    
-    default:
-      return_error('xml',0,'startElement_read: unexcepted tag: '.$name); 
-      break;
-  }
-}
-
-function endElement_read($parser, $name) 
-{
-  global $xmltmp;
+  $report = Array();
+  $report['head'] = $xml['attrs'];
   
-  $name = strtolower($name);
+  // --
+  $moontrans[''] = 0;
+  $moontrans['0'] = 0;
+  $moontrans[0] = 0;
+  $moontrans['false'] = 0;
+  $moontrans['true'] = 1;
+  $moontrans['1'] = 1;
+  $moontrans[1] = 1;
+  $report['head']['moon'] = $moontrans[ign_udef_index($report['head'],'moon')];
+  // --
   
-  switch ($name)
-	{
-    case 'read':
-      echo "</$name>";
-      xml_set_element_handler($parser, "startElement", "endElement");
-      break;
-    
-/*    default:
-      return_error('xml',0,'endElement_read: unexcepted tag: '.$name); 
-      break;
-*/  }
-  //echo "</$name>";
-}
-
-function startElement($parser, $name, $attrs)
-{  
-  $name = strtolower($name);
-  $attrs = array_change_key_case($attrs, CASE_LOWER);
-  
-  echo "<$name>";
-  
-  switch ($name) {
-  case 'write': 
-    xml_set_element_handler($parser, "startElement_write", "endElement_write");
-    break;
-  case 'read':
-    xml_set_element_handler($parser, "startElement_read", "endElement_read");
-    break;
-  }
-} 
-
-function endElement($parser, $name)
-{
-  $name = strtolower($name);
-  
-  echo "</$name>";
-}
-
-function startElement_write_report($parser, $name, $attrs)
-{
-  global $xmltmp;
-  
-  $name = strtolower($name);
-  $attrs = array_change_key_case($attrs, CASE_LOWER);
-  
-  echo "<$name>";
-
-  $attrs['reportID'] = $xmltmp['reportID'];  //ID mit in insert-query!
-  if (isset($attrs['moon']) and ($attrs['moon'] == 'true')) $attrs['moon'] = 1;
-  $query = array_to_insertquery($name, $attrs);
-  $sql = mysql_query($query);
-  write_error($sql);
-} 
-
-function endElement_write_report($parser, $name)
-{
-  global $xmltmp;
-  $name = strtolower($name);
-  
-  if ($name == 'report')
+  $report['body'] = Array();
+  foreach ($xml['children'] as $key => $value)
   {
-    $xmltmp['reportID'] = NULL;
-    xml_set_element_handler($parser, "startElement_write", "endElement_write");
+    $report['body'][$value['name']] = $value['attrs'];
   }
-  echo "</$name>";
+  
+  return $report;
 }
 
-function GoXML($xml) 
-{ 
-    global  $mysql_db;
+/* converts a report to a simplexmldom-structure */
+function cSxml_report_to_sxml($report)
+{
+  if (!$report) return false;
+
+  // --
+  $moontrans[''] = '';
+  $moontrans['0'] = '';
+  $moontrans[0] = '';
+  $moontrans['false'] = '';
+  $moontrans['true'] = 'true';
+  $moontrans['1'] = 'true';
+  $moontrans[1] = 'true';
+  $report['head']['moon'] = $moontrans[ign_udef_index($report['head'],'moon')];
+  // --
+  
+  $xml['name'] = 'report';
+  $xml['attrs'] = cSxml_private_remove_zero($report['head']);
+  $xml['children'] = Array();
+  
+  foreach ($report['body'] as $key => $value)
+  {
+    $child = Array();
+    $child['name'] = $key;
+    $child['attrs'] = cSxml_private_remove_zero($value);
+    $child['parent'] = &$xml;
     
-    //echo "<function>GoXML</function>";
-	  if (db_login())
-    {
-      global $xml_parser;
-      
-      mysql_query("USE $mysql_db");
-      
-      $xml_parser = xml_parser_create('UTF-8');
-      xml_set_element_handler($xml_parser, "startElement", "endElement");
-      
-      //echo "xml->".($xml)."<-xml";
-      
-      if (!xml_parse($xml_parser, html_entity_decode($xml), TRUE))
-			{
-         echo('<error type="xml">');
-				 echo(sprintf("XML error: %s at line %d",
-              xml_error_string(xml_get_error_code($xml_parser)),
-              xml_get_current_line_number($xml_parser)));
-         echo('</error>');
-      }
-        
-      xml_parser_free($xml_parser);
-      
-      db_logout();
-    } /* mysql_connect */ else echo('<error type="db_login">Connection to db failed!</error>');
+    $xml['children'][] = $child;
+  }
+  
+  return $xml;
 }
-?> 
+
+/* converts a simplexmldom-structure to a solsys */
+function cSxml_sxml_to_solsys($xml)
+{
+  if ($xml['name'] != 'solsys')
+    return false;
+    
+  $solsys = Array();
+  $solsys['head'] = $xml['attrs'];
+  $solsys['planets'] = Array();
+
+  if (isset($xml['children']))
+    foreach ($xml['children'] as $index => $childtag)
+    {
+      $solsys['planets'][$childtag['attrs']['pos']] = $childtag['attrs'];
+    }
+  
+  return $solsys;
+}
+
+/* converts a solsys to a simplexmldom-structure */
+function cSxml_solsys_to_sxml($solsys)
+{
+  $xml['name'] = 'solsys';
+  $xml['attrs'] = cSxml_private_remove_zero($solsys['head']);
+  $xml['children'] = Array();
+  
+  foreach ($solsys['planets'] as $pos => $planet)
+  {
+    if (!isset($planet['pos']))
+      $planet['pos'] = $pos;
+    else
+      if ($planet['pos'] != $pos)
+        exit("<error>inconsistent data found (cSxml_solsys_to_sxml)</error>");
+  
+    $child = Array();
+    $child['name'] = 'planet';
+    $child['attrs'] = cSxml_private_remove_zero($planet);
+    $child['parent'] = &$xml;
+    
+    $xml['children'][] = $child;
+  }
+  
+  return $xml;
+}
+
+/* private function, not to use outside this namespace */
+/* removes array elements with 0 or '0' or '' values */
+function cSxml_private_remove_zero(&$attr_list)
+{
+  foreach($attr_list as $key => $value)
+  {
+    if (($value == '0') or 
+        ($value == ''))
+    {
+      unset($attr_list[$key]);
+    }    
+  }
+  
+  return $attr_list;
+}
+
+
+?>

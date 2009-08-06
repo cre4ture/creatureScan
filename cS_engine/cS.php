@@ -10,9 +10,12 @@ require "cS_rights.php";
 
 require_once "lib_creax.php";
 require_once "config.php";
-require_once "cS_engine.php";
 require_once "cS_xml.php";
 require_once "cS_language.php";
+require_once "cS_sql.php";
+
+cSsql_db_login();
+
 
 ?>
 
@@ -75,154 +78,128 @@ a { text-decoration: none; }
     { return "silver"; }
   }
   
-  function getsys_html($pos)
+  function solsys_to_html($solsys)
   {
-    global $planet_table, $solsys_table, $mysql_db;
-    global $mysql_server, $mysql_username, $mysql_password;
-    
-    
-    if (db_login())
-    {
+    echo '
+          <script type="text/javascript">
       
-  	  $sql = mysql_query("SELECT * FROM `$solsys_table` WHERE `gala` = $pos[0] AND `sys` = $pos[1] ORDER BY `time` DESC LIMIT 0, 1 ");
-  	  echo (mysql_error());
-  	  if ($sys = mysql_fetch_array($sql, MYSQL_ASSOC))
-  	  {
-  	        echo '
-            <script type="text/javascript">
+          function getreport(p1,p2,p3,p4)
+      		{
+      			document.getElementById("r_gala").value = p1;
+      			document.getElementById("r_sys").value = p2;
+      			document.getElementById("r_pos").value = p3;
+      			document.getElementById("r_moon").value = p4;
+      			document.getElementById("r_ok").click();
+      		}
 
-            function getreport(p1,p2,p3,p4)
-						{
-  						document.getElementById("r_gala").value = p1;
-  						document.getElementById("r_sys").value = p2;
-  						document.getElementById("r_pos").value = p3;
-  						document.getElementById("r_moon").value = p4;
-  						document.getElementById("r_ok").click();
-						}
-
-						</script>';
+		      </script>';
+					
+    echo '<form action="'.$_SERVER["PHP_SELF"].'" name="report" method="post"> report: <br/>
+  	      <input id="r_gala" name="galaxie" value="'.ign_udef_index($_POST,'galaxie').'"/>:
+  				<input id="r_sys" name="system" value="'.ign_udef_index($_POST,'system').'"/>:
+  				<input id="r_pos" name="r_pos" value="'.ign_udef_index($_POST,'r_pos').'"/>
+  				<input id="r_moon" name="r_moon" value="'.ign_udef_index($_POST,'r_moon').'"/>
+  				<input id="r_ok" name="action" value="getreport_html" type="submit"/>
+  				<input id="r_ok_xml" name="action" value="getreport_xml" type="submit"/>
+  				</form><table border=1>';
+  				
+  	$head = $solsys['head'];
 						
-  	    echo '<form action="'.$_SERVER["PHP_SELF"].'" name="report" method="post"> report: <br/>
-				      <input id="r_gala" name="galaxie" value="'.ign_udef_index($_POST,'galaxie').'"/>:
-							<input id="r_sys" name="system" value="'.ign_udef_index($_POST,'system').'"/>:
-							<input id="r_pos" name="r_pos" value="'.ign_udef_index($_POST,'r_pos').'"/>
-							<input id="r_moon" name="r_moon" value="'.ign_udef_index($_POST,'r_moon').'"/>
-							<input id="r_ok" name="action" value="getreport_html" type="submit"/>
-							<input id="r_ok_xml" name="action" value="getreport_xml" type="submit"/>
-							</form><table border=1>';
-							
-  	    $r1 = "";
-  	    $r2 = "";
-        foreach ($sys as $key => $value) 
-		  	{
-		  	  if ($key == 'time' or $key == 'timestamp')
-          {
-            $color = 'bgcolor="'.timetocolor($value).'"';
-            $value = date("Y-m-d H:i:s", $value);
-          }
-          else $color = "";
-		  	
-		  	  $r1 = $r1."\t\t<td bgcolor='#77AAFF'>$key</td>\n";
-          $r2 = $r2."\t\t<td $color >$value</td>\n";
-        }
-        echo "\t<tr>\n".$r1."\t</tr>\n";
-        echo "\t<tr>\n".$r2."\t</tr>\n";
-        
-        echo '</table><table border=1>';
-        
-        $sql = mysql_query("SELECT * FROM `$planet_table` WHERE `solsysID`='$sys[ID]' ORDER BY `pos` ASC ");
-        echo (mysql_error());
-        
-        $i = 0;
-        while ($planeten = mysql_fetch_array($sql, MYSQL_ASSOC)) 
-	    	{
-          $r1 = "";
-  	      $r2 = "";
-          foreach ($planeten as $key => $value) 
-			    {
-		  	    $r1 = $r1."\t\t<td bgcolor='#77AAFF'>$key</td>\n";  
-            $r2 = $r2."\t\t<td";
-            
-            $ID = true;
-            if ($key == 'moon')
-              $moon = '1';
-            else
-            if ($key == 'pos')
-              $moon = '0';
-            else
-              $ID = false;
-            
-            if ($ID) 
-              $ID = getreportID($pos[0],$pos[1],$planeten['pos'],$moon, $time);
-            if ($ID) 
-            {
-              $r2 = $r2.' bgcolor="'.timetocolor($time).'" onClick="getreport('.$pos[0].','.$pos[1].','.$planeten['pos'].','.$moon.');"';
-            }
-            
-            $r2 = $r2.">$value</td>\n";
-          }
-          
-          if ($i == 0) echo "\t<tr>\n".$r1."\t</tr>\n";
-          echo "\t<tr>\n".$r2."\t</tr>\n";
-          
-          $i++;
-        }
-        echo "</table>";
-  	  }
-  	  db_logout();
+    $r1 = "";
+    $r2 = "";
+    foreach ($head as $key => $value) 
+  	{
+  	  if ($key == 'time' or $key == 'timestamp')
+      {
+        $color = 'bgcolor="'.timetocolor($value).'"';
+        $value = date("Y-m-d H:i:s", $value);
+      }
+      else $color = "";
+  	
+  	  $r1 = $r1."\t\t<td bgcolor='#77AAFF'>$key</td>\n";
+      $r2 = $r2."\t\t<td $color >$value</td>\n";
     }
+    echo "\t<tr>\n".$r1."\t</tr>\n";
+    echo "\t<tr>\n".$r2."\t</tr>\n";
+    
+    echo '</table><table border=1>';
+          
+    $i = 0;
+    foreach($solsys['planets'] as $pos => $planet) 
+  	{
+      $r1 = "";
+      $r2 = "";
+      foreach ($planet as $key => $value) 
+	    {
+  	    $r1 = $r1."\t\t<td bgcolor='#77AAFF'>$key</td>\n";  
+        $r2 = $r2."\t\t<td";
+        
+        $ID = true;
+        if ($key == 'moon')
+          $moon = '1';
+        else
+        if ($key == 'pos')
+          $moon = '0';
+        else
+          $ID = false;
+        
+        if ($ID) 
+          $ID = report_get_id($head['gala'],$head['sys'],$planet['pos'],$moon, $time);
+        if ($ID) 
+        {
+          $r2 = $r2.' bgcolor="'.timetocolor($time).'" 
+                      onClick="getreport('.$head['gala'].','.$head['sys'].','.$planet['pos'].','.$moon.');"';
+        }
+        
+        $r2 = $r2.">$value</td>\n";
+      }
+      
+      if ($i == 0) echo "\t<tr>\n".$r1."\t</tr>\n";
+      echo "\t<tr>\n".$r2."\t</tr>\n";
+      
+      $i++;
+    }
+    echo "</table>";
   }
+
   
   function overview()
   {
-    global $solsys_table, $mysql_db, $pos_count;
-    global $mysql_server, $mysql_username, $mysql_password;
+    global $pos_count;
+          
+    echo '<script type="text/javascript">
+          
+          function SetPosition(p1,p2)
+          {
+            document.getElementById("gala").value = p1;
+            document.getElementById("sys").value = p2;
+          }
+          
+          function ClickSubmit()
+          {
+            document.getElementById("ok").click();
+          }
+          
+          </script>';
     
-    
-    if (mysql_connect ($mysql_server, $mysql_username, $mysql_password))
-    {
-      mysql_query("USE $mysql_db");
-      
-      echo '
-<script type="text/javascript">
-
-function SetPosition(p1,p2)
-{
-  document.getElementById("gala").value = p1;
-  document.getElementById("sys").value = p2;
-}
-
-function ClickSubmit()
-{
-  document.getElementById("ok").click();
-}
-</script>';
-      
-      echo '<a style="font: normal 11px Verdana, Arial, Helvetica, sans-serif;">
-			      <table border="0" cellspacing="0" cellpadding="0" bgcolor="black">';
-			      
-			$query = "SELECT `gala` , `sys` , MAX(`time`) `time` FROM $solsys_table GROUP BY `gala`, `sys`";
-      $sql = mysql_query($query);
-      echo (mysql_error());   
-			while ($sys = mysql_fetch_array($sql, MYSQL_ASSOC))  
-      {
-        $uni[$sys['gala']][$sys['sys']] = $sys['time'];
-      }   
-			
-	    for ($y = 1; $y <= $pos_count[0]; $y++) {
-	      echo '<tr height="1"/><tr height="16">';
-	      for ($x = 1; $x <= $pos_count[1]; $x++) {
-	        echo '<td width="5" onMouseOver="SetPosition('.$y.','.$x.')"';
-  	      if (isset($uni[$y][$x]))
-  	      {
-  	        echo ' bgcolor="'.timetocolor($uni[$y][$x]).'" onClick="ClickSubmit();"';
-  	      } else ;// echo ' bgcolor="#FFFFFF">';
-					echo "></td>\r"; 
-	      }
-	      echo '</tr>';
-	    }
-	    echo '</table></a>';
-	  } else echo mysql_error();
+    echo '<a style="font: normal 11px Verdana, Arial, Helvetica, sans-serif;">
+		      <table border="0" cellspacing="0" cellpadding="0" bgcolor="black">';
+		      
+		$uni = cSsql_get_solsys_times_timestamp('','');
+		
+    for ($y = 1; $y <= $pos_count[0]; $y++) {
+      echo '<tr height="1"/><tr height="16">';
+      for ($x = 1; $x <= $pos_count[1]; $x++) {
+        echo '<td width="5" onMouseOver="SetPosition('.$y.','.$x.')"';
+	      if (isset($uni[$y][$x]))
+	      {
+	        echo ' bgcolor="'.timetocolor($uni[$y][$x]['time']).'" onClick="ClickSubmit();"';
+	      } else ;// echo ' bgcolor="#FFFFFF">';
+				echo "></td>\r"; 
+      }
+      echo '</tr>';
+    }
+    echo '</table></a>';
   }
   
   function sqlquery_report_html($row)
@@ -236,7 +213,7 @@ function ClickSubmit()
             
       if ($row['moon'] == '1') echo " M";
             
-      echo "] </th></tr><tr>";
+      echo "] </tr><tr>";
       
       echo "<th bgcolor='#77AAFF' colspan='2'>player: ".$row['player']."</th>";
       echo "<th bgcolor='".timetocolor($row['time'])."' colspan='2'>time: ".date("Y-m-d H:i:s", $row['time'])."</th>";
@@ -272,7 +249,7 @@ function ClickSubmit()
             {
               $newline += -1;
             
-              echo "<td>".$itemval."</td><td>".$row[$item]."</td>";
+              echo "<td>".$itemval."</td><td align=\"right\">".$row[$item]."</td>";
   
               if ($newline <= 0)
               {
@@ -313,7 +290,7 @@ function ClickSubmit()
   
   function get_reports_html($p1, $p2, $p3, $p4)
   {
-    $sqllink = db_login();
+    $sqllink = cSsql_db_login();
   
     $sql = "SELECT * FROM `report` h 
             LEFT JOIN resources r ON (h.ID = r.reportID)
@@ -335,8 +312,73 @@ function ClickSubmit()
       sqlquery_report_html($row);
     }
     
-    db_logout();
+    cSsql_db_logout();
   }
+  
+  function report_get_id($gala, $sys, $pos, $moon, &$time = NULL)
+  {
+    global $sqlconf;
+    
+    $query = "SELECT `ID`, `time` 
+              FROM `".$sqlconf['report_table']."` 
+              WHERE (`gala`='$gala' AND
+                     `sys`='$sys' AND 
+                     `pos`='$pos' AND 
+                     `moon`='$moon' )
+              ORDER BY `time` DESC
+              LIMIT 0, 1";
+                     
+    $sql = mysql_query($query);
+    if (!cSsql_write_error($sql))
+    {
+      if ($report = mysql_fetch_array($sql, MYSQL_ASSOC))
+    	{
+    	  $time = $report['time'];
+    	  return $report['ID'];
+    	} 
+      else return false;
+    } 
+  }
+  
+    
+  
+
+  
+  function delete_solsysID($ID)
+  {
+    global $planet_table, $solsys_table;
+  
+    $query = "DELETE FROM `$solsys_table` WHERE `ID` = $ID;";
+    $sql = mysql_query($query);
+    if (!write_error($sql))
+    {
+  		$query = "DELETE FROM `$planet_table` WHERE `solsysID` = $ID;";
+  		$sql = mysql_query($query);
+  		if (!write_error($sql))
+  		{
+        echo("<a>".mysql_affected_rows()." Planeten gelöscht!</a><br/>");
+        return True;
+        
+      } else return False;
+    } else return False;
+  }
+  
+  function deleteSys($gala, $sys)
+  {
+    global $solsys_table;
+    
+    $query = "SELECT `ID` FROM `$solsys_table` WHERE `gala`=$gala AND `sys`=$sys;";
+    $sql = mysql_query($query);
+    echo(mysql_error());
+    while ($system = mysql_fetch_array($sql, MYSQL_ASSOC))
+    {
+      echo("<a>System $gala:$sys gefunden: ID=$system[ID]; Löschen!</a><br/>");
+      delete_solsysID($system['ID']);
+    }
+  }
+  
+  
+
   
   function getreport_html($p1, $p2, $p3)
   {
@@ -424,12 +466,13 @@ function ClickSubmit()
   $action = ign_udef_index($_POST,'action');
   $pos[0] = ign_udef_index($_POST,'galaxie',0);
   $pos[1] = ign_udef_index($_POST,'system',0);
+  $id = ign_udef_index($_POST,"id");
   
   switch ($action) {
   //funktionen für den Browserzugriff/Test mit Browser!:
   
   case 'getsys_html': 
-	    getsys_html($pos); 
+      solsys_to_html(cSsql_solsys_get_by_id(cSsql_solsys_get_id($pos[0],$pos[1]))); 
 			break;
 			
   case 'getsys_xml':

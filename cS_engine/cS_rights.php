@@ -1,6 +1,24 @@
 <?php 
+
+/*
+
+    Project: cS_engine
+    File: authentification / session
+    Author: Ulrich Hornung
+    E-mail: hornunguli@gmx.de
+    Date: 05.08.2009
+    Type: part of main code, use "require"
+    
+    Description:
+    
+    login and session management.
+    
+    it uses the $_GET params for communication
+    
+*/
+
   require_once "lib_creax.php";
-  require_once "cS_engine.php";
+  require_once "cS_sql.php";
   require_once "config.php";
 
   $range = "1=1"; // Überbleibsel....
@@ -21,12 +39,12 @@
   if (!isset($_SESSION['username']))
   {
     // not logged in
-    if (ign_udef_index($_POST,'action') == 'login')
+    if (ign_udef_index($_GET,'action') == 'login')
     {
-      $user = mysql_escape_string(ign_udef_index($_POST,'username'));
-      $pass = mysql_escape_string(ign_udef_index($_POST,'password'));
+      $user = mysql_escape_string(ign_udef_index($_GET,'username'));
+      $pass = mysql_escape_string(ign_udef_index($_GET,'password'));
     
-      $link = db_login();
+      $link = cSsql_db_login();
       
       $sql = "SELECT `username` 
               FROM `users` 
@@ -47,7 +65,7 @@
         } else exit('<error type="login">Login failed</error>');
       } else exit('<error type="login">Login failed</error>');
       
-      db_logout();
+      cSsql_db_logout();
     }
     else exit('<error type="login">You are not logged in</error>');
   }    
@@ -59,7 +77,7 @@
   
   echo "<msg>loginname: ".$_SESSION['username']."</msg>";
   
-  if (ign_udef_index($_POST,'action') == 'logout')
+  if (ign_udef_index($_GET,'action') == 'logout')
   {
     if (session_destroy())
       echo "<acknowledge>logout successfull</acknowledge>";

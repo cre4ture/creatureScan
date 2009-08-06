@@ -6,18 +6,19 @@
   $pos_count[1] = 499;
   $pos_count[2] = 15;
 
-  $solsys_table = 'solsys';
-  $planet_table = 'planet';
-  $report_table = 'report';
-  $report_resources_table = 'resources';
-  $report_fleets_table = 'fleets';
-  $report_defence_table = 'defence';
-  $report_buildings_table = 'buildings';
-  $report_research_table = 'research';
+  $sqlconf['solsys_table'] = 'solsys';
+  $sqlconf['solsys_planet_table'] = 'planet';
   
-  $mysql_server = 'localhost';
-  $mysql_username = 'cS_engine';
-  $mysql_password = 'XYx8tht7GjqUSr3G';
-  $mysql_db = 'cS_engine';
-
+  $sqlconf['report_table'] = 'report';
+  $sqlconf['report_group_table']['resources'] = 'resources';
+  $sqlconf['report_group_table']['fleets'] = 'fleets';
+  $sqlconf['report_group_table']['defence'] = 'defence';
+  $sqlconf['report_group_table']['buildings'] = 'buildings';
+  $sqlconf['report_group_table']['research'] = 'research';
+  
+  $sqlconf['mysql_server'] = 'localhost';
+  $sqlconf['mysql_username'] = 'cS_engine';
+  $sqlconf['mysql_password'] = 'XYx8tht7GjqUSr3G';
+  $sqlconf['mysql_db'] = 'cS_engine';
+  
 ?>

@@ -1,24 +1,39 @@
 <?php
 
+/*
 
+    Project: cS_engine
+    File: front end
+    Author: Ulrich Hornung
+    E-mail: hornunguli@gmx.de
+    Date: 05.08.2009
+    Type: function library (please use "require_once" instead of "include")
+    
+    Description:
+    
+    last wrapper of whole cS_engine project.
+    creatureScan must be linked to this file!
+    
+*/
+
+
+// right management
 require "cS_rights.php";
 
-require_once "lib_creax.php";
-require_once "config.php";
-require_once "cS_engine.php";
-require_once "cS_xml.php";
+// function libraries
+require_once "cS_sql.php";
+require_once "cS_bot_interface.php";
 
-//echo ($_POST["xml"]);
+// get all $_POST data as single stream
+$data = file_get_contents('php://input'); // hier kein urldecode!!!!
 
-$data = file_get_contents('php://input');
+// connect to database
+cSsql_db_login();
 
-$pos = strpos($data,'&xml=');
-$data = substr($data, $pos + 5);
+// do all work
+ibot_exec($data);
 
-if (isset($_POST["xml"]))
-{
-  //GoXML(stripslashes($_POST["xml"]));
-  GoXML($data);
-}
+// disconnect from database
+cSsql_db_logout();
 
 ?>
