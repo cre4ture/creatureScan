@@ -1,4 +1,4 @@
-<form action="cS.php" name="f" method="post">
+<form action="cS.php" name="f" method="get">
 username: <br>
 <input id="gala" name="username" value="" type="text"/><br>
 password: <br>
