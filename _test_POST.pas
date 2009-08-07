@@ -10,6 +10,10 @@ uses
   ComCtrls, LibXmlParser, LibXmlComps, Prog_unit, Spin, Inifiles, html;
 
 type
+  TTimeID = record
+    time: int64;
+    id: int64;
+  end;
   TFRM_POST_TEST = class(TForm)
     txt_url: TEdit;
     Button4: TButton;
@@ -66,12 +70,11 @@ type
     procedure Button7Click(Sender: TObject);
     procedure Button10Click(Sender: TObject);
   private
-    FServerUni: array of array of int64;
+    FServerUni: array of array of TTimeID;
     more: Boolean;
     sessionid: string;
-    procedure log(msg: string; priority: integer);
-    function ReadServerUni(p1, p2: word): int64;
-    procedure WriteServerUni(p1, p2: word; value: int64);
+    function ReadServerUni(p1, p2: word): TTimeID;
+    procedure WriteServerUni(p1, p2: word; value: TTimeID);
     function PostAndParseAnswer(read, write: string): Boolean;
     { Private-Deklarationen }
   public
@@ -80,9 +83,10 @@ type
     Stop: Boolean;
     main_pc_start, main_pc_end: integer;
     procedure sync_solsys_gala(gala: integer);
+    procedure log(msg: string; priority: integer);
     procedure SetProgress(pc: integer);
     procedure SetMainProgress(pc_start, pc_end: integer);
-    property ServerUni[p1,p2 : word]: Int64 read ReadServerUni write WriteServerUni;
+    property ServerUni[p1,p2 : word]: TTimeID read ReadServerUni write WriteServerUni;
     function do_login(user, pass: string): Boolean;
     function SysToXMLString(sys: TSystemCopy): string;
     function ScanToXMLString(Scan: TScanBericht): string;
@@ -91,7 +95,7 @@ type
     function ParseAnswer(xml: string): integer;
     procedure Sync_Report(gala: Integer);
     procedure Sync_Systems(Sender: TObject);
-    procedure POST;
+    procedure POST(param: string = '');
     { Public-Deklarationen }
   published
   end;
@@ -110,8 +114,7 @@ uses main, Math, RTLConsts;
 procedure TFRM_POST_TEST.BTN_genSysClick(Sender: TObject);
 begin
   Memo1.Clear;
-  Memo1.Lines.Add('action=xml');
-  Memo1.Lines.Add('xml=<write>' + entflines(SysToXMLString(System)) + '</write>');
+  Memo1.Lines.Add('<write>' + entflines(SysToXMLString(System)) + '</write>');
 end;
 
 function TFRM_POST_TEST.SysToXMLString(sys: TSystemCopy): string;
@@ -204,15 +207,19 @@ var parser: TXmlParser;
     p1, p2, i: integer;
     read, write: string;
     start: Tdatetime;
+    tid: TTimeID;
 begin
   start := now;
+
+  log('sync solar systems...',10);
+
   Memo1.Clear;
-  Memo1.Lines.Add('action=xml');
-  Memo1.Lines.Add('xml=<read><serverinfo/><solsystimes_timestamp/></read>');
+  Memo1.Lines.Add('<read><serverinfo/><solsystimes_timestamp/></read>');
+
   POST;
   DocSize := length(Memo2.Lines.Text);
 
-  log('Parse solsys times...',10);
+  log('got times, parse...',10);
 
   SetMainProgress(0,10);
 
@@ -248,7 +255,9 @@ begin
             begin
               pos[0] := StrToInt(parser.CurAttr.Value('gala'));
               pos[1] := StrToInt(parser.CurAttr.Value('sys'));
-              ServerUni[pos[0],pos[1]] := StrToInt(parser.CurAttr.Value('time'));
+              tid.time := StrToInt(parser.CurAttr.Value('time'));
+              //tid.id := StrToInt(parser.CurAttr.Value('id'));  not yet implementet...
+              ServerUni[pos[0],pos[1]] := tid;
             end;
 
           end;
@@ -265,6 +274,8 @@ begin
 
   SetMainProgress(10,50);
 
+  log('do sync...',10);
+
   read := '';
   write := '';
   i := 0;
@@ -274,12 +285,12 @@ begin
     for p2 := 1 to max_Systems do
     begin
 
-      if ServerUni[p1,p2] > ODataBase.GetSystemTime_u(p1,p2) then
+      if ServerUni[p1,p2].time > ODataBase.GetSystemTime_u(p1,p2) then
       begin
-        read := read + Format('<solsys_pos gala="%d" sys="%d"/>',[p1, p2]);
+        read := read + Format('<solsys_pos gala="%d" sys="%d"/>', [p1,p2]);
         log(Format('get solsys [%d:%d]',[p1, p2]),10);
       end else
-      if ServerUni[p1,p2] < ODataBase.GetSystemTime_u(p1,p2) then
+      if ServerUni[p1,p2].time < ODataBase.GetSystemTime_u(p1,p2) then
       begin
         if (ODataBase.Uni[p1,p2].SystemCopy >= 0) then
         begin
@@ -307,17 +318,19 @@ begin
 
   SetServerUniSize(0,0);
 
+  log('solar systems ready!',10);
+
   TXT_ges.Text := TimeToStr(Now-start);
 end;
 
-function TFRM_POST_TEST.ReadServerUni(p1, p2: word): int64;
+function TFRM_POST_TEST.ReadServerUni(p1, p2: word): TTimeID;
 begin
   if (p1 >= 1)and(p1 <= max_Galaxy)and(p2 >= 1)and(p2 <= max_Systems) then
     Result := FServerUni[p1-1,p2-1]
   else raise Exception.Create(Format('API: ReadServerUni. coordinates(%d:%d) out of valid range(%d:%d)!',[p1,p2,max_Galaxy,max_Systems]));
 end;
 
-procedure TFRM_POST_TEST.WriteServerUni(p1, p2: word; value: int64);
+procedure TFRM_POST_TEST.WriteServerUni(p1, p2: word; value: TTimeID);
 begin
   if (p1 >= 1)and(p1 <= max_Galaxy)and(p2 >= 1)and(p2 <= max_Systems) then
     FServerUni[p1-1,p2-1] := value
@@ -350,7 +363,10 @@ begin
   begin
     SetLength(FServerUni[i], solsys);
     for j := 0 to solsys-1 do
-      FServerUni[i,j] := -1; //  n/a
+    begin
+      FServerUni[i,j].time := -1; //  n/a
+      FServerUni[i,j].id := -1;
+    end;
   end;
 end;
 
@@ -450,8 +466,7 @@ end;
 procedure TFRM_POST_TEST.BTN_genScanClick(Sender: TObject);
 begin
   Memo1.Clear;
-  Memo1.Lines.Add('action=xml');
-  Memo1.Lines.Add('xml=<write>' + entflines(ScanToXMLString(Scan)) + '</write>');
+  Memo1.Lines.Add('<write>' + entflines(ScanToXMLString(Scan)) + '</write>');
 end;
 
 procedure TFRM_POST_TEST.Button8Click(Sender: TObject);
@@ -558,8 +573,7 @@ begin
 
   start := now;
   Memo1.Clear;
-  Memo1.Lines.Add('action=xml');
-  s := 'xml=<read><serverinfo/><reporttimes_gala gala="' + inttostr(gala) + '"';
+  s := '<read><serverinfo/><reporttimes_gala gala="' + inttostr(gala) + '"';
   s := s + '/></read>';
   Memo1.Lines.Add(s);
   log('send request: ' + s,0);
@@ -671,6 +685,8 @@ begin
   finally
     root.Free;
   end;
+
+  log('reports ready, gala ' + IntToStr(gala),10);
   
   TXT_ges.Text := TimeToStr(Now-start);
 end;
@@ -682,8 +698,7 @@ end;
 function TFRM_POST_TEST.PostAndParseAnswer(read, write: string): Boolean;
 begin
   Memo1.Clear;
-  Memo1.Lines.Add('action=xml');
-  memo1.Lines.Add('xml=<maintag><read>' + read + '</read><write>' + write + '</write></maintag>');
+  memo1.Lines.Add('<maintag><read>' + read + '</read><write>' + write + '</write></maintag>');
   Application.ProcessMessages;
   while CH_Pause.Checked do Application.ProcessMessages;
   CH_Pause.Checked := CheckBox1.Checked;
@@ -710,16 +725,24 @@ begin
   txt_url.Text := FRM_Main.PlayerOptions.phpPost;
 end;
 
-procedure TFRM_POST_TEST.POST;
+procedure TFRM_POST_TEST.POST(param: string = '');
 var startpost: Tdatetime;
+    url: string;
 begin
+  if pos('?', txt_url.Text) > 0 then
+    param := '&' + param
+  else
+    param := '?' + param;
+
   if sessionid <> '' then
   begin
-    Memo1.Lines.Insert(0,'cSsid='+sessionid);
+    param := param+'cSsid='+sessionid+'&';
   end;
 
+  url := txt_url.Text + param;
+
   startpost := now;
-  Memo2.Text := IdHTTP1.Post(txt_url.Text,Memo1.Lines);
+  Memo2.Text := IdHTTP1.Post(url,Memo1.Lines);
   startpost := Now - startpost;
   TXT_post.Text := FloatToStrF(startpost*24*60*60,ffNumber,80,4) + ' s';
 end;
@@ -748,17 +771,20 @@ end;
 
 function TFRM_POST_TEST.do_login(user, pass: string): Boolean;
 var res, tag: THTMLElement;
+    param: string;
 begin
   Result := false;
   sessionid := '';
-  
-  Memo1.Clear;
-  Memo1.Lines.Add('action=login');
-  Memo1.Lines.Add('username='+TIdURI.ParamsEncode(user));
-  Memo1.Lines.Add('password='+TIdURI.ParamsEncode(pass));
-  Memo1.Lines.Add('xml=<read><serverinfo/></read>');
 
-  POST;
+  param := '';
+  param:=param+'action=login&';
+  param:=param+'username='+TIdURI.ParamsEncode(user)+'&';
+  param:=param+'password='+TIdURI.ParamsEncode(pass)+'&';
+
+  Memo1.Clear;
+  Memo1.Lines.Add('<read><serverinfo/></read>');
+
+  POST(param);
 
   res := THTMLElement.Create(nil, 'root');
   try
@@ -819,10 +845,9 @@ procedure TFRM_POST_TEST.Button7Click(Sender: TObject);
 var st: TStatTypeEx;
 begin
   Memo1.Clear;
-  Memo1.Lines.Add('action=xml');
   st.NameType := sntAlliance;
   st.PointType := sptPoints;
-  Memo1.Lines.Add('xml=<write>' + entflines(StatToXML_(ODataBase.Statistic.StatisticType[sntPlayer,sptPoints].Stats[0],st)) + '</write>');
+  Memo1.Lines.Add('<write>' + entflines(StatToXML_(ODataBase.Statistic.StatisticType[sntPlayer,sptPoints].Stats[0],st)) + '</write>');
 end;
 
 function GetPlanetReportList(Pos: TPlanetPosition): TReportTimeList;
