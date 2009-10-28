@@ -4,15 +4,14 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, Spin, IniFiles, OGame_Types, languages;
+  StdCtrls, Spin, IniFiles, OGame_Types, languages, OGameData;
 
 type
   TFRM_Spielerdaten = class(TForm)
     LBL_PlayerI1: TLabel;
-    GB_PlayerI1: TGroupBox;
+    ed: TGroupBox;
     LBL_PlayerI2: TLabel;
-    E_Uni: TSpinEdit;
-    CB_OGame_Language: TComboBox;
+    CB_OGame_Site: TComboBox;
     BTN_OK: TButton;
     BTN_Abbrechen: TButton;
     LBL_PlayerI3: TLabel;
@@ -34,23 +33,29 @@ type
     Label1: TLabel;
     cb_TF_calc: TComboBox;
     Label2: TLabel;
+    cb_redesign: TCheckBox;
+    CB_OGame_Universename: TComboBox;
+    procedure CB_OGame_SiteChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormPaint(Sender: TObject);
     procedure E_GalaKeyPress(Sender: TObject; var Key: Char);
     procedure BTN_OKClick(Sender: TObject);
     procedure E_UniChange(Sender: TObject);
   private
+    ODB: TObject;
     { Private-Deklarationen }
   public
     game_domain: string;
-    Universe: Integer;
+    UniverseName: String;
     DefInTF: Boolean;
     GalaCount, SysCount: Integer;
     IngameName: String;
     HomePlanet: TPlanetPosition;
     SpeedFaktor: Single;
     TF_factor: Double;
+    redesign: Boolean;
     function Execute: boolean;
+    constructor Create(AOwner: TComponent; odb: TObject);
     { Public-Deklarationen }
   end;
 
@@ -60,11 +65,31 @@ uses Prog_Unit;
 
 {$R *.DFM}
 
+procedure TFRM_Spielerdaten.CB_OGame_SiteChange(Sender: TObject);
+var i: integer;
+    site: TGameSite;
+begin
+  CB_OGame_Universename.Items.Clear;
+  CB_OGame_Universename.Text := '';
+  if CB_OGame_Site.ItemIndex <> -1 then
+  begin
+    site := TOgameDataBase(ODB).game_data.GameSites[CB_OGame_Site.ItemIndex];
+    for i := 0 to site.Count -1 do
+      CB_OGame_Universename.Items.Add(site.UniverseList[i].name);
+  end;
+end;
+
+constructor TFRM_Spielerdaten.Create(AOwner: TComponent; odb: TObject);
+begin
+  inherited Create(AOwner);
+  Self.ODB := odb; 
+end;
+
 function TFRM_Spielerdaten.Execute: boolean;
 var i: integer;
 begin
-  CB_OGame_Language.Text := game_domain;
-  E_Uni.Value := Universe;
+  CB_OGame_Site.Text := game_domain;
+  CB_OGame_Universename.Text := UniverseName;
   CH_DefInTF.Checked := DefInTF;
   txt_speedfaktor.Text := FloatToStr(SpeedFaktor);
   RB_GalaCount9.Checked := True;
@@ -74,6 +99,7 @@ begin
   E_Gala.Text := IntToStr(homeplanet.P[0]);
   E_System.Text := IntToStr(homeplanet.P[1]);
   E_Planet.Text := IntToStr(homeplanet.P[2]);
+  cb_redesign.Checked := redesign;
 
   i := round(TF_factor*100);
   if (i = 30)or(i = 0) then
@@ -87,8 +113,8 @@ begin
   Result := (ShowModal = mrOk);
   if Result then
   begin
-    game_domain := CB_OGame_Language.Text;
-    Universe := E_Uni.Value;
+    game_domain := CB_OGame_Site.Text;
+    UniverseName := CB_OGame_Universename.Text;
     DefInTF := CH_DefInTF.Checked;
     SpeedFaktor := StrToFloat(txt_speedfaktor.Text);
     i := ReadInt(cb_TF_calc.Text,1,false);
@@ -114,6 +140,8 @@ begin
     except
       FillChar(HomePlanet,sizeof(HomePlanet),0);
     end;
+
+    redesign := cb_redesign.Checked;
   end;
 end;
 
@@ -122,9 +150,13 @@ var i: integer;
 begin
   if SaveCaptions then SaveAllCaptions(Self,LangFile);
   if LoadCaptions then LoadAllCaptions(Self,LangFile);
-  CB_OGame_Language.Items.Clear;
-  for i := 0 to length(game_sites)-1 do
-    CB_OGame_Language.Items.Add(game_sites[i]);
+
+  CB_OGame_Site.Items.Clear;
+  for i := 0 to TOgameDataBase(ODB).game_data.Count -1 do
+    CB_OGame_Site.Items.Add(TOgameDataBase(ODB).game_data.GameSites[i].name);
+
+  CB_OGame_Site.ItemIndex := 0;
+  CB_OGame_SiteChange(Self);
 end;
 
 procedure TFRM_Spielerdaten.FormPaint(Sender: TObject);
@@ -146,29 +178,35 @@ begin
      (E_Gala.Text <> '')and
      (E_System.Text <> '')and
      (E_Planet.Text <> '')and
-     (E_Uni.Value > 0)and
+     (CB_OGame_Universename.Text <> '')and
      (StrToFloat(txt_speedfaktor.Text) > 0)and
      (i > 0)and(i <= 100) then
     ModalResult := mrOk;
 end;
 
 procedure TFRM_Spielerdaten.E_UniChange(Sender: TObject);
-var U: Integer;
+var site, uni: integer;
+    universe: TGameUniverse;
 begin
-  try
-    U := E_Uni.Value;
-  except
-    U := -1;
-  end;
-  if (CB_OGame_Language.ItemIndex = 0) then //wenn ogame.de
+  site := CB_OGame_Site.ItemIndex;
+  if site >= 0 then
   begin
-    case U of
-      18: RB_GalaCount19.Checked := True;
-      50: RB_GalaCount50.Checked := True;
-    else
-      RB_GalaCount9.Checked := True;
+    uni := CB_OGame_Universename.ItemIndex;
+    if uni >= 0 then
+    begin
+      universe := TOgameDataBase(ODB).
+                    game_data.GameSites[site].UniverseList[uni];
+      case universe.galaxyCount of
+        19: RB_GalaCount19.Checked := true;
+        50: RB_GalaCount50.Checked := true;
+        else RB_GalaCount9.Checked := true;
+      end;
+      txt_speedfaktor.Text := FloatToStr(universe.gameSpeedFactor);
+      cb_TF_calc.Text := IntToStr(trunc(universe.tfFleetFactor*100));
+      CH_DefInTF.Checked := (universe.tfDefFactor > 0);
+      cb_redesign.Checked := universe.redesign_rules;
     end;
-  end;
+  end; 
 end;
 
 end.

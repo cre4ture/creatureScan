@@ -3,7 +3,7 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
   Top = 195
   BorderStyle = bsDialog
   Caption = 'Playerinfos'
-  ClientHeight = 409
+  ClientHeight = 425
   ClientWidth = 343
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,7 +17,7 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
   OnPaint = FormPaint
   DesignSize = (
     343
-    409)
+    425)
   PixelsPerInch = 96
   TextHeight = 13
   object LBL_PlayerI1: TLabel
@@ -31,19 +31,19 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
       'ter nurnoch bedingt ge'#228'ndert werden!'
     WordWrap = True
   end
-  object GB_PlayerI1: TGroupBox
+  object ed: TGroupBox
     Left = 4
     Top = 36
     Width = 331
-    Height = 258
+    Height = 275
     Caption = ' OGame '
     TabOrder = 0
     object LBL_PlayerI2: TLabel
       Left = 48
-      Top = 75
-      Width = 53
+      Top = 59
+      Width = 109
       Height = 13
-      Caption = 'Universum:'
+      Caption = 'Name des Universums:'
     end
     object LBL_PlayerI3: TLabel
       Left = 48
@@ -54,7 +54,7 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
     end
     object lbl_Speedfaktor: TLabel
       Left = 48
-      Top = 121
+      Top = 145
       Width = 61
       Height = 13
       Hint = 'auch Bruchzahlen m'#246'glich'
@@ -63,7 +63,7 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
     end
     object Label1: TLabel
       Left = 48
-      Top = 145
+      Top = 169
       Width = 94
       Height = 13
       Hint = 'auch Bruchzahlen m'#246'glich'
@@ -72,25 +72,14 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
     end
     object Label2: TLabel
       Left = 48
-      Top = 29
+      Top = 13
       Width = 201
       Height = 13
       Caption = 'OGame Domainname (ohne http://www. !)'
     end
-    object E_Uni: TSpinEdit
-      Left = 228
-      Top = 75
-      Width = 53
-      Height = 22
-      MaxValue = 2147483647
-      MinValue = 1
-      TabOrder = 1
-      Value = 1
-      OnChange = E_UniChange
-    end
-    object CB_OGame_Language: TComboBox
+    object CB_OGame_Site: TComboBox
       Left = 48
-      Top = 48
+      Top = 32
       Width = 233
       Height = 21
       Hint = 
@@ -100,6 +89,7 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
+      OnChange = CB_OGame_SiteChange
       Items.Strings = (
         'ogame.de'
         'ogame.org'
@@ -112,67 +102,84 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
     object RB_GalaCount9: TRadioButton
       Tag = 9
       Left = 48
-      Top = 186
+      Top = 210
       Width = 233
       Height = 17
       Caption = '9 Galaxien 499 Sonnensysteme'
       Checked = True
-      TabOrder = 5
+      TabOrder = 6
       TabStop = True
     end
     object RB_GalaCount19: TRadioButton
       Tag = 19
       Left = 48
-      Top = 202
+      Top = 226
       Width = 233
       Height = 17
       Caption = '19 Galaxien 499 Sonnensysteme'
-      TabOrder = 6
+      TabOrder = 7
     end
     object RB_GalaCount50: TRadioButton
       Tag = 50
       Left = 48
-      Top = 218
+      Top = 242
       Width = 233
       Height = 17
       Caption = '50 Galaxien 100 Sonnensysteme'
-      TabOrder = 7
+      TabOrder = 8
     end
     object CH_DefInTF: TCheckBox
       Left = 48
-      Top = 166
+      Top = 190
       Width = 235
       Height = 17
       Caption = 'Verteidigung ins Tr'#252'mmerfeld'
-      TabOrder = 4
+      TabOrder = 5
     end
     object txt_speedfaktor: TEdit
       Left = 214
-      Top = 118
+      Top = 142
       Width = 69
       Height = 21
-      TabOrder = 2
+      TabOrder = 3
       Text = '1.0'
     end
     object cb_TF_calc: TComboBox
       Left = 186
-      Top = 139
+      Top = 163
       Width = 97
       Height = 21
       Hint = 
         'Wieviel Prozent der Kosten einer Flotte kommen ins TF? (auch bel' +
         'iebige Werte m'#246'glich)'
       ItemHeight = 13
-      TabOrder = 3
+      TabOrder = 4
       Text = '30 (default)'
       Items.Strings = (
         '30 (default)'
         '70 (de - Uni70)')
     end
+    object cb_redesign: TCheckBox
+      Left = 48
+      Top = 119
+      Width = 233
+      Height = 17
+      Caption = 'Redesign (Andromeda, Barym, ...)'
+      TabOrder = 2
+    end
+    object CB_OGame_Universename: TComboBox
+      Left = 48
+      Top = 75
+      Width = 235
+      Height = 21
+      ItemHeight = 13
+      TabOrder = 1
+      OnChange = E_UniChange
+    end
   end
   object BTN_OK: TButton
     Left = 258
-    Top = 376
+    Top = 392
     Width = 77
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -180,11 +187,10 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
     Default = True
     TabOrder = 3
     OnClick = BTN_OKClick
-    ExplicitTop = 311
   end
   object BTN_Abbrechen: TButton
     Left = 178
-    Top = 376
+    Top = 392
     Width = 77
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -192,11 +198,10 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
     Caption = 'Abbrechen'
     ModalResult = 2
     TabOrder = 2
-    ExplicitTop = 311
   end
   object GroupBox1: TGroupBox
     Left = 4
-    Top = 300
+    Top = 317
     Width = 331
     Height = 69
     Caption = ' Spieler: '
