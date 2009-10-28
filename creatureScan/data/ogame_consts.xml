@@ -5,13 +5,35 @@
   </creaturescan>
   <raids maxraids24h="5"/>
   <game count="7">
-    <site index="0" name="ogame.de"/>
-    <site index="1" name="ogame.org"/>
-    <site index="2" name="ogame.fr"/>
-    <site index="3" name="ogame.com.tr"/>
-    <site index="4" name="ogame.nl"/>
-    <site index="5" name="ogame.ru"/>
-    <site index="6" name="ogame.dk"/>
+    <site index="0" name="ogame.de">
+      <uni name="andromeda"/>
+      <uni name="barym"/>
+      <uni name="capella"/>
+      <uni name="draco"/>
+      <uni name="uni$" symbol="$" index="1" to="17" redesign="0"/>
+      <uni name="uni18" redesign="0" galaxyCount="19"/>
+      <uni name="uni$" symbol="$" index="19" to="49" redesign="0"/>
+      <uni name="uni50" redesign="0" galaxyCount="50"/>
+      <uni name="uni$" symbol="$" index="51" to="78" redesign="0"/>
+    </site>
+    <site index="1" name="ogame.org">
+       <uni name="uni$" symbol="$" index="1" to="42" redesign="0"/>
+    </site>
+    <site index="2" name="ogame.fr">
+       <uni name="uni$" symbol="$" index="1" to="42" redesign="0"/>
+    </site>
+    <site index="3" name="ogame.com.tr">
+       <uni name="uni$" symbol="$" index="1" to="42" redesign="0"/>
+    </site>
+    <site index="4" name="ogame.nl">
+       <uni name="uni$" symbol="$" index="1" to="42" redesign="0"/>
+    </site>
+    <site index="5" name="ogame.ru">
+       <uni name="uni$" symbol="$" index="1" to="42" redesign="0"/>
+    </site>
+    <site index="6" name="ogame.dk">
+       <uni name="uni$" symbol="$" index="1" to="42" redesign="0"/>
+    </site>
   </game>
   <planets count="15">
     <planet1 maxtemp="123"/>
