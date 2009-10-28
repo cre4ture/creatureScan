@@ -42,6 +42,8 @@ type
     { Private-Deklarationen }
   public
     lastplugin: string;
+    procedure ejectPlugin;
+    function loadPlugin(filename: string): boolean;
     procedure LoadOptions(ini: TInifile);
     { Public-Deklarationen }
   end;
@@ -60,34 +62,17 @@ procedure TFRM_MainTest.Button1Click(Sender: TObject);
 begin
   if plugin.ValidFile then
   begin
-    plugin.LoadPluginFile('',0,'');
-    Button1.Caption := 'load plugin';
-    Label1.Caption := 'n/a';
-
-    FRM_Solsys.OnPluginEjected;
+    ejectPlugin();
   end
   else
   begin
     OpenDialog1.InitialDir := lastplugin;
+    OpenDialog1.FileName := lastplugin;
     if OpenDialog1.Execute then
     begin
-      if plugin.LoadPluginFile(OpenDialog1.FileName, SE_Uni.Value, Edit1.Text) then
-      begin
-        lastplugin := OpenDialog1.FileName;
-        Label1.Caption := OpenDialog1.FileName;
-        Button1.Caption := 'eject plugin';
-
-        FRM_Solsys.OnPluginInitialised;
-      end
-      else Label1.Caption := 'n/a';
+      loadPlugin(OpenDialog1.FileName);
     end;
   end;
-
-  SE_Uni.Enabled := not plugin.ValidFile;
-  Edit1.Enabled := not plugin.ValidFile;
-
-  FRM_Sources.m_Text.OnChange(Self);
-  FRM_Sources.m_HTML.OnChange(Self);
 end;
 
 procedure TFRM_MainTest.FormCreate(Sender: TObject);
@@ -95,6 +80,7 @@ begin
   plugin := TLangPlugIn.Create;
 
   Initialise('D:\devel\creatureScan\creatureScan\data\ogame_consts.xml');
+
 end;
 
 procedure TFRM_MainTest.FormDestroy(Sender: TObject);
@@ -129,7 +115,7 @@ end;
 
 procedure TFRM_MainTest.Button7Click(Sender: TObject);
 begin
-  if plugin.CheckClipboardUni()
+  if plugin.CheckClipboardUni(FRM_Sources.plugin_handle)
     then
     ShowMessage('Uni identified!')
   else ShowMessage('Uni not identified!');
@@ -145,6 +131,36 @@ begin
   lastplugin := ini.ReadString('dir','stdplugindir',GetCurrentDir);
 end;
 
+function TFRM_MainTest.loadPlugin(filename: string): boolean;
+begin
+  if plugin.ValidFile then
+  begin
+    plugin.LoadPluginFile('',0,'');
+    Button1.Caption := 'load plugin';
+    Label1.Caption := 'n/a';
+
+    FRM_Solsys.OnPluginEjected;
+  end
+  else
+  begin
+    Result := plugin.LoadPluginFile(fileName, SE_Uni.Value, Edit1.Text);
+    if Result then
+    begin
+      lastplugin := fileName;
+      Label1.Caption := fileName;
+      Button1.Caption := 'eject plugin';
+
+      FRM_Solsys.OnPluginInitialised;
+    end
+    else Label1.Caption := 'n/a';
+  end;
+
+  SE_Uni.Enabled := not plugin.ValidFile;
+  Edit1.Enabled := not plugin.ValidFile;
+
+  FRM_Sources.OnPluginRefresh();
+end;
+
 procedure TFRM_MainTest.FormActivate(Sender: TObject);
 var ini: TIniFile;
 begin
@@ -152,11 +168,23 @@ begin
   LoadOptions(ini);
   FRM_Sources.LoadOptions(ini);
   ini.Free;
+
+  // Load plugin in parameters
+  if (ParamCount > 1) and (ParamStr(1) = '-plugin') then
+  begin
+    loadPlugin(ParamStr(2));
+    OpenDialog1.HistoryList.Add(ParamStr(2));
+  end;
 end;
 
 procedure TFRM_MainTest.Button9Click(Sender: TObject);
 begin
   FRM_Phalanx.Show;
+end;
+
+procedure TFRM_MainTest.ejectPlugin;
+begin
+  loadPlugin('n/a');
 end;
 
 end.

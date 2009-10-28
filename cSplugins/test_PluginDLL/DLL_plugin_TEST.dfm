@@ -11,9 +11,9 @@ object FRM_MainTest: TFRM_MainTest
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
-  OnActivate = FormActivate
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnShow = FormActivate
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel

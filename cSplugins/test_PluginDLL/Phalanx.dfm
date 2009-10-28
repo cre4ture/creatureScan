@@ -40,6 +40,7 @@ object FRM_Phalanx: TFRM_Phalanx
     Height = 209
     Anchors = [akLeft, akTop, akRight, akBottom]
     Header.AutoSizeIndex = 0
+    Header.DefaultHeight = 17
     Header.Font.Charset = DEFAULT_CHARSET
     Header.Font.Color = clWindowText
     Header.Font.Height = -11
@@ -90,30 +91,46 @@ object FRM_Phalanx: TFRM_Phalanx
     HorzScrollBar.Style = ssHotTrack
     VertScrollBar.Style = ssHotTrack
     Anchors = [akLeft, akRight, akBottom]
+    AutoScroll = True
     Color = clBlack
     ParentBackground = False
     ParentColor = False
     PopupMenu = Frame_Bericht1.PopupMenu1
     TabOrder = 2
+    TabStop = True
     ExplicitLeft = 8
     ExplicitTop = 256
     ExplicitWidth = 668
     ExplicitHeight = 155
     inherited PB_B: TPaintBox
-      Width = 668
+      Width = 652
       ExplicitWidth = 651
     end
     inherited Panel1: TPanel
-      Width = 668
-      ExplicitWidth = 668
+      Width = 652
+      ExplicitWidth = 652
       inherited LBL_Raid24_Info: TLabel
-        Left = 353
+        Left = 337
         ExplicitLeft = 353
       end
       inherited BTN_Last24: TSpeedButton
-        Left = 437
+        Left = 421
         ExplicitLeft = 437
       end
     end
+  end
+  object ComboBox1: TComboBox
+    Left = 136
+    Top = 8
+    Width = 145
+    Height = 21
+    Enabled = False
+    ItemHeight = 13
+    TabOrder = 3
+    Text = 'ComboBox1'
+    Items.Strings = (
+      'fist_none'
+      'fist_events'
+      'fist_phalanx')
   end
 end

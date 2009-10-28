@@ -31,6 +31,7 @@ type
     str_flight: string;
     str_evtypeex: array[ThtmlPhalanx_fligthclassEx] of string;
     str_planet: string;
+    str_url_key_events: string;
 
     time_regexp: Tregexpn;
 
@@ -47,14 +48,15 @@ type
     function readHtmlTag_ships(const tag: THTMLElement;
       const fce: ThtmlPhalanx_fligthclassEx; var fleet: TFleetEvent): boolean;
     function GetFleet(nr: integer): TFleetEvent;
+    procedure readSourceInfo(html: string; var info: TFleetsInfoSource);
   public
-    function ReadHTML(html: string): integer;
+    function ReadHTML(html: string): TFleetsInfoSource;
     constructor Create(ini: TIniFile; aReadReport: TReadReport_Text);
     destructor Destroy; override;
-    function Read(text, html: string): integer;
+    function Read(text, html: string): TFleetsInfoSource;
     procedure Clear;
     function ReadHTML_Elements(doc_html: THTMLElement): integer;
-    function ReadFromRS(rs: TReadSource): integer;
+    function ReadFromRS(rs: TReadSource): TFleetsInfoSource;
     property FleetList[nr: integer]: TFleetEvent read GetFleet;
     function Count: Integer;
   end;
@@ -73,6 +75,30 @@ const
 implementation
 
 uses Math, SysUtils, DateUtils, StrUtils;
+
+procedure ThtmlPhalanxRead_betauni.readSourceInfo(html: string;
+  var info: TFleetsInfoSource);
+var p1,p2,p3: integer;
+begin
+  p1 := pos('SourceURL:', html);
+  p2 := PosEx(str_url_key_events, html, p1);
+  p3 := PosEx(#13, html, p1);
+
+  if (p1 > 0)and(p2 > p1)and(p3 > p2) then
+  begin
+    info.typ := fist_events;
+  end
+  else
+  begin
+    info.typ := fist_phalanx;
+  end;
+
+  info.planet.P[0] := 1;
+  info.planet.P[1] := 1;
+  info.planet.P[2] := 1;
+  info.planet.Mond := false;
+  info.time := DateTimeToUnix(Now());
+end;
 
 function ThtmlPhalanxRead_betauni.Add(fleet: TFleetEvent): integer;
 var p: PFleetEvent_;
@@ -123,6 +149,8 @@ begin
 
   time_regexp := Tregexpn.Create;
   time_regexp.setexpression(ini.ReadString(ThtmlPhalanx_inisection, 'time_regexp', 'n/a'));
+
+  str_url_key_events := ini.ReadString(ThtmlPhalanx_inisection, 'url_key_events', 'n/a');
 end;
 
 destructor ThtmlPhalanxRead_betauni.Destroy;
@@ -132,35 +160,36 @@ begin
   inherited;
 end;
 
-function ThtmlPhalanxRead_betauni.ReadHTML(html: string): integer;
+function ThtmlPhalanxRead_betauni.ReadHTML(html: string): TFleetsInfoSource;
 var doc_html: THTMLElement;
 begin
   doc_html := THTMLElement.Create(nil, 'root');
   try
     doc_html.ParseHTMLCode(html);
-    Result := ReadHTML_Elements(doc_html);
-  finally
-    doc_html.Free;
-  end;
-end;
-
-function ThtmlPhalanxRead_betauni.Read(text, html: string): integer;
-begin
-  try
-    Result := ReadHTML(html);
+    Result.count := ReadHTML_Elements(doc_html);
+    readSourceInfo(html, Result);
   except
-    Result := 0;
+    Result.count := 0;
+    Result.typ := fist_none;
   end;
+  doc_html.Free;
 end;
 
-function ThtmlPhalanxRead_betauni.ReadFromRS(rs: TReadSource): integer;
+function ThtmlPhalanxRead_betauni.Read(text, html: string): TFleetsInfoSource;
+begin
+  Result := ReadHTML(html);
+end;
+
+function ThtmlPhalanxRead_betauni.ReadFromRS(rs: TReadSource): TFleetsInfoSource;
 var doc_html: THTMLElement;
 begin
   try
     doc_html := rs.GetHTMLRoot();
-    Result := ReadHTML_Elements(doc_html);
+    Result.count := ReadHTML_Elements(doc_html);
+    readSourceInfo(rs.GetHTMLString, Result);
   except
-    Result := 0;
+    Result.count := 0;
+    Result.typ := fist_none;
   end;
 end;
 

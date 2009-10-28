@@ -24,6 +24,13 @@ object FRM_Scan: TFRM_Scan
     Height = 13
     Caption = 'Soll:'
   end
+  object lbl_scancount: TLabel
+    Left = 8
+    Top = 34
+    Width = 39
+    Height = 13
+    Caption = 'count: 0'
+  end
   inline Frame_Bericht1: TFrame_Bericht
     Left = 106
     Top = 34
@@ -38,6 +45,7 @@ object FRM_Scan: TFRM_Scan
     ParentColor = False
     PopupMenu = Frame_Bericht1.PopupMenu1
     TabOrder = 0
+    TabStop = True
     ExplicitLeft = 106
     ExplicitTop = 34
     ExplicitWidth = 343
@@ -72,9 +80,9 @@ object FRM_Scan: TFRM_Scan
   end
   object ListBox1: TListBox
     Left = 4
-    Top = 36
+    Top = 53
     Width = 97
-    Height = 385
+    Height = 368
     Anchors = [akLeft, akTop, akBottom]
     ItemHeight = 13
     TabOrder = 2
@@ -87,6 +95,7 @@ object FRM_Scan: TFRM_Scan
     Height = 325
     Anchors = [akLeft, akTop, akBottom]
     Header.AutoSizeIndex = 0
+    Header.DefaultHeight = 17
     Header.Font.Charset = DEFAULT_CHARSET
     Header.Font.Color = clWindowText
     Header.Font.Height = -11
@@ -188,6 +197,7 @@ object FRM_Scan: TFRM_Scan
     ParentColor = False
     PopupMenu = Frame_Bericht1.PopupMenu1
     TabOrder = 11
+    TabStop = True
     ExplicitLeft = 562
     ExplicitTop = 34
     ExplicitWidth = 343

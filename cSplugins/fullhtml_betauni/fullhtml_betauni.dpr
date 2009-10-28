@@ -1,4 +1,4 @@
-library fullhtml;
+library fullhtml_betauni;
 
 uses
   SysUtils,
@@ -35,7 +35,7 @@ type
 
 
 const
-  iopluginVersion = 21;
+  iopluginVersion = 22;
 
   RA_KeyWord_Count = 5;
   ST_KeyWord_Count = 2;
@@ -74,10 +74,11 @@ begin
   Result := rs <> nil;
 end;
 
-function ReadPhalanxScan(Handle: integer): integer;
+function ReadPhalanxScan(Handle: integer): TFleetsInfoSource;
 var rs: TReadSource_cS;
 begin
-  Result := -1;
+  Result.count := 0;
+  Result.typ := fist_none;
   if not _get_RS(Handle, rs) then Exit;
 
   PhalanxRead.Clear;
@@ -310,7 +311,7 @@ begin
   FreeAReadSource(Handle);
 end;
 
-function ReadSource_SetText(Handle: Integer; text: PChar): Boolean;
+function ReadSource_SetText(Handle: Integer; text: PChar; server_time_u: int64): Boolean;
 var rs: TReadSource;
 begin
   rs := GetReadSource(Handle);
@@ -318,10 +319,11 @@ begin
   if Result then
   begin
     rs.SetTextSource(text);
+    rs.SetServerTime(server_time_u);
   end;
 end;
 
-function ReadSource_SetHTML(Handle: Integer; html: PChar): Boolean;
+function ReadSource_SetHTML(Handle: Integer; html: PChar; server_time_u: int64): Boolean;
 var rs: TReadSource;
 begin
   rs := GetReadSource(Handle);
@@ -329,6 +331,7 @@ begin
   if Result then
   begin
     rs.SetHTMLSource(html);
+    rs.SetServerTime(server_time_u);
   end;
 end;
 

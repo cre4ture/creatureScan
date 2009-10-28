@@ -34,7 +34,10 @@ type
     html: String;
     text: String;
     html_root: THTMLElement;
+    server_time_u: int64;
   public
+    function GetServerTime: int64;
+    procedure SetServerTime(time_u: int64);
     procedure SetHTMLSource(ahtml: String);
     procedure SetTextSource(atext: String);
     constructor Create;
@@ -84,6 +87,11 @@ begin
   Result := html;
 end;
 
+function TReadSource.GetServerTime: int64;
+begin
+  Result := server_time_u;
+end;
+
 function TReadSource.GetText: String;
 begin
   Result := text;
@@ -97,6 +105,11 @@ begin
     html_root.Free;
     html_root := nil;
   end;
+end;
+
+procedure TReadSource.SetServerTime(time_u: int64);
+begin
+  server_time_u := time_u;
 end;
 
 procedure TReadSource.SetTextSource(atext: String);

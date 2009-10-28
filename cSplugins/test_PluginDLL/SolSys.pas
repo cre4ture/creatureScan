@@ -76,7 +76,7 @@ end;
 procedure TFRM_Solsys.Button1Click(Sender: TObject);
 begin
   FillChar(TestSys,SizeOf(TestSys),0);
-  if plugin.ReadSystem(TestSys) then
+  if plugin.ReadSystem(FRM_Sources.plugin_handle, TestSys) then
     Shape1.Brush.Color := cllime
   else Shape1.Brush.Color := clRed;
   Caption := PositionToStrMond(TestSys.System);

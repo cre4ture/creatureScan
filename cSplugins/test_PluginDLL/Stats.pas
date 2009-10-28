@@ -41,7 +41,7 @@ uses Sources;
 procedure TFRM_Stats.Button1Click(Sender: TObject);
 begin
   FillChar(stats,sizeof(stats),0);
-  if plugin.ReadStats(stats,stype) then
+  if plugin.ReadStats(FRM_Sources.plugin_handle, stats, stype) then
     Shape1.Brush.Color := clLime
   else Shape1.Brush.Color := clRed;
   VST_Stats.Refresh;

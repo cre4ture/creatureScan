@@ -276,6 +276,7 @@ function ThtmlSysRead.ReadFromRS(rs: TReadSource;
 begin
   try
     Result := ReadFullHTML(rs.GetHTMLRoot(),solsys);
+    solsys.Time_u := rs.GetServerTime;
   except
     Result := False;
   end;

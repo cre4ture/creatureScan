@@ -282,6 +282,7 @@ function ThtmlSysRead_betauni.ReadFromRS(rs: TReadSource;
 begin
   try
     Result := ReadFullHTML(rs.GetHTMLRoot(),solsys);
+    solsys.Time_u := rs.GetServerTime;
   except
     Result := False;
   end;
@@ -364,6 +365,8 @@ begin
             end;
 
             // Suche nach "Kolonisieren"-Tags auch für koords:
+
+            { // 11.10.2009: Ogame hat's mit diesen Links wohl verkackt -.-
             if (not got_koords)and(solsys.Planeten[row_nr].Player = '') then
             begin
               tag_pos := HTMLFindRoutine_NameAttribute(tag_row, 'td', 'class', 'planetname1');
@@ -390,6 +393,7 @@ begin
                 end;
               end;
             end;
+            }
 
             inc(row_nr);
           end;
