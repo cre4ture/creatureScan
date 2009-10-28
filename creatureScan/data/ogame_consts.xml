@@ -4,7 +4,7 @@
     <updatecheck url="http://85.214.58.178/phpBB2/latest.txt"/>
   </creaturescan>
   <raids maxraids24h="5"/>
-  <game count="7">
+  <game count="8">
     <site index="0" name="ogame.de">
       <uni name="andromeda"/>
       <uni name="barym"/>
