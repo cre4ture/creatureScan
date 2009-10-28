@@ -536,7 +536,7 @@ begin
   if VST_Result.GetFirstSelected <> nil then
   begin
     nd := TSearch_ND(VST_Result.GetNodeData(VST_Result.GetFirstSelected)^);
-    FRM_Main.SucheImInet(sitAllanz,nd.Allianz,nd.Player,ODataBase.UserUni);
+    FRM_Main.SucheImInet(sitAllanz,nd.Allianz,nd.Player,ODataBase.UniDomain);
   end;
 end;
 
@@ -546,7 +546,7 @@ begin
   if VST_Result.GetFirstSelected <> nil then
   begin
     nd := TSearch_ND(VST_Result.GetNodeData(VST_Result.GetFirstSelected)^);
-    FRM_Main.SucheImInet(sitPlayer,nd.Allianz,nd.Player,ODataBase.UserUni);
+    FRM_Main.SucheImInet(sitPlayer,nd.Allianz,nd.Player,ODataBase.UniDomain);
   end;
 end;
 
