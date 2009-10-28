@@ -6,13 +6,21 @@ uses classes, OGame_Types, SysUtils, MergeSocket, SDBFile, SplitSocket,
   cS_networking, LibXmlParser, LibXmlComps;
 
 const
-  StatFileV = 'cSStatFile1.5';
+  StatFileV = 'creatureScan_StatisticBD_2.0';
+
+  new_file_ident = 'new_file';
 
 type
-  TStatFileInf = Record
+  TStatFileInf_10 = Record
     V: String[13];
     Uni: Word;
   end;
+  TStatFileInf_20 = packed record
+    filetype: string[30];
+    domain: string[255];
+    dummy_buffer: string[255];
+  end;
+
   TStatFilePlayer_1 = packed record
     Name: string[25];
     Punkte: Cardinal;
@@ -27,9 +35,9 @@ type
   end;
   TStatisticDBFile = class(TSimpleDBCachedFile)
   protected
-    FHeader: TStatFileInf;
-    function GetUni: Word;
-    procedure SetUni(u: Word);
+    FHeader: TStatFileInf_20;
+    function GetUni: string;
+    procedure SetUni(u: string);
     function GetStat(nr: Cardinal): TStat;
     procedure SetStat(nr: Cardinal; st: TStat);
     function NewItemPtr: pointer; override;
@@ -38,7 +46,7 @@ type
     procedure DisposeItemPtr(const p: pointer); override;
   public
     constructor Create(aFilename: string);
-    property Uni: Word read GetUni write SetUni;
+    property UniDomain: string read GetUni write SetUni;
     property Stats[nr: Cardinal]: TStat read GetStat write SetStat; default;
   end;
 
@@ -56,7 +64,7 @@ type
     function GetCount: Integer;
     procedure SetCount(c: integer);
   public
-    constructor Create(AFile: String; Uni: word);
+    constructor Create(AFile: String; UniDomain: String);
     function AddStat(Stats: TStat): boolean; virtual;
     property Statistik[Platz: Word]: TStatPlayer read GetPlayerAtPlace;
     property Datum[Platz: Word]: TDateTime read GetDateAtPos;
@@ -88,7 +96,7 @@ type
     procedure FSendStatToSocket(Stat: TStat; Socket: TSplitSocket);
     procedure FSendStat(Stat: TStat; Skip: TSplitSocket);
   public
-    constructor Create(AFile: String; Uni: word;
+    constructor Create(AFile: String; UniDomain: String;
       cSServer: TcSServer; aStatTyp: TStatTypeEx);
     destructor Destroy; override;
     procedure DoWork_idle(out Ready: Boolean); override;
@@ -114,7 +122,7 @@ type
       AName: TPlayerName]: Cardinal read StatPoints;
     property StatisticRank[nt: TStatNameType; pt: TStatPointType;
       AName: TPlayerName]: Cardinal read StatRank;
-    constructor Create(filenameMask: string; Uni: Integer);
+    constructor Create(filenameMask: string; UniDomain: String);
     destructor Destroy; override;
     function AddStats(nt: TStatNameType; pt: TStatPointType;
       Stats: TStat): boolean;
@@ -134,13 +142,19 @@ begin
   else Result := -1;
 end;
 
-constructor TStatPoints.Create(AFile: String; Uni: word);
+constructor TStatPoints.Create(AFile: String; UniDomain: String);
 begin
   inherited Create;
-  FStats := TStatisticDBFile.Create(AFile);
-  if (FStats.Uni <> Uni) then
+  try
+    FStats := TStatisticDBFile.Create(AFile);
+  except
+    DeleteFile(AFile);
+    FStats := TStatisticDBFile.Create(AFile);
+  end;
+  
+  if (FStats.UniDomain <> UniDomain) then
   begin
-    FStats.Uni := Uni;
+    FStats.UniDomain := UniDomain;
     FStats.Count := 0; //Clear!
   end;
 end;
@@ -238,7 +252,7 @@ begin
   Result := FStats[nt,pt].Statistik[Rank];
 end;
 
-constructor TStatisticDB.Create(filenameMask: string; Uni: Integer);
+constructor TStatisticDB.Create(filenameMask: string; UniDomain: String);
 var nt: TStatNameType;
     pt: TStatPointType;
     s: string;
@@ -266,7 +280,8 @@ begin
       end;
       tex.NameType := nt;
       tex.PointType := pt;
-      FStats[nt,pt] := TStatPointsNet.Create(Format(filenameMask,[s]),Uni,cSServer,tex);
+      FStats[nt,pt] := TStatPointsNet.Create(Format(filenameMask,[s]),
+                          UniDomain, cSServer, tex);
     end;
 end;
 
@@ -313,20 +328,22 @@ end;
 
 constructor TStatisticDBFile.Create(aFilename: string);
 begin
-  FHeaderSize := SizeOf(TStatFileInf);
+  FHeaderSize := SizeOf(FHeader);
   FItemSize := SizeOf(TStatFileStat_1);
 
   inherited Create(aFilename);
   
   if GetHeader(FHeader) then
   begin
-    if FHeader.V <> StatFileV then raise Exception.Create(
-      'TStatisticDBFile.Create: Unknown Fileformat! (' + aFilename + ')');
+    if FHeader.filetype <> StatFileV then raise Exception.Create(
+      'TStatisticDBFile.Create: Unknown, or old Fileformat! (' + aFilename + ')');
   end
   else
   begin
-    FHeader.V := StatFileV;
-    FHeader.Uni := 0;
+    FillChar(FHeader, sizeof(FHeader), 0);
+    FHeader.filetype := StatFileV;
+    FHeader.domain := new_file_ident;
+    FHeader.dummy_buffer := '';
     SetHeader(FHeader);
   end;
 end;
@@ -341,9 +358,9 @@ begin
   Result := TStat(GetCachedItem(nr)^);
 end;
 
-function TStatisticDBFile.GetUni: Word;
+function TStatisticDBFile.GetUni: string;
 begin
-  Result := FHeader.Uni;
+  Result := FHeader.domain;
 end;
 
 procedure TStatisticDBFile.ItemToPtr(var Buf; const p: pointer);
@@ -391,9 +408,9 @@ begin
   SetItem(nr,@st);
 end;
 
-procedure TStatisticDBFile.SetUni(u: Word);
+procedure TStatisticDBFile.SetUni(u: string);
 begin
-  FHeader.Uni := u;
+  FHeader.domain := u;
   SetHeader(FHeader);
 end;
 
@@ -455,10 +472,10 @@ begin
                    'Falscher "type" im request!');
 end;
 
-constructor TStatPointsNet.Create(AFile: String; Uni: word;
+constructor TStatPointsNet.Create(AFile: String; UniDomain: String;
   cSServer: TcSServer; aStatTyp: TStatTypeEx);
 begin
-  inherited Create(AFile,uni);
+  inherited Create(AFile, UniDomain);
   StatTyp := aStatTyp;
   cS_Serv := cSServer;
   StatMerge := TMergeSocket.Create;
