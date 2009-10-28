@@ -34,6 +34,7 @@
     <site index="6" name="ogame.dk">
        <uni name="uni$" symbol="$" index="1" to="42" redesign="0"/>
     </site>
+    <site index="7" name="XNOVA"/>
   </game>
   <planets count="15">
     <planet1 maxtemp="123"/>
