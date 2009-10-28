@@ -1,9 +1,9 @@
 object FRM_Chat: TFRM_Chat
   Left = 482
   Top = 312
-  Width = 440
-  Height = 286
   Caption = 'FRM_Chat'
+  ClientHeight = 240
+  ClientWidth = 432
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,7 +12,6 @@ object FRM_Chat: TFRM_Chat
   Font.Style = []
   Menu = MainMenu1
   OldCreateOrder = False
-  Position = poDefaultPosOnly
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnHide = FormHide
@@ -22,17 +21,19 @@ object FRM_Chat: TFRM_Chat
   object Splitter1: TSplitter
     Left = 300
     Top = 4
-    Height = 198
+    Height = 206
     Align = alRight
+    ExplicitHeight = 198
   end
   object Panel1: TPanel
     Left = 0
-    Top = 202
+    Top = 210
     Width = 432
     Height = 30
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 202
     DesignSize = (
       432
       30)
@@ -50,20 +51,22 @@ object FRM_Chat: TFRM_Chat
     Left = 4
     Top = 4
     Width = 296
-    Height = 198
+    Height = 206
     Align = alClient
     ReadOnly = True
     TabOrder = 1
+    ExplicitHeight = 198
   end
   object Panel2: TPanel
     Left = 303
     Top = 4
     Width = 129
-    Height = 198
+    Height = 206
     Align = alRight
     BevelOuter = bvNone
     Caption = 'Panel2'
     TabOrder = 2
+    ExplicitHeight = 198
     object VST_Member: TVirtualStringTree
       Left = 0
       Top = 0
@@ -71,6 +74,7 @@ object FRM_Chat: TFRM_Chat
       Height = 173
       Align = alClient
       Header.AutoSizeIndex = 0
+      Header.DefaultHeight = 17
       Header.Font.Charset = DEFAULT_CHARSET
       Header.Font.Color = clWindowText
       Header.Font.Height = -11
@@ -113,10 +117,11 @@ object FRM_Chat: TFRM_Chat
     Left = 0
     Top = 4
     Width = 4
-    Height = 198
+    Height = 206
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 3
+    ExplicitHeight = 198
   end
   object Panel5: TPanel
     Left = 0

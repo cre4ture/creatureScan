@@ -9,7 +9,7 @@ uses
   ThreadProtocolObject, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdHTTP, DateUtils, LibXmlParser, cS_DB, cS_DB_reportFile,
   SelectUSer, UniTree, cS_networking, MergeSocket, SplitSocket, cS_DB_solsysFile, TIReadPlugin,
-  SyncObjs, RaidBoard, frm_pos_size_ini;
+  SyncObjs, RaidBoard, frm_pos_size_ini, OGameData;
 
 
 const
@@ -87,6 +87,7 @@ type
     function FUniRead(G, S: Integer): TSonnensystem;
     function InitStatFiles: Boolean;
   private
+    xml_data_file: string;
     Initialised: Boolean;
     function LoadInitFiles: boolean;
     function initSysFile: Boolean;
@@ -102,6 +103,8 @@ type
     procedure langplugin_onaskmoonprocedure(Sender: TOGameDataBase; Report: TScanBericht;
       var isMoon: Boolean; var Handled: Boolean);
   public
+    game_data: TGameData;
+
     //Alte Symbole: IMMER UniTree verwenden!
     Berichte: TcSReportDB;
     Systeme: TcSSolSysDB;
@@ -110,7 +113,7 @@ type
     UserPosition: TPlanetPosition;
     Username: TPlayerName;
     game_domain: string;
-    UserUni: Integer;
+    UniDomain: String;  // andromeda
     SaveDir, PlayerInf: String;
     Importing: Boolean;
     DeleteScansWhenAddSys: Boolean;
@@ -130,13 +133,14 @@ type
     property AllyStats: TStatPoints read GetAllyStats;
 
     function GetSystemTime_u(p1, p2: word): int64;
-
+    function global_domain(): string;
 
 
     function LeseFleets(handle: integer): Boolean;
     function GetPlayerAtPos(planet: TPlanetPosition; addstatus: boolean = true): string;
     property InitialisedF: boolean read Initialised;
-    constructor Create(Init: Boolean; UserDir: string; ACLHost: TcSServer);
+    constructor Create(Init: Boolean; UserDir: string; ACLHost: TcSServer;
+      xml_data_file: string);
     function Initialise: Boolean;
     destructor Destroy; override;
     procedure ImportFile(Filename: String);
@@ -302,11 +306,12 @@ end;
 
 
 constructor TOgameDataBase.Create(Init: Boolean; UserDir: string;
-  ACLHost: TcSServer);
+  ACLHost: TcSServer; xml_data_file: string);
 begin
   inherited Create;
   OnAskMoon := nil;
   cS_NetServ := ACLHost;
+  self.xml_data_file := xml_data_file;
 
   Application.OnIdle := ApplicationOnIdle;
   
@@ -345,7 +350,7 @@ begin
   ini.WriteString('UserOptions', 'OwnName',Username);
   for i := 0 to 2 do
     ini.WriteInteger('StartPosition', 'Pos' + inttostr(i),UserPosition.P[i]);
-  ini.WriteInteger('UserOptions', 'Uni', UserUni);
+  ini.WriteString('UserOptions', 'UniDomain', UniDomain);
   ini.WriteBool('UserOptions', 'DefInTF', DefInTF);
   ini.WriteFloat('UserOptions', 'SpeedFactor', SpeedFactor);
   ini.WriteString('UserOptions', 'PluginFile', LanguagePlugIn.PluginFilename);
@@ -378,12 +383,16 @@ begin
     UserPosition.P[i] := ini.ReadInteger('StartPosition','Pos' + inttostr(i),0);
   UserPosition.Mond := false;
   Username := ini.ReadString('UserOptions','OwnName','');
-  UserUni := ini.ReadInteger('UserOptions','Uni',-1);
+  
+  UniDomain := ini.ReadString('UserOptions','UniDomain','');
+  if UniDomain = '' then
+     UniDomain := 'uni' + ini.ReadString('UserOptions','Uni',''); // import old settings
+     
   DefInTF := ini.ReadBool('UserOptions','DefInTF',False);
   SpeedFactor := ini.ReadFloat('UserOptions','SpeedFactor', 1);
   game_domain := ini.ReadString('UserOptions','ogame_domain','--n/a--');
   if game_domain = '--n/a--' then  // for compatibility to old version
-    game_domain := game_sites[ini.ReadInteger('UserOptions','LanguageIndex',0)];
+    game_domain := game_sites_OLD[ini.ReadInteger('UserOptions','LanguageIndex',0)];
 
   LanguagePlugIn.PluginFilename := ini.ReadString('UserOptions','PluginFile','');
   DeleteScansWhenAddSys := ini.ReadBool('UserOptions','AutoDeleteScans',true);
@@ -436,6 +445,14 @@ end;
 
 function TOgameDataBase.Initialise: Boolean;
 begin
+  Result := false;
+
+  try
+    game_data := TGameData.Create(xml_data_file);
+  finally
+    // ... TODO
+  end;
+
   Result := LoadInitFiles and
             initScanFile and
             initSysFile and
@@ -457,19 +474,42 @@ begin
   Berichte.Free;
 
   LanguagePlugIn.Free;
+
+  game_data.Free;
   inherited Destroy;
 end;
 
 function TOgameDataBase.initSysFile: Boolean;
+(* Allgemein: Öffnet die Sonnensystem-Datenbank
+   Speziell: Öffnet die Datei für die Sonnensystem-Datenbank.
+             Falls diese ein altes Format besitzt, wird
+             eine neue Datenbank erstellt und die alte Datei importiert,
+             dannach gelöscht! *)
+
+  function __importold(filename: string): Boolean;
+  var old: TcSSolSysDB_for_File;
+      i: integer;
+  begin
+    old := TcSSolSysDB_for_File.Create(filename, UniDomain); 
+    try
+      for i := 0 to old.Count-1 do
+      begin
+        Systeme.AddSolSys(old[i]);
+      end;
+    finally
+      old.Free;
+    end;
+    Result := True;
+  end;
+
 var Filename: String;
 begin
   Result := False;
-  //öffnen der galaxien-datei! + überprüfung auf neu und/oder falsches Universum!
   Filename := SaveDir + 'solsys.cssys';
 
   try
     try
-      Systeme := TcSSolSysDB_for_File.Create(Filename,UserUni);
+      Systeme := TcSSolSysDB_for_File.Create(Filename, UniDomain);
     except
       ShowMessage(STR_Sonnensystemdatei_konnte_nicht_geoeffnetwerden_Prog_wird_beendet +
                   #10 + #13 + STR_vllt_andere_Instanz);
@@ -482,7 +522,9 @@ begin
       begin
         Systeme.Free;
         RenameFile(Filename,Filename+'.old');
-        Systeme := TcSSolSysDB_for_File.Create(Filename,UserUni);
+        Systeme := TcSSolSysDB_for_File.Create(Filename, UniDomain);
+        if  __importold(Filename+'.old') then
+          DeleteFile(Filename+'.old');
       end;
     end;
   finally
@@ -502,7 +544,7 @@ function TOgameDataBase.initScanFile: boolean;
   var old: TcSReportDB_for_File;
       i: integer;
   begin
-    old := TcSReportDB_for_File.Create(filename, UserUni);
+    old := TcSReportDB_for_File.Create(filename, UniDomain); 
     try
       for i := 0 to old.Count-1 do
       begin
@@ -522,7 +564,7 @@ begin
 
   try
     try
-      Berichte := TcSReportDB_for_File.Create(Filename,UserUni);
+      Berichte := TcSReportDB_for_File.Create(Filename, UniDomain);
     except
       Berichte.Free;
       ShowMessage(STR_Scanberichtdatei_konnte_nicht_geoeffnetwerden_Prog_wird_beendet +
@@ -536,7 +578,7 @@ begin
       begin
         Berichte.Free;
         RenameFile(Filename,Filename+'.old');
-        Berichte := TcSReportDB_for_File.Create(Filename,UserUni);
+        Berichte := TcSReportDB_for_File.Create(Filename, UniDomain);
         if  __importold(Filename+'.old') then
           DeleteFile(Filename+'.old');
       end;
@@ -585,9 +627,9 @@ begin
   ImportSysFile := TcSSolSysDBFile.Create(Filename);
   try
     //überprüfung auf Uni (nicht auf Sprache, da nicht in der Dateiinformation enthalten!)
-    if (ImportSysFile.Universe = UserUni)or
+    if (*(ImportSysFile.Universe = UserUni)*) (true) or  // TODO
        (Application.MessageBox(
-         PChar(STR_MSG_Falsches_Universum + IntToStr(ImportSysFile.Universe)),
+         PChar(STR_MSG_Falsches_Universum + ImportSysFile.UniDomain),
          PChar(Application.Title),MB_YESNO or MB_ICONQUESTION) = idYes) then
     begin
       //erstellen und initialisieren des FortschrittFenster
@@ -637,8 +679,8 @@ begin
   ImportScanFile := TcSReportDBFile.Create(Filename);
 
   //überprüfung auf Uni (nicht auf Sprache, da nicht in der Dateiinformation enthalten!)
-  if (ImportScanFile.Universe = UserUni)or
-     (Application.MessageBox(PChar(STR_MSG_Falsches_Universum + IntToStr(ImportScanFile.Universe)),PChar(Application.Title),MB_YESNO or MB_ICONQUESTION) = idYes) then
+  if (*(ImportScanFile.Universe = UserUni)*) (true)or // TODO
+     (Application.MessageBox(PChar(STR_MSG_Falsches_Universum + ImportScanFile.UniDomain),PChar(Application.Title),MB_YESNO or MB_ICONQUESTION) = idYes) then
   begin
     //erstellen und initialisieren des FortschrittsFenster
     FRM_Progress := TFRM_ImportProgress.Create(Application);
@@ -831,7 +873,7 @@ function TOgameDataBase.SelectPlugIn(ForceDialog: boolean): Boolean;
 var dialog: TFRM_SelectPlugin;
 begin
   chdir(ExtractFilePath(Application.ExeName));
-  LanguagePlugIn.LoadPluginFile(LanguagePlugIn.PluginFilename, UserUni, PlayerInf);
+  LanguagePlugIn.LoadPluginFile(LanguagePlugIn.PluginFilename, -1, PlayerInf); // TODO
   Result :=  (not ForceDialog) and
              LanguagePlugIn.ValidFile and
              (game_domain = LanguagePlugIn.game_domain);
@@ -841,7 +883,7 @@ begin
     dialog.PluginFile := LanguagePlugIn.PluginFilename;
     if dialog.ShowModal = IDOK then
     begin
-      LanguagePlugIn.LoadPluginFile(dialog.PluginFile, UserUni, PlayerInf);
+      LanguagePlugIn.LoadPluginFile(dialog.PluginFile, -1, PlayerInf); // TODO
       if not LanguagePlugIn.ValidFile then ShowMessage('Die Plugindatei ist fehlerhaft!');
       Result := LanguagePlugIn.ValidFile and
                 (game_domain = LanguagePlugIn.game_domain);
@@ -856,7 +898,7 @@ function TOgameDataBase.CheckUserOptions(ForceDialog: Boolean): boolean;
   begin
     Result := (Username <> '')and
               ValidPosition(UserPosition)and
-              (UserUni >= 0)and
+              (UniDomain <> '')and
               (max_Galaxy > 0)and
               (max_Systems > 0);
   end;
@@ -864,9 +906,9 @@ function TOgameDataBase.CheckUserOptions(ForceDialog: Boolean): boolean;
   function ExecuteSpiDaForm: boolean;
   var spidaForm: TFRM_Spielerdaten;
   begin
-    spidaForm := TFRM_Spielerdaten.Create(Application);
+    spidaForm := TFRM_Spielerdaten.Create(Application, Self);
     spidaForm.IngameName := Username;
-    spidaForm.Universe := UserUni;
+    spidaForm.UniverseName := UniDomain;
     spidaForm.DefInTF := DefInTF;
     spidaForm.game_domain := game_domain;
     spidaForm.GalaCount := max_Galaxy;
@@ -874,10 +916,11 @@ function TOgameDataBase.CheckUserOptions(ForceDialog: Boolean): boolean;
     spidaForm.HomePlanet := UserPosition;
     spidaForm.SpeedFaktor := SpeedFactor;
     spidaForm.TF_factor := truemmerfeld_faktor;
+    spidaForm.redesign := OGame_IsBetaUni;
     if ForceDialog then //im nachhinnein
     begin
-      spidaForm.CB_OGame_Language.Enabled := False;
-      spidaForm.E_Uni.Enabled := False;
+      spidaForm.CB_OGame_Site.Enabled := False;
+      spidaForm.CB_OGame_Universename.Enabled := False;
       spidaForm.RB_GalaCount9.Enabled := False;
       spidaForm.RB_GalaCount19.Enabled := False;
       spidaForm.RB_GalaCount50.Enabled := False; 
@@ -887,13 +930,14 @@ function TOgameDataBase.CheckUserOptions(ForceDialog: Boolean): boolean;
     begin
       max_Galaxy := spidaForm.GalaCount;
       max_Systems := spidaForm.SysCount;
-      UserUni := spidaForm.Universe;
+      UniDomain := spidaForm.UniverseName;
       DefInTF := spidaForm.DefInTF;
       Username := spidaForm.IngameName;
       UserPosition := spidaForm.HomePlanet;
       game_domain := spidaForm.game_domain;
       SpeedFactor := spidaForm.SpeedFaktor;
       truemmerfeld_faktor := spidaForm.TF_factor;
+      OGame_IsBetaUni := spidaForm.redesign;
     end;
     spidaForm.free;
   end;
@@ -915,7 +959,7 @@ end;
 
 function TOgameDataBase.InitStatFiles: Boolean;
 begin
-  Statistic := TStatisticDB.Create(SaveDir + 'statistic%%.cSst',UserUni);
+  Statistic := TStatisticDB.Create(SaveDir + 'statistic%%.cSst', global_domain); // TODO
   Result := True;
 end;
 
@@ -1030,6 +1074,11 @@ begin
   else Result := -1;
 end;
 
+function TOgameDataBase.global_domain: string;
+begin
+  Result := UniDomain + '.' + game_domain;
+end;
+
 function TOgameDataBase.LeseStats(handle: integer): Boolean;
 begin
   Result := False;
@@ -1132,7 +1181,7 @@ end;
 
 function TOgameDataBase.initFleetBoard: Boolean;
 begin
-  FleetBoard := TFleetBoard_NET.Create(SaveDir, UserUni, cS_NetServ);
+  FleetBoard := TFleetBoard_NET.Create(SaveDir, Self.UniDomain, cS_NetServ); // TODO
   Result := True;
 end;
 
@@ -1143,7 +1192,7 @@ begin
   sys := UniTree.UniSys(Report.Head.Position.P[0],
                         Report.Head.Position.P[1]);
   if sys >= 0 then
-  with ODataBase.Systeme[sys] do
+  with Systeme[sys] do
   begin
     planet := Report.Head.Position.P[2];
     // Wenn es keinen Mond an dieser stelle gibt, brauchste auchnet fragen!

@@ -366,7 +366,7 @@ begin
   begin
     player := systeme[uni[Position.P[0],Position.P[1]].systemcopy].Planeten[Position.P[2]].Player;
     Ally := systeme[uni[Position.P[0],Position.P[1]].systemcopy].Planeten[Position.P[2]].Ally;
-    FRM_Main.SucheImInet(sitPlayer,Ally,Player,ODataBase.UserUni);
+    FRM_Main.SucheImInet(sitPlayer,Ally,Player,ODataBase.UniDomain);
   end;
 end;
 
@@ -378,7 +378,7 @@ begin
   begin
     player := systeme[uni[Position.P[0],Position.P[1]].systemcopy].Planeten[Position.P[2]].Player;
     Ally := systeme[uni[Position.P[0],Position.P[1]].systemcopy].Planeten[Position.P[2]].Ally;
-    FRM_Main.SucheImInet(sitAllanz,Ally,Player,ODataBase.UserUni);
+    FRM_Main.SucheImInet(sitAllanz,Ally,Player,ODataBase.UniDomain);
   end;
 end;
 

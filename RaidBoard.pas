@@ -11,15 +11,14 @@ type
   TFleetBoard = class
   private
     fGameTime: TDeltaSystemTime;
-    Uni: Integer;
+    UniDomainID: string;
   protected
   public
-
     Fleets: TcSFleetDB;
     History: TcSFleetDB;
     OnFleetArrived: TFleetBoard_NotifyFleetArrival;
     property GameTime: TDeltaSystemTime read fGameTime;
-    constructor Create(SaveDir: String; aUni: Integer);
+    constructor Create(const SaveDir: String; const UniDomainID: string);
     destructor Destroy; override;
     function AddFleet(fleet: TFleetEvent): Integer; virtual;
     function AddHistoryFleet(fleet: TFleetEvent): Integer;
@@ -58,7 +57,7 @@ type
     procedure FleetMergeOnNewPacket_ReadThread(Sender: TObject;
       Socket: TSplitSocket);  
   public
-    constructor Create(SaveDir: String; aUni: Integer;
+    constructor Create(SaveDir: String; UniDomainID: string;
       cSServer: TcSServer);
     procedure DoWork_idle(out Ready: Boolean); override;
     procedure DeleteFleet(nr: Integer); override;
@@ -120,14 +119,14 @@ begin
       inc(Result);
 end;
 
-constructor TFleetBoard.Create(SaveDir: String; aUni: Integer);
+constructor TFleetBoard.Create(const SaveDir: String; const UniDomainID: string);
 begin
   inherited Create();
-  Uni := aUni;
+  Self.UniDomainID := UniDomainID;
   fGameTime := TDeltaSystemTime.Create;
 
-  Fleets := TcSFleetDB_for_File.Create(SaveDir + 'fleets.csflt', Uni);
-  History := TcSFleetDB_for_File.Create(SaveDir + 'fleets_history.csflt', Uni);
+  Fleets := TcSFleetDB_for_File.Create(SaveDir + 'fleets.csflt', UniDomainID);
+  History := TcSFleetDB_for_File.Create(SaveDir + 'fleets_history.csflt', UniDomainID);
 end;
 
 procedure TFleetBoard.DeleteFleet(nr: Integer);
@@ -295,10 +294,10 @@ begin
   end;
 end;
 
-constructor TFleetBoard_NET.Create(SaveDir: String; aUni: Integer;
+constructor TFleetBoard_NET.Create(SaveDir: String; UniDomainID: String;
   cSServer: TcSServer);
 begin
-  inherited Create(SaveDir,aUni);
+  inherited Create(SaveDir, UniDomainID);
   cS_Serv := cSServer;
   FleetMerge := TMergeSocket.Create;
   cS_Serv.FFleetMerge := FleetMerge;

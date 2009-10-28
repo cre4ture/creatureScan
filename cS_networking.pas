@@ -1,7 +1,5 @@
 unit cS_networking;
 
-//Doch! OGame/cS abhängig!
-
 interface
 
 uses
@@ -10,7 +8,7 @@ uses
 
 const
   crOVersionName = 'cS_networking';
-  crOVersionID = 7;        
+  crOVersionID = 8;        
 
 type
   TOPass = string[15];
@@ -27,9 +25,9 @@ type
   end;
   TLoginData = record
     ProgName: String[25];
+    UniName, SiteName: String[255];
     protVersion: Word;
     Master: Boolean;
-    Uni,
     GalaxyCount,
     SolsysCount,
     PlanetCount: Word;
@@ -514,7 +512,8 @@ begin
         if (ProgName = crOVersionName)and
            (protVersion = crOVersionID)and
            (Master = not TSocketMultiplex(Socket.HostSocket).Master)and
-           (Uni = ODataBase.UserUni)and
+           (UniName = ODataBase.UniDomain)and
+           (SiteName = ODataBase.game_domain)and
            (GalaxyCount = max_Galaxy)and
            (SolsysCount = max_Systems)and
            (PlanetCount = max_Planeten)and
@@ -905,7 +904,8 @@ begin
   Result.ProgName := crOVersionName;
   Result.protVersion := crOVersionID;
   Result.Master := Master;
-  Result.Uni := ODataBase.UserUni;
+  Result.SiteName := ODataBase.game_domain;
+  Result.UniName := ODataBase.UniDomain;
   Result.GalaxyCount := max_Galaxy;
   Result.SolsysCount := max_Systems;
   Result.PlanetCount := max_Planeten;

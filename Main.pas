@@ -284,7 +284,8 @@ type
     procedure SetTrayIcon_;
     procedure RaidDialog(Position: TPlanetPosition); overload;
     function RaidDialog(var Fleet: TFleetEvent): boolean; overload;
-    procedure SucheImInet(Typ: TSuchInetTyp; Allianz, Player: String; Uni: Integer);
+    procedure SucheImInet(Typ: TSuchInetTyp; Allianz, Player: String;
+      Uni: String);
     procedure ClipbrdReadScan;
     procedure ClipbrdReadSys;
     procedure ShowSearchPlayer(name: string);
@@ -425,7 +426,9 @@ begin
   TrayIco := TTrayIcon.Create(Self);
   TrayIco.Icons := il_trayicon;
   TrayIco.IconIndex := -1;
-  Caption := Caption + ' Uni ' + inttostr(ODataBase.UserUni) + ' User: ' + ODataBase.Username;
+  Caption := Caption + ' Uni: ' +
+             ODataBase.UniDomain + '.' + ODataBase.game_domain +
+             ' User: ' + ODataBase.Username;
   TrayIco.Hint := FRM_Main.Caption;
   TrayIco.PopupMenu := TrayIconPopup;
   TrayIco.OnDblClick := MainWindow1Click;
@@ -1389,7 +1392,7 @@ begin
 end;
 
 procedure TFRM_Main.SucheImInet(Typ: TSuchInetTyp; Allianz, Player: String;
-  Uni: Integer);
+  Uni: String);
 var s: string;
 procedure SetzePlatzhalter(var Line: String; Variable, Wert: string);
 var i: integer;
@@ -1408,7 +1411,7 @@ begin
   end;
   SetzePlatzhalter(s,'%P',Player);
   SetzePlatzhalter(s,'%A',Allianz);
-  SetzePlatzhalter(s,'%U',IntToStr(Uni));
+  SetzePlatzhalter(s,'%U',Uni);
   ShellExecute(Self.Handle,'open',PChar(s),'','',0);
 end;
 
@@ -1668,8 +1671,8 @@ begin
     FRM := TFRM_StringlistEdit.Create(self);
     FRM.Show;
 
-    if sysfile.Universe <> ODataBase.UserUni then
-      FRM.Memo1.Lines.Add('Universe: ' + IntToStr(sysfile.Universe));
+    //if sysfile.Universe <> ODataBase.UserUni then // TODO
+    //  FRM.Memo1.Lines.Add('Universe: ' + IntToStr(sysfile.Universe));
 
     for i := 0 to sysfile.Count-1 do
     begin
@@ -1737,8 +1740,8 @@ begin
     FRM := TFRM_StringlistEdit.Create(self);
     FRM.Show;
 
-      if ScanFile.Universe <> ODataBase.UserUni then
-    FRM.Memo1.Lines.Add('Universe: ' + IntToStr(ScanFile.Universe));
+//      if ScanFile.Universe <> ODataBase.UserUni then // TODO
+ //   FRM.Memo1.Lines.Add('Universe: ' + IntToStr(ScanFile.Universe));
 
     for i := 0 to Scanfile.Count-1 do
     begin
@@ -1780,7 +1783,7 @@ begin
       ODataBase.LanguagePlugIn.PluginFilename,
       ODataBase.LanguagePlugIn.PlugInName,
       ODataBase.game_domain,
-      ODataBase.UserUni);
+      ODataBase.UniDomain);
   end;
 end;
 

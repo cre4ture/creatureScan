@@ -73,7 +73,8 @@ uses
   EditScan in 'EditScan.pas' {FRM_EditScan},
   zeit_sync in '..\Ogame_tools\zeit_sync\zeit_sync.pas',
   config_cS_db_engine in 'config_cS_db_engine.pas' {frm_config_cS_engine},
-  sync_cS_db_engine in 'sync_cS_db_engine.pas' {frm_sync_cS_db_engine};
+  sync_cS_db_engine in 'sync_cS_db_engine.pas' {frm_sync_cS_db_engine},
+  OGameData in 'OGameData.pas';
 
 {$R *.RES}
 
@@ -176,7 +177,9 @@ begin
   SaveMainOptions;
 
   if FileExists(XML_InitFile) then
-    OGame_Types.Initialise(XML_InitFile)
+  begin
+    OGame_Types.Initialise(XML_InitFile);
+  end
   else ShowMessage('XML-iniData not found!');
 
   Protocol := TThreadProtocol.Create(ExtractFilePath(Application.ExeName) +
@@ -184,7 +187,7 @@ begin
   Protocol.OnIdentifySender := LogSenderToStr;
 
   cSServer := TcSServer.Create(Protocol, GetCurrentDir + '/' + userdatadir + LastUser + '/server.ini');
-  ODataBase := TOgameDataBase.Create(true,GetCurrentDir + '/' + userdatadir + LastUser + '/', cSServer);
+  ODataBase := TOgameDataBase.Create(true,GetCurrentDir + '/' + userdatadir + LastUser + '/', cSServer, XML_InitFile);
 
   if not ODataBase.InitialisedF then
   begin

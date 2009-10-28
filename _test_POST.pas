@@ -796,7 +796,7 @@ begin
     tag := res.FindChildTagPath_e('read/serverinfo');
 
     if tag.AttributeValue['universe'] <>
-       (ODataBase.game_domain + '-' + IntToStr(ODataBase.UserUni)) then
+       (ODataBase.UniDomain + '.' + ODataBase.game_domain) then
       raise Exception.Create('Wrong OGame/Universe! "' +
                               tag.AttributeValue['universe'] + '"');
 
