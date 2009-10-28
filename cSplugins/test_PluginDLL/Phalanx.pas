@@ -13,6 +13,7 @@ type
     Shape1: TShape;
     vst_fleets: TVirtualStringTree;
     Frame_Bericht1: TFrame_Bericht;
+    ComboBox1: TComboBox;
     procedure Button1Click(Sender: TObject);
     procedure vst_fleetsGetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
@@ -37,14 +38,17 @@ uses DLL_plugin_TEST, Sources;
 {$R *.dfm}
 
 procedure TFRM_Phalanx.Button1Click(Sender: TObject);
-var count, i: integer;
+var i: integer;
     afleet: TFleetEvent;
+    info: TFleetsInfoSource;
 begin
-  count := plugin.ReadPhalanxScan();
-  if count > 0 then
+  info := plugin.ReadPhalanxScan(FRM_Sources.plugin_handle);
+  if info.count > 0 then
     Shape1.Brush.Color := clGreen
   else
     Shape1.Brush.Color := clRed;
+
+  ComboBox1.ItemIndex := byte(info.typ);
 
   SetLength(fleets, 0);
   while plugin.ReadPhalanxScanGet(afleet) do

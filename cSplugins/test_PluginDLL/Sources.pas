@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ClipboardViewerForm, clipbrdfunctions, DLL_plugin_TEST,
-  Inifiles;
+  Inifiles, dateutils;
 
 type
   TFRM_Sources = class(TClipboardViewer)
@@ -39,7 +39,9 @@ type
     clpCopy: TClipbrdCopy;
     { Private-Deklarationen }
   public
+    plugin_handle: Integer;
     lastsourcefile: string;
+    procedure OnPluginRefresh;
     procedure LoadFromFile(filename: string);
     procedure SaveToFile(filename: string);
     procedure LoadOptions(ini: TInifile);
@@ -61,7 +63,7 @@ end;
 procedure TFRM_Sources.m_HtmlChange(Sender: TObject);
 begin
   try
-    plugin.SetReadSourceHTML(m_Html.Text);
+    plugin.SetReadSourceHTML(plugin_handle, m_Html.Text, datetimetounix(now));
     Color := clGreen;
   except
     Color := clRed;
@@ -71,17 +73,30 @@ end;
 procedure TFRM_Sources.m_TextChange(Sender: TObject);
 begin
   try
-    plugin.SetReadSourceText(m_Text.Text);
+    plugin.SetReadSourceText(plugin_handle, m_Text.Text, datetimetounix(now));
     Color := clGreen;
   except
     Color := clRed;
   end;
 end;
 
+procedure TFRM_Sources.OnPluginRefresh;
+begin
+  if plugin_handle <> -1 then
+  begin
+    plugin.ReadSource_Free(plugin_handle);
+  end;
+  plugin_handle := plugin.ReadSource_New();
+
+  FRM_Sources.m_Text.OnChange(Self);
+  FRM_Sources.m_HTML.OnChange(Self);
+end;
+
 procedure TFRM_Sources.FormCreate(Sender: TObject);
 begin
   clpCopy := TClipbrdCopy.Create;
   OnClipboardContentChanged := ClipbrdChanged;
+  plugin_handle := -1;
 
   CB_ClipboardClick(CB_Clipboard);
 end;
@@ -175,7 +190,7 @@ begin
   if CB_Clipboard.Checked then
     SaveClipboardtoFile(filename,
       plugin.PluginFilename,plugin.PlugInName,
-      plugin.LanguageIndex,plugin.Universe)
+      plugin.game_domain,plugin.Universe)
   else
     CopyFile(PAnsiChar(lastsourcefile),PAnsiChar(filename),False);
 end;
@@ -191,6 +206,8 @@ end;
 procedure TFRM_Sources.FormDestroy(Sender: TObject);
 begin
   clpCopy.Free;
+  if plugin_handle <> -1 then
+    plugin.ReadSource_Free(plugin_handle);
 end;
 
 procedure TFRM_Sources.Button3Click(Sender: TObject);

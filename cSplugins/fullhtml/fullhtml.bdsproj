@@ -123,14 +123,14 @@
 			<Directories Name="UnitOutputDir"></Directories>
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
-			<Directories Name="SearchPath">..\..\</Directories>
+			<Directories Name="SearchPath">D:\devel\lib\xmlparser;D:\devel\creatureScan;D:\devel\lib\uli\htmllib;D:\devel\lib\TRegExpr\Source</Directories>
 			<Directories Name="Packages"></Directories>
 			<Directories Name="Conditionals">delphi</Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
 			<Directories Name="UsePackages">False</Directories>
 		</Directories>
 		<Parameters>
-			<Parameters Name="RunParams"></Parameters>
+			<Parameters Name="RunParams">-plugin "..\..\creatureScan\ioplugins\org_mozilla.ini"</Parameters>
 			<Parameters Name="HostApplication">..\test_PluginDLL\test.exe</Parameters>
 			<Parameters Name="Launcher"></Parameters>
 			<Parameters Name="UseLauncher">False</Parameters>

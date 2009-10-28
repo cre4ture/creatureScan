@@ -34,6 +34,7 @@ type
     Button7: TButton;
     Frame_Bericht2: TFrame_Bericht;
     Label1: TLabel;
+    lbl_scancount: TLabel;
     procedure btn_readClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
@@ -74,14 +75,16 @@ uses Sources, Math;
 
 function TFRM_Scan.ReadScans(): Integer;
 var s: string;
-    i: integer;
+    i, handle: integer;
     Scan: TScanBericht;
+    moon_unknown: boolean;
 begin
   s := FRM_Sources.M_Text.Text;
   i := 0;
   ListBox1.Clear;
-  Result := plugin.ReadReports();
-  while plugin.GetReport(Scan) do
+  Result := plugin.ReadReports(FRM_Sources.plugin_handle);
+
+  while plugin.GetReport(FRM_Sources.plugin_handle, Scan, moon_unknown) do
   begin
     setlength(Scans,i+1);
     Scans[i] := Scan;
@@ -95,12 +98,10 @@ end;
 
 procedure TFRM_Scan.btn_readClick(Sender: TObject);
 begin
-  ShowMessage('Read ' + IntToStr(ReadScans()) + ' Scans');
+  lbl_scancount.Caption := IntToStr(ReadScans());
 end;
 
 procedure TFRM_Scan.FormCreate(Sender: TObject);
-var Mode: Word;
-    filename: string;
 begin
   Frame_Bericht1.DontShowRaids := True;
   Frame_Bericht1.plugin := plugin;

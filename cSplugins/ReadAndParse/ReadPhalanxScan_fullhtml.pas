@@ -31,12 +31,14 @@ type
     str_flight: string;
     str_evtypeex: array[ThtmlPhalanx_fligthclassEx] of string;
     str_planet: string;
+    str_ulr_key_events: string;
 
 
     fleets: TList;
     readreport: TReadReport_Text;
+    procedure readSourceInfo(html: string; var info: TFleetsInfoSource);
     function Add(fleet: TFleetEvent): integer;
-    function ReadHTML(html: string): integer;
+    function ReadHTML(html: string): TFleetsInfoSource;
     function checkTags(CurElement: THTMLElement; Data: pointer): Boolean;
     function readHtmlTag(tag: THTMLElement; fc: ThtmlPhalanx_fligthclass): boolean;
     function readHtmlTag_transport(const tag: THTMLElement;
@@ -49,9 +51,9 @@ type
   public
     constructor Create(ini: TIniFile; aReadReport: TReadReport_Text);
     destructor Destroy; override;
-    function Read(text, html: string): integer;
+    function Read(text, html: string): TFleetsInfoSource;
     procedure Clear;
-    function ReadFromRS(rs: TReadSource): integer;
+    function ReadFromRS(rs: TReadSource): TFleetsInfoSource;
     property FleetList[nr: integer]: TFleetEvent read GetFleet;
     function Count: Integer;
   end;
@@ -106,6 +108,7 @@ begin
   end;
 
   str_planet := ini.ReadString(ThtmlPhalanx_inisection, 'key_planet', 'n/a');
+  str_ulr_key_events := ini.ReadString(ThtmlPhalanx_inisection, 'url_key_events', 'n/a');
 end;
 
 destructor ThtmlPhalanxRead.Destroy;
@@ -114,35 +117,36 @@ begin
   inherited;
 end;
 
-function ThtmlPhalanxRead.ReadHTML(html: string): integer;
+function ThtmlPhalanxRead.ReadHTML(html: string): TFleetsInfoSource;
 var doc_html: THTMLElement;
 begin
   doc_html := THTMLElement.Create(nil, 'root');
   try
     doc_html.ParseHTMLCode(html);
-    Result := doc_html.DeleteTagRoutine(checkTags, nil);
-  finally
-    doc_html.Free;
-  end;
-end;
-
-function ThtmlPhalanxRead.Read(text, html: string): integer;
-begin
-  try
-    Result := ReadHTML(html);
+    Result.Count := doc_html.DeleteTagRoutine(checkTags, nil);
+    readSourceInfo(html, Result);
   except
-    Result := 0;
+    Result.typ := fist_none;
+    Result.count := 0;
   end;
+  doc_html.Free;
 end;
 
-function ThtmlPhalanxRead.ReadFromRS(rs: TReadSource): integer;
+function ThtmlPhalanxRead.Read(text, html: string): TFleetsInfoSource;
+begin
+  Result := ReadHTML(html);
+end;
+
+function ThtmlPhalanxRead.ReadFromRS(rs: TReadSource): TFleetsInfoSource;
 var doc_html: THTMLElement;
 begin
   try
     doc_html := rs.GetHTMLRoot();
-    Result := doc_html.DeleteTagRoutine(checkTags, nil);
+    Result.count := doc_html.DeleteTagRoutine(checkTags, nil);
+    readSourceInfo(rs.GetHTMLString, Result);
   except
-    Result := 0;
+    Result.typ := fist_none;
+    Result.count := 0;
   end;
 end;
 
@@ -211,6 +215,30 @@ begin
   begin
     fleet.ress := ress;
   end;
+end;
+
+procedure ThtmlPhalanxRead.readSourceInfo(html: string;
+  var info: TFleetsInfoSource);
+var p1,p2,p3: integer;
+begin
+  p1 := pos('SourceURL:', html);
+  p2 := PosEx(str_ulr_key_events, html, p1);
+  p3 := PosEx(#13, html, p1);
+
+  if (p1 > 0)and(p2 > p1)and(p3 > p2) then
+  begin
+    info.typ := fist_events;
+  end
+  else
+  begin
+    info.typ := fist_phalanx;
+  end;
+
+  info.planet.P[0] := 1;
+  info.planet.P[1] := 1;
+  info.planet.P[2] := 1;
+  info.planet.Mond := false;
+  info.time := DateTimeToUnix(Now());
 end;
 
 function ThtmlPhalanxRead.readHtmlTag_planetposition(const tag: THTMLElement;
