@@ -14,13 +14,15 @@ uses
 
 type
   TcSSolSysFileFormat =
-  (css_none, {        css_21 ,}         css_22 );
+  (css_none, {        css_21 ,}            css_22,                    css_30);
 const
   cSSSFFStart = 'cscan_sys_';
   cSSolSysFileFormatstr: array[TcSSolSysFileFormat] of shortstring =
-  ( 'error', {'cscan_sys_2.1',} cSSSFFStart+'2.2');
+  ( 'error', {'cscan_sys_2.1',} cSSSFFStart+'2.2', 'creatureScan_SolSysDB_3.0');
 
   StatusItems_21_22 = 'igIuns';
+
+  new_file_ident = 'new_file';
 
 {
 
@@ -49,6 +51,10 @@ neu:
 weil es das alte format aber schon lange nicht mehr gibt,
 lass ich es hier einfach weg!
 
+22 auf 40:
+
+Fileheader vereinfacht.
+
 }
 
 type
@@ -57,6 +63,11 @@ type
   TcSSolSysHeader_10 = record
     V: string[13];
     Uni: Byte;
+  end;
+  TcSSolSysHeader_20 = packed record
+    filetype: string[30];
+    domain: string[255];
+    dummy_buffer: string[255];
   end;
 
   TStatusStr_10 = String[8]; //iIg -> 8 falls noch mehr kommt
@@ -83,13 +94,13 @@ type
   TSystemCopytocSSolSysItem = procedure(const Scan: TSystemCopy; const ItemBuf: pointer);
   TcSSolSysDBFile = class(TSimpleDBCachedFile)
   private
-    FHeader: TcSSolSysHeader_10;
+    FHeader: TcSSolSysHeader_20;
     FFormat: TcSSolSysFileFormat;
     FSysToItem: TSystemCopytocSSolSysItem;
     FItemToSys: TcSSolSysItemToSystemCopy;
     procedure InitFormat;
-    function GetUni: Byte;
-    procedure SetUni(Uni: byte);
+    function GetUni: string;
+    procedure SetUni(Uni: string);
   protected
     function NewItemPtr: pointer; override;
     procedure DisposeItemPtr(const p: pointer); override;
@@ -99,7 +110,7 @@ type
     function GetSolSys(nr: Cardinal): TSystemCopy;
     procedure SetSolSys(nr: Cardinal; SolSys: TSystemCopy);
     property SolSys[nr: Cardinal]: TSystemCopy read GetSolSys write SetSolSys;
-    property Universe: Byte read GetUni write SetUni;
+    property UniDomain: string read GetUni write SetUni;
     constructor Create(aFilename: string);
   end;
 
@@ -111,7 +122,7 @@ type
     procedure SetSolSys(nr: cardinal; SolSys: TSystemCopy); override;
     function GetCount: Integer; override;
   public
-    constructor Create(aFilename: string; Universe: Integer);
+    constructor Create(aFilename: string; UniDomain: string);
     destructor Destroy; override;
 
     //Only for compatibility to the old Code:
@@ -147,28 +158,32 @@ end;
 constructor TcSSolSysDBFile.Create(aFilename: string);
 var frmt: TcSSolSysFileFormat;
 begin
-  FHeaderSize := SizeOf(TcSSolSysHeader_10);
+  FHeaderSize := SizeOf(TcSSolSysHeader_20);
   inherited Create(aFilename,False);
 
   if (not GetHeader(FHeader)) then
   begin
+    FillChar(FHeader, SizeOf(FHeader), 0);
     FFormat := high(cSSolSysFileFormatstr);
-    FHeader.V := cSSolSysFileFormatstr[FFormat];
-    FHeader.Uni := 0;
+    FHeader.filetype := cSSolSysFileFormatstr[FFormat];
+    FHeader.domain := new_file_ident;
+    FHeader.dummy_buffer := '';
     SetHeader(FHeader);
   end
   else
   begin
     FFormat := css_none;
     for frmt := high(frmt) downto low(frmt) do
-      if cSSolSysFileFormatstr[frmt] = FHeader.V then
+      if cSSolSysFileFormatstr[frmt] = FHeader.filetype then
       begin
         FFormat := frmt;
         break;
       end;
 
     if (FFormat = css_none) then
-      raise EcSDBUnknownFileFormat.Create('TcSSolSysDB.Create: Unknown file format (File: "' + aFilename  + '", Format: "' + FHeader.V + '")');
+      raise EcSDBUnknownFileFormat.Create(
+        'TcSSolSysDB.Create: Unknown file format (File: "' +
+         aFilename  + '", Format: "' + FHeader.filetype + '")');
   end;
   InitFormat;
 
@@ -253,12 +268,13 @@ begin
   Result := TSystemCopy(GetCachedItem(nr)^);
 end;
 
-function TcSSolSysDBFile.GetUni: Byte;
+function TcSSolSysDBFile.GetUni: string;
 begin
-  Result := FHeader.Uni;
+  Result := FHeader.domain;
 end;
 
 procedure TcSSolSysDBFile.InitFormat;
+var old_h_10: TcSSolSysHeader_10;
 begin
   case FFormat of
     css_22:
@@ -266,13 +282,19 @@ begin
       FItemSize := SizeOf(TcSSolSysItem_22);
       FSysToItem := Sys_to_cSSolSysItem_22;
       FItemToSys := cSSolSysItem_22_to_Sys;
+
+      // import old header
+      FHeaderSize := SizeOf(old_h_10);
+      GetHeader(old_h_10); // low level stream read
+      FHeader.domain := 'uni' + IntToStr(old_h_10.Uni);
     end;
-    {csr_36:
+    css_30:
     begin
-      FItemSize := SizeOf(TcSSolSysItem_36);
-      FScanToItem := Scan_to_cSSolSysItem_36;
-      FItemToScan := cSSolSysItem_36_to_Scan;
-    end; }  //Hier Neue Formate eintragen!
+      // FHeaderSize := SizeOf(TcSSolSysHeader_20); -> default value
+      FItemSize := SizeOf(TcSSolSysItem_22);
+      FSysToItem := Sys_to_cSSolSysItem_22;
+      FItemToSys := cSSolSysItem_22_to_Sys;
+    end; //Hier Neue Formate eintragen!
     else
       raise Exception.Create('TcSSolSysDBFile.InitFormat: Es soll eine Datei mit einem nicht definierten Format geöffnet werden!');
   end;
@@ -299,9 +321,12 @@ begin
   SetItem(nr,@SolSys);
 end;
 
-procedure TcSSolSysDBFile.SetUni(Uni: byte);
+procedure TcSSolSysDBFile.SetUni(Uni: string);
 begin
-  FHeader.Uni := Uni;
+  if FFormat < high(FFormat) then
+    raise Exception.Create('TcSSolSysDBFile.SetUni: can''t change old fileformat');
+
+  FHeader.domain := Uni;
   SetHeader(FHeader);
 end;
 
@@ -313,8 +338,8 @@ begin
 end;
 
 constructor TcSSolSysDB_for_File.Create(aFilename: string;
-  Universe: Integer);
-var Uni: Integer;
+  UniDomain: string);
+var domain: string;
 begin
   inherited Create;
   try
@@ -332,28 +357,22 @@ begin
     end;
   end;
 
-  //Wenn die datei neu angeleg wurde, ist uni = 0 (und Count = 0)!
-  if (DBFile.Universe = 0)and(DBFile.Count = 0) then
+  if (DBFile.UniDomain = new_file_ident) then
   begin
-    DBFile.Universe := Universe;
+    DBFile.UniDomain := UniDomain;
   end;
 
-  if (Universe <> -1)and(Universe <> DBFile.Universe) then
+  if (UniDomain <> DBFile.UniDomain) then
   begin
-    Uni := DBFile.Universe;
+    domain := DBFile.UniDomain;
     DBFile.Free;
     ShowMessage(Format('The DBFile(%s) belongs to an other universe(%d)' +
                        'and will be deleted now!' + #13 + #10 +
                        'If you want so save it, do this before you press OK!',
-                       [aFilename, Uni]));
+                       [aFilename, domain]));
     DeleteFile(aFilename);
     DBFile := TcSSolSysDBFile.Create(aFilename);
-  end;
-
-  //Wenn die datei neu angeleg wurde, ist uni = 0 (und Count = 0)!
-  if (DBFile.Universe = 0)and(DBFile.Count = 0) then
-  begin
-    DBFile.Universe := Universe;
+    DBFile.UniDomain := UniDomain;
   end;
 end;
 

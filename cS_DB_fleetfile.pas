@@ -7,10 +7,12 @@ uses
 
 type
   TcSFleetFileFormat =
-  (cff_none,           cff_20 );
+  (cff_none,           cff_20 , cff_30           );
 const
   cSFleetFileFormatstr: array[TcSFleetFileFormat] of shortstring =
-  ( 'error', 'cscan_fleet_2.0');
+  ( 'error', 'cscan_fleet_2.0', 'creatureScan_fleetDB_3.0');
+
+  new_file_ident = 'new_file';
 
 type
   EcSDBUnknownFileFormat = class(Exception);
@@ -19,6 +21,12 @@ type
     V: string[15];
     Uni: Cardinal;
   end;
+  TcSFleetHeader_20 = packed record
+    filetype: string[30];
+    domain: string[255];
+    dummy_buffer: string[255];
+  end;
+
 
   TcSFleetItem_20_Head_PlanetPos = packed record
     Position: packed array[0..2] of Word;
@@ -44,13 +52,13 @@ type
   TFleettocSFleetItem = procedure(const Scan: TFleetEvent; const ItemBuf: pointer);
   TcSFleetDBFile = class(TSimpleDBCachedFile)
   private
-    FHeader: TcSFleetHeader_10;
+    FHeader: TcSFleetHeader_20;
     FFormat: TcSFleetFileFormat;
     FFleetToItem: TFleettocSFleetItem;
     FItemToFleet: TcSFleetItemToFleet;
     procedure InitFormat;
-    function GetUni: Byte;
-    procedure SetUni(Uni: byte);
+    function GetUni: String;
+    procedure SetUni(Uni: String);
   protected
     function NewItemPtr: pointer; override;
     procedure DisposeItemPtr(const p: pointer); override;
@@ -60,7 +68,7 @@ type
     function GetFleet(nr: Cardinal): TFleetEvent;
     procedure SetFleet(nr: Cardinal; Fleet: TFleetEvent);
     property Fleets[nr: Cardinal]: TFleetEvent read GetFleet write SetFleet;
-    property Universe: Byte read GetUni write SetUni;
+    property UniDomain: String read GetUni write SetUni;
     constructor Create(aFilename: string);
   end;
 
@@ -72,10 +80,10 @@ type
     procedure SetFleet(nr: cardinal; Fleet: TFleetEvent); override;
     function GetCount: Integer; override;
   public
-    constructor Create(aFilename: string; Universe: Integer);
+    constructor Create(aFilename: string; UniDomain: string);
     destructor Destroy; override;
 
-    //Only for compatibility to the old Code:
+    // Only for compatibility to the old Code:
     procedure DeleteLastFleet; override;
     function IsOldFormat: Boolean;
     function AddFleet(Fleet: TFleetEvent): Integer; override;
@@ -86,28 +94,32 @@ implementation
 constructor TcSFleetDBFile.Create(aFilename: string);
 var frmt: TcSFleetFileFormat;
 begin
-  FHeaderSize := SizeOf(TcSFleetHeader_10);
+  FHeaderSize := SizeOf(TcSFleetHeader_20);
   inherited Create(aFilename,False);
 
   if (not GetHeader(FHeader)) then
   begin
+    FillChar(FHeader, sizeof(FHeader), 0);
     FFormat := high(cSFleetFileFormatstr);
-    FHeader.V := cSFleetFileFormatstr[FFormat];
-    FHeader.Uni := 0;
+    FHeader.filetype := cSFleetFileFormatstr[FFormat];
+    FHeader.domain := new_file_ident;
+    FHeader.dummy_buffer := '';
     SetHeader(FHeader);
   end
   else
   begin
     FFormat := cff_none;
     for frmt := high(frmt) downto low(frmt) do
-      if cSFleetFileFormatstr[frmt] = FHeader.V then
+      if cSFleetFileFormatstr[frmt] = FHeader.filetype then
       begin
         FFormat := frmt;
         break;
       end;
 
     if (FFormat = cff_none) then
-      raise EcSDBUnknownFileFormat.Create('TcSFleetDB.Create: Unknown file format (File: "' + aFilename  + '", Format: "' + FHeader.V + '")');
+      raise EcSDBUnknownFileFormat.Create(
+        'TcSFleetDB.Create: Unknown file format (File: "' + aFilename  +
+        '", Format: "' + FHeader.filetype + '")');
   end;
   InitFormat;
 
@@ -199,12 +211,13 @@ begin
   Result := TFleetEvent(GetCachedItem(nr)^);
 end;
 
-function TcSFleetDBFile.GetUni: Byte;
+function TcSFleetDBFile.GetUni: String;
 begin
-  Result := FHeader.Uni;
+  Result := FHeader.domain;
 end;
 
 procedure TcSFleetDBFile.InitFormat;
+var old_h_10: TcSFleetHeader_10;
 begin
   case FFormat of
     cff_20:
@@ -212,15 +225,23 @@ begin
       FItemSize := SizeOf(TcSFleetItem_20);
       FFleetToItem := Fleet_to_cSFleetItem_20;
       FItemToFleet := cSFleetItem_to_Fleet_20;
+
+      // import old header
+      FHeaderSize := SizeOf(old_h_10);
+      GetHeader(old_h_10); // low level stream read
+      FHeader.domain := 'uni' + IntToStr(old_h_10.Uni);
     end;
-    {csr_36:
+    cff_30:
     begin
-      FItemSize := SizeOf(TcSFleetItem_36);
-      FScanToItem := Scan_to_cSFleetItem_36;
-      FItemToScan := cSFleetItem_36_to_Scan;
-    end; }  //Hier Neue Formate eintragen!
+      // FHeaderSize := SizeOf(TcSFleetHeader_20); -> this is the default value
+      FItemSize := SizeOf(TcSFleetItem_20);
+      FFleetToItem := Fleet_to_cSFleetItem_20;
+      FItemToFleet := cSFleetItem_to_Fleet_20;
+    end;
     else
-      raise Exception.Create('TcSFleetDBFile.InitFormat: Es soll eine Datei mit einem nicht definierten Format geöffnet werden!');
+      raise Exception.Create(
+        'TcSFleetDBFile.InitFormat: ' +
+          'Es soll eine Datei mit einem nicht definierten Format geöffnet werden!');
   end;
 end;
 
@@ -244,9 +265,11 @@ begin
   SetItem(nr,@Fleet);
 end;
 
-procedure TcSFleetDBFile.SetUni(Uni: byte);
+procedure TcSFleetDBFile.SetUni(Uni: string);
 begin
-  FHeader.Uni := Uni;
+  if FFormat < high(FFormat) then
+    raise Exception.Create('TcSFleetDBFile.SetUni: can''t change old fileformat');
+  FHeader.domain := Uni;
   SetHeader(FHeader);
 end;
 
@@ -258,8 +281,8 @@ begin
 end;
 
 constructor TcSFleetDB_for_File.Create(aFilename: string;
-  Universe: Integer);
-var Uni: Integer;
+  UniDomain: string);
+var domain: string;
 begin
   inherited Create;
   try
@@ -272,27 +295,29 @@ begin
                          'and will be deleted now!' + #13 + #10 +
                          'If you want so save it, do this before you press OK!',
                          [aFilename]));
+                         
       DeleteFile(aFilename);
       DBFile := TcSFleetDBFile.Create(aFilename);
     end;
   end;
 
-  //Wenn die datei neu angeleg wurde, ist uni = 0 (und Count = 0)!
-  if (DBFile.Universe = 0)and(DBFile.Count = 0) then
+  if (DBFile.UniDomain = new_file_ident) then
   begin
-    DBFile.Universe := Universe;
+    DBFile.UniDomain := UniDomain;
   end;
 
-  if (Universe <> DBFile.Universe) then
+  if (UniDomain <> DBFile.UniDomain) then
   begin
-    Uni := DBFile.Universe;
+    domain := DBFile.UniDomain;
     DBFile.Free;
-    ShowMessage(Format('The DBFile(%s) belongs to an other universe(%d)' +
+    ShowMessage(Format('ATTENTION: The DBFile(%s) belongs to an other universe(%s)' +
                        'and will be deleted now!' + #13 + #10 +
                        'If you want so save it, do this before you press OK!',
-                       [aFilename, Uni]));
+                       [aFilename, domain]));
+                       
     DeleteFile(aFilename);
     DBFile.Create(aFilename);
+    DBFile.UniDomain := UniDomain;
   end;
 end;
 
