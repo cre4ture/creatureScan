@@ -15,13 +15,14 @@ uses
 type
   TcSReportFileFormat =
   (csr_none,           csr_25,           csr_36,           csr_37,
-   csr_38          );
+   csr_38          , csr_40);
 const
   cSRFFStart = 'cscan_scan_';
   cSReportFileFormatstr: array[TcSReportFileFormat] of shortstring =
   ( 'error', cSRFFStart+'2.5', cSRFFStart+'3.6', cSRFFStart+'3.7',
-   cSRFFStart+'3.8');
+   cSRFFStart+'3.8', 'creatureScan_ScanDB_4.0');
 
+   new_file_ident = 'new_file';
 {
 
 Formatversionen:
@@ -43,6 +44,9 @@ deswegen ist auch die einelseroutine kopiert und es hat sich auser der struktur 
 ***37 auf 38:***
 -Aktivitätsanzeige eigelesen!
 
+***39 auf 40***
+einfacherer DateiHeader
+
 }
 
 type
@@ -51,6 +55,11 @@ type
   TcSReportHeader_10 = record
     V: string[14];
     Uni: Byte;
+  end;
+  TcSReportHeader_20 = packed record
+    filetype: string[30];
+    domain: string[255];
+    dummy_buffer: string[255];
   end;
 
   TcSReportItem_25_36_37_Head = packed record
@@ -111,13 +120,13 @@ type
   TScantocSReportItem = procedure(const Scan: TScanBericht; const ItemBuf: pointer);
   TcSReportDBFile = class(TSimpleDBCachedFile)
   private
-    FHeader: TcSReportHeader_10;
+    FHeader: TcSReportHeader_20;
     FFormat: TcSReportFileFormat;
     FScanToItem: TScantocSReportItem;
     FItemToScan: TcSReportItemToScan;
     procedure InitFormat;
-    function GetUni: Byte;
-    procedure SetUni(Uni: byte);
+    function GetUni: string;
+    procedure SetUni(Uni: string);
   protected
     function NewItemPtr: pointer; override;
     procedure DisposeItemPtr(const p: pointer); override;
@@ -127,7 +136,7 @@ type
     function GetReport(nr: Cardinal): TScanBericht;
     procedure SetReport(nr: Cardinal; Report: TScanBericht);
     property Reports[nr: Cardinal]: TScanBericht read GetReport write SetReport;
-    property Universe: Byte read GetUni write SetUni;
+    property UniDomain: string read GetUni write SetUni;
     constructor Create(aFilename: string);
   end;
 
@@ -139,7 +148,7 @@ type
     procedure SetReport(nr: cardinal; Report: TScanBericht); override;
     function GetCount: Integer; override;
   public
-    constructor Create(aFilename: string; Universe: Integer);
+    constructor Create(aFilename: string; UniDomain: string);
     destructor Destroy; override;
     function AddReport(Report: TScanBericht): Integer; override;
 
@@ -153,28 +162,32 @@ implementation
 constructor TcSReportDBFile.Create(aFilename: string);
 var frmt: TcSReportFileFormat;
 begin
-  FHeaderSize := SizeOf(TcSReportHeader_10);
+  FHeaderSize := SizeOf(TcSReportHeader_20);
   inherited Create(aFilename,False);
 
   if (not GetHeader(FHeader)) then
   begin
+    FillChar(FHeader, SizeOf(FHeader), 0);
     FFormat := high(cSReportFileFormatstr);
-    FHeader.V := cSReportFileFormatstr[FFormat];
-    FHeader.Uni := 0;
+    FHeader.filetype := cSReportFileFormatstr[FFormat];
+    FHeader.domain := new_file_ident;
+    FHeader.dummy_buffer := '';
     SetHeader(FHeader);
   end
   else
   begin
     FFormat := csr_none;
     for frmt := high(frmt) downto low(frmt) do
-      if cSReportFileFormatstr[frmt] = FHeader.V then
+      if cSReportFileFormatstr[frmt] = FHeader.filetype then
       begin
         FFormat := frmt;
         break;
       end;
 
     if (FFormat = csr_none) then
-      raise EcSDBUnknownFileFormat.Create('TcSReportDB.Create: Unknown file format (File: "' + aFilename  + '", Format: "' + FHeader.V + '")');
+      raise EcSDBUnknownFileFormat.Create(
+        'TcSReportDB.Create: Unknown file format (File: "' +
+        aFilename  + '", Format: "' + FHeader.filetype + '")');
   end;
   InitFormat;
 
@@ -515,13 +528,25 @@ begin
   Result := TScanBericht(GetCachedItem(nr)^);
 end;
 
-function TcSReportDBFile.GetUni: Byte;
+function TcSReportDBFile.GetUni: string;
 begin
-  Result := FHeader.Uni;
+  Result := FHeader.domain;
 end;
 
 procedure TcSReportDBFile.InitFormat;
+var old_h_10: TcSReportHeader_10;
 begin
+  // import old header
+  case FFormat of
+    csr_25 .. csr_38:
+    begin
+      FHeaderSize := SizeOf(old_h_10);
+      GetHeader(old_h_10); // low level stream read
+      FHeader.domain := 'uni' + IntToStr(old_h_10.Uni);
+    end;
+  end;
+
+  // set read/write function pointer
   case FFormat of
     csr_25:
     begin
@@ -547,6 +572,14 @@ begin
       FScanToItem := Scan_to_cSReportItem_38;
       FItemToScan := cSReportItem_38_to_Scan;
     end;
+    csr_40:
+    begin
+      // FHeaderSize := SizeOf(TcSReportHeader_20); -> default value
+      FItemSize := SizeOf(TcSReportItem_38);
+      FScanToItem := Scan_to_cSReportItem_38;
+      FItemToScan := cSReportItem_38_to_Scan;
+    end;
+
     else
       raise Exception.Create('TcSReportDBFile.InitFormat: Es soll eine Datei mit einem nicht definierten Format geöffnet werden!');
   end;
@@ -573,9 +606,12 @@ begin
   SetItem(nr,@Report);
 end;
 
-procedure TcSReportDBFile.SetUni(Uni: byte);
+procedure TcSReportDBFile.SetUni(Uni: string);
 begin
-  FHeader.Uni := Uni;
+  if FFormat < high(FFormat) then
+    raise Exception.Create('TcSReportDBFile.SetUni: can''t change old fileformat');
+
+  FHeader.domain := Uni;
   SetHeader(FHeader);
 end;
 
@@ -587,8 +623,8 @@ begin
 end;
 
 constructor TcSReportDB_for_File.Create(aFilename: string;
-  Universe: Integer);
-var Uni: Integer;
+  UniDomain: string);
+var domain: string;
 begin
   inherited Create;
   try
@@ -606,28 +642,22 @@ begin
     end;
   end;
 
-  //Wenn die datei neu angeleg wurde, ist uni = 0 (und Count = 0)!
-  if (DBFile.Universe = 0)and(DBFile.Count = 0) then
+  if (DBFile.UniDomain = new_file_ident) then
   begin
-    DBFile.Universe := Universe;
+    DBFile.UniDomain := UniDomain;
   end;
 
-  if (Universe <> -1)and(Universe <> DBFile.Universe) then
+  if (UniDomain <> DBFile.UniDomain) then
   begin
-    Uni := DBFile.Universe;
+    domain := DBFile.UniDomain;
     DBFile.Free;
-    ShowMessage(Format('The DBFile(%s) belongs to an other universe(%d)' +
+    ShowMessage(Format('The DBFile(%s) belongs to an other universe(%s)' +
                        'and will be deleted now!' + #13 + #10 +
                        'If you want so save it, do this before you press OK!',
-                       [aFilename, Uni]));
+                       [aFilename, domain]));
     DeleteFile(aFilename);
     DBFile := TcSReportDBFile.Create(aFilename);
-  end;
-
-  //Wenn die datei neu angeleg wurde, ist uni = 0 (und Count = 0)!
-  if (DBFile.Universe = 0)and(DBFile.Count = 0) then
-  begin
-    DBFile.Universe := Universe;
+    DBFile.UniDomain := UniDomain;
   end;
 end;
 
