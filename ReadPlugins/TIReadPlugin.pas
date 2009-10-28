@@ -353,7 +353,9 @@ end;
 function TLangPlugIn.ReadSource_New: integer;
 begin
   if Assigned(PReadSource_New) then
-    Result := PReadSource_New();
+    Result := PReadSource_New()
+  else
+    Result := -1;
 end;
 
 function TLangPlugIn.ReadStats(handle: integer;

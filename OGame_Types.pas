@@ -265,7 +265,7 @@ type
   TTrimCharSet = set of Char;
 
 var
-  game_sites: array of String;
+  game_sites_OLD: array of String;
   xspio_idents: array[TScanGroup] of array of String;
   maxPlanetTemp: array[1..max_Planeten] of single;
   fleet_resources: array[0..fsc_1_Flotten-1] of Tresources;
@@ -279,7 +279,7 @@ var
   UpdateCheckUrl: string;
   FOGameRangeList: TCoordinatesRangeList;
 
-  // Uni6 BetaUni
+  // Uni6 BetaUni bzw. Redesign
   OGame_IsBetaUni: Boolean;
 
 
@@ -345,9 +345,9 @@ function domainTolangindex(domain: string): integer;
   var i: integer;
   begin
     Result := -1;
-    for i := 0 to length(game_sites) - 1 do
+    for i := 0 to length(game_sites_OLD) - 1 do
     begin
-      if domain = game_sites[i] then
+      if domain = game_sites_OLD[i] then
       begin
         Result := i;
         break;
@@ -458,16 +458,16 @@ begin
   begin
     s := Attributes.Value('count');
     if s <> '' then i := StrToInt(s) else i := 0;
-    SetLength(game_sites,i);
+    SetLength(game_sites_OLD,i);
   end
   else
   if TagName = 'site' then
   begin
     s := Attributes.Value('index');
     if s <> '' then i := StrToInt(s) else i := 0;
-    if (length(game_sites) <= i) then
+    if (length(game_sites_OLD) <= i) then
       ShowMessage('game sites count in Data is wrong!')
-    else game_sites[i] := Attributes.Value('name');
+    else game_sites_OLD[i] := Attributes.Value('name');
   end
   else
   if TagName = 'planets' then

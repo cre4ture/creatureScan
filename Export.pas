@@ -164,7 +164,7 @@ begin
   case ExportType of
   cSeSysScanFile:
     begin
-      SysFile := TcSSolSysDB_for_File.Create(Edit1.Text,ODataBase.UserUni);
+      SysFile := TcSSolSysDB_for_File.Create(Edit1.Text, ODataBase.UniDomain);  // TODO
       if RB_Ranges.Checked then
         ExportList(ExportPositionSys, True)
       else
@@ -251,7 +251,7 @@ begin
   case ExportType of
   cSeSysScanFile:
     begin
-      ScanFile := TcSReportDB_for_File.Create(Edit1.Text,ODataBase.UserUni);
+      ScanFile := TcSReportDB_for_File.Create(Edit1.Text, ODataBase.UniDomain); // TODO
       if RB_Ranges.Checked then
         ExportList(ExportPositionScan, False)
       else

@@ -249,7 +249,7 @@ end;
 procedure TFRM_Chat.FormShow(Sender: TObject);
 begin
   SendStatus;
-  Caption := Format(STR_ChatFenster_Caption,[ODataBase.Username,ODataBase.UserUni]);
+  Caption := Format(STR_ChatFenster_Caption,[ODataBase.Username,ODataBase.UniDomain]);
 end;
 
 procedure TFRM_Chat.immerimVordergrund1Click(Sender: TObject);

@@ -218,7 +218,7 @@ begin
   btn_time_sync.Enabled := false;
 
 
-  url := 'http://uni' + IntToStr(ODataBase.UserUni) +
+  url := 'http://' + ODataBase.UniDomain +
                           '.' + ODataBase.game_domain +
                           '/robots.txt';
 

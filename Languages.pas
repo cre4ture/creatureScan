@@ -185,7 +185,7 @@ const
   STR_Import_XML: string = ' Importiere XML-Daten... ';
 
   //ChatFenster
-  STR_ChatFenster_Caption: string = 'cS Chatfenster: %s - Uni %d';
+  STR_ChatFenster_Caption: string = 'cS Chatfenster: %s - Uni %s';
 
 procedure LanguageFile(IniFile: String);
 function SelectLanguageDialog: Boolean;
