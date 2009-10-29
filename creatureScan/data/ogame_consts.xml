@@ -10,11 +10,23 @@
       <uni name="barym"/>
       <uni name="capella"/>
       <uni name="draco"/>
-      <uni name="uni$" symbol="$" index="1" to="17" redesign="0"/>
+      <uni name="electra" gamespeedfactor="4.0" tffleetfactor="0.5"/>
+      <uni name="uni$" symbol="$" index="1" to="13" redesign="0"/>
+      <uni name="uni14" redesign="0" tfdeffactor="0.3"/>
+      <uni name="uni15" redesign="0" tfdeffactor="0.3"/>
+      <uni name="uni$" symbol="$" index="16" to="17" redesign="0"/>
       <uni name="uni18" redesign="0" galaxyCount="19"/>
-      <uni name="uni$" symbol="$" index="19" to="49" redesign="0"/>
+      <uni name="uni19" redesign="0"/>
+      <uni name="uni20" redesign="0" tfdeffactor="0.3"/>
+      <uni name="uni$" symbol="$" index="21" to="24" redesign="0"/>
+      <uni name="uni25" redesign="0" tfdeffactor="0.3"/>
+      <uni name="uni$" symbol="$" index="26" to="49" redesign="0"/>
       <uni name="uni50" redesign="0" galaxyCount="50"/>
-      <uni name="uni$" symbol="$" index="51" to="78" redesign="0"/>
+      <uni name="uni$" symbol="$" index="51" to="59" redesign="0"/>
+      <uni name="uni60" gamespeedfactor="2.0"/>
+      <uni name="uni$" symbol="$" index="61" to="69" redesign="0"/>
+      <uni name="uni70" gamespeedfactor="2.0" tffleetfactor="0.7"/>
+      <uni name="uni$" symbol="$" index="71" to="78" redesign="0"/>
     </site>
     <site index="1" name="ogame.org">
        <uni name="uni$" symbol="$" index="1" to="42" redesign="0"/>
