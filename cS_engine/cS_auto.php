@@ -7,7 +7,7 @@
     Author: Ulrich Hornung
     E-mail: hornunguli@gmx.de
     Date: 05.08.2009
-    Type: function library (please use "require_once" instead of "include")
+    Type: front end, directly link creatureScan to it
     
     Description:
     
