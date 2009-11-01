@@ -16,6 +16,7 @@
 */
 
 // function libraries
+require_once "config.php";
 require_once "cS_sql.php";
 
 // get all $_POST data as single stream
