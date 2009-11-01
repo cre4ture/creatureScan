@@ -53,7 +53,9 @@ function ibot_private_read_write_handler($root)
         if (isset($tag['children']))
         foreach ($tag['children'] as $index => $child)
         {
+          // check if functionpointer for this tag exists:
           if (isset($ibot_taghandler[$tag['name']][$child['name']]))
+            // call functionpointer:s
             $ibot_taghandler[$tag['name']][$child['name']]($child);
           else
             echo "<warning type=\"xml\">unknown tag '".$child['name']."'</warning>";
@@ -141,7 +143,7 @@ function ibot_private_read_handler_serverinfo($tag)
 
 function ibot_private_read_handler_reporttimes_gala($tag)
 {
-  // in my opinion, here it is much faster if we don't go throug "sxml-dom"
+  // in my opinion, here it is much faster if we don't go through "sxml-dom"
   // and additionally it's clearly to see what is done.
 
   if (isset($tag['attrs']['gala']))
