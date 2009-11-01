@@ -28,7 +28,11 @@ cSsql_db_login();
 // execute sql
 foreach ($data as $sql)
 {
-  mysql_unbuffered_query($sql);
+  $ret = mysql_query($sql);
+  if (!$ret)
+  {
+    echo "SQL Error: ".mysql_error()."\n";
+  }
 }
 
 // disconnect from database
