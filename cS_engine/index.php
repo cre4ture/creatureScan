@@ -1,4 +1,12 @@
-<form action="cS.php" name="f" method="get">
+<?php
+
+require_once "config.php";
+
+$formname = "cSengine_".$universe;
+
+?>
+
+<form action="cS.php" name="<?php echo $formname; ?>" method="get">
 username: <br>
 <input id="gala" name="username" value="" type="text"/><br>
 password: <br>
