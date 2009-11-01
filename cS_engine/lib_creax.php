@@ -43,7 +43,7 @@ function array_to_insertquery($table, $attrs)
     $sql2 = $sql2." '".mysql_escape_string($value)."'";
     $first = false;
   }
-  $query = "INSERT INTO `$table` ($sql1) VALUES ($sql2);";
+  $query = "INSERT INTO `".mysql_escape_string($table)."` ($sql1) VALUES ($sql2);";
   return $query;
 }
 
