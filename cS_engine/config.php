@@ -1,6 +1,6 @@
 <?php
 
-  $universe = 'ogame.de-17';
+  $universe = 'uni17.ogame.de';
 
   $pos_count[0] = 9;
   $pos_count[1] = 499;
