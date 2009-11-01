@@ -20,13 +20,16 @@ require_once "config.php";
 require_once "cS_sql.php";
 
 // get all $_POST data as single stream
-$data = file_get_contents('db_structure.sql');
+$data = explode(';', file_get_contents('db_structure.sql'));
 
 // connect to database
 cSsql_db_login();
 
 // execute sql
-mysql_unbuffered_query($data);
+foreach ($data as $sql)
+{
+  mysql_unbuffered_query($sql);
+}
 
 // disconnect from database
 cSsql_db_logout();
