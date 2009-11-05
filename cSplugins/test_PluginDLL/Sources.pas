@@ -190,7 +190,7 @@ begin
   if CB_Clipboard.Checked then
     SaveClipboardtoFile(filename,
       plugin.PluginFilename,plugin.PlugInName,
-      plugin.game_domain,plugin.Universe)
+      plugin.configGameDomain,plugin.ServerURL)
   else
     CopyFile(PAnsiChar(lastsourcefile),PAnsiChar(filename),False);
 end;

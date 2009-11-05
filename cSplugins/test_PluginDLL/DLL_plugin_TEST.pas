@@ -12,8 +12,6 @@ type
     Button1: TButton;
     Label1: TLabel;
     OpenDialog1: TOpenDialog;
-    SE_Uni: TSpinEdit;
-    Label2: TLabel;
     Label3: TLabel;
     Edit1: TEdit;
     GroupBox1: TGroupBox;
@@ -26,6 +24,7 @@ type
     GroupBox2: TGroupBox;
     Button8: TButton;
     Button9: TButton;
+    txt_serverURL: TEdit;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -135,7 +134,7 @@ function TFRM_MainTest.loadPlugin(filename: string): boolean;
 begin
   if plugin.ValidFile then
   begin
-    plugin.LoadPluginFile('',0,'');
+    plugin.LoadPluginFile('','','');
     Button1.Caption := 'load plugin';
     Label1.Caption := 'n/a';
 
@@ -143,7 +142,7 @@ begin
   end
   else
   begin
-    Result := plugin.LoadPluginFile(fileName, SE_Uni.Value, Edit1.Text);
+    Result := plugin.LoadPluginFile(fileName, txt_serverURL.Text, Edit1.Text);
     if Result then
     begin
       lastplugin := fileName;
@@ -155,7 +154,7 @@ begin
     else Label1.Caption := 'n/a';
   end;
 
-  SE_Uni.Enabled := not plugin.ValidFile;
+  txt_serverURL.Enabled := not plugin.ValidFile;
   Edit1.Enabled := not plugin.ValidFile;
 
   FRM_Sources.OnPluginRefresh();

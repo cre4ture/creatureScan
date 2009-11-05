@@ -35,7 +35,7 @@ type
 
 
 const
-  iopluginVersion = 22;
+  iopluginVersion = 23;
 
   RA_KeyWord_Count = 5;
   ST_KeyWord_Count = 2;
@@ -44,7 +44,7 @@ const
 var
   UserIniFile: String;
   UserIniFileSection: String;
-  Uni: Integer;
+  serverURL: String;
 
   SB_tsep: string;  //tousands seperator
   RA_KWords: array [0..RA_KeyWord_Count-1] of string;
@@ -135,15 +135,18 @@ begin
   ini.Free;
 end;
 
-function StartDll(const inifile: PChar; var Version: integer; const AUni: Integer;
-  AUserIniFile, AUserIniFileSection: PChar): Boolean;
+function StartDll(const inifile: PChar;
+  var Version: integer;
+  const uniDomain: PChar;
+  const AUserIniFile: PChar;
+  const AUserIniFileSection: PChar): Boolean;
 var ini: TIniFile;
     i: Integer;
     s: string;
 begin
   Version := iopluginVersion;
 
-  Uni := AUni;  
+  serverURL := uniDomain;
 
   UserIniFile := AUserIniFile;
   UserIniFileSection := AUserIniFileSection;
@@ -177,7 +180,7 @@ begin
   SysRead := ThtmlSysRead_betauni.Create(ini);
   ReportRead := TReadReport_Text.Create(ini);
   PhalanxRead := ThtmlPhalanxRead_betauni.Create(ini, ReportRead);
-  UniCheck := TUniCheck.Create(ini, Uni);
+  UniCheck := TUniCheck.Create(ini, serverURL);
 
   for i := 1 to RA_KeyWord_Count do
   begin
