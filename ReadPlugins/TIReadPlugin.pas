@@ -6,13 +6,16 @@ uses
   Classes, OGame_Types, Windows, SysUtils, IniFiles, Dialogs, Languages;
 
 const
-  DLLVNumber = 22;
+  DLLVNumber = 23;
 
 type
   // ------------------------ DLL Interface ------------------------------------
 
-  TStartDllFunction = function(const inifile: PChar; var Version: integer; const AUni: Integer;
-    AUserIniFile, AUserIniFileSection: PChar): Boolean;
+  TStartDllFunction = function(const inifile: PChar;
+    var Version: integer;
+    const uniDomain: PChar;
+    const AUserIniFile: PChar;
+    const AUserIniFileSection: PChar): Boolean;
   TEndDllFunction = function: boolean;
   TScanToStrFunction = function(SB: Pointer; AsTable: Boolean): THandle;
   TRunOptions = procedure();
@@ -80,8 +83,8 @@ type
     procedure FillFakeElements;
   public
     PluginFilename: String;
-    game_domain: string;
-    Universe: integer;
+    configGameDomain: string;
+    ServerURL: String;
     PlugInName: String;
     ValidFile: Boolean;
     SBItems: array[TScanGroup] of TStringList;
@@ -92,7 +95,8 @@ type
       out moon_unknown: Boolean): Boolean;
     function ReadReports(handle: integer): Integer;
     constructor Create;
-    function LoadPluginFile(IniFile: String; AUni: Integer; ASaveInf: String): boolean;
+    function LoadPluginFile(const IniFile: String;
+      const ServerURL: String; const ASaveInf: String): boolean;
     function ScanToStr(SB: TScanBericht; AsTable: Boolean): String;
     function ReadSystem(handle: integer; var Sys: TSystemCopy): Boolean;
     destructor Destroy; override;
@@ -173,7 +177,8 @@ begin
   DllLoaded := False;
   DllHandle := 0;
 
-  Universe := 0;
+  configGameDomain := '--n/a--';
+  ServerURL := '--n/a--';
   SaveInf := '';
 
   FillFakeElements;  //Leere Namen laden!
@@ -222,7 +227,8 @@ begin
   ini.free;
 end;
 
-function TLangPlugIn.LoadPluginFile(IniFile: String; AUni: Integer; ASaveInf: String): boolean;
+function TLangPlugIn.LoadPluginFile(const IniFile: String;
+  const ServerURL: String; const ASaveInf: String): boolean;
 const
   section = 'ioplugin';
 var ini: TIniFile;
@@ -230,20 +236,20 @@ begin
   if DllLoaded then
     CloseDll;
 
-  Universe := AUni;
+  self.ServerURL := ServerURL;
   SaveInf := ASaveInf;
   Result := FileExists(IniFile);
   if Result then
   begin
     ini := TIniFile.Create(IniFile);
-    game_domain := ini.ReadString(section,'game_domain','--n/a--');
+    configGameDomain := ini.ReadString(section,'game_domain','--n/a--');
     PluginFilename := IniFile;
     dllfile := ini.ReadString(section,'dllfile','');
     dllconfig := ini.ReadString(section,'configfile','');
     SBItemfile := ini.ReadString(section,'elements','');
     PlugInName := ini.ReadString(section,'name','');
     ChDir(ExtractFilePath(IniFile));
-    Result := (game_domain <> '--n/a--')
+    Result := (configGameDomain <> '--n/a--')
               and FileExists(dllconfig)
               and FileExists(dllfile)
               and (PlugInName <> '')
@@ -270,7 +276,8 @@ begin
   begin
     AssignProcedures;
     if not(Assigned(PStartDll)and
-       PStartDll(PChar(dllconfig),V,Universe,PChar(SaveInf),PChar(PlugInName))) then
+       PStartDll(PChar(dllconfig),V,PChar(ServerURL),
+                 PChar(SaveInf),PChar(PlugInName))) then
     begin
       //Irgend ein Fehler
       FreeLibrary(DllHandle);
