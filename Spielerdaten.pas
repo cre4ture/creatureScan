@@ -202,7 +202,7 @@ begin
         else RB_GalaCount9.Checked := true;
       end;
       txt_speedfaktor.Text := FloatToStr(universe.gameSpeedFactor);
-      cb_TF_calc.Text := IntToStr(trunc(universe.tfFleetFactor*100));
+      cb_TF_calc.Text := IntToStr(round(universe.tfFleetFactor*100));
       CH_DefInTF.Checked := (universe.tfDefFactor > 0);
       cb_redesign.Checked := universe.redesign_rules;
     end;
