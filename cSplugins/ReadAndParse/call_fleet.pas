@@ -8,7 +8,7 @@ uses
 type
   TUniCheck = class
   private
-    Uni: integer;
+    //Uni: integer;
     UniServer: String;
     CheckUniKeyword: String;
 
@@ -24,27 +24,26 @@ type
     function getFleetLink(pos: TPlanetPosition; job: TFleetEventType): string;
   public
     property session_id: string read fsession_id write fsession_id;
-    constructor Create(ini: TIniFile; aUni: integer);
+    constructor Create(ini: TIniFile; serverURL: String);
     function _CheckUni_HTML(html: string): Boolean;
     function CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
   end;
 
 implementation
 
-constructor TUniCheck.Create(ini: TIniFile; aUni: integer);
+constructor TUniCheck.Create(ini: TIniFile; serverURL: String);
 var job: TFleetEventType;
 begin
   inherited Create();
+  
+  //UniServer := ini.ReadString('UniServer','Uni'+IntToStr(Uni),'-');
+  UniServer := 'http://' + serverURL;
 
-  Uni := aUni;
-
-  UniServer := ini.ReadString('UniServer','Uni'+IntToStr(Uni),'-');
-
-  if UniServer = '-' then
+  {if UniServer = '-' then
   begin
     UniServer := ini.ReadString('UniCheck','Urlformat','-n/a-');
     UniServer := Format(UniServer,[Uni]);
-  end;
+  end;    }
   //ShowMessage(UniServer);
 
   CallFleetLinkTemplate := ini.ReadString('UniCheck','callfleet','');

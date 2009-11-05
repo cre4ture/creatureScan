@@ -2,7 +2,7 @@ object FRM_MainTest: TFRM_MainTest
   Left = 451
   Top = 206
   Caption = 'DLL_plugin_TEST'
-  ClientHeight = 170
+  ClientHeight = 200
   ClientWidth = 485
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,17 +18,10 @@ object FRM_MainTest: TFRM_MainTest
   TextHeight = 13
   object Label1: TLabel
     Left = 8
-    Top = 40
+    Top = 73
     Width = 32
     Height = 13
     Caption = 'Label1'
-  end
-  object Label2: TLabel
-    Left = 120
-    Top = 16
-    Width = 19
-    Height = 13
-    Caption = 'Uni:'
   end
   object Label3: TLabel
     Left = 208
@@ -46,31 +39,21 @@ object FRM_MainTest: TFRM_MainTest
     TabOrder = 0
     OnClick = Button1Click
   end
-  object SE_Uni: TSpinEdit
-    Left = 144
-    Top = 12
-    Width = 57
-    Height = 22
-    MaxValue = 0
-    MinValue = 0
-    TabOrder = 1
-    Value = 17
-  end
   object Edit1: TEdit
     Left = 256
     Top = 12
     Width = 137
     Height = 21
-    TabOrder = 2
+    TabOrder = 1
     Text = 'C:\SaveInf.inf'
   end
   object GroupBox1: TGroupBox
-    Left = 4
-    Top = 60
+    Left = 8
+    Top = 92
     Width = 477
     Height = 49
     Caption = 'PluginTests'
-    TabOrder = 3
+    TabOrder = 2
     object Button2: TButton
       Left = 8
       Top = 16
@@ -123,16 +106,16 @@ object FRM_MainTest: TFRM_MainTest
     Width = 77
     Height = 21
     Caption = 'PluginOptions'
-    TabOrder = 4
+    TabOrder = 3
     OnClick = Button5Click
   end
   object GroupBox2: TGroupBox
-    Left = 4
-    Top = 112
+    Left = 8
+    Top = 144
     Width = 477
     Height = 49
     Caption = 'GroupBox2'
-    TabOrder = 5
+    TabOrder = 4
     object Button8: TButton
       Left = 8
       Top = 16
@@ -152,8 +135,15 @@ object FRM_MainTest: TFRM_MainTest
       OnClick = Button9Click
     end
   end
+  object txt_serverURL: TEdit
+    Left = 8
+    Top = 39
+    Width = 469
+    Height = 21
+    TabOrder = 5
+    Text = 'electra.ogame.de'
+  end
   object OpenDialog1: TOpenDialog
-    Left = 88
-    Top = 8
+    Left = 8
   end
 end

@@ -122,7 +122,7 @@ begin
   if FileExists(filename) then
    mode := fmOpenReadWrite
   else mode := fmCreate;
-  SysTestFile := TcSSolSysDB_for_File.Create(filename,FRM_MainTest.SE_Uni.Value);
+  SysTestFile := TcSSolSysDB_for_File.Create(filename,FRM_MainTest.txt_serverURL.Text);
 
   VST_Tests.RootNodeCount := SysTestFile.SysCount;
 end;
