@@ -871,22 +871,26 @@ end;
 
 function TOgameDataBase.SelectPlugIn(ForceDialog: boolean): Boolean;
 var dialog: TFRM_SelectPlugin;
+    serverURL: string;
 begin
+  serverURL := UniDomain + '.' + game_domain;
   chdir(ExtractFilePath(Application.ExeName));
-  LanguagePlugIn.LoadPluginFile(LanguagePlugIn.PluginFilename, -1, PlayerInf); // TODO
+  LanguagePlugIn.LoadPluginFile(LanguagePlugIn.PluginFilename,
+      serverURL, PlayerInf);
   Result :=  (not ForceDialog) and
              LanguagePlugIn.ValidFile and
-             (game_domain = LanguagePlugIn.game_domain);
+             (game_domain = LanguagePlugIn.configGameDomain);
   if not Result then
   begin
     dialog := TFRM_SelectPlugin.Create(Application,game_domain);
     dialog.PluginFile := LanguagePlugIn.PluginFilename;
     if dialog.ShowModal = IDOK then
     begin
-      LanguagePlugIn.LoadPluginFile(dialog.PluginFile, -1, PlayerInf); // TODO
-      if not LanguagePlugIn.ValidFile then ShowMessage('Die Plugindatei ist fehlerhaft!');
+      LanguagePlugIn.LoadPluginFile(dialog.PluginFile, serverURL, PlayerInf);
+      if not LanguagePlugIn.ValidFile then
+          ShowMessage('Die Plugindatei ist fehlerhaft!');
       Result := LanguagePlugIn.ValidFile and
-                (game_domain = LanguagePlugIn.game_domain);
+                (game_domain = LanguagePlugIn.configGameDomain);
     end;
     dialog.free;
   end;
