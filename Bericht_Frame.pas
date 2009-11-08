@@ -785,8 +785,13 @@ begin
          CountdownTimeToStr((raid.head.arrival_time_u - ODataBase.FleetBoard.GameTime.UnixTime)/60/60/24)
          + STR_ByPlayer + Raid.head.player
     else LBL_Raid_Info.Caption := '';
-    if RC24 > 0 then LBL_Raid24_Info.Caption := STR_Last24Hours + IntToStr(RC24)
-    else begin
+    if RC24 > 0 then
+    begin
+      LBL_Raid24_Info.Caption := STR_Last24Hours + IntToStr(RC24);
+      LBL_Raid24_Info.Left := BTN_Last24.Left - LBL_Raid24_Info.Width;
+    end
+    else
+    begin
       BTN_Last24.Visible := False;
       LBL_Raid24_Info.Caption := '';
     end;
