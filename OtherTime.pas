@@ -53,7 +53,8 @@ end;
 
 function TCustomTime.GetUnixTime: Int64;
 begin
-  Result := DateTimeToUnix(GetTime);
+  // force to round to the lower number
+  Result := DateTimeToUnix(GetTime - 0.5/24/60/60);
 end;
 
 end.
