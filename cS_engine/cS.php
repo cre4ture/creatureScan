@@ -193,7 +193,7 @@ a { text-decoration: none; }
         echo '<td width="5" onMouseOver="SetPosition('.$y.','.$x.')"';
 	      if (isset($uni[$y][$x]))
 	      {
-	        echo ' bgcolor="'.timetocolor($uni[$y][$x]['time']).'" onClick="ClickSubmit();"';
+	        echo ' bgcolor="'.timetocolor($uni[$y][$x]).'" onClick="ClickSubmit();"';
 	      } else ;// echo ' bgcolor="#FFFFFF">';
 				echo "></td>\r"; 
       }
