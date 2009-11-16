@@ -59,6 +59,7 @@ type
     dt_forschungsdate: TDateTime;
     fshowplanetinfo: Boolean;
     fplanetInfo: TSystemPlanet;
+    save_group: TScanGroup;
     function Time_To_AgeStr(time: TDateTime): string;
     function getEnergyField: THTMLElement;
     procedure _DrawXMLText(tag: THTMLElement; left, top: integer);
@@ -79,7 +80,6 @@ type
     procedure _DrawNormal_Group(sg: TScangroup;
       header, show_zero_items: boolean; cols: integer; var y: integer; rowheight: integer;
       ya: integer; scan: TScanBericht; text_color: TColor);
-    procedure SetBericht(aBericht: TScanBericht);
     function GetBericht: TScanBericht;
     procedure Set_calc_resources(ab: Boolean);
     procedure ResetValues;
@@ -108,9 +108,10 @@ type
     cl_not_available_text_color: TColor;
     property show_storage: Boolean read GetShowStorage write SetShowStorage;
     property calc_resources: Boolean read f_calc_resources write Set_calc_resources;
-    property Bericht: TScanBericht read GetBericht write SetBericht;
+    property Bericht: TScanBericht read GetBericht;
     property Style: integer read FStyle write SetStyle;
     property ShowProduction: Boolean read GetShowProduction Write SetShowProduction;
+    procedure SetBericht(aBericht: TScanBericht; save_groups: TScanGroup = sg_Forschung);
     procedure ShowPlanetInfo(Pos: TPlanetPosition; info: TSystemPlanet);
     procedure Report_Refresh;
     constructor Create(AOwner: TComponent); override;
@@ -356,10 +357,12 @@ begin
    for i := 0 to ScanFileCounts[part]-1 do
    begin
      //Setze farbe
-     if Bericht.Bericht[Part][i] = 0 then
+     if (Bericht.Bericht[Part][i] = 0) and
+        (Part <= save_group) then
        Font.Color := cl_disabled_text_color
      else
-     if Bericht.Bericht[Part][i] < 0 then
+     if (Bericht.Bericht[Part][i] < 0) or
+        (Part > save_group) then
        Font.Color := cl_not_available_text_color
      else
        Font.Color := textfarbe;
@@ -379,10 +382,12 @@ procedure TFrame_Bericht._DrawItem_(Left,Top,Right: integer; scan: TScanBericht;
   grp: TScanGroup; item: integer; text_color: TColor);
 var s: string;
 begin
-  if scan.Bericht[grp][item] = 0 then
+  if (scan.Bericht[grp][item] = 0) and
+     (grp <= save_group) then
     PB_B.Canvas.Font.Color := cl_disabled_text_color
   else
-  if scan.Bericht[grp][item] < 0 then
+  if (scan.Bericht[grp][item] < 0) or
+     (grp > save_group) then
     PB_B.Canvas.Font.Color := cl_not_available_text_color
   else
     PB_B.Canvas.Font.Color := text_color;
@@ -631,6 +636,7 @@ begin
     _DrawPart_(2*xthird,3*xthird,line,Zeile,ya,sg_Gebaeude, cl_text_color);
     x := 0;
 
+    //Forschung:
     line := max_line;
     _DrawNormal_Group(sg_Forschung,true,true,3,line,Zeile,ya,Bericht,clWhite);
 
@@ -981,8 +987,8 @@ begin
           s := FloatToStrF(scan.Bericht[sg][j],ffNumber,60000000,0);
         TextOut(x*colwidth-5 + (colwidth-TextWidth(s)),y*rowheight+ya,s);  }
 
-        _DrawItem_(x*colwidth+5,y*rowheight+ya,x*colwidth+colwidth-5,scan,
-                   sg,j,text_color);
+         _DrawItem_(x*colwidth+5,y*rowheight+ya,x*colwidth+colwidth-5,scan,
+                     sg,j,text_color);
       end;
 
       //Neue Zeile, wenn Zeilenende erreicht:
@@ -1002,8 +1008,10 @@ begin
   end;
 end;
 
-procedure TFrame_Bericht.SetBericht(aBericht: TScanBericht);
+procedure TFrame_Bericht.SetBericht(aBericht: TScanBericht;
+  save_groups: TScanGroup = sg_Forschung);
 begin
+  self.save_group := save_groups;
   fshowplanetinfo := false;
   ResetValues;
   Bericht_orig := aBericht;

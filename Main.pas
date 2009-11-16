@@ -242,7 +242,7 @@ type
     topmost: boolean;
     procedure call_fleet_link(pos: TPlanetPosition; job: TFleetEventType);
     procedure SearchList(nr: integer; pos: TPlanetPosition);
-    procedure PaintScan(scan: TScanBericht);
+    procedure PaintScan(scan: TScanBericht; save: TScanGroup = sg_Forschung);
     procedure Wellenangriff(Scan: TScanbericht);
     procedure LoadOptions;
     procedure SaveOptions;
@@ -344,7 +344,8 @@ begin
 end;
 
 procedure TFRM_Main.ShowScan(Pos: TPlanetPosition);
-var scan: TScanBericht;
+var scan_gen: TScanBericht;
+    save: TScanGroup;
     info: TSystemPlanet;
     snr: Integer;
 begin
@@ -354,11 +355,11 @@ begin
   Application.Title := 'cS [' + PositionToStrMond(Pos) + ']';
 
   // Zeigt Generic Scan:
-  scan := ODataBase.UniTree.genericReport(Pos);
-  if scan.Head.Time_u >= 0 then
+  save := ODataBase.UniTree.genericReport(Pos, scan_gen);
+  if scan_gen.Head.Time_u >= 0 then
   begin
     // Suche Liste
-    SearchList(-1,scan.Head.Position);
+    SearchList(-1,scan_gen.Head.Position);
   end
   else
   begin
@@ -403,16 +404,23 @@ procedure TFRM_Main.lst_othersSelectItem(Sender: TObject; Item: TListItem;
   Selected: Boolean);
 var Scan: TScanBericht;
     nr: integer;
+    save: TScanGroup;
 begin
   if Selected then
   begin
     nr := StrToInt(item.SubItems[0]);
     if nr >= 0 then
-      Scan := ODataBase.Berichte[nr]
+    begin
+      Scan := ODataBase.Berichte[nr];
+      save := sg_Forschung;
+    end
     else
-      Scan := ODataBase.UniTree.genericReport(Frame_Bericht1.Bericht.Head.Position);
+    begin
+      save := ODataBase.UniTree.genericReport(Frame_Bericht1.Bericht.Head.Position,
+                                              Scan);
+    end;
        
-    PaintScan(Scan);
+    PaintScan(Scan, Save);
   end;
 end;
 
@@ -526,7 +534,7 @@ begin
     end;
     list.Sort;
     for i := list.Count-1 downto 0 do //rückwärts, weil, wenn du einen niederen index löscht, es sein kann, das die höheren nichtmehr stimmen, wohl aber die drunnter!
-      ODataBase.UniTree.DeleteReport(strtoint(list[i]));
+      ODataBase.UniTree.DeleteReport(StrToIntDef(list[i], -1));
 
     list.Free;
     lst_others.Items.Clear;
@@ -583,7 +591,7 @@ begin
   lst_others.Items.BeginUpdate;
   posscan := Frame_Bericht1.Bericht;
   posscan.Head.Position := pos;
-  Frame_Bericht1.Bericht := posscan;
+  Frame_Bericht1.SetBericht(posscan);
 
   try
     lst_others.Items.Clear;
@@ -774,7 +782,6 @@ begin
   form.CH_AutoDelete.Checked := ODataBase.DeleteScansWhenAddSys;
   form.ch_startupServer.Checked := soStartupServer in Einstellungen;
   form.TXT_ServerStartPort.Text := IntToStr(PlayerOptions.ServerPort);
-  form.CH_change_sys.Checked := DockExplorer.folgeeingelesenenSystemen1.Checked;
   form.cb_askmoon.Checked := PlayerOptions.AskMoon_enabled;
 
   form.TXT_SS.Text := LBL_WF_0_2.Caption;
@@ -855,7 +862,6 @@ begin
     if form.CH_Beep.Checked then include(Einstellungen,soBeepByWatchClipboard);
     PlayerOptions.Beep_SoundFile := form.txt_beep_sound_file.Text;
     if form.CH_Unicheck.Checked then Include(Einstellungen,soUniCheck);
-    DockExplorer.folgeeingelesenenSystemen1.Checked := form.CH_change_sys.Checked;
     ODataBase.DeleteScansWhenAddSys := form.CH_AutoDelete.Checked;
     PlayerOptions.AskMoon_enabled := form.cb_askmoon.Checked;
     if form.ch_startupServer.Checked then Include(Einstellungen,soStartupServer);
@@ -988,10 +994,10 @@ begin
   LBL_WF_3.Width := P_WF.ClientWidth - LBL_WF_3.Left-2;
 end;
 
-procedure TFRM_Main.PaintScan(scan: TScanBericht);
+procedure TFRM_Main.PaintScan(scan: TScanBericht; save: TScanGroup = sg_Forschung);
 var gpi: TPlayerInformation;
 begin
-  Frame_Bericht1.Bericht := NewScanBericht(Scan);
+  Frame_Bericht1.SetBericht(NewScanBericht(Scan), save);
 
   p_startscreen.Visible := False;
   if P_Scan.Visible = false then
@@ -1075,12 +1081,15 @@ end;
 procedure TFRM_Main.ShowSmallScan(P: TPlanetPosition);
 var i: integer;
     gpi: TPlayerInformation;
+    gen_report: TScanBericht;
+    save: TScanGroup;
 begin
   i := ODataBase.UniTree.UniReport(P);
   if (i >= 0) then
   begin
     P_ExplorerDockResize(self);
-    Frame_Bericht2.Bericht := ODataBase.UniTree.genericReport(P);
+    save := ODataBase.UniTree.genericReport(P, gen_report);
+    Frame_Bericht2.SetBericht(gen_report, save);
     with Frame_Bericht2.Bericht do
       if (Bericht[sg_Forschung][0] = -1) then
       begin

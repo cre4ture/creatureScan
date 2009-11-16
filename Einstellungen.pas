@@ -116,7 +116,6 @@ type
     GroupBox2: TGroupBox;
     CH_Clipboard: TCheckBox;
     CH_Beep: TCheckBox;
-    CH_change_sys: TCheckBox;
     CH_Unicheck: TCheckBox;
     txt_beep_sound_file: TEdit;
     Label10: TLabel;
