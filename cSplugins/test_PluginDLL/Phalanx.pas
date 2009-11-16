@@ -116,7 +116,7 @@ begin
     scan.Head.Spieler := head.player;
 
   end;
-  Frame_Bericht1.Bericht := scan;
+  Frame_Bericht1.SetBericht(scan);
 end;
 
 procedure TFRM_Phalanx.FormCreate(Sender: TObject);

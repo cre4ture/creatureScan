@@ -114,7 +114,7 @@ end;
 
 procedure TFRM_Scan.ListBox1Click(Sender: TObject);
 begin
-  Frame_Bericht1.Bericht := Scans[ListBox1.ItemIndex];
+  Frame_Bericht1.SetBericht(Scans[ListBox1.ItemIndex]);
   Frame_Bericht1.Refresh;
 end;
 
@@ -195,7 +195,7 @@ end;
 
 procedure TFRM_Scan.SpinEdit1Change(Sender: TObject);
 begin
-  Frame_Bericht1.Bericht := db.Reports[SpinEdit1.Value];
+  Frame_Bericht1.SetBericht(db.Reports[SpinEdit1.Value]);
   Frame_Bericht1.Refresh;
 end;
 
@@ -203,11 +203,11 @@ function TFRM_Scan.TestVSTNode(node: PVirtualNode): Boolean;
 var st: TScanTest;
 begin
   st := TScanTest(VST_tests.GetNodeData(node)^);
-  Frame_Bericht2.Bericht := st.Scan;
+  Frame_Bericht2.setBericht(st.Scan);
 
   Result := CheckTestScan(st);
   if length(scans) > 0 then
-    Frame_Bericht1.Bericht := Scans[0];
+    Frame_Bericht1.setBericht(Scans[0]);
   if not Result then
   begin
     Beep;
@@ -269,7 +269,7 @@ var i: integer;
 begin
   for i := 0 to db.Count-1 do
   begin
-    Frame_Bericht1.Bericht := db.Reports[i];
+    Frame_Bericht1.setBericht(db.Reports[i]);
   end;
 end;
 
