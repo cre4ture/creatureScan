@@ -17,7 +17,10 @@ uses
   ReadSolsysStats_fullhtml_betauni in '..\ReadAndParse\ReadSolsysStats_fullhtml_betauni.pas',
   readsource in '..\readsource.pas',
   call_fleet in '..\ReadAndParse\call_fleet.pas',
-  readsource_cs in '..\readsource_cs.pas';
+  readsource_cs in '..\readsource_cs.pas',
+  Languages in '..\..\Languages.pas',
+  SelectLanguage in '..\..\SelectLanguage.pas' {FRM_SelectLanguage},
+  CoordinatesRanges in '..\..\CoordinatesRanges.pas';
 
 type
   TScanReadOptions = record

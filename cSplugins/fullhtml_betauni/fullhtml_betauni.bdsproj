@@ -124,7 +124,7 @@
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
 			<Directories Name="SearchPath">D:\devel\lib\xmlparser;D:\devel\creatureScan;D:\devel\lib\uli\htmllib;D:\devel\lib\TRegExpr\Source</Directories>
-			<Directories Name="Packages"></Directories>
+			<Directories Name="Packages">vcl;rtl;vclx;dbrtl;vcldb;adortl;dbxcds;dbexpress;vclib;ibxpress;xmlrtl;vclactnband;inet;IntrawebDB_80_100;Intraweb_80_100;vclie;inetdbbde;inetdbxpress;IndyCore;IndySystem;dclOfficeXP;VclSmp;soaprtl;dsnap;IndyProtocols;bdertl;teeui;teedb;tee;vcldbx;dsnapcon;websnap;webdsnap;VirtualTreesD10;SplitSocketPackage;XmlComponents_D6_D7;TAudio</Directories>
 			<Directories Name="Conditionals">delphi</Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
 			<Directories Name="UsePackages">False</Directories>
