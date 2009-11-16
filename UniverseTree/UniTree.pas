@@ -76,7 +76,8 @@ type
     Player: TPlayerDB;
     OnSolSysChanged: TUniTreeEvPos;
     OnReportChanged: TUniTreeEvPos;
-    function genericReport(pos: TPlanetPosition): TScanBericht;
+    function genericReport(const pos: TPlanetPosition;
+      out report_out: TScanBericht): TScanGroup;
     constructor Create(GalaxyCount, SolSysCount, PlanetCount: Integer;
       aSolSysDB: TcSSolSysDB; aReportDB: TcSReportDB);
     function ValidPosition(Pos: TPlanetPosition): Boolean; overload;
@@ -395,29 +396,39 @@ begin
 end;
 
 
-function TUniverseTree.genericReport(pos: TPlanetPosition): TScanBericht;
+function TUniverseTree.genericReport(const pos: TPlanetPosition;
+  out report_out: TScanBericht): TScanGroup;
 var sl: TReportTimeList;
     sl_i, i: integer;
     sg: TScanGroup;
     scan: TScanBericht;
 begin
+  Result := sg_Rohstoffe;
   for sg := low(sg) to high(sg) do
   begin
-    SetLength(Result.Bericht[sg], ScanFileCounts[sg]);
+    SetLength(report_out.Bericht[sg], ScanFileCounts[sg]);
     for i := 0 to ScanFileCounts[sg]-1 do
     begin
-      Result.Bericht[sg][i] := -1;
+      report_out.Bericht[sg][i] := -1;
     end;
   end;
-  FillChar(Result.Head, sizeof(Result.Head), 0);
-  Result.Head.Position := pos;
-  Result.Head.Time_u := -1;
+  FillChar(report_out.Head, sizeof(report_out.Head), 0);
+  report_out.Head.Position := pos;
+  report_out.Head.Time_u := -1;
 
   sl := GetPlanetReportList(pos);
 
-  // Head des neusten scans copieren
+  // Head des neusten scans kopieren
   if length(sl) > 0 then
-    Result.Head := ReportDB[sl[0].ID].Head;
+  begin
+    scan := ReportDB[sl[0].ID];
+    report_out.Head := scan.head;
+    for sg := low(sg) to high(sg) do
+      if scan.Bericht[sg][0] <> -1 then
+      begin
+        Result := sg;
+      end;
+  end;
 
   for sl_i := 0 to length(sl) - 1 do
   begin
@@ -425,12 +436,12 @@ begin
     for sg := low(sg) to sg_Gebaeude do  // nur bis Gebäude, da Forschung auch von anderen
                                          // Planeten kommen kann
     begin
-      if (Result.Bericht[sg][0] = -1)and
+      if (report_out.Bericht[sg][0] = -1)and
          (scan.Bericht[sg][0] <> -1) then
       begin
         for i := 0 to ScanFileCounts[sg] - 1 do
         begin
-          Result.Bericht[sg][i] := scan.Bericht[sg][i];
+          report_out.Bericht[sg][i] := scan.Bericht[sg][i];
         end;
       end;
     end;
