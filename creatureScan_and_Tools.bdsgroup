@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<PersonalityInfo>
+		<Option>
+			<Option Name="Personality">Default.Personality</Option>
+			<Option Name="ProjectType"></Option>
+			<Option Name="Version">1.0</Option>
+			<Option Name="GUID">{8798F995-77CE-46D6-A417-9FE104B5F125}</Option>
+		</Option>
+	</PersonalityInfo>
+	<Default.Personality>  <Projects>
+      <Projects Name="creatureScan.exe">creatureScan.bdsproj</Projects>
+      <Projects Name="test.exe">_cSplugins\test_PluginDLL\test.bdsproj</Projects>
+      <Projects Name="fullhtml_betauni.dll">_cSplugins\fullhtml_betauni\fullhtml_betauni.bdsproj</Projects>
+      <Projects Name="fullhtml.dll">_cSplugins\fullhtml\fullhtml.bdsproj</Projects>
+      <Projects Name="Targets">creatureScan.exe test.exe fullhtml_betauni.dll fullhtml.dll</Projects>
+    </Projects>
+    <Dependencies/>
+  </Default.Personality>
+</BorlandProject>
