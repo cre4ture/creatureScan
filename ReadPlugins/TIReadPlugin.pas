@@ -8,6 +8,8 @@ uses
 const
   DLLVNumber = 23;
 
+// RELEASE 1.8d 16.11.2009
+
 type
   // ------------------------ DLL Interface ------------------------------------
 
