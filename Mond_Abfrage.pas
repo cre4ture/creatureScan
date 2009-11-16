@@ -38,7 +38,7 @@ begin
   clientHeight := Frame_Bericht1.Top + Frame_Bericht1.Height + Frame_Bericht1.Left;
   Frame_Bericht1.Visible := true;
   Button3.Enabled := false;
-  Frame_Bericht1.Bericht := NewScanBericht(Bericht);
+  Frame_Bericht1.SetBericht(NewScanBericht(Bericht));
   Frame_Bericht1.Report_Refresh;
 end;
 

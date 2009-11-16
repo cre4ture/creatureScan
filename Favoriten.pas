@@ -897,7 +897,7 @@ begin
         ScanGrpCount := GetScanGrpCount(report);
 
         // UHO: 17.04.09 jetzt verwenden wir den generic Scan
-        report := ODataBase.UniTree.genericReport(Position);
+        ODataBase.UniTree.genericReport(Position, report);
 
         ScanTime := UnixToDateTime(report.Head.Time_u);
         Fleet := FleetPoints(report);

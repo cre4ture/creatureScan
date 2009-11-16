@@ -26,10 +26,6 @@ object FRM_KB_List: TFRM_KB_List
     OnChange = PageControl1Change
     object TS_KB_laufend: TTabSheet
       Caption = 'aktuell'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object VST_RAID: TVirtualStringTree
         Left = 0
         Top = 0
@@ -112,10 +108,6 @@ object FRM_KB_List: TFRM_KB_List
     object TS_KB_fertig: TTabSheet
       Caption = 'History'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object VST_HISTORY: TVirtualStringTree
         Left = 0
         Top = 0
@@ -183,7 +175,7 @@ object FRM_KB_List: TFRM_KB_List
           end
           item
             Position = 5
-            Width = 128
+            Width = 124
             WideText = 'Auftrag'
           end>
       end
@@ -626,6 +618,7 @@ object FRM_KB_List: TFRM_KB_List
       000000000000}
   end
   object tim_time_sync_auto: TTimer
+    Enabled = False
     OnTimer = tim_time_sync_autoTimer
     Left = 480
     Top = 168

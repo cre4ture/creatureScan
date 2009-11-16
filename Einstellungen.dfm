@@ -27,7 +27,7 @@ object FRM_Einstellungen: TFRM_Einstellungen
     Top = 0
     Width = 531
     Height = 200
-    ActivePage = TS_generell
+    ActivePage = TabSheet1
     Anchors = [akLeft, akTop, akRight, akBottom]
     MultiLine = True
     ParentShowHint = False
@@ -256,17 +256,9 @@ object FRM_Einstellungen: TFRM_Einstellungen
           Caption = 'Spiele Sound ab wenn Scan/System/Stats erkannt wurde(n)'
           TabOrder = 1
         end
-        object CH_change_sys: TCheckBox
-          Left = 8
-          Top = 36
-          Width = 317
-          Height = 17
-          Caption = 'wechsle nach dem Einlesen eines Sonnensystems zu diesem'
-          TabOrder = 2
-        end
         object CH_Unicheck: TCheckBox
           Left = 8
-          Top = 52
+          Top = 38
           Width = 317
           Height = 17
           Hint = 
@@ -275,14 +267,14 @@ object FRM_Einstellungen: TFRM_Einstellungen
           Caption = 'Uni-Check (ob die Daten aus dem richtigen Uni sind)'
           ParentShowHint = False
           ShowHint = True
-          TabOrder = 3
+          TabOrder = 2
         end
         object txt_beep_sound_file: TEdit
           Left = 64
           Top = 96
           Width = 189
           Height = 21
-          TabOrder = 4
+          TabOrder = 3
           Text = 'beep'
         end
         object Button8: TButton
@@ -291,7 +283,7 @@ object FRM_Einstellungen: TFRM_Einstellungen
           Width = 21
           Height = 21
           Caption = '...'
-          TabOrder = 5
+          TabOrder = 4
           OnClick = Button8Click
         end
         object Button9: TButton
@@ -300,7 +292,7 @@ object FRM_Einstellungen: TFRM_Einstellungen
           Width = 29
           Height = 21
           Caption = 'play'
-          TabOrder = 6
+          TabOrder = 5
           OnClick = Button9Click
         end
       end

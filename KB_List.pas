@@ -110,7 +110,8 @@ begin
   if LoadCaptions then LoadAllCaptions(Self,LangFile);
 
   // SYNC Time
-  // NO! Click(Sender);
+  tim_time_sync_auto.Enabled := FRM_Main.PlayerOptions.Fleet_auto_time_sync;
+  
 
   Panel3.DoubleBuffered := true;
 end;
@@ -646,7 +647,6 @@ end;
 procedure TFRM_KB_List.tim_time_sync_autoTimer(Sender: TObject);
 begin
   tim_time_sync_auto.Enabled := False;
-
   btn_time_syncClick(Sender);
 end;
 
