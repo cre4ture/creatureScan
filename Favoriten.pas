@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   ComCtrls, ExtCtrls, Menus, Galaxy_Explorer, OGame_Types, Prog_Unit, IniFiles, Buttons,
   StdCtrls, ImgList, VirtualTrees, VSTPopup, VTHeaderPopup, FavFilter,
-  topmost_uh, frm_pos_size_ini, Notizen;
+  topmost_uh, frm_pos_size_ini, Notizen, PlanetListInterface;
 
 const filetype = 'cS favlist 1.0';
 const filetypelength = 14;
@@ -64,6 +64,7 @@ type
     Stars: Byte;
   end;
 
+  TFRM_Fav_PlanetListInterface = class;
   TFavListType = (flt_list, flt_all_auto_list);
   TFRM_Favoriten = class(TForm)
     PopupMenu1: TPopupMenu;
@@ -153,6 +154,7 @@ type
       Y: Integer);
   published
   private
+    mListInterface: TFRM_Fav_PlanetListInterface;
     //Direction: TSortDirection;
     //SColumn: Integer;
     IniFile: String;
@@ -199,8 +201,20 @@ type
     function Add(pos: TPlanetPosition; Sterne: integer = -1; load: boolean = False): integer;
     function Find(Pos: TPlanetPosition): integer;
     procedure Show;
+    function getSelectedPlanet(): TPlanetPosition;
     { Public-Deklarationen }
   end;
+  TFRM_Fav_PlanetListInterface = class(TPlanetListInterface)
+  private
+    mFRM_Fav: TFRM_Favoriten;
+  public
+    constructor Create(fav_frm: TFRM_Favoriten);
+    function selectNextPlanet(out pos: TPlanetPosition): Boolean; override;
+    function getPlanet(): TPlanetPosition; override;
+    function selectPreviousPlanet(out pos: TPlanetPosition): Boolean; override;
+  end;
+
+
 const
   FavSection = 'Favoriten';
 
@@ -249,6 +263,7 @@ end;
 
 procedure TFRM_Favoriten.FormDestroy(Sender: TObject);
 begin
+  mListInterface.Free;
   SaveOptions;
   SaveFormSizePos(IniFile,self);
   ScanList.Free;
@@ -277,6 +292,8 @@ begin
   LoadOptions;       //erst filter laden
   LoadFavFileData;   //dann liste auffüllen
   LoadOldFromIni;    //alte laden und löschen
+
+  mListInterface := TFRM_Fav_PlanetListInterface.Create(self);
 end;
 
 procedure TFRM_Favoriten.AddToVSTList_forceupdate(item: PPlanetItem);
@@ -725,7 +742,7 @@ begin
   if node <> nil then
   with TFav(VST_ScanList.GetNodeData(node)^) do
   begin
-    FRM_Main.ShowScan(Position);
+    FRM_Main.ShowScan(Position, mListInterface);
   end;
 end;
 
@@ -1377,6 +1394,20 @@ begin
   end;
 end;
 
+function TFRM_Favoriten.getSelectedPlanet: TPlanetPosition;
+var node: PVirtualNode;
+begin
+  FillChar(Result,sizeof(Result),0);
+  node := VST_ScanList.FocusedNode;
+  if node <> nil then
+  begin
+    with TFav(VST_ScanList.GetNodeData(node)^) do
+    begin
+      Result := Position;
+    end;
+  end;
+end;
+
 procedure TFRM_Favoriten.VST_ScanListInitNode(Sender: TBaseVirtualTree;
   ParentNode, Node: PVirtualNode;
   var InitialStates: TVirtualNodeInitStates);
@@ -1596,6 +1627,51 @@ begin
   begin
     inc(Result);
     d := x - VST_ScanList.Header.Columns[Result].Left;
+  end;
+end;
+
+{ TFRM_Fav_ScanListInterface }
+
+constructor TFRM_Fav_PlanetListInterface.Create(fav_frm: TFRM_Favoriten);
+begin
+  inherited Create(fav_frm);
+  mFRM_Fav := fav_frm;
+end;
+
+function TFRM_Fav_PlanetListInterface.getPlanet: TPlanetPosition;
+begin
+  Result := mFRM_Fav.getSelectedPlanet();
+end;
+
+function TFRM_Fav_PlanetListInterface.selectPreviousPlanet(
+  out pos: TPlanetPosition): Boolean;
+var node: PVirtualNode;
+begin
+  node := mFRM_Fav.VST_ScanList.FocusedNode;
+  node := mFRM_Fav.VST_ScanList.GetPrevious(node);
+  Result := node <> nil;
+  if Result then
+  begin
+    mFRM_Fav.VST_ScanList.FocusedNode := node;
+    mFRM_Fav.VST_ScanList.ClearSelection;
+    mFRM_Fav.VST_ScanList.Selected[node] := true;
+    pos := mFRM_Fav.getSelectedPlanet();
+  end;
+end;
+
+function TFRM_Fav_PlanetListInterface.selectNextPlanet(
+  out pos: TPlanetPosition): Boolean;
+var node: PVirtualNode;
+begin
+  node := mFRM_Fav.VST_ScanList.FocusedNode;
+  node := mFRM_Fav.VST_ScanList.GetNext(node);
+  Result := node <> nil;
+  if Result then
+  begin
+    mFRM_Fav.VST_ScanList.FocusedNode := node;
+    mFRM_Fav.VST_ScanList.ClearSelection;
+    mFRM_Fav.VST_ScanList.Selected[node] := true;
+    pos := mFRM_Fav.getSelectedPlanet();
   end;
 end;
 

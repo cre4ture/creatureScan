@@ -9,7 +9,7 @@ uses
   AppEvnts, jpeg, Math, ImgList, VirtualTrees, cS_DB_solsysFile, cS_DB_reportFile,
   clipbrd, ClipboardViewerForm, EditScan, stringlistedit, xmldom,
   XMLIntf, msxmldom, XMLDoc, cs_XML, oFight, clipbrdfunctions, UniTree,
-  frm_pos_size_ini, MusiPlayer, TIReadPlugin;
+  frm_pos_size_ini, MusiPlayer, TIReadPlugin, PlanetListInterface;
 
 const
   Transporter_space = 25000;
@@ -79,10 +79,6 @@ type
     TIM_Start: TTimer;
     il_trayicon: TImageList;
     Zwischenablageberwachen1: TMenuItem;
-    Panel1: TPanel;
-    lst_others: TListView;
-    BTN_Paste: TButton;
-    BTN_Copy: TButton;
     Splitter1: TSplitter;
     Panel2: TPanel;
     P_WF: TPanel;
@@ -106,7 +102,6 @@ type
     VergelicheSysDateimitDB1: TMenuItem;
     N4: TMenuItem;
     writeunitsinconstsxml1: TMenuItem;
-    XMLDocument1: TXMLDocument;
     VergleicheScanDateimitDB1: TMenuItem;
     N6: TMenuItem;
     SaveClipboardtoFile1: TMenuItem;
@@ -130,9 +125,6 @@ type
     frmevents1: TMenuItem;
     PopupMenu1: TPopupMenu;
     Lschen1: TMenuItem;
-    BTN_Liste: TButton;
-    BTN_Suche: TButton;
-    BTN_Universum: TButton;
     Galaxie1: TMenuItem;
     btn_fight_start: TButton;
     popup_auftrag: TPopupMenu;
@@ -153,6 +145,21 @@ type
     Label9: TLabel;
     Label10: TLabel;
     phpSync1: TMenuItem;
+    Panel1: TPanel;
+    lst_others: TListView;
+    BTN_Paste: TButton;
+    BTN_Copy: TButton;
+    BTN_Liste: TButton;
+    BTN_Suche: TButton;
+    BTN_Universum: TButton;
+    Label11: TLabel;
+    btn_last: TButton;
+    btn_next: TButton;
+    Scan1: TMenuItem;
+    nchstenAuswhlen1: TMenuItem;
+    vorherigenauswhlen1: TMenuItem;
+    procedure btn_lastClick(Sender: TObject);
+    procedure btn_nextClick(Sender: TObject);
     procedure Label4Click(Sender: TObject);
     procedure Raideintragen1Click(Sender: TObject);
     procedure Spionage1Click(Sender: TObject);
@@ -232,6 +239,7 @@ type
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
+    fLatestPlanetListSource: TPlanetListInterface;
     beenden: boolean;
     eee: integer;
     IniFile: String;
@@ -240,6 +248,10 @@ type
     _____time: TDateTime;
     _____mittelwehrt: Integer;
     topmost: boolean;
+    procedure setPlanetListSource(list: TPlanetListInterface);
+    property mLatestPlanetListSource: TPlanetListInterface
+      read fLatestPlanetListSource write setPlanetListSource;
+    procedure simplyShowScan(Pos: TPlanetPosition);
     procedure call_fleet_link(pos: TPlanetPosition; job: TFleetEventType);
     procedure SearchList(nr: integer; pos: TPlanetPosition);
     procedure PaintScan(scan: TScanBericht; save: TScanGroup = sg_Forschung);
@@ -253,8 +265,14 @@ type
     procedure ShowScanPanel;
     procedure LangPluginOnAskMoon(Sender: TOgameDataBase;
       Report: TScanBericht; var isMoon, Handled: Boolean);
+  private
+    fSearchWindows: TList;
+    function getSearchWindow(index: integer): TFRM_Suche;
   protected
+    property SearchWindows[index: integer]: TFRM_Suche read getSearchWindow;
     procedure SetCVActive(B: Boolean); override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation);
+      override;
   public
     TrayIco: TTrayIcon;
     DockExplorer: TExplorer;
@@ -269,7 +287,7 @@ type
     LastClipBoard: String;       //LastClipboard wird nurnoch gesetzt, wenn das programm selber in die Zwischenablage setzt, die nicht verarbeitet werden sollen! (z.b. Copy_button)
     SoundModul: TMusiPlayer;
     procedure ShowScan(NR: integer); overload;
-    procedure ShowScan(Pos: TPlanetPosition); overload;
+    procedure ShowScan(Pos: TPlanetPosition; list: TPlanetListInterface = nil); overload;
     function NewExplorer: TExplorer;
     procedure RightClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Play_Alert_Sound(filename: string);
@@ -299,7 +317,6 @@ const
 var
   FRM_Main: TFRM_Main;
   explorer : array of TExplorer;
-  suchen : array of TFRM_Suche;
 
 procedure callLink(url: string);
 
@@ -326,6 +343,7 @@ end;
 
 procedure TFRM_Main.FormDestroy(Sender: TObject);
 begin
+  mLatestPlanetListSource := nil; // remove free notification
   ODataBase.OnAskMoon := nil;
 
   SaveOptions;
@@ -333,6 +351,12 @@ begin
   Beenden := True;
   SoundModul.Free;
   TrayIco.free;
+
+  while fSearchWindows.Count > 0 do
+  begin
+    SearchWindows[0].Free;
+  end;
+  fSearchWindows.Free;
 end;
 
 procedure TFRM_Main.BTN_CopyClick(Sender: TObject);
@@ -343,7 +367,13 @@ begin
   Clipboard.AsText := s;
 end;
 
-procedure TFRM_Main.ShowScan(Pos: TPlanetPosition);
+procedure TFRM_Main.ShowScan(Pos: TPlanetPosition; list: TPlanetListInterface = nil);
+begin
+  mLatestPlanetListSource := list;
+  simplyShowScan(Pos);
+end;
+
+procedure TFRM_Main.simplyShowScan(Pos: TPlanetPosition);
 var scan_gen: TScanBericht;
     save: TScanGroup;
     info: TSystemPlanet;
@@ -426,6 +456,10 @@ end;
 
 procedure TFRM_Main.FormCreate(Sender: TObject);
 begin
+  fSearchWindows := TList.Create;
+  fLatestPlanetListSource := nil; // initialise
+  mLatestPlanetListSource := nil; // set buttons enabled
+  
   lbl_title.Caption := lbl_title.Caption + VNumber;
 
   topmost := false;
@@ -715,6 +749,16 @@ begin
   end;
 end;
 
+procedure TFRM_Main.btn_lastClick(Sender: TObject);
+var pos: TPlanetPosition;
+begin
+  if mLatestPlanetListSource <> nil then
+  begin
+    if mLatestPlanetListSource.selectPreviousPlanet(pos) then
+      simplyShowScan(pos);
+  end;
+end;
+
 procedure TFRM_Main.P_ExplorerDockResize(Sender: TObject);
 begin
   if DockExplorer <> nil then
@@ -727,9 +771,13 @@ end;
 procedure TFRM_Main.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if key = integer('W') then
-  begin
-    BTN_GalaxieClick(Sender);
+  case key of
+    integer('W'):
+      BTN_GalaxieClick(Sender);
+    VK_LEFT:
+      btn_lastClick(Sender);
+    VK_RIGHT:
+      btn_nextClick(Sender);
   end;
 end;
 
@@ -1042,23 +1090,10 @@ end;
 
 
 function TFRM_Main.NewSearch: TFRM_Suche;
-var i : integer;
 begin
-  i := 0;
-  while (i < length(Suchen))and(Suchen[i].Visible) do
-  begin
-    inc(i);
-  end;
-
-  if i >= length(Suchen) then
-  begin
-    setlength(Suchen,i+1);
-  end else Suchen[i].Free;
-
-  Suchen[i] := TFRM_Suche.Create(FRM_Main);
-
-  Result := Suchen[i];
-  Suchen[i].Show;
+  Result := TFRM_Suche.Create(Self);
+  fSearchWindows.Add(Result);
+  Result.Show;
 end;
 
 procedure TFRM_Main.BTN_SucheClick(Sender: TObject);
@@ -1069,6 +1104,16 @@ end;
 procedure TFRM_Main.BTN_ListeClick(Sender: TObject);
 begin
   FRM_Favoriten.show;
+end;
+
+procedure TFRM_Main.btn_nextClick(Sender: TObject);
+var pos: TPlanetPosition;
+begin
+  if mLatestPlanetListSource <> nil then
+  begin
+    if mLatestPlanetListSource.selectNextPlanet(pos) then
+      simplyShowScan(pos);
+  end;
 end;
 
 procedure TFRM_Main.ShowGalaxie(pos: TPlanetPosition);
@@ -1304,6 +1349,23 @@ procedure TFRM_Main.SetCVActive(B: Boolean);
 begin
   inherited;
   SetTrayIcon_();
+end;
+
+procedure TFRM_Main.setPlanetListSource(list: TPlanetListInterface);
+var available: Boolean;
+begin
+  if fLatestPlanetListSource <> nil then
+    fLatestPlanetListSource.RemoveFreeNotification(self);
+
+  fLatestPlanetListSource := list;
+  available := list <> nil;
+  if available then
+    list.FreeNotification(self);
+
+  btn_next.Enabled := available;
+  btn_last.Enabled := available;
+  nchstenAuswhlen1.Enabled := available;
+  vorherigenauswhlen1.Enabled := available;
 end;
 
 procedure TFRM_Main.SetTrayIcon_;
@@ -1709,7 +1771,7 @@ var j: integer;
     sg: TScanGroup;
     unitsNode, groupNode, node: IXMLNode;
 begin
-  XMLDocument1.Active := false;
+  {XMLDocument1.Active := false;
   XMLDocument1.XML.Text := '<?xml version="1.0" encoding="UTF-8"?><data></data>';
 
   if FileExists('consts.xml') then
@@ -1730,7 +1792,7 @@ begin
       node.Attributes['xml'] := xspio_idents[sg,j+1];
     end;
   end;
-  XMLDocument1.SaveToFile('consts.xml');
+  XMLDocument1.SaveToFile('consts.xml');         }
 end;
 
 procedure TFRM_Main.VergleicheScanDateimitDB1Click(Sender: TObject);
@@ -1902,9 +1964,32 @@ begin
 
 end;
 
+function TFRM_Main.getSearchWindow(index: integer): TFRM_Suche;
+begin
+  Result := TFRM_Suche(fSearchWindows[index]);
+end;
+
 procedure TFRM_Main.Flottenbersicht1Click(Sender: TObject);
 begin
   FRM_KB_List.Show;
+end;
+
+procedure TFRM_Main.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited;
+
+  if Operation = opRemove then
+  begin
+
+    if AComponent = mLatestPlanetListSource then
+      mLatestPlanetListSource := nil;
+
+    if AComponent is TFRM_Suche then
+    begin
+      fSearchWindows.Remove(AComponent);
+    end;
+    
+  end;
 end;
 
 procedure TFRM_Main.Notizen1Click(Sender: TObject);

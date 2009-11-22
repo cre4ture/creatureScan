@@ -2,7 +2,7 @@ object FRM_Main: TFRM_Main
   Left = 676
   Top = 115
   Caption = 'creatureScan'
-  ClientHeight = 544
+  ClientHeight = 563
   ClientWidth = 533
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -25,16 +25,17 @@ object FRM_Main: TFRM_Main
     Left = 0
     Top = 0
     Width = 533
-    Height = 525
+    Height = 544
     Align = alClient
     BevelOuter = bvNone
     Color = clBlack
     TabOrder = 0
     Visible = False
     OnResize = P_ExplorerDockResize
+    ExplicitHeight = 525
     inline Frame_Bericht2: TFrame_Bericht
       Left = 0
-      Top = 396
+      Top = 415
       Width = 533
       Height = 129
       HorzScrollBar.Style = ssHotTrack
@@ -72,32 +73,43 @@ object FRM_Main: TFRM_Main
     Left = 0
     Top = 0
     Width = 533
-    Height = 525
+    Height = 544
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitHeight = 525
     object Splitter1: TSplitter
       Left = 429
       Top = 0
-      Height = 525
+      Height = 544
       Align = alRight
       MinSize = 20
       ResizeStyle = rsLine
-      ExplicitHeight = 430
+      ExplicitLeft = 420
+      ExplicitTop = -6
+      ExplicitHeight = 525
+    end
+    object Label11: TLabel
+      Left = 232
+      Top = 256
+      Width = 38
+      Height = 13
+      Caption = 'Label11'
     end
     object Panel2: TPanel
       Left = 0
       Top = 0
       Width = 429
-      Height = 525
+      Height = 544
       Align = alClient
       BevelOuter = bvNone
-      TabOrder = 1
+      TabOrder = 0
+      ExplicitHeight = 525
       inline Frame_Bericht1: TFrame_Bericht
         Left = 0
         Top = 0
         Width = 429
-        Height = 478
+        Height = 497
         HorzScrollBar.Style = ssHotTrack
         VertScrollBar.Style = ssHotTrack
         Align = alClient
@@ -143,7 +155,7 @@ object FRM_Main: TFRM_Main
       end
       object P_WF: TPanel
         Left = 0
-        Top = 478
+        Top = 497
         Width = 429
         Height = 47
         Align = alBottom
@@ -152,6 +164,7 @@ object FRM_Main: TFRM_Main
         ParentBackground = False
         TabOrder = 1
         OnResize = P_WFResize
+        ExplicitTop = 478
         object LBL_WF_1: TLabel
           Left = 164
           Top = 2
@@ -222,7 +235,7 @@ object FRM_Main: TFRM_Main
         Left = 0
         Top = 0
         Width = 429
-        Height = 478
+        Height = 497
         Align = alClient
         BevelOuter = bvNone
         Color = clBlack
@@ -234,11 +247,12 @@ object FRM_Main: TFRM_Main
         ParentFont = False
         TabOrder = 2
         OnDblClick = Frame_Bericht1PB_BDblClick
+        ExplicitHeight = 478
         object Label10: TLabel
           Left = 0
           Top = 0
           Width = 429
-          Height = 478
+          Height = 497
           Align = alClient
           AutoSize = False
           Color = clBlack
@@ -387,18 +401,19 @@ object FRM_Main: TFRM_Main
       Left = 432
       Top = 0
       Width = 101
-      Height = 525
+      Height = 544
       Align = alRight
       BevelOuter = bvNone
-      TabOrder = 0
+      TabOrder = 1
+      ExplicitHeight = 525
       DesignSize = (
         101
-        525)
+        544)
       object lst_others: TListView
         Left = 3
-        Top = 63
+        Top = 84
         Width = 96
-        Height = 392
+        Height = 384
         Anchors = [akLeft, akTop, akRight, akBottom]
         Columns = <
           item
@@ -441,39 +456,60 @@ object FRM_Main: TFRM_Main
       end
       object BTN_Liste: TButton
         Left = 2
-        Top = 455
+        Top = 474
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
         Caption = 'Scan &Liste'
         TabOrder = 3
         OnClick = BTN_ListeClick
+        ExplicitTop = 455
       end
       object BTN_Suche: TButton
         Left = 2
-        Top = 503
+        Top = 522
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
         Caption = 'Su&chen'
         TabOrder = 5
         OnClick = BTN_SucheClick
+        ExplicitTop = 503
       end
       object BTN_Universum: TButton
         Left = 2
-        Top = 479
+        Top = 498
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
         Caption = '&Universum'
         TabOrder = 4
         OnClick = BTN_UniversumClick
+        ExplicitTop = 479
+      end
+      object btn_last: TButton
+        Left = 2
+        Top = 60
+        Width = 45
+        Height = 18
+        Caption = '<<'
+        TabOrder = 6
+        OnClick = btn_lastClick
+      end
+      object btn_next: TButton
+        Left = 53
+        Top = 60
+        Width = 45
+        Height = 18
+        Caption = '>>'
+        TabOrder = 7
+        OnClick = btn_nextClick
       end
     end
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 525
+    Top = 544
     Width = 533
     Height = 19
     Panels = <
@@ -498,6 +534,7 @@ object FRM_Main: TFRM_Main
       end>
     OnMouseDown = StatusBar1MouseDown
     OnDrawPanel = StatusBar1DrawPanel
+    ExplicitTop = 525
   end
   object MainMenu1: TMainMenu
     Left = 284
@@ -535,6 +572,17 @@ object FRM_Main: TFRM_Main
         Caption = 'Beenden'
         ShortCut = 16450
         OnClick = Beenden1Click
+      end
+    end
+    object Scan1: TMenuItem
+      Caption = 'Scan'
+      object nchstenAuswhlen1: TMenuItem
+        Caption = 'n'#228'chsten ausw'#228'hlen'
+        OnClick = btn_nextClick
+      end
+      object vorherigenauswhlen1: TMenuItem
+        Caption = 'vorherigen ausw'#228'hlen'
+        OnClick = btn_lastClick
       end
     end
     object Statistiken1: TMenuItem
@@ -871,12 +919,6 @@ object FRM_Main: TFRM_Main
     Left = 12
     Top = 196
   end
-  object XMLDocument1: TXMLDocument
-    Options = [doNodeAutoCreate, doNodeAutoIndent, doAttrNull, doAutoPrefix, doNamespaceDecl]
-    Left = 180
-    Top = 96
-    DOMVendorDesc = 'MSXML'
-  end
   object SaveDialog1: TSaveDialog
     DefaultExt = 'bin'
     Filter = 'clipbrd(*.bin)|.bin'
@@ -992,7 +1034,7 @@ object FRM_Main: TFRM_Main
   end
   object PopupMenu1: TPopupMenu
     Left = 468
-    Top = 76
+    Top = 156
     object Lschen1: TMenuItem
       Caption = 'L'#246'schen'
       ShortCut = 46
