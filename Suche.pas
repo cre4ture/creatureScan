@@ -6,7 +6,8 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Gauges, StdCtrls, ExtCtrls, ComCtrls, Mask, Tabnotbk, OGame_Types, Prog_Unit, ImgList,
   Menus, Galaxy_Explorer, VirtualTrees, Galaxien_Rechte, VSTPopup, inifiles,
-  clipbrd, VTHeaderPopup, Math, FavFilter, langmodform, frm_pos_size_ini;
+  clipbrd, VTHeaderPopup, Math, FavFilter, langmodform, frm_pos_size_ini,
+  PlanetListInterface;
 
 const
   SearchiniSection = 'SearchWindow';
@@ -22,6 +23,7 @@ type
     TF: array[0..1] of Cardinal;
     scantime_u: Int64;
   end;
+  TFRM_SuchePlanetListInterface = class;
   TFRM_Suche = class(TLangModForm)
     ImageList1: TImageList;
     PopupMenu1: TPopupMenu;
@@ -108,6 +110,7 @@ type
       TargetCanvas: TCanvas; Node: PVirtualNode; ItemRect: TRect;
       var CustomDraw: Boolean);
   private
+    mPosListInterface: TPlanetListInterface;
     e, Topmost : boolean;
     Direction : TSortDirection;
     FilterArea: TPlanetRangeList;
@@ -118,12 +121,22 @@ type
     procedure Clear;
     function SucheSysteme: integer;
     procedure DeleteEmptyCharEdit(Edit: TEdit);
+    function getFocusedPlanet(): TPlanetPosition;
     { Public-Deklarationen }
   protected
     inifile: String;
     PROCEDURE CreateParams(VAR Params: TCreateParams); OVERRIDE;
     procedure Notification(AComponent: TComponent; Operation: TOperation);
       override;
+  end;
+  TFRM_SuchePlanetListInterface = class(TPlanetListInterface)
+  private
+    mFRM_Suche: TFRM_Suche;
+  public
+    constructor Create(frm_suche: TFRM_Suche);
+    function selectNextPlanet(out pos: TPlanetPosition): Boolean; override;
+    function getPlanet(): TPlanetPosition; override;
+    function selectPreviousPlanet(out pos: TPlanetPosition): Boolean; override;
   end;
 
 const
@@ -345,7 +358,7 @@ end;
 
 procedure TFRM_Suche.BTN_SchliesenClick(Sender: TObject);
 begin
-  Close;
+  Release;
 end;
 
 procedure TFRM_Suche.StatusBar1DrawPanel(StatusBar: TStatusBar;
@@ -381,6 +394,8 @@ begin
 
   Refresh_cb_koords;
   StatusBar1.Panels[0].Text := STR_topmost;
+
+  mPosListInterface := TFRM_SuchePlanetListInterface.Create(self);
 end;
 
 procedure TFRM_Suche.DeleteEmptyCharEdit(Edit: TEdit);
@@ -438,7 +453,7 @@ begin
   begin
     Caption := 'S [' + PositionToStrMond(Koord) + '] ' + 'Suche in dem Universumsabbild nach...';
 
-    FRM_Main.ShowScan(Koord);     
+    FRM_Main.ShowScan(Koord, mPosListInterface);     
   end;
 end;
 
@@ -649,11 +664,23 @@ end;
 procedure TFRM_Suche.FormDestroy(Sender: TObject);
 var ini: TIniFile;
 begin
+  mPosListInterface.Free;
   ini := TIniFile.Create(inifile);
   SaveVSTHeaders(VST_Result,ini,SearchiniSection);
   SaveFormSizePos(ini, {trim_X}(Name), Self);
   ini.UpdateFile;
   ini.Free;
+end;
+
+function TFRM_Suche.getFocusedPlanet: TPlanetPosition;
+var node: PVirtualNode;
+begin
+  Result.P[0] := 0;
+  node := VST_Result.FocusedNode;
+  with TSearch_ND(VST_Result.GetNodeData(node)^) do
+  begin
+    Result := Koord;
+  end;
 end;
 
 function TFRM_Suche.get_ScanTime_u(pos: TPlanetPosition): int64;
@@ -672,6 +699,51 @@ begin
   with TSearch_ND(Sender.GetNodeData(node)^) do
   begin
     scantime_u := get_ScanTime_u(Koord);
+  end;
+end;
+
+{ TFRM_SuchePlanetListInterface }
+
+constructor TFRM_SuchePlanetListInterface.Create(frm_suche: TFRM_Suche);
+begin
+  inherited Create(frm_suche);
+  mFRM_Suche := frm_suche;
+end;
+
+function TFRM_SuchePlanetListInterface.getPlanet: TPlanetPosition;
+begin
+  Result := mFRM_Suche.getFocusedPlanet();
+end;
+
+function TFRM_SuchePlanetListInterface.selectNextPlanet(
+  out pos: TPlanetPosition): Boolean;
+var node: PVirtualNode;
+begin
+  node := mFRM_Suche.VST_Result.FocusedNode;
+  node := mFRM_Suche.VST_Result.GetNext(node);
+  Result := node <> nil;
+  if Result then
+  begin
+    mFRM_Suche.VST_Result.FocusedNode := node;
+    mFRM_Suche.VST_Result.ClearSelection;
+    mFRM_Suche.VST_Result.Selected[node] := true;
+    pos := mFRM_Suche.getFocusedPlanet();
+  end;
+end;
+
+function TFRM_SuchePlanetListInterface.selectPreviousPlanet(
+  out pos: TPlanetPosition): Boolean;
+var node: PVirtualNode;
+begin
+  node := mFRM_Suche.VST_Result.FocusedNode;
+  node := mFRM_Suche.VST_Result.GetPrevious(node);
+  Result := node <> nil;
+  if Result then
+  begin
+    mFRM_Suche.VST_Result.FocusedNode := node;
+    mFRM_Suche.VST_Result.ClearSelection;
+    mFRM_Suche.VST_Result.Selected[node] := true;
+    pos := mFRM_Suche.getFocusedPlanet();
   end;
 end;
 
