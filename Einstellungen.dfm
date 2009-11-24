@@ -27,14 +27,14 @@ object FRM_Einstellungen: TFRM_Einstellungen
     Top = 0
     Width = 531
     Height = 200
-    ActivePage = TabSheet1
+    ActivePage = TS_allgemein
     Anchors = [akLeft, akTop, akRight, akBottom]
     MultiLine = True
     ParentShowHint = False
     ShowHint = False
     TabOrder = 2
-    object TS_generell: TTabSheet
-      Caption = 'generell'
+    object TS_allgemein: TTabSheet
+      Caption = 'Allgemein'
       object Label17: TLabel
         Left = 4
         Top = 64
