@@ -12,7 +12,7 @@ type
     Button1: TButton;
     Button2: TButton;
     PageControl1: TPageControl;
-    TS_generell: TTabSheet;
+    TS_allgemein: TTabSheet;
     CH_AutoUpdate: TCheckBox;
     TS_FleetDef: TTabSheet;
     LBL_FD: TLabel;
