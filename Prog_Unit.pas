@@ -79,8 +79,8 @@ type
 
   TNREvent = procedure(nr: integer) of object;
   TOgameDataBase = class;
-  TOGameDataBase_AskMoon = procedure(Sender: TOGameDataBase; Report: TScanBericht;
-    var isMoon: Boolean; var Handled: Boolean) of object;
+  TOGameDataBase_AskMoon = procedure(Sender: TOGameDataBase; const
+    Report: TScanBericht; var isMoon: Boolean; var Handled: Boolean) of object;
   TOgameDataBase = class(TObject)
   protected
     cS_NetServ: TcSServer;
@@ -100,7 +100,7 @@ type
     function GetAllyStats: TStatPoints;
     procedure ApplicationOnIdle(Sender: TObject; var Done: Boolean);
     function initFleetBoard: Boolean;
-    procedure langplugin_onaskmoonprocedure(Sender: TOGameDataBase; Report: TScanBericht;
+    procedure langplugin_onaskmoonprocedure(Sender: TOGameDataBase; const Report: TScanBericht;
       var isMoon: Boolean; var Handled: Boolean);
   public
     game_data: TGameData;
@@ -1189,8 +1189,8 @@ begin
   Result := True;
 end;
 
-procedure TOgameDataBase.langplugin_onaskmoonprocedure(Sender: TOGameDataBase; Report: TScanBericht;
-    var isMoon: Boolean; var Handled: Boolean);
+procedure TOgameDataBase.langplugin_onaskmoonprocedure(Sender: TOGameDataBase;
+  const Report: TScanBericht; var isMoon: Boolean; var Handled: Boolean);
 var sys, planet: integer;
 begin
   sys := UniTree.UniSys(Report.Head.Position.P[0],

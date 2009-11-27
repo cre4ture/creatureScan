@@ -264,7 +264,7 @@ type
     procedure ShowExplorerPanel;
     procedure ShowScanPanel;
     procedure LangPluginOnAskMoon(Sender: TOgameDataBase;
-      Report: TScanBericht; var isMoon, Handled: Boolean);
+      const Report: TScanBericht; var isMoon, Handled: Boolean);
   private
     fSearchWindows: TList;
     function getSearchWindow(index: integer): TFRM_Suche;
@@ -2150,14 +2150,14 @@ begin
 end;
 
 procedure TFRM_Main.LangPluginOnAskMoon(Sender: TOgameDataBase;
-  Report: TScanBericht; var isMoon, Handled: Boolean);
+  const Report: TScanBericht; var isMoon, Handled: Boolean);
 var FRM_Mond: TFRM_Mond;
 begin
   if PlayerOptions.AskMoon_enabled then
   begin
     FRM_Mond := TFRM_Mond.Create(Self, Sender.LanguagePlugIn);
     Beep;
-    Report.Head.Position.Mond := (FRM_Mond.Open(Report));
+    isMoon := (FRM_Mond.Open(Report));
     Handled := true;
     FRM_Mond.free;
   end;
