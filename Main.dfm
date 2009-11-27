@@ -2,7 +2,7 @@ object FRM_Main: TFRM_Main
   Left = 676
   Top = 115
   Caption = 'creatureScan'
-  ClientHeight = 563
+  ClientHeight = 582
   ClientWidth = 533
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -25,17 +25,17 @@ object FRM_Main: TFRM_Main
     Left = 0
     Top = 0
     Width = 533
-    Height = 544
+    Height = 563
     Align = alClient
     BevelOuter = bvNone
     Color = clBlack
     TabOrder = 0
     Visible = False
     OnResize = P_ExplorerDockResize
-    ExplicitHeight = 525
+    ExplicitHeight = 544
     inline Frame_Bericht2: TFrame_Bericht
       Left = 0
-      Top = 415
+      Top = 434
       Width = 533
       Height = 129
       HorzScrollBar.Style = ssHotTrack
@@ -48,7 +48,7 @@ object FRM_Main: TFRM_Main
       PopupMenu = Frame_Bericht2.PopupMenu1
       TabOrder = 0
       TabStop = True
-      ExplicitTop = 396
+      ExplicitTop = 415
       ExplicitWidth = 533
       ExplicitHeight = 129
       inherited PB_B: TPaintBox
@@ -73,15 +73,15 @@ object FRM_Main: TFRM_Main
     Left = 0
     Top = 0
     Width = 533
-    Height = 544
+    Height = 563
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitHeight = 525
+    ExplicitHeight = 544
     object Splitter1: TSplitter
       Left = 429
       Top = 0
-      Height = 544
+      Height = 563
       Align = alRight
       MinSize = 20
       ResizeStyle = rsLine
@@ -100,16 +100,16 @@ object FRM_Main: TFRM_Main
       Left = 0
       Top = 0
       Width = 429
-      Height = 544
+      Height = 563
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 525
+      ExplicitHeight = 544
       inline Frame_Bericht1: TFrame_Bericht
         Left = 0
         Top = 0
         Width = 429
-        Height = 497
+        Height = 516
         HorzScrollBar.Style = ssHotTrack
         VertScrollBar.Style = ssHotTrack
         Align = alClient
@@ -122,7 +122,7 @@ object FRM_Main: TFRM_Main
         TabStop = True
         OnDblClick = Frame_Bericht1PB_BDblClick
         ExplicitWidth = 429
-        ExplicitHeight = 478
+        ExplicitHeight = 497
         inherited PB_B: TPaintBox
           Width = 429
           OnDblClick = Frame_Bericht1PB_BDblClick
@@ -155,7 +155,7 @@ object FRM_Main: TFRM_Main
       end
       object P_WF: TPanel
         Left = 0
-        Top = 497
+        Top = 516
         Width = 429
         Height = 47
         Align = alBottom
@@ -164,7 +164,7 @@ object FRM_Main: TFRM_Main
         ParentBackground = False
         TabOrder = 1
         OnResize = P_WFResize
-        ExplicitTop = 478
+        ExplicitTop = 497
         object LBL_WF_1: TLabel
           Left = 164
           Top = 2
@@ -235,7 +235,7 @@ object FRM_Main: TFRM_Main
         Left = 0
         Top = 0
         Width = 429
-        Height = 497
+        Height = 516
         Align = alClient
         BevelOuter = bvNone
         Color = clBlack
@@ -247,12 +247,12 @@ object FRM_Main: TFRM_Main
         ParentFont = False
         TabOrder = 2
         OnDblClick = Frame_Bericht1PB_BDblClick
-        ExplicitHeight = 478
+        ExplicitHeight = 497
         object Label10: TLabel
           Left = 0
           Top = 0
           Width = 429
-          Height = 497
+          Height = 516
           Align = alClient
           AutoSize = False
           Color = clBlack
@@ -401,19 +401,19 @@ object FRM_Main: TFRM_Main
       Left = 432
       Top = 0
       Width = 101
-      Height = 544
+      Height = 563
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 525
+      ExplicitHeight = 544
       DesignSize = (
         101
-        544)
+        563)
       object lst_others: TListView
         Left = 3
         Top = 84
         Width = 96
-        Height = 384
+        Height = 403
         Anchors = [akLeft, akTop, akRight, akBottom]
         Columns = <
           item
@@ -433,6 +433,7 @@ object FRM_Main: TFRM_Main
         OnCompare = lst_othersCompare
         OnKeyDown = lst_othersKeyDown
         OnSelectItem = lst_othersSelectItem
+        ExplicitHeight = 384
       end
       object BTN_Paste: TButton
         Left = 2
@@ -456,36 +457,36 @@ object FRM_Main: TFRM_Main
       end
       object BTN_Liste: TButton
         Left = 2
-        Top = 474
+        Top = 493
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
         Caption = 'Scan &Liste'
         TabOrder = 3
         OnClick = BTN_ListeClick
-        ExplicitTop = 455
+        ExplicitTop = 474
       end
       object BTN_Suche: TButton
         Left = 2
-        Top = 522
+        Top = 541
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
         Caption = 'Su&chen'
         TabOrder = 5
         OnClick = BTN_SucheClick
-        ExplicitTop = 503
+        ExplicitTop = 522
       end
       object BTN_Universum: TButton
         Left = 2
-        Top = 498
+        Top = 517
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
         Caption = '&Universum'
         TabOrder = 4
         OnClick = BTN_UniversumClick
-        ExplicitTop = 479
+        ExplicitTop = 498
       end
       object btn_last: TButton
         Left = 2
@@ -509,7 +510,7 @@ object FRM_Main: TFRM_Main
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 544
+    Top = 563
     Width = 533
     Height = 19
     Panels = <
@@ -534,7 +535,7 @@ object FRM_Main: TFRM_Main
       end>
     OnMouseDown = StatusBar1MouseDown
     OnDrawPanel = StatusBar1DrawPanel
-    ExplicitTop = 525
+    ExplicitTop = 544
   end
   object MainMenu1: TMainMenu
     Left = 284
@@ -572,17 +573,6 @@ object FRM_Main: TFRM_Main
         Caption = 'Beenden'
         ShortCut = 16450
         OnClick = Beenden1Click
-      end
-    end
-    object Scan1: TMenuItem
-      Caption = 'Scan'
-      object nchstenAuswhlen1: TMenuItem
-        Caption = 'n'#228'chsten ausw'#228'hlen'
-        OnClick = btn_nextClick
-      end
-      object vorherigenauswhlen1: TMenuItem
-        Caption = 'vorherigen ausw'#228'hlen'
-        OnClick = btn_lastClick
       end
     end
     object Statistiken1: TMenuItem
@@ -656,6 +646,17 @@ object FRM_Main: TFRM_Main
     object Galaxie1: TMenuItem
       Caption = '<Galaxie>'
       OnClick = BTN_GalaxieClick
+    end
+    object Scan1: TMenuItem
+      Caption = 'Scan'
+      object nchstenAuswhlen1: TMenuItem
+        Caption = 'n'#228'chsten ausw'#228'hlen'
+        OnClick = btn_nextClick
+      end
+      object vorherigenauswhlen1: TMenuItem
+        Caption = 'vorherigen ausw'#228'hlen'
+        OnClick = btn_lastClick
+      end
     end
     object Info1: TMenuItem
       Caption = '&?'
