@@ -33,14 +33,14 @@ uses Notizen, Languages, cS_DB;
 {$R *.DFM}
 
 procedure TFRM_Suchen_Ersetzen.Button1Click(Sender: TObject);
-var i, j: integer;
+{var i, j: integer;
     nsuche, nersetzen: string;
-    s: boolean;
+    s: boolean;}
 begin
-  nsuche := Edit1.Text;
-  nersetzen := Edit2.Text;
   showmessage('this function is deaktivated! TODO: Implement');
-  {if (nsuche <> '')and(nersetzen <> '') then
+  {nsuche := Edit1.Text;
+  nersetzen := Edit2.Text;
+  if (nsuche <> '')and(nersetzen <> '') then
   with ODataBase do
   begin
     Gauge1.MaxValue := Systeme.Count + Berichte.Count + length(GlobalPlayerInfo) + FRM_Notizen.VST_Notizen.RootNodeCount;

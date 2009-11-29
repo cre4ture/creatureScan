@@ -100,7 +100,7 @@ type
     ODB: TOgameDataBase;
     ProcessForm: TFRM_ImportProgress;
     ende: Boolean;
-    constructor Create(AOwner: TComponent; AODB: TOgameDataBase);
+    constructor Create(AOwner: TComponent; AODB: TOgameDataBase); reintroduce;
   end;
 
 //procedure ScanToXML(Scan: TScanBericht; XMLFile: TXMLDocument);

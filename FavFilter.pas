@@ -22,7 +22,7 @@ type
     property PlanetRange[Index: Integer]: TPlanetRange
       read GetPlanetRange; default;
     property Count: Integer read GetCount;
-    constructor Create(AOwner: TComponent);
+    constructor Create(AOwner: TComponent); reintroduce;
     destructor Destroy; override;
     procedure Clear;
     procedure ReadFromString(s: string);

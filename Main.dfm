@@ -2,7 +2,7 @@ object FRM_Main: TFRM_Main
   Left = 676
   Top = 115
   Caption = 'creatureScan'
-  ClientHeight = 582
+  ClientHeight = 601
   ClientWidth = 533
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -25,17 +25,16 @@ object FRM_Main: TFRM_Main
     Left = 0
     Top = 0
     Width = 533
-    Height = 563
+    Height = 582
     Align = alClient
     BevelOuter = bvNone
     Color = clBlack
     TabOrder = 0
     Visible = False
     OnResize = P_ExplorerDockResize
-    ExplicitHeight = 544
     inline Frame_Bericht2: TFrame_Bericht
       Left = 0
-      Top = 434
+      Top = 453
       Width = 533
       Height = 129
       HorzScrollBar.Style = ssHotTrack
@@ -48,7 +47,7 @@ object FRM_Main: TFRM_Main
       PopupMenu = Frame_Bericht2.PopupMenu1
       TabOrder = 0
       TabStop = True
-      ExplicitTop = 415
+      ExplicitTop = 453
       ExplicitWidth = 533
       ExplicitHeight = 129
       inherited PB_B: TPaintBox
@@ -73,15 +72,14 @@ object FRM_Main: TFRM_Main
     Left = 0
     Top = 0
     Width = 533
-    Height = 563
+    Height = 582
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitHeight = 544
     object Splitter1: TSplitter
       Left = 429
       Top = 0
-      Height = 563
+      Height = 582
       Align = alRight
       MinSize = 20
       ResizeStyle = rsLine
@@ -100,16 +98,15 @@ object FRM_Main: TFRM_Main
       Left = 0
       Top = 0
       Width = 429
-      Height = 563
+      Height = 582
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 544
       inline Frame_Bericht1: TFrame_Bericht
         Left = 0
         Top = 0
         Width = 429
-        Height = 516
+        Height = 535
         HorzScrollBar.Style = ssHotTrack
         VertScrollBar.Style = ssHotTrack
         Align = alClient
@@ -122,7 +119,7 @@ object FRM_Main: TFRM_Main
         TabStop = True
         OnDblClick = Frame_Bericht1PB_BDblClick
         ExplicitWidth = 429
-        ExplicitHeight = 497
+        ExplicitHeight = 535
         inherited PB_B: TPaintBox
           Width = 429
           OnDblClick = Frame_Bericht1PB_BDblClick
@@ -155,7 +152,7 @@ object FRM_Main: TFRM_Main
       end
       object P_WF: TPanel
         Left = 0
-        Top = 516
+        Top = 535
         Width = 429
         Height = 47
         Align = alBottom
@@ -164,7 +161,6 @@ object FRM_Main: TFRM_Main
         ParentBackground = False
         TabOrder = 1
         OnResize = P_WFResize
-        ExplicitTop = 497
         object LBL_WF_1: TLabel
           Left = 164
           Top = 2
@@ -235,7 +231,7 @@ object FRM_Main: TFRM_Main
         Left = 0
         Top = 0
         Width = 429
-        Height = 516
+        Height = 535
         Align = alClient
         BevelOuter = bvNone
         Color = clBlack
@@ -247,12 +243,11 @@ object FRM_Main: TFRM_Main
         ParentFont = False
         TabOrder = 2
         OnDblClick = Frame_Bericht1PB_BDblClick
-        ExplicitHeight = 497
         object Label10: TLabel
           Left = 0
           Top = 0
           Width = 429
-          Height = 516
+          Height = 535
           Align = alClient
           AutoSize = False
           Color = clBlack
@@ -401,19 +396,18 @@ object FRM_Main: TFRM_Main
       Left = 432
       Top = 0
       Width = 101
-      Height = 563
+      Height = 582
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 544
       DesignSize = (
         101
-        563)
+        582)
       object lst_others: TListView
         Left = 3
         Top = 84
         Width = 96
-        Height = 403
+        Height = 422
         Anchors = [akLeft, akTop, akRight, akBottom]
         Columns = <
           item
@@ -433,7 +427,6 @@ object FRM_Main: TFRM_Main
         OnCompare = lst_othersCompare
         OnKeyDown = lst_othersKeyDown
         OnSelectItem = lst_othersSelectItem
-        ExplicitHeight = 384
       end
       object BTN_Paste: TButton
         Left = 2
@@ -457,36 +450,33 @@ object FRM_Main: TFRM_Main
       end
       object BTN_Liste: TButton
         Left = 2
-        Top = 493
+        Top = 512
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
         Caption = 'Scan &Liste'
         TabOrder = 3
         OnClick = BTN_ListeClick
-        ExplicitTop = 474
       end
       object BTN_Suche: TButton
         Left = 2
-        Top = 541
+        Top = 560
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
         Caption = 'Su&chen'
         TabOrder = 5
         OnClick = BTN_SucheClick
-        ExplicitTop = 522
       end
       object BTN_Universum: TButton
         Left = 2
-        Top = 517
+        Top = 536
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
         Caption = '&Universum'
         TabOrder = 4
         OnClick = BTN_UniversumClick
-        ExplicitTop = 498
       end
       object btn_last: TButton
         Left = 2
@@ -510,7 +500,7 @@ object FRM_Main: TFRM_Main
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 563
+    Top = 582
     Width = 533
     Height = 19
     Panels = <
@@ -535,7 +525,6 @@ object FRM_Main: TFRM_Main
       end>
     OnMouseDown = StatusBar1MouseDown
     OnDrawPanel = StatusBar1DrawPanel
-    ExplicitTop = 544
   end
   object MainMenu1: TMainMenu
     Left = 284

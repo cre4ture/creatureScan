@@ -18,7 +18,7 @@ type
 
 
     constructor Create(const name: string; const xml: THTMLElement);
-    destructor Destroy;
+    destructor Destroy; override;
   end;
 
   TGameSite = class
@@ -33,7 +33,7 @@ type
     property UniverseList[index: integer]: TGameUniverse read getUniverse;
     function Count(): integer;
     constructor Create(xml: THTMLElement);
-    destructor Destroy;
+    destructor Destroy; override;
   end;
 
   TGameData = class
@@ -47,7 +47,7 @@ type
     property GameSites[index: integer]: TGameSite read getGameSite;
     function Count(): integer;
     constructor Create(filename: string);
-    destructor Destroy;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -142,7 +142,7 @@ end;
 
 procedure TGameSite.doGameUniverseTag(const xml: THTMLElement);
 var uname, symbol: string;
-    start, ende, index, i: integer;
+    start, ende, i: integer;
     newU: TGameUniverse;
 begin
   uname := xml.AttributeValue['name'];

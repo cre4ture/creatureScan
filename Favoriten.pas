@@ -208,7 +208,7 @@ type
   private
     mFRM_Fav: TFRM_Favoriten;
   public
-    constructor Create(fav_frm: TFRM_Favoriten);
+    constructor Create(fav_frm: TFRM_Favoriten); reintroduce;
     function selectNextPlanet(out pos: TPlanetPosition): Boolean; override;
     function getPlanet(): TPlanetPosition; override;
     function selectPreviousPlanet(out pos: TPlanetPosition): Boolean; override;

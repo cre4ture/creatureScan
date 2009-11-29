@@ -25,7 +25,7 @@ type
     function Open(Ber: TScanBericht): Boolean;
     { Public-Deklarationen }
   published
-    constructor Create(AOwner: TComponent; aPlugin: TLangPlugIn);
+    constructor Create(AOwner: TComponent; aPlugin: TLangPlugIn); reintroduce;
   end;
 
 implementation

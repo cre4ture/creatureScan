@@ -69,6 +69,7 @@ type
     GroupBox4: TGroupBox;
     cb_koords: TComboBox;
     cb_negativearea: TCheckBox;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BTN_SucheClick(Sender: TObject);
     procedure BTN_SchliesenClick(Sender: TObject);
     procedure StatusBar1DrawPanel(StatusBar: TStatusBar;
@@ -133,7 +134,7 @@ type
   private
     mFRM_Suche: TFRM_Suche;
   public
-    constructor Create(frm_suche: TFRM_Suche);
+    constructor Create(frm_suche: TFRM_Suche); reintroduce;
     function selectNextPlanet(out pos: TPlanetPosition): Boolean; override;
     function getPlanet(): TPlanetPosition; override;
     function selectPreviousPlanet(out pos: TPlanetPosition): Boolean; override;
@@ -358,7 +359,7 @@ end;
 
 procedure TFRM_Suche.BTN_SchliesenClick(Sender: TObject);
 begin
-  Release;
+  Close;
 end;
 
 procedure TFRM_Suche.StatusBar1DrawPanel(StatusBar: TStatusBar;
@@ -374,6 +375,11 @@ begin
     Brush.Color := clBlue;
     FillRect(re);
   end;
+end;
+
+procedure TFRM_Suche.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Release;
 end;
 
 procedure TFRM_Suche.FormCreate(Sender: TObject);

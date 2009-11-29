@@ -172,7 +172,7 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
       Top = 75
       Width = 235
       Height = 21
-      ItemHeight = 13
+      ItemHeight = 0
       TabOrder = 1
       OnChange = E_UniChange
     end

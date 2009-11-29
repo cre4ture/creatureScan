@@ -40,7 +40,7 @@ const
   pi_TSyncRaids      = 1029;
   pi_TSyncStats      = 1030;
 
-const VNumber = '1.8e';
+const VNumber = '1.8e1';
       
 
 {$DEFINE oanzahl}  //ohne Anzahl!! -- brauchts nirgends mehr!
@@ -127,6 +127,7 @@ type
     DefInTF: Boolean;
     SpeedFactor: Single;
     OnAskMoon: TOGameDataBase_AskMoon;
+    check_solsys_data_before_askMoon: boolean;
     property Uni[g,s: Integer]: TSonnenSystem read FUniRead;
     property Stats: TStatPoints read GetStats;
     property FleetStats: TStatPoints read GetFleetStats;
@@ -310,6 +311,7 @@ constructor TOgameDataBase.Create(Init: Boolean; UserDir: string;
 begin
   inherited Create;
   OnAskMoon := nil;
+  check_solsys_data_before_askMoon := false;
   cS_NetServ := ACLHost;
   self.xml_data_file := xml_data_file;
 
@@ -445,7 +447,6 @@ end;
 
 function TOgameDataBase.Initialise: Boolean;
 begin
-  Result := false;
 
   try
     game_data := TGameData.Create(xml_data_file);
@@ -1193,15 +1194,18 @@ procedure TOgameDataBase.langplugin_onaskmoonprocedure(Sender: TOGameDataBase;
   const Report: TScanBericht; var isMoon: Boolean; var Handled: Boolean);
 var sys, planet: integer;
 begin
-  sys := UniTree.UniSys(Report.Head.Position.P[0],
-                        Report.Head.Position.P[1]);
-  if sys >= 0 then
-  with Systeme[sys] do
+  if check_solsys_data_before_askMoon then
   begin
-    planet := Report.Head.Position.P[2];
-    // Wenn es keinen Mond an dieser stelle gibt, brauchste auchnet fragen!
-    Handled := (Planeten[planet].MondSize = 0);
-    isMoon := false;
+    sys := UniTree.UniSys(Report.Head.Position.P[0],
+                          Report.Head.Position.P[1]);
+    if sys >= 0 then
+    with Systeme[sys] do
+    begin
+      planet := Report.Head.Position.P[2];
+      // Wenn es keinen Mond an dieser stelle gibt, brauchste auchnet fragen!
+      Handled := (Planeten[planet].MondSize = 0); 
+      isMoon := false;
+    end;
   end;
 
   if (not Handled) and Assigned(OnAskMoon) then

@@ -355,6 +355,8 @@ begin
   while fSearchWindows.Count > 0 do
   begin
     SearchWindows[0].Free;
+    // The object is removed from the list
+    // by the public function "notification"
   end;
   fSearchWindows.Free;
 end;
@@ -375,7 +377,6 @@ end;
 
 procedure TFRM_Main.simplyShowScan(Pos: TPlanetPosition);
 var scan_gen: TScanBericht;
-    save: TScanGroup;
     info: TSystemPlanet;
     snr: Integer;
 begin
@@ -385,7 +386,7 @@ begin
   Application.Title := 'cS [' + PositionToStrMond(Pos) + ']';
 
   // Zeigt Generic Scan:
-  save := ODataBase.UniTree.genericReport(Pos, scan_gen);
+  ODataBase.UniTree.genericReport(Pos, scan_gen);
   if scan_gen.Head.Time_u >= 0 then
   begin
     // Suche Liste
@@ -623,6 +624,7 @@ var i: integer;                //nr -> damit ich weis welchen zum selektieren
     posscan: TScanBericht;
 begin
   lst_others.Items.BeginUpdate;
+  // this is necessary couse we save our MainPosition in the FRAME!
   posscan := Frame_Bericht1.Bericht;
   posscan.Head.Position := pos;
   Frame_Bericht1.SetBericht(posscan);
@@ -831,6 +833,7 @@ begin
   form.ch_startupServer.Checked := soStartupServer in Einstellungen;
   form.TXT_ServerStartPort.Text := IntToStr(PlayerOptions.ServerPort);
   form.cb_askmoon.Checked := PlayerOptions.AskMoon_enabled;
+  form.cb_check_solsys_data_for_moon.Checked := ODataBase.check_solsys_data_before_askMoon;
 
   form.TXT_SS.Text := LBL_WF_0_2.Caption;
   form.TXT_gT.Text := LBL_WF_0_3.Caption;
@@ -895,7 +898,6 @@ begin
 
   form.cb_auto_fav_list.Checked := (FRM_Favoriten.ListType = flt_all_auto_list);
 
-
   if Form.ShowModal = mrOK then
   begin
     for i := 0 to length(FRM_Favoriten.FleetDefRessValues)-1 do
@@ -912,6 +914,7 @@ begin
     if form.CH_Unicheck.Checked then Include(Einstellungen,soUniCheck);
     ODataBase.DeleteScansWhenAddSys := form.CH_AutoDelete.Checked;
     PlayerOptions.AskMoon_enabled := form.cb_askmoon.Checked;
+    ODataBase.check_solsys_data_before_askMoon := form.cb_check_solsys_data_for_moon.Checked;
     if form.ch_startupServer.Checked then Include(Einstellungen,soStartupServer);
     PlayerOptions.ServerPort := StrToInt(form.TXT_ServerStartPort.Text);
 
@@ -1292,7 +1295,7 @@ end;
 
 procedure TFRM_Main.TIM_StartTimer(Sender: TObject);
 var Version: String;
-    OldFile: String;
+//    OldFile: String;
 begin
   TIM_Start.Enabled := False;
 
@@ -1761,7 +1764,7 @@ begin
 end;
 
 procedure TFRM_Main.writeunitsinconstsxml1Click(Sender: TObject);
-function FindOrAddNode(ParentNode: IXMLNode; name: String): IXMLNode;
+{function FindOrAddNode(ParentNode: IXMLNode; name: String): IXMLNode;
 begin
   Result := ParentNode.ChildNodes.FindNode(name);
   if Result = nil then
@@ -1769,7 +1772,7 @@ begin
 end;
 var j: integer;
     sg: TScanGroup;
-    unitsNode, groupNode, node: IXMLNode;
+    unitsNode, groupNode, node: IXMLNode;}
 begin
   {XMLDocument1.Active := false;
   XMLDocument1.XML.Text := '<?xml version="1.0" encoding="UTF-8"?><data></data>';
@@ -2058,6 +2061,7 @@ begin
 
   // Nachfrage nach Mond:
   DoOption(GeneralSection,'ask_moon_enabled'         ,true                      ,PlayerOptions.AskMoon_enabled);
+  DoOption(GeneralSection,'check_solsys_data_askMoon',false                     ,ODataBase.check_solsys_data_before_askMoon);
 end;
 
 procedure TFRM_Main.Play_Alert_Sound(filename: string);
