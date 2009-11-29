@@ -92,7 +92,7 @@ type
     SBItems: array[TScanGroup] of TStringList;
     function ReadSource_New: integer;
     procedure ReadSource_Free(handle: integer);
-    procedure CallFleet(pos: TPlanetPosition; job: TFleetEventType);
+    function CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
     function GetReport(handle: integer; var Bericht: TScanBericht;
       out moon_unknown: Boolean): Boolean;
     function ReadReports(handle: integer): Integer;
@@ -145,11 +145,10 @@ begin
 
 end;
 
-procedure TLangPlugIn.CallFleet(pos: TPlanetPosition; job: TFleetEventType);
-var ret: boolean;
+function TLangPlugIn.CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
 begin
   if Assigned(PCallFleet) then
-    ret := PCallFleet(pos, job)
+    Result := PCallFleet(pos, job)
   else
     raise Exception.Create('TLangPlugIn.CallFleet(): dll does not support this feature');
 end;

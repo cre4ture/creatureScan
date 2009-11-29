@@ -130,6 +130,7 @@ type
     GroupBox13: TGroupBox;
     cb_auto_serverzeit: TCheckBox;
     cb_askmoon: TCheckBox;
+    cb_check_solsys_data_for_moon: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure LB_FDClick(Sender: TObject);
     procedure KeyPress_OnlyNumbers(Sender: TObject; var Key: Char);

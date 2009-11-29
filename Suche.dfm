@@ -11,6 +11,7 @@ object FRM_Suche: TFRM_Suche
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
+  OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
@@ -96,10 +97,6 @@ object FRM_Suche: TFRM_Suche
       object Search_Normal: TTabSheet
         Caption = 'Player / Planet / Ally'
         OnShow = Search_NormalShow
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         DesignSize = (
           767
           73)
@@ -161,7 +158,7 @@ object FRM_Suche: TFRM_Suche
             Top = 20
             Width = 161
             Height = 21
-            ItemHeight = 0
+            ItemHeight = 13
             TabOrder = 0
             Text = 'cb_koords'
             OnChange = cb_koordsChange
@@ -180,10 +177,6 @@ object FRM_Suche: TFRM_Suche
       object Search_Status: TTabSheet
         Caption = 'Status / TFs / Statistiken'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         DesignSize = (
           767
           73)

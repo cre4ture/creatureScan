@@ -75,7 +75,7 @@ type
     sessionid: string;
     function ReadServerUni(p1, p2: word): TTimeID;
     procedure WriteServerUni(p1, p2: word; value: TTimeID);
-    function PostAndParseAnswer(read, write: string): Boolean;
+    procedure PostAndParseAnswer(read, write: string);
     { Private-Deklarationen }
   public
     System: TSystemCopy;
@@ -92,7 +92,7 @@ type
     function ScanToXMLString(Scan: TScanBericht): string;
     function entflines(s: string): String;
     procedure SetServerUniSize(gala: integer; solsys: integer);
-    function ParseAnswer(xml: string): integer;
+    procedure ParseAnswer(xml: string);
     procedure Sync_Report(gala: Integer);
     procedure Sync_Systems(Sender: TObject);
     procedure POST(param: string = '');
@@ -202,7 +202,7 @@ end;
 procedure TFRM_POST_TEST.Sync_Systems(Sender: TObject);
 var parser: TXmlParser;
     DocSize: Integer;
-    snow: int64;
+//    snow: int64;
     pos: array[0..2] of word;
     p1, p2, i: integer;
     read, write: string;
@@ -242,7 +242,7 @@ begin
 
             if parser.CurName = 'serverinfo' then
             begin
-              snow := StrToInt64(parser.CurAttr.Value('time'));
+//              snow := StrToInt64(parser.CurAttr.Value('time'));
               pos[0] := StrToInt(parser.CurAttr.Value('galacount'));
               pos[1] := StrToInt(parser.CurAttr.Value('syscount'));
               pos[2] := StrToInt(parser.CurAttr.Value('planetcount'));
@@ -425,11 +425,11 @@ begin
   Memo1.Lines.Text := s;
 end;
 
-function TFRM_POST_TEST.ParseAnswer(xml: string): integer;
+procedure TFRM_POST_TEST.ParseAnswer(xml: string);
 var parser: TXmlParser;
-    write: boolean;
+//    write: boolean;
 begin
-  write := False;
+//  write := False;
   parser := TXmlParser.Create;
   parser.LoadFromBuffer(PChar(xml));
   parser.StartScan;
@@ -438,7 +438,7 @@ begin
     case Parser.CurPartType of
       ptStartTag, ptEmptyTag:
         begin
-          if parser.CurName = 'write' then write := True else
+//          if parser.CurName = 'write' then write := True else
           if parser.CurName = 'read' then
           begin
             parse_unknown(parser, true);
@@ -451,7 +451,7 @@ begin
               log(parser.CurContent,10);
       ptEndTag:
         begin
-          if parser.CurName = 'write' then write := False;
+//          if parser.CurName = 'write' then write := False;
         end;
     end;
   until (not Parser.Scan);
@@ -554,7 +554,7 @@ var read, write: string;
 
 var root, sinfo, times, planet, rtime: THTMLElement;
     abspos, labspos: Integer;
-    snow: int64;
+//    snow: int64;
     uni_pos: array[0..2] of word;
     i, j, sl: integer;
     start: Tdatetime;
@@ -585,7 +585,7 @@ begin
     root.ParseHTMLCode(Memo2.Lines.Text);
 
     sinfo := root.FindChildTagPath_e('read/serverinfo');
-    snow := StrToInt64(sinfo.AttributeValue['time']);
+//    snow := StrToInt64(sinfo.AttributeValue['time']);
     Uni_pos[0] := StrToInt(sinfo.AttributeValue['galacount']);
     Uni_pos[1] := StrToInt(sinfo.AttributeValue['syscount']);
     Uni_pos[2] := StrToInt(sinfo.AttributeValue['planetcount']);
@@ -695,7 +695,7 @@ procedure TFRM_POST_TEST.sync_solsys_gala(gala: integer);
 begin
 end;
 
-function TFRM_POST_TEST.PostAndParseAnswer(read, write: string): Boolean;
+procedure TFRM_POST_TEST.PostAndParseAnswer(read, write: string);
 begin
   Memo1.Clear;
   memo1.Lines.Add('<maintag><read>' + read + '</read><write>' + write + '</write></maintag>');
@@ -791,7 +791,7 @@ begin
 
     res.ParseHTMLCode(Memo2.Lines.Text);
 
-    tag := res.FindChildTagPath_e('acknowledge');
+//    tag := res.FindChildTagPath_e('acknowledge');
     //ShowMessage(tag.FullTagContent);
     tag := res.FindChildTagPath_e('read/serverinfo');
 

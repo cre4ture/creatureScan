@@ -10,7 +10,7 @@ Datum: 8.8.2007
 interface
 
 uses
-  SDBFile, SysUtils, OGame_Types, DateUtils, cS_DB, Dialogs;
+  SDBFile, Windows, SysUtils, OGame_Types, DateUtils, cS_DB, Dialogs;
 
 type
   TcSSolSysFileFormat =

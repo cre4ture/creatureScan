@@ -55,7 +55,7 @@ type
     TF_factor: Double;
     redesign: Boolean;
     function Execute: boolean;
-    constructor Create(AOwner: TComponent; odb: TObject);
+    constructor Create(AOwner: TComponent; odb: TObject); reintroduce;
     { Public-Deklarationen }
   end;
 

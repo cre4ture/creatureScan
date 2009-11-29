@@ -2,7 +2,7 @@ unit Stat_Points;
 
 interface
 
-uses classes, OGame_Types, SysUtils, MergeSocket, SDBFile, SplitSocket,
+uses classes, OGame_Types, Windows, SysUtils, MergeSocket, SDBFile, SplitSocket,
   cS_networking, LibXmlParser, LibXmlComps;
 
 const
@@ -99,7 +99,7 @@ type
     constructor Create(AFile: String; UniDomain: String;
       cSServer: TcSServer; aStatTyp: TStatTypeEx);
     destructor Destroy; override;
-    procedure DoWork_idle(out Ready: Boolean); override;
+    procedure DoWork_Idle(out Ready: Boolean); override;
     function AddStat(Stats: TStat): boolean; override;
   end;
   TStatisticDB = class

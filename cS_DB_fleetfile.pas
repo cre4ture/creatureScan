@@ -3,7 +3,7 @@ unit cS_DB_fleetfile;
 interface
 
 uses
-  SDBFile, SysUtils, OGame_Types, DateUtils, cS_DB, Dialogs;
+  SDBFile, Windows, SysUtils, OGame_Types, DateUtils, cS_DB, Dialogs;
 
 type
   TcSFleetFileFormat =

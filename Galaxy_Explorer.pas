@@ -130,7 +130,7 @@ type
     procedure NewSysAtPos(syspos: TPlanetPosition);
     property Position: TPlanetPosition read FPosition write SetPosition;
     property System: TSystemCopy read GetSystem;
-    constructor Create(AOwner: TComponent; ATyp: integer; AName: String);
+    constructor Create(AOwner: TComponent; ATyp: integer; AName: String); reintroduce;
     procedure Reload;
     procedure Initialise(Pos: TPlanetPosition);
     { Public-Deklarationen }

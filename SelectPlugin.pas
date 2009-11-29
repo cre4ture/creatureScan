@@ -30,7 +30,7 @@ type
   public
     game_domain: String;
     PluginFile: String;
-    constructor Create(AOwner: TComponent; agame_domain: String);
+    constructor Create(AOwner: TComponent; agame_domain: String); reintroduce;
     { Public-Deklarationen }
   end;
 
