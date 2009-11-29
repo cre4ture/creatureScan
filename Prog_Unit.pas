@@ -847,9 +847,12 @@ begin
     Scan.Head.Creator := Username;
 
     if moon_unknown then
+    begin
+      phandled := false;
       langplugin_onaskmoonprocedure(Self, Scan,
                                     Scan.Head.Position.Mond,
                                     phandled);
+    end;
 
     UniTree.AddNewReport(Scan);
     inc(Result);
