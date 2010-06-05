@@ -1,0 +1,37 @@
+<report gala="2" sys="126" pos="9" time="1275586157" planet="OPA" player="saldirin tarlaaaaa" activ="-1" cspio="1" creator=""><resources met="238683" crys="182335" deut="103769" energ="9879"/><fleets scs="10" esp="12" solsat="100"/><defence msl="18491" sl="2260" hl="363" gaus="125" ion="310" pc="80" lsd="1" inter="19"/></report>
+
+From: 	Fleet Command
+To: 	Schizzo
+Subject: 	Espionage report of OPA [2:126:9]
+Date: 	03.06.2010 17:29:18
+
+    * delete
+    * Allocate for the alliance
+
+Resources at OPA [2:126:9] (Player 'saldirin tarlaaaaa') on 06-03 17:29:17
+	
+Metal:	238.683 	Crystal: 	182.335
+Deuterium:	103.769 	Energy: 	9.879
+	
+Activity
+Activity
+Activity means that the scanned player has been active on that planet or another player had fleet contact with the planet you scanned.
+Your espionage does not show abnormalities in the atmosphere of the planet. There appears to have been no activity on the planet within the last hour.
+fleets
+Small Cargo	10	Espionage Probe	12
+Solar Satellite	100
+Defense
+Rocket Launcher	18.491	Light Laser	2.260
+Heavy Laser	363	Gauss Cannon	125
+Ion Cannon	310	Plasma Turret	80
+Large Shield Dome	1	Interplanetary Missiles	19
+Chance of counter-espionage: 1 %
+	Attack	WebSim	
+
+Rohstoffe
+Gesamt:	524.787	Beute:	262.393
+GT:	12	KT:	58
+TF
+Metall:	6.000	Kristall:	69.600
+Gesamt:	75.600	Recs:	4
+

@@ -74,7 +74,7 @@ const
 
 implementation
 
-uses Math, SysUtils, DateUtils, StrUtils;
+uses Math, SysUtils, DateUtils, StrUtils, creaturesStrUtils;
 
 procedure ThtmlPhalanxRead_betauni.readSourceInfo(html: string;
   var info: TFleetsInfoSource);
