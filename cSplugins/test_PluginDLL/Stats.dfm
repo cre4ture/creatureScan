@@ -1,9 +1,9 @@
 object FRM_Stats: TFRM_Stats
   Left = 524
   Top = 190
+  Width = 414
+  Height = 688
   Caption = 'FRM_Stats'
-  ClientHeight = 653
-  ClientWidth = 398
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

@@ -1,9 +1,9 @@
 object FRM_Phalanx: TFRM_Phalanx
   Left = 273
   Top = 145
+  Width = 698
+  Height = 457
   Caption = 'FRM_Phalanx'
-  ClientHeight = 422
-  ClientWidth = 682
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -91,31 +91,22 @@ object FRM_Phalanx: TFRM_Phalanx
     HorzScrollBar.Style = ssHotTrack
     VertScrollBar.Style = ssHotTrack
     Anchors = [akLeft, akRight, akBottom]
-    AutoScroll = True
     Color = clBlack
     ParentBackground = False
     ParentColor = False
     PopupMenu = Frame_Bericht1.PopupMenu1
     TabOrder = 2
     TabStop = True
-    ExplicitLeft = 8
-    ExplicitTop = 256
-    ExplicitWidth = 668
-    ExplicitHeight = 155
     inherited PB_B: TPaintBox
-      Width = 652
-      ExplicitWidth = 651
+      Width = 651
     end
     inherited Panel1: TPanel
-      Width = 652
-      ExplicitWidth = 652
+      Width = 651
       inherited LBL_Raid24_Info: TLabel
         Left = 337
-        ExplicitLeft = 353
       end
       inherited BTN_Last24: TSpeedButton
         Left = 421
-        ExplicitLeft = 437
       end
     end
   end
