@@ -17,10 +17,10 @@ type
   (csr_none,           csr_25,           csr_36,           csr_37,
    csr_38          , csr_40);
 const
-  cSRFFStart = 'cscan_scan_';
+  cSRFFStarT_ = 'cscan_scan_'; // don't use for new versions
   cSReportFileFormatstr: array[TcSReportFileFormat] of shortstring =
-  ( 'error', cSRFFStart+'2.5', cSRFFStart+'3.6', cSRFFStart+'3.7',
-   cSRFFStart+'3.8', 'creatureScan_ScanDB_4.0');
+  ( 'error', cSRFFStarT_+'2.5', cSRFFStarT_+'3.6', cSRFFStarT_+'3.7',
+   cSRFFStarT_+'3.8', 'creatureScan_ScanDB_4.0');
 
    new_file_ident = 'new_file';
 {

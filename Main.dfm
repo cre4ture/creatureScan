@@ -1,9 +1,9 @@
 object FRM_Main: TFRM_Main
   Left = 676
   Top = 115
+  Width = 549
+  Height = 674
   Caption = 'creatureScan'
-  ClientHeight = 601
-  ClientWidth = 533
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -25,7 +25,7 @@ object FRM_Main: TFRM_Main
     Left = 0
     Top = 0
     Width = 533
-    Height = 582
+    Height = 601
     Align = alClient
     BevelOuter = bvNone
     Color = clBlack
@@ -34,36 +34,28 @@ object FRM_Main: TFRM_Main
     OnResize = P_ExplorerDockResize
     inline Frame_Bericht2: TFrame_Bericht
       Left = 0
-      Top = 453
+      Top = 472
       Width = 533
       Height = 129
       HorzScrollBar.Style = ssHotTrack
       VertScrollBar.Style = ssHotTrack
       Align = alBottom
-      AutoScroll = True
       Color = clBlack
       ParentBackground = False
       ParentColor = False
       PopupMenu = Frame_Bericht2.PopupMenu1
       TabOrder = 0
       TabStop = True
-      ExplicitTop = 453
-      ExplicitWidth = 533
-      ExplicitHeight = 129
       inherited PB_B: TPaintBox
-        Width = 517
-        ExplicitWidth = 533
+        Width = 516
       end
       inherited Panel1: TPanel
-        Width = 517
-        ExplicitWidth = 517
+        Width = 516
         inherited LBL_Raid24_Info: TLabel
           Left = 354
-          ExplicitLeft = 354
         end
         inherited BTN_Last24: TSpeedButton
           Left = 438
-          ExplicitLeft = 438
         end
       end
     end
@@ -72,20 +64,17 @@ object FRM_Main: TFRM_Main
     Left = 0
     Top = 0
     Width = 533
-    Height = 582
+    Height = 601
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
     object Splitter1: TSplitter
       Left = 429
       Top = 0
-      Height = 582
+      Height = 601
       Align = alRight
       MinSize = 20
       ResizeStyle = rsLine
-      ExplicitLeft = 420
-      ExplicitTop = -6
-      ExplicitHeight = 525
     end
     object Label11: TLabel
       Left = 232
@@ -98,7 +87,7 @@ object FRM_Main: TFRM_Main
       Left = 0
       Top = 0
       Width = 429
-      Height = 582
+      Height = 601
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
@@ -106,11 +95,10 @@ object FRM_Main: TFRM_Main
         Left = 0
         Top = 0
         Width = 429
-        Height = 535
+        Height = 554
         HorzScrollBar.Style = ssHotTrack
         VertScrollBar.Style = ssHotTrack
         Align = alClient
-        AutoScroll = True
         Color = clBlack
         ParentBackground = False
         ParentColor = False
@@ -118,23 +106,17 @@ object FRM_Main: TFRM_Main
         TabOrder = 0
         TabStop = True
         OnDblClick = Frame_Bericht1PB_BDblClick
-        ExplicitWidth = 429
-        ExplicitHeight = 535
         inherited PB_B: TPaintBox
           Width = 429
           OnDblClick = Frame_Bericht1PB_BDblClick
-          ExplicitWidth = 429
         end
         inherited Panel1: TPanel
           Width = 429
-          ExplicitWidth = 429
           inherited LBL_Raid24_Info: TLabel
             Left = 308
-            ExplicitLeft = 308
           end
           inherited BTN_Last24: TSpeedButton
             Left = 396
-            ExplicitLeft = 396
           end
         end
         inherited PopupMenu1: TPopupMenu
@@ -152,7 +134,7 @@ object FRM_Main: TFRM_Main
       end
       object P_WF: TPanel
         Left = 0
-        Top = 535
+        Top = 554
         Width = 429
         Height = 47
         Align = alBottom
@@ -231,7 +213,7 @@ object FRM_Main: TFRM_Main
         Left = 0
         Top = 0
         Width = 429
-        Height = 535
+        Height = 554
         Align = alClient
         BevelOuter = bvNone
         Color = clBlack
@@ -247,14 +229,12 @@ object FRM_Main: TFRM_Main
           Left = 0
           Top = 0
           Width = 429
-          Height = 535
+          Height = 554
           Align = alClient
           AutoSize = False
           Color = clBlack
           ParentColor = False
           OnDblClick = Frame_Bericht1PB_BDblClick
-          ExplicitTop = -4
-          ExplicitHeight = 383
         end
         object lbl_title: TLabel
           Left = 8
@@ -396,18 +376,18 @@ object FRM_Main: TFRM_Main
       Left = 432
       Top = 0
       Width = 101
-      Height = 582
+      Height = 601
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
       DesignSize = (
         101
-        582)
+        601)
       object lst_others: TListView
         Left = 3
         Top = 84
         Width = 96
-        Height = 422
+        Height = 441
         Anchors = [akLeft, akTop, akRight, akBottom]
         Columns = <
           item
@@ -450,7 +430,7 @@ object FRM_Main: TFRM_Main
       end
       object BTN_Liste: TButton
         Left = 2
-        Top = 512
+        Top = 531
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
@@ -460,7 +440,7 @@ object FRM_Main: TFRM_Main
       end
       object BTN_Suche: TButton
         Left = 2
-        Top = 560
+        Top = 579
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
@@ -470,7 +450,7 @@ object FRM_Main: TFRM_Main
       end
       object BTN_Universum: TButton
         Left = 2
-        Top = 536
+        Top = 555
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
@@ -500,7 +480,7 @@ object FRM_Main: TFRM_Main
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 582
+    Top = 601
     Width = 533
     Height = 19
     Panels = <
