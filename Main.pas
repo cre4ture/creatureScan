@@ -9,7 +9,8 @@ uses
   AppEvnts, jpeg, Math, ImgList, VirtualTrees, cS_DB_solsysFile, cS_DB_reportFile,
   clipbrd, ClipboardViewerForm, EditScan, stringlistedit, xmldom,
   XMLIntf, msxmldom, XMLDoc, cs_XML, oFight, clipbrdfunctions, UniTree,
-  frm_pos_size_ini, MusiPlayer, TIReadPlugin, PlanetListInterface;
+  frm_pos_size_ini, MusiPlayer, TIReadPlugin, PlanetListInterface,
+  TrayIcon;
 
 const
   Transporter_space = 25000;
@@ -466,6 +467,7 @@ begin
   topmost := false;
   StatusBar1.Panels[0].Text := STR_topmost;
 
+  {
   TrayIco := TTrayIcon.Create(Self);
   TrayIco.Icons := il_trayicon;
   TrayIco.IconIndex := -1;
@@ -476,7 +478,17 @@ begin
   TrayIco.PopupMenu := TrayIconPopup;
   TrayIco.OnDblClick := MainWindow1Click;
   TrayIco.Visible := true;
-
+  }
+  TrayIco := TTrayIcon.Create(Self);
+  TrayIco.Images := il_trayicon;
+  TrayIco.AnimateInterval := -1;
+  Caption := Caption + ' Uni: ' +
+             ODataBase.UniDomain + '.' + ODataBase.game_domain +
+             ' User: ' + ODataBase.Username;
+  TrayIco.ToolTip := FRM_Main.Caption;
+  TrayIco.PopupMenu := TrayIconPopup;
+  TrayIco.OnDblClick := MainWindow1Click;
+  TrayIco.Active := true;
 
   SoundModul := TMusiPlayer.Create(Self);
 
@@ -689,7 +701,7 @@ begin
     inc(eee);
     if eee = 1 then
     begin
-      TrayIco.Visible := false;
+      TrayIco.Active := false;
       DockExplorer.Release;
       //Close;
     end; 
@@ -1373,15 +1385,15 @@ end;
 
 procedure TFRM_Main.SetTrayIcon_;
 begin  //aktualisiert das TrayIcon
-  if CVActive then
+  {if CVActive then
     TrayIco.IconIndex := 1
   else
-    TrayIco.IconIndex := 0;
-  {if CVActive then
-    TrayIco.Icons := cs_aktive
-  else TrayIco.Icons := cs_deaktive;
-  TrayIco.Animate := True;
-  TrayIco.AnimateInterval := 0;}
+    TrayIco.IconIndex := 0;}
+  if CVActive then
+    TrayIco.Images.GetIcon(1, TrayIco.Icon)
+  else TrayIco.Images.GetIcon(1, TrayIco.Icon);
+  {TrayIco.Animate := True;
+  TrayIco.AnimateInterval := 0;  }
 end;
 
 procedure TFRM_Main.SuchenErsetzen1Click(Sender: TObject);

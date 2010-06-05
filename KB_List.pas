@@ -47,7 +47,7 @@ type
     procedure Kopieren1Click(Sender: TObject);
     procedure VST_RAIDCompareNodes(Sender: TBaseVirtualTree; Node1,
       Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
-    procedure VST_RAIDHeaderClick(Sender: TVTHeader; Column: TColumnIndex;
+    procedure VST_RAIDHeaderClick_1(Sender: TVTHeader; Column: TColumnIndex;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure VST_RAIDChange(Sender: TBaseVirtualTree;
       Node: PVirtualNode);
@@ -72,6 +72,8 @@ type
       TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
       CellPaintMode: TVTCellPaintMode; CellRect: TRect;
       var ContentRect: TRect);
+    procedure VST_RAIDHeaderClick(Sender: TVTHeader;
+      HitInfo: TVTHeaderHitInfo);
   private
     { Private-Deklarationen }
     SortDirection_Raids: TSortDirection;
@@ -315,7 +317,7 @@ begin
     Result := -Result;
 end;
 
-procedure TFRM_KB_List.VST_RAIDHeaderClick(Sender: TVTHeader;
+procedure TFRM_KB_List.VST_RAIDHeaderClick_1(Sender: TVTHeader;
   Column: TColumnIndex; Button: TMouseButton; Shift: TShiftState; X,
   Y: Integer);
 begin
@@ -731,6 +733,14 @@ procedure TFRM_KB_List.VST_RAIDBeforeCellPaint(Sender: TBaseVirtualTree;
 begin
   if Sender = VST_RAID then Text(ODataBase.FleetBoard.Fleets[Integer(VST_RAID.GetNodeData(Node)^)]);
   if Sender = VST_HISTORY then Text(ODataBase.FleetBoard.History[Integer(VST_HISTORY.GetNodeData(Node)^)]);
+end;
+
+procedure TFRM_KB_List.VST_RAIDHeaderClick(Sender: TVTHeader;
+  HitInfo: TVTHeaderHitInfo);
+begin
+  // wrapper for old handler
+  VST_RAIDHeaderClick_1(Sender, HitInfo.Column, HitInfo.Button,
+     HitInfo.Shift, HitInfo.X, HitInfo.Y);
 end;
 
 end.
