@@ -1,0 +1,27 @@
+<report gala="3" sys="243" pos="12" time="1285244062" planet="dr. pepper" player="lennon" activ="0" cspio="0" creator=""><resources met="395622" crys="263024" deut="165275" energ="2690"/><fleets/><defence msl="8" gaus="1" ion="1" abm="20"/><buildings metm="15" crysm="15" deuts="15" solp="20" fusp="4" robot="10" nani="1" shipy="9" mets="7" crys="6" dtank="4" rlab="10" allydep="1" silo="2"/></report>
+C:	33
+	Fleet Command 	Espionage report of dr. pepper [3:243:12] 	23.09.2010 12:14:23 	
+Resources at dr. pepper [3:243:12] (Player 'lennon') on 09-23 12:14:22
+	
+Metal:	395.622 	Crystal: 	263.024
+Deuterium:	165.275 	Energy: 	2.690
+	
+Activity
+Activity
+Activity means that the scanned player has been active on that planet or another player had fleet contact with the planet you scanned.
+Your espionage does not show abnormalities in the atmosphere of the planet. There appears to have been no activity on the planet within the last hour.
+fleets
+Defense
+Rocket Launcher	8	Gauss Cannon	1
+Ion Cannon	1	Anti-Ballistic Missiles	20
+Building
+Metal Mine	15	Crystal Mine	15
+Deuterium Synthesizer	15	Solar Plant	20
+Fusion Reactor	4	Robotics Factory	10
+Nanite Factory	1	Shipyard	9
+Metal Storage	7	Crystal Storage	6
+Deuterium Tank	4	Research Lab	10
+Alliance Depot	1	Missile Silo	2
+Chance of counter-espionage: 0 %
+	Attack	WebSim	
+Resources

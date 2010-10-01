@@ -1,0 +1,14 @@
+<report gala="3" sys="250" pos="14" time="1285244146" planet="kolonie 2" player="edjuh" activ="0" cspio="0" creator=""><resources met="3" crys="1" deut="1" energ="4727"/></report>
+leet Command 	Espionage report of kolonie 2 [3:250:14] 	23.09.2010 12:15:47 	
+Resources at kolonie 2 [3:250:14] (Player 'edjuh') on 09-23 12:15:46
+	
+Metal:	3 	Crystal: 	1
+Deuterium:	1 	Energy: 	4.727
+	
+Activity
+Activity
+Activity means that the scanned player has been active on that planet or another player had fleet contact with the planet you scanned.
+Your espionage does not show abnormalities in the atmosphere of the planet. There appears to have been no activity on the planet within the last hour.
+Chance of counter-espionage: 0 %
+	Attack	WebSim	
+Resources
