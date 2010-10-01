@@ -1,9 +1,9 @@
 object FRM_Favoriten: TFRM_Favoriten
   Left = 218
   Top = 127
+  Width = 1043
+  Height = 456
   Caption = 'Scanbericht '#220'bersicht'
-  ClientHeight = 421
-  ClientWidth = 1027
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -83,7 +83,7 @@ object FRM_Favoriten: TFRM_Favoriten
       Width = 153
       Height = 21
       Style = csDropDownList
-      ItemHeight = 0
+      ItemHeight = 13
       TabOrder = 1
       OnChange = CB_KoordsChange
     end

@@ -16,9 +16,8 @@ type
   TcSSolSysFileFormat =
   (css_none, {        css_21 ,}            css_22,                    css_30);
 const
-  cSSSFFStart = 'cscan_sys_';
   cSSolSysFileFormatstr: array[TcSSolSysFileFormat] of shortstring =
-  ( 'error', {'cscan_sys_2.1',} cSSSFFStart+'2.2', 'creatureScan_SolSysDB_3.0');
+  ( 'error', {'cscan_sys_2.1',} 'cscan_sys_2.2', 'creatureScan_SolSysDB_3.0');
 
   StatusItems_21_22 = 'igIuns';
 

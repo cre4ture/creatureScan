@@ -297,9 +297,9 @@ function ValidPosition(pos: TPlanetPosition): boolean; overload;
 function ValidPosition(pos: TSystemPosition): boolean; overload;
 function TrimStringChar(S: string; C: Char): String;
 function CountdownTimeToStr(time: TDateTime): String;
-function ReadInt(s: string; p: integer; tsep: Boolean = True): integer;
+function ReadInt(s: string; p: integer; tsep: Boolean = True): int64;
 function ReadIntEx(s: string; p: integer; IgnoreChars: string = '';
-  TrimChars: TTrimCharSet = ['-',' ',#9{Tab},#10]): integer;
+  TrimChars: TTrimCharSet = ['-',' ',#9{Tab},#10]): int64;
 procedure SortPlanetScanList(var List: TReportTimeList;
   Typ: TPlanetScanListSortType);
 function GetMineEnergyConsumption(Scan: TScanbericht): Integer;
@@ -592,7 +592,7 @@ begin
 end;
 
 function ReadIntEx(s: string; p: integer; IgnoreChars: string = '';
-  TrimChars: TTrimCharSet = ['-',' ',#9{Tab},#10]): integer;
+  TrimChars: TTrimCharSet = ['-',' ',#9{Tab},#10]): int64;
 var apos : integer;
     val : string;
 begin
@@ -608,12 +608,12 @@ begin
     inc(apos);
   end;
   if val <> '' then
-    result := strtoint(val)
+    result := StrToInt64(val)
   else
     result := 0;
 end;
 
-function ReadInt(s: string; p: integer; tsep: Boolean = True): integer;
+function ReadInt(s: string; p: integer; tsep: Boolean = True): int64;
 begin
   if tsep then
     Result := ReadIntEx(s,p,ot_tousandsseperator)

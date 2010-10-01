@@ -1,9 +1,9 @@
 object FRM_Suche: TFRM_Suche
   Left = 251
   Top = 277
+  Width = 883
+  Height = 386
   Caption = 'Suche in dem Universumsabbild nach...'
-  ClientHeight = 351
-  ClientWidth = 867
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -375,9 +375,9 @@ object FRM_Suche: TFRM_Suche
     TabOrder = 2
     TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toThemeAware, toUseBlendedImages]
     TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
-    OnBeforeItemPaint = VST_ResultBeforeItemPaint
+    OnBeforeItemPaint = VST_ResultBeforeItemPaintX
     OnCompareNodes = VST_ResultCompareNodes
-    OnDblClick = VST_ResultDblClick
+    OnDblClick = VST_ResultDblClickX
     OnFocusChanged = VST_ResultFocusChanged
     OnGetText = VST_ResultGetText
     OnPaintText = VST_ResultPaintText

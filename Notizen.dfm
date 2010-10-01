@@ -1,9 +1,9 @@
 object FRM_Notizen: TFRM_Notizen
   Left = 424
   Top = 248
+  Width = 531
+  Height = 297
   Caption = 'Notizen'
-  ClientHeight = 262
-  ClientWidth = 515
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

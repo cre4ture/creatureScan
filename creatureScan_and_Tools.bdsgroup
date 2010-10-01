@@ -8,11 +8,7 @@
 			<Option Name="GUID">{8798F995-77CE-46D6-A417-9FE104B5F125}</Option>
 		</Option>
 	</PersonalityInfo>
-	<Default.Personality>  
-    
-    
-    
-    <Projects>
+	<Default.Personality>  <Projects>
       <Projects Name="creatureScan.exe">creatureScan.bdsproj</Projects>
       <Projects Name="test.exe">_cSplugins\test_PluginDLL\test.bdsproj</Projects>
       <Projects Name="fullhtml_betauni.dll">_cSplugins\fullhtml_betauni\fullhtml_betauni.bdsproj</Projects>
@@ -29,4 +25,12 @@
       </Dependency>
     </Dependencies>
   </Default.Personality>
+	<CheckinList>
+    creatureScan_and_Tools.bdsgroup;
+    creatureScan.bdsproj;
+    _cSplugins\test_PluginDLL\test.bdsproj;
+    _cSplugins\fullhtml_betauni\fullhtml_betauni.bdsproj;
+    _cSplugins\fullhtml\fullhtml.bdsproj;
+    creatureScan_tools.bdsproj
+  </CheckinList>
 </BorlandProject>

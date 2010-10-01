@@ -5,7 +5,6 @@ object Frame_Bericht: TFrame_Bericht
   Height = 424
   HorzScrollBar.Style = ssHotTrack
   VertScrollBar.Style = ssHotTrack
-  AutoScroll = True
   Color = clBlack
   ParentBackground = False
   ParentColor = False
@@ -21,7 +20,6 @@ object Frame_Bericht: TFrame_Bericht
     Align = alTop
     PopupMenu = PopupMenu1
     OnPaint = PB_BPaint
-    ExplicitTop = 19
   end
   object Panel1: TPanel
     Left = 0
