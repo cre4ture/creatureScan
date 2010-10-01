@@ -1009,11 +1009,13 @@ begin
              TargetCanvas.Font.Color := dPunkteToColor(integer(PlayerPunkte)-ODataBase.Stats_own,ODataBase.RedHours[rh_Points])
            else TargetCanvas.Font.Color := Sender.Font.Color;
 
-           TargetCanvas.Font.Style := TargetCanvas.Font.Style + [fsUnderline];
+           {if (VST_ScanList.HotNode = Node) then
+             TargetCanvas.Font.Style := TargetCanvas.Font.Style + [fsUnderline];}
          end;
       4: //Ally
          begin
-           TargetCanvas.Font.Style := TargetCanvas.Font.Style + [fsUnderline];
+           {if (VST_ScanList.HotNode = Node) then
+             TargetCanvas.Font.Style := TargetCanvas.Font.Style + [fsUnderline]; }
          end;
 
     else
@@ -1607,12 +1609,12 @@ end;
 procedure TFRM_Favoriten.VST_ScanListMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
-  {case (getColumnAt(X)) of
+  case (getColumnAt(X)) of
   2,4: //Spieler, Ally
     VST_ScanList.Cursor := crHandPoint;
   else
     VST_ScanList.Cursor := crDefault;
-  end; }
+  end;
 end;
 
 function TFRM_Favoriten.getColumnAt(x: integer): integer;

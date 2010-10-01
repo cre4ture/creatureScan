@@ -56,7 +56,7 @@ uses
   FavFilter in 'FavFilter.pas' {FRM_Filter},
   _test_POST in '_test_POST.pas' {FRM_POST_TEST},
   oFight in 'oFight.pas',
-  SDBFile in 'D:\lib\uli\TSDBFile\SDBFile.pas',
+  SDBFile in '..\..\lib\uli\TSDBFile\SDBFile.pas',
   cS_DB_reportFile in 'cS_DB_reportFile.pas',
   cS_DB in 'cS_DB.pas',
   cS_networking in 'cS_networking.pas',
@@ -74,7 +74,8 @@ uses
   config_cS_db_engine in 'config_cS_db_engine.pas' {frm_config_cS_engine},
   sync_cS_db_engine in 'sync_cS_db_engine.pas' {frm_sync_cS_db_engine},
   OGameData in 'OGameData.pas',
-  PlanetListInterface in 'PlanetListInterface.pas';
+  PlanetListInterface in 'PlanetListInterface.pas',
+  PostErrorReport in 'PostErrorReport.pas' {frm_postErrorReport};
 
 {$R *.RES}
 
@@ -213,6 +214,7 @@ begin
   Application.CreateForm(TFRM_Info, FRM_Info);
   Application.CreateForm(TFRM_EditScan, FRM_EditScan);
   Application.CreateForm(Tfrm_sync_cS_db_engine, frm_sync_cS_db_engine);
+  Application.CreateForm(Tfrm_postErrorReport, frm_postErrorReport);
   Application.Run;
 
   FRM_Chat.Free;

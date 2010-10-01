@@ -759,7 +759,7 @@ object FRM_Main: TFRM_Main
     Height = 19
     Panels = <
       item
-        Text = '<topmost>'
+        Text = '<normal>'
         Width = 60
       end
       item
@@ -881,8 +881,12 @@ object FRM_Main: TFRM_Main
       object N6: TMenuItem
         Caption = '-'
       end
+      object PostErrorReport1: TMenuItem
+        Caption = 'fehlerhaftes Einlesen melden...'
+        OnClick = PostErrorReport1Click
+      end
       object SaveClipboardtoFile1: TMenuItem
-        Caption = 'Save Clipboard to File'
+        Caption = 'Save Clipboard to File (Old)'
         OnClick = SaveClipboardtoFile1Click
       end
     end
@@ -903,14 +907,6 @@ object FRM_Main: TFRM_Main
     end
     object Info1: TMenuItem
       Caption = '&?'
-      object Info2: TMenuItem
-        Caption = 'Info'
-        OnClick = Info1Click
-      end
-      object updatecheck1: TMenuItem
-        Caption = 'update check'
-        OnClick = updatecheck1Click
-      end
       object Forum1: TMenuItem
         Caption = 'Forum'
         OnClick = Forum1Click
@@ -918,6 +914,17 @@ object FRM_Main: TFRM_Main
       object Wiki1: TMenuItem
         Caption = 'Wiki'
         OnClick = Wiki1Click
+      end
+      object N11: TMenuItem
+        Caption = '-'
+      end
+      object updatecheck1: TMenuItem
+        Caption = 'update check'
+        OnClick = updatecheck1Click
+      end
+      object Info2: TMenuItem
+        Caption = 'Info'
+        OnClick = Info1Click
       end
     end
     object Dir: TMenuItem
