@@ -162,6 +162,7 @@ object FRM_Favoriten: TFRM_Favoriten
     OnInitNode = VST_ScanListInitNode
     OnKeyPress = VST_ScanListKeyPress
     OnMouseDown = VST_ScanListMouseDown
+    OnMouseMove = VST_ScanListMouseMove
     Columns = <
       item
         Position = 0

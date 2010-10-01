@@ -10,7 +10,7 @@ uses
   clipbrd, ClipboardViewerForm, EditScan, stringlistedit, xmldom,
   XMLIntf, msxmldom, XMLDoc, cs_XML, oFight, clipbrdfunctions, UniTree,
   frm_pos_size_ini, MusiPlayer, TIReadPlugin, PlanetListInterface,
-  TrayIcon;
+  TrayIcon, PostErrorReport;
 
 const
   Transporter_space = 25000;
@@ -162,6 +162,8 @@ type
     Wiki1: TMenuItem;
     ico_active: TImage;
     ico_inactive: TImage;
+    N11: TMenuItem;
+    PostErrorReport1: TMenuItem;
     procedure btn_lastClick(Sender: TObject);
     procedure btn_nextClick(Sender: TObject);
     procedure LblWikiLinkClick(Sender: TObject);
@@ -242,6 +244,7 @@ type
     procedure phpSync1Click(Sender: TObject);
     procedure Forum1Click(Sender: TObject);
     procedure Wiki1Click(Sender: TObject);
+    procedure PostErrorReport1Click(Sender: TObject);
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
@@ -470,7 +473,7 @@ begin
   lbl_title.Caption := lbl_title.Caption + VNumber;
 
   topmost := false;
-  StatusBar1.Panels[0].Text := STR_topmost;
+  StatusBar1.Panels[0].Text := STR_normal;
 
   {
   TrayIco := TTrayIcon.Create(Self);
@@ -1279,8 +1282,8 @@ begin
     else SetWindowPos(Handle,HWND_NOTOPMOST,0,0,0,0,SWP_NOMOVE OR SWP_NOSIZE);
 
   if topmost
-    then StatusBar1.Panels[0].Text := STR_normal
-    else StatusBar1.Panels[0].Text := STR_topmost;
+    then StatusBar1.Panels[0].Text := STR_topmost
+    else StatusBar1.Panels[0].Text := STR_normal;
 end;
 
 procedure TFRM_Main.FormMouseWheel(Sender: TObject; Shift: TShiftState;
@@ -1861,7 +1864,7 @@ begin
   begin
     filename := SaveDialog1.FileName;
     if ExtractFileExt(filename) = '' then
-      filename := filename + '.txt';
+      filename := filename + '.bin';
 
     clipbrdfunctions.SaveClipboardtoFile(filename,
       ODataBase.LanguagePlugIn.PluginFilename,
@@ -2195,6 +2198,11 @@ end;
 procedure TFRM_Main.Wiki1Click(Sender: TObject);
 begin
   LblWikiLinkClick(lbl_wiki_link);
+end;
+
+procedure TFRM_Main.PostErrorReport1Click(Sender: TObject);
+begin
+  frm_postErrorReport.ShowModal;
 end;
 
 end.

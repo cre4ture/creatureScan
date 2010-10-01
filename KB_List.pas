@@ -29,13 +29,13 @@ type
     lbl_flotte: TLabel;
     Panel2: TPanel;
     btn_pasteEvents: TButton;
-    IL_mission: TImageList;
     Panel3: TPanel;
     lbl_servertime: TLabel;
     Label2: TLabel;
     btn_time_sync: TButton;
     ProgressBar1: TProgressBar;
     tim_time_sync_auto: TTimer;
+    IL_mission: TImageList;
     procedure tim_time_sync_autoTimer(Sender: TObject);
     procedure btn_time_syncClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
