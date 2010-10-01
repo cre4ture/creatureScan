@@ -136,15 +136,14 @@ type
     p_startscreen: TPanel;
     lbl_title: TLabel;
     Label1: TLabel;
-    Label2: TLabel;
+    lbl_wiki_link: TLabel;
     Label3: TLabel;
-    Label4: TLabel;
+    lbl_forum_link: TLabel;
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
     Label8: TLabel;
     Label9: TLabel;
-    Label10: TLabel;
     phpSync1: TMenuItem;
     Panel1: TPanel;
     lst_others: TListView;
@@ -153,15 +152,19 @@ type
     BTN_Liste: TButton;
     BTN_Suche: TButton;
     BTN_Universum: TButton;
-    Label11: TLabel;
     btn_last: TButton;
     btn_next: TButton;
     Scan1: TMenuItem;
     nchstenAuswhlen1: TMenuItem;
     vorherigenauswhlen1: TMenuItem;
+    Shape1: TShape;
+    Forum1: TMenuItem;
+    Wiki1: TMenuItem;
+    ico_active: TImage;
+    ico_inactive: TImage;
     procedure btn_lastClick(Sender: TObject);
     procedure btn_nextClick(Sender: TObject);
-    procedure Label4Click(Sender: TObject);
+    procedure LblWikiLinkClick(Sender: TObject);
     procedure Raideintragen1Click(Sender: TObject);
     procedure Spionage1Click(Sender: TObject);
     procedure Angriff1Click(Sender: TObject);
@@ -237,6 +240,8 @@ type
     procedure StatusBar1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure phpSync1Click(Sender: TObject);
+    procedure Forum1Click(Sender: TObject);
+    procedure Wiki1Click(Sender: TObject);
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
@@ -348,7 +353,7 @@ begin
   ODataBase.OnAskMoon := nil;
 
   SaveOptions;
-  Stopp;
+  Stopp; // Clipboard Viewer
   Beenden := True;
   SoundModul.Free;
   TrayIco.free;
@@ -480,8 +485,7 @@ begin
   TrayIco.Visible := true;
   }
   TrayIco := TTrayIcon.Create(Self);
-  TrayIco.Images := il_trayicon;
-  TrayIco.AnimateInterval := -1;
+  TrayIco.Icon := ico_active.Picture.Icon;
   Caption := Caption + ' Uni: ' +
              ODataBase.UniDomain + '.' + ODataBase.game_domain +
              ' User: ' + ODataBase.Username;
@@ -1385,15 +1389,9 @@ end;
 
 procedure TFRM_Main.SetTrayIcon_;
 begin  //aktualisiert das TrayIcon
-  {if CVActive then
-    TrayIco.IconIndex := 1
-  else
-    TrayIco.IconIndex := 0;}
   if CVActive then
-    TrayIco.Images.GetIcon(1, TrayIco.Icon)
-  else TrayIco.Images.GetIcon(1, TrayIco.Icon);
-  {TrayIco.Animate := True;
-  TrayIco.AnimateInterval := 0;  }
+    TrayIco.Icon := ico_active.Picture.Icon
+  else TrayIco.Icon := ico_inactive.Picture.Icon;
 end;
 
 procedure TFRM_Main.SuchenErsetzen1Click(Sender: TObject);
@@ -2157,7 +2155,7 @@ begin
   Application.BringToFront;
 end;
 
-procedure TFRM_Main.Label4Click(Sender: TObject);
+procedure TFRM_Main.LblWikiLinkClick(Sender: TObject);
 begin
   with sender as TLabel do
   begin
@@ -2187,6 +2185,16 @@ end;
 procedure callLink(url: string);
 begin
   ShellExecute(0,'open',PChar(url),'','',0);
+end;
+
+procedure TFRM_Main.Forum1Click(Sender: TObject);
+begin
+  LblWikiLinkClick(lbl_forum_link);
+end;
+
+procedure TFRM_Main.Wiki1Click(Sender: TObject);
+begin
+  LblWikiLinkClick(lbl_wiki_link);
 end;
 
 end.

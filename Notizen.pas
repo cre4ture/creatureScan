@@ -55,9 +55,11 @@ type
       Node: PVirtualNode; Column: TColumnIndex);
     procedure VST_NotizenCompareNodes(Sender: TBaseVirtualTree; Node1,
       Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
-    procedure VST_NotizenHeaderClick(Sender: TVTHeader;
+    procedure VST_NotizenHeaderClickX(Sender: TVTHeader;
       Column: TColumnIndex; Button: TMouseButton; Shift: TShiftState; X,
       Y: Integer);
+    procedure VST_NotizenHeaderClick(Sender: TVTHeader;
+      HitInfo: TVTHeaderHitInfo);
   private
     Images: array of TNoteImage;
     IniFile: String;
@@ -429,7 +431,7 @@ begin
   end;
 end;
 
-procedure TFRM_Notizen.VST_NotizenHeaderClick(Sender: TVTHeader;
+procedure TFRM_Notizen.VST_NotizenHeaderClickX(Sender: TVTHeader;
   Column: TColumnIndex; Button: TMouseButton; Shift: TShiftState; X,
   Y: Integer);
 begin
@@ -581,6 +583,13 @@ begin
   if WindowState = wsMinimized then
     WindowState := wsNormal;
   inherited Show;
+end;
+
+procedure TFRM_Notizen.VST_NotizenHeaderClick(Sender: TVTHeader;
+  HitInfo: TVTHeaderHitInfo);
+begin
+  VST_NotizenHeaderClickX(Sender, HitInfo.Column, HitInfo.Button,
+    HitInfo.Shift, HitInfo.X, HitInfo.Y);
 end;
 
 end.

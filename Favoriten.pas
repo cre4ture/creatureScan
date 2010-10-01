@@ -104,7 +104,7 @@ type
     procedure BTN_RefreshClick(Sender: TObject);
     procedure VST_ScanListGetNodeDataSize(Sender: TBaseVirtualTree;
       var NodeDataSize: Integer);
-    procedure VST_ScanListHeaderClick(Sender: TVTHeader;
+    procedure VST_ScanListHeaderClickX(Sender: TVTHeader;
       Column: TColumnIndex; Button: TMouseButton; Shift: TShiftState; X,
       Y: Integer);
     procedure VST_ScanListFocusChanged(Sender: TBaseVirtualTree;
@@ -152,6 +152,8 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure VST_ScanListMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
+    procedure VST_ScanListHeaderClick(Sender: TVTHeader;
+      HitInfo: TVTHeaderHitInfo);
   published
   private
     mListInterface: TFRM_Fav_PlanetListInterface;
@@ -715,7 +717,7 @@ begin
   else PopupMenu := PopupMenu1;
 end;
 
-procedure TFRM_Favoriten.VST_ScanListHeaderClick(Sender: TVTHeader;
+procedure TFRM_Favoriten.VST_ScanListHeaderClickX(Sender: TVTHeader;
   Column: TColumnIndex; Button: TMouseButton; Shift: TShiftState; X,
   Y: Integer);
 begin
@@ -1673,6 +1675,13 @@ begin
     mFRM_Fav.VST_ScanList.Selected[node] := true;
     pos := mFRM_Fav.getSelectedPlanet();
   end;
+end;
+
+procedure TFRM_Favoriten.VST_ScanListHeaderClick(Sender: TVTHeader;
+  HitInfo: TVTHeaderHitInfo);
+begin
+  VST_ScanListHeaderClickX(Sender, HitInfo.Column, HitInfo.Button,
+    HitInfo.Shift, HitInfo.X, HitInfo.Y);
 end;
 
 end.

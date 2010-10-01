@@ -68,7 +68,6 @@ uses
   OtherTime in 'OtherTime.pas',
   languagemodul in 'languagemodul.pas',
   langmodform in 'langmodform.pas',
-  sliding_window in '..\lib\uli\notifyWindow\sliding_window.pas',
   notify_fleet_arrival in 'notify_fleet_arrival.pas' {frm_fleet_arrival},
   EditScan in 'EditScan.pas' {FRM_EditScan},
   zeit_sync in '..\Ogame_tools\zeit_sync\zeit_sync.pas',

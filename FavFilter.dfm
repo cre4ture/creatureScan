@@ -1,9 +1,9 @@
 object FRM_Filter: TFRM_Filter
   Left = 428
   Top = 224
+  Width = 325
+  Height = 266
   Caption = 'Filter'
-  ClientHeight = 231
-  ClientWidth = 309
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -28,10 +28,6 @@ object FRM_Filter: TFRM_Filter
     TabOrder = 0
     object TS_Alter: TTabSheet
       Caption = 'Altersfilter'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label3: TLabel
         Left = 92
         Top = 20
@@ -96,10 +92,6 @@ object FRM_Filter: TFRM_Filter
     object TS_Ress: TTabSheet
       Caption = 'Ressourcen'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object LBL_Ges: TLabel
         Left = 4
         Top = 32
@@ -127,10 +119,6 @@ object FRM_Filter: TFRM_Filter
     object TS_Def_Fleet_Stat: TTabSheet
       Caption = 'Def / Fleet / Status'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object CB_Def: TComboBox
         Left = 100
         Top = 4
@@ -233,10 +221,6 @@ object FRM_Filter: TFRM_Filter
     object TS_Koordinaten: TTabSheet
       Caption = 'Koordinaten'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label11: TLabel
         Left = 4
         Top = 4

@@ -78,7 +78,7 @@ type
     procedure VST_ResultGetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
       var CellText: WideString);
-    procedure VST_ResultDblClick(Sender: TObject);
+    procedure VST_ResultDblClickX(Sender: TObject);
     procedure VST_ResultFocusChanged(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex);
     procedure VST_ResultGetImageIndex(Sender: TBaseVirtualTree;
@@ -86,7 +86,7 @@ type
       var Ghosted: Boolean; var ImageIndex: Integer);
     procedure VST_ResultCompareNodes(Sender: TBaseVirtualTree; Node1,
       Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
-    procedure VST_ResultHeaderClick(Sender: TVTHeader;
+    procedure VST_ResultHeaderClickX(Sender: TVTHeader;
       Column: TColumnIndex; Button: TMouseButton; Shift: TShiftState; X,
       Y: Integer);
     procedure Kopieren1Click(Sender: TObject);
@@ -107,9 +107,11 @@ type
     procedure cb_koordsEnter(Sender: TObject);
     procedure cb_koordsChange(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure VST_ResultBeforeItemPaint(Sender: TBaseVirtualTree;
+    procedure VST_ResultBeforeItemPaintX(Sender: TBaseVirtualTree;
       TargetCanvas: TCanvas; Node: PVirtualNode; ItemRect: TRect;
       var CustomDraw: Boolean);
+    procedure VST_ResultHeaderClick(Sender: TVTHeader;
+      HitInfo: TVTHeaderHitInfo);
   private
     mPosListInterface: TPlanetListInterface;
     e, Topmost : boolean;
@@ -442,7 +444,7 @@ begin
   end;
 end;
 
-procedure TFRM_Suche.VST_ResultDblClick(Sender: TObject);
+procedure TFRM_Suche.VST_ResultDblClickX(Sender: TObject);
 begin
   if VST_Result.FocusedNode <> nil then
   with TSearch_ND(VST_Result.GetNodeData(VST_Result.FocusedNode)^) do
@@ -497,7 +499,7 @@ begin
   end;
 end;
 
-procedure TFRM_Suche.VST_ResultHeaderClick(Sender: TVTHeader;
+procedure TFRM_Suche.VST_ResultHeaderClickX(Sender: TVTHeader;
   Column: TColumnIndex; Button: TMouseButton; Shift: TShiftState; X,
   Y: Integer);
 begin
@@ -698,7 +700,7 @@ begin
     Result := ODataBase.Berichte[scan].Head.Time_u;
 end;
 
-procedure TFRM_Suche.VST_ResultBeforeItemPaint(Sender: TBaseVirtualTree;
+procedure TFRM_Suche.VST_ResultBeforeItemPaintX(Sender: TBaseVirtualTree;
   TargetCanvas: TCanvas; Node: PVirtualNode; ItemRect: TRect;
   var CustomDraw: Boolean);
 begin
@@ -751,6 +753,13 @@ begin
     mFRM_Suche.VST_Result.Selected[node] := true;
     pos := mFRM_Suche.getFocusedPlanet();
   end;
+end;
+
+procedure TFRM_Suche.VST_ResultHeaderClick(Sender: TVTHeader;
+  HitInfo: TVTHeaderHitInfo);
+begin
+  VST_ResultHeaderClickX(Sender, HitInfo.Column, HitInfo.Button, 
+    HitInfo.Shift, HitInfo.X, HitInfo.Y);
 end;
 
 end.

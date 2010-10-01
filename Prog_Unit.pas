@@ -40,7 +40,7 @@ const
   pi_TSyncRaids      = 1029;
   pi_TSyncStats      = 1030;
 
-const VNumber = '1.8e1';
+const VNumber = '1.8e2';
       
 
 {$DEFINE oanzahl}  //ohne Anzahl!! -- brauchts nirgends mehr!
@@ -594,20 +594,38 @@ end;
 procedure TOgameDataBase.ImportFile(Filename: String);
 //Mit dieser Procedure wird ein Importvorgang gestartet. Sie ermittelt, ob Scan oder Sytem-Datei und leitet die internen Importfunktionen ein!
 var datei: TFileStream;
-    V: String[20]; // einfach mal mehr einlesen, mach ja nix
+    V: String[255]; // einfach mal mehr einlesen, mach ja nix
+    sysFF: TcSSolSysFileFormat;
+    scanFF: TcSReportFileFormat;
+    isValidFormat: Boolean;
 begin
   //Lesen der Versionsimformationen:
   datei := TFileStream.Create(Filename,fmOpenRead);
   datei.Read(V,sizeof(V));
   datei.free;
 
+  isValidFormat := false;
   //Auswahl und Start der iternen Funktionen (ImportSys / ImportScans)
-  if (copy(V,1,length(cSSSFFStart)) = cSSSFFStart) then
-    ImportSys(Filename)
-  else
-  if (copy(V,1,length(cSRFFStart)) = cSRFFStart) then
-    ImportScans(Filename)
-  else
+  for sysFF := TcSSolSysFileFormat(1) to high(sysFF) do
+    if V = cSSolSysFileFormatstr[sysFF] then
+      isValidFormat := True;
+
+  if (isValidFormat) then
+  begin
+    ImportSys(Filename);
+    Exit;
+  end;
+
+  for scanFF := TcSReportFileFormat(1) to high(scanFF) do
+    if V = cSReportFileFormatstr[scanFF] then
+      isValidFormat := True;
+
+  if (isValidFormat) then
+  begin
+    ImportScans(Filename);
+    Exit;
+  end;
+
   if (copy(V,1,6) = 'export')or(copy(V,1,4) = '?xml') then
     ImportXML(Filename)
   else

@@ -1,9 +1,9 @@
 object Explorer: TExplorer
   Left = 313
   Top = 145
+  Width = 482
+  Height = 463
   Caption = 'Galaxie-Explorer'
-  ClientHeight = 428
-  ClientWidth = 466
   Color = clBlack
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -25,7 +25,6 @@ object Explorer: TExplorer
     Align = alTop
     Alignment = taCenter
     Caption = 'LBL_SysHead'
-    ExplicitWidth = 68
   end
   object PaintBox1: TPaintBox
     Left = 0

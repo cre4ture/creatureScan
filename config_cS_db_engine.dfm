@@ -1,6 +1,6 @@
 object frm_config_cS_engine: Tfrm_config_cS_engine
-  Left = 0
-  Top = 0
+  Left = 113
+  Top = 129
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsDialog
   Caption = 'cS_db_engine einrichten'

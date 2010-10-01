@@ -45,6 +45,7 @@ type
 
   // ------------------------ DLL Interface ende -------------------------------
 
+  TLangPluginNoPluginException = class(Exception);
   TLangPlugIn = class;
   TLangPlugIn = class(TObject)
   private
@@ -417,7 +418,7 @@ begin
     PReadSource_SetHTML(handle, PChar(html), server_time);
   end
   else
-    raise Exception.Create(
+    raise TLangPluginNoPluginException.Create(
       'TLangPlugIn.SetReadSourceHTML: Plugin fehlerhaft, oder kein Plugin geladen!');
 end;
 
@@ -429,7 +430,7 @@ begin
     PReadSource_SetText(handle, PChar(text), server_time);
   end
   else
-    raise Exception.Create(
+    raise TLangPluginNoPluginException.Create(
       'TLangPlugIn.SetReadSourceText: Plugin fehlerhaft, oder kein Plugin geladen!');
 end;
 
