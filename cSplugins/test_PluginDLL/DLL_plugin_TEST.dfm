@@ -1,8 +1,8 @@
 object FRM_MainTest: TFRM_MainTest
   Left = 446
   Top = 310
-  Width = 518
-  Height = 235
+  Width = 508
+  Height = 237
   Caption = 'DLL_plugin_TEST'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET

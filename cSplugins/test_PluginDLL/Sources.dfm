@@ -1,9 +1,9 @@
 object FRM_Sources: TFRM_Sources
   Left = 212
   Top = 222
+  Width = 692
+  Height = 403
   Caption = 'Sources'
-  ClientHeight = 300
-  ClientWidth = 676
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,7 +16,7 @@ object FRM_Sources: TFRM_Sources
   OnResize = FormResize
   DesignSize = (
     676
-    300)
+    368)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -35,7 +35,7 @@ object FRM_Sources: TFRM_Sources
   end
   object Label3: TLabel
     Left = 144
-    Top = 220
+    Top = 288
     Width = 37
     Height = 13
     Anchors = [akLeft, akBottom]
@@ -68,7 +68,7 @@ object FRM_Sources: TFRM_Sources
   end
   object CB_Clipboard: TCheckBox
     Left = 8
-    Top = 220
+    Top = 288
     Width = 97
     Height = 17
     Anchors = [akLeft, akBottom]
@@ -80,7 +80,7 @@ object FRM_Sources: TFRM_Sources
   end
   object Button1: TButton
     Left = 96
-    Top = 244
+    Top = 312
     Width = 85
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -92,14 +92,15 @@ object FRM_Sources: TFRM_Sources
     Left = 188
     Top = 220
     Width = 481
-    Height = 69
+    Height = 137
     Anchors = [akLeft, akRight, akBottom]
     ReadOnly = True
+    ScrollBars = ssVertical
     TabOrder = 4
   end
   object Button2: TButton
     Left = 8
-    Top = 244
+    Top = 312
     Width = 85
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -109,7 +110,7 @@ object FRM_Sources: TFRM_Sources
   end
   object Button3: TButton
     Left = 96
-    Top = 272
+    Top = 340
     Width = 85
     Height = 17
     Anchors = [akLeft, akBottom]

@@ -91,7 +91,7 @@ ImageBase=4194304
 ExeDescription=
 [Directories]
 OutputDir=
-UnitOutputDir=
+UnitOutputDir=..\..\dcu
 PackageDLLOutputDir=
 PackageDCPOutputDir=
 SearchPath=..\;..\..\UniverseTree;..\..\;D:\devel\Ogame_tools\zeit_sync
@@ -110,12 +110,12 @@ ActiveLang=
 ProjectLang=
 RootDir=
 [Version Info]
-IncludeVerInfo=0
-AutoIncBuild=0
+IncludeVerInfo=1
+AutoIncBuild=1
 MajorVer=1
-MinorVer=0
-Release=0
-Build=0
+MinorVer=8
+Release=3
+Build=1
 Debug=0
 PreRelease=0
 Special=0
@@ -126,7 +126,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=
 FileDescription=
-FileVersion=1.0.0.0
+FileVersion=1.8.3.1
 InternalName=
 LegalCopyright=
 LegalTrademarks=
@@ -141,6 +141,10 @@ Item0=delphi
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
-Count=2
+Count=1
 Item0=..\;..\..\UniverseTree;..\..\;D:\devel\Ogame_tools\zeit_sync
-Item1=D:\devel\Ogame_tools\zeit_sync
+[HistoryLists\hlUnitOutputDirectory]
+Count=3
+Item0=..\..\dcu
+Item1=.\dcu
+Item2=./dcu
