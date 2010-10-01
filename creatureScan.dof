@@ -91,7 +91,7 @@ ImageBase=4194304
 ExeDescription=
 [Directories]
 OutputDir=D:\devel\creatureScan\creatureScan
-UnitOutputDir=
+UnitOutputDir=.\dcu
 PackageDLLOutputDir=
 PackageDCPOutputDir=
 SearchPath=D:\devel\lib\uli\TClipboardViewer
@@ -115,7 +115,7 @@ AutoIncBuild=1
 MajorVer=2
 MinorVer=0
 Release=0
-Build=142
+Build=144
 Debug=0
 PreRelease=0
 Special=0
@@ -126,7 +126,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=
 FileDescription=
-FileVersion=2.0.0.142
+FileVersion=2.0.0.144
 InternalName=
 LegalCopyright=
 LegalTrademarks=
@@ -143,6 +143,9 @@ Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
 Count=1
 Item0=D:\devel\lib\uli\TClipboardViewer
+[HistoryLists\hlUnitOutputDirectory]
+Count=1
+Item0=.\dcu
 [HistoryLists\hlOutputDirectorry]
 Count=1
 Item0=D:\devel\creatureScan\creatureScan
