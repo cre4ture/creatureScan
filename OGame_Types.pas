@@ -276,7 +276,7 @@ var
   // def_ignoreTF == true heist also -> nicht ins TF reinrechnen
   def_ignoreFight: array[0..fsc_2_Verteidigung-1] of Boolean;
   ot_tousandsseperator: string;
-  UpdateCheckUrl: string;
+  UpdateCheckUrl, QuickUpdateUrl: string;
   FOGameRangeList: TCoordinatesRangeList;
 
   // Uni6 BetaUni bzw. Redesign
@@ -450,6 +450,9 @@ begin
   DecimalSeparator := '.';
   if TagName = 'updatecheck' then
     UpdateCheckUrl := Attributes.Value('url')
+  else
+  if TagName = 'quickupdate' then
+    QuickUpdateUrl := Attributes.Value('url')
   else
   if TagName = 'raids' then
     maxraids24h := StrToIntDef(Attributes.Value('maxraids24h'),maxraids24h)

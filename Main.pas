@@ -76,7 +76,6 @@ type
     P_Scan: TPanel;
     Frame_Bericht2: TFrame_Bericht;
     Info2: TMenuItem;
-    updatecheck1: TMenuItem;
     TIM_Start: TTimer;
     il_trayicon: TImageList;
     Zwischenablageberwachen1: TMenuItem;
@@ -164,6 +163,9 @@ type
     ico_inactive: TImage;
     N11: TMenuItem;
     PostErrorReport1: TMenuItem;
+    Update1: TMenuItem;
+    Softupdate1: TMenuItem;
+    updatecheck2: TMenuItem;
     procedure btn_lastClick(Sender: TObject);
     procedure btn_nextClick(Sender: TObject);
     procedure LblWikiLinkClick(Sender: TObject);
@@ -245,6 +247,7 @@ type
     procedure Forum1Click(Sender: TObject);
     procedure Wiki1Click(Sender: TObject);
     procedure PostErrorReport1Click(Sender: TObject);
+    procedure Softupdate1Click(Sender: TObject);
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
@@ -336,7 +339,7 @@ uses Notizen, Favoriten, Info,
   Uebersicht, Connections, Export, Einstellungen, Suchen_Ersetzen,
   KB_List, Add_KB, Languages, Delete_Scans,
   Stats_Einlesen, DateUtils, _test_POST, ComConst, StrUtils, sync_cS_db_engine,
-  SDBFile, Mond_Abfrage;
+  SDBFile, Mond_Abfrage, softupdate;
 
 {$R *.DFM}
 
@@ -1310,6 +1313,16 @@ begin
     end
     else
       ShowMessage(STR_MSG_konnte_aktuellste_Version_nicht_ermitteln);
+
+  if frm_soft_update.getUpdates then
+  begin
+    if Application.MessageBox(
+         PCHar('Es gibt QuickUpdates, soll der Updatedialog geöffnet werden?'),
+           'Quick Updates',MB_YESNO or MB_ICONQUESTION) = idYes then
+    begin
+      frm_soft_update.ShowModal;
+    end;
+  end;
 end;
 
 procedure TFRM_Main.TIM_StartTimer(Sender: TObject);
@@ -2203,6 +2216,11 @@ end;
 procedure TFRM_Main.PostErrorReport1Click(Sender: TObject);
 begin
   frm_postErrorReport.ShowModal;
+end;
+
+procedure TFRM_Main.Softupdate1Click(Sender: TObject);
+begin
+  frm_soft_update.ShowModal;
 end;
 
 end.

@@ -75,7 +75,8 @@ uses
   sync_cS_db_engine in 'sync_cS_db_engine.pas' {frm_sync_cS_db_engine},
   OGameData in 'OGameData.pas',
   PlanetListInterface in 'PlanetListInterface.pas',
-  PostErrorReport in 'PostErrorReport.pas' {frm_postErrorReport};
+  PostErrorReport in 'PostErrorReport.pas' {frm_postErrorReport},
+  quickupdate in 'quickupdate.pas' {frm_quickupdate};
 
 {$R *.RES}
 
@@ -215,6 +216,7 @@ begin
   Application.CreateForm(TFRM_EditScan, FRM_EditScan);
   Application.CreateForm(Tfrm_sync_cS_db_engine, frm_sync_cS_db_engine);
   Application.CreateForm(Tfrm_postErrorReport, frm_postErrorReport);
+  Application.CreateForm(Tfrm_quickupdate, frm_quickupdate);
   Application.Run;
 
   FRM_Chat.Free;

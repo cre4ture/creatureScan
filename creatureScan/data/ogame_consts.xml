@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <data>
   <creaturescan>
-    <updatecheck url="http://85.214.58.178/phpBB2/latest.txt"/>
+    <updatecheck url="http://creaturescan.creax.de/update/latest.txt"/>
+    <quickupdate url="http://creaturescan.creax.de/update/"/>
   </creaturescan>
   <raids maxraids24h="5"/>
   <game count="8">
