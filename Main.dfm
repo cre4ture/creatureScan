@@ -918,9 +918,16 @@ object FRM_Main: TFRM_Main
       object N11: TMenuItem
         Caption = '-'
       end
-      object updatecheck1: TMenuItem
-        Caption = 'update check'
-        OnClick = updatecheck1Click
+      object Update1: TMenuItem
+        Caption = 'Update'
+        object Softupdate1: TMenuItem
+          Caption = 'Quick Updates'
+          OnClick = Softupdate1Click
+        end
+        object updatecheck2: TMenuItem
+          Caption = 'Version Update Check'
+          OnClick = updatecheck1Click
+        end
       end
       object Info2: TMenuItem
         Caption = 'Info'
