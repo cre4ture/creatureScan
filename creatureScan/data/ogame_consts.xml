@@ -78,20 +78,20 @@
       <unit3 xml="energ"/>
     </group0>
     <group1 count="14" xml="fleets">
-      <unit0 xml="scs" met="2000" crys="2000"/>
-      <unit1 xml="lcs" met="6000" crys="6000"/>
-      <unit2 xml="lf" met="3000" crys="1000"/>
-      <unit3 xml="hf" met="6000" crys="4000"/>
-      <unit4 xml="cru" met="20000" crys="7000" deut="2000"/>
-      <unit5 xml="bs" met="45000" crys="15000"/>
-      <unit6 xml="cs" met="10000" crys="20000" deut="10000"/>
-      <unit7 xml="recy" met="10000" crys="6000" deut="2000"/>
-      <unit8 xml="esp" crys="1000"/>
-      <unit9 xml="bomb" met="50000" crys="25000" deut="15000"/>
-      <unit10 xml="solsat" crys="2000" deut="500"/>
-      <unit11 xml="destr" met="60000" crys="50000" deut="15000"/>
-      <unit12 xml="rip" met="5000000" crys="4000000" deut="1000000"/>
-      <unit13 xml="bcru" met="30000" crys="40000" deut="15000"/>
+      <unit0 xml="scs" met="2000" crys="2000"/><!-- Kleiner Transporter -->
+      <unit1 xml="lcs" met="6000" crys="6000"/><!-- Großer Transporter -->
+      <unit2 xml="lf" met="3000" crys="1000"/><!-- Leicher Jäger -->
+      <unit3 xml="hf" met="6000" crys="4000"/><!-- Schwerer Jäger -->
+      <unit4 xml="cru" met="20000" crys="7000" deut="2000"/><!-- Kreuzer -->
+      <unit5 xml="bs" met="45000" crys="15000"/><!-- Schlachtschiff -->
+      <unit6 xml="cs" met="10000" crys="20000" deut="10000"/><!-- Kolonieschiff -->
+      <unit7 xml="recy" met="10000" crys="6000" deut="2000"/><!-- Recycler -->
+      <unit8 xml="esp" crys="1000"/><!-- Spionagesonde -->
+      <unit9 xml="bomb" met="50000" crys="25000" deut="15000"/><!-- Bomber -->
+      <unit10 xml="solsat" crys="2000" deut="500"/><!-- Solarsatellit -->
+      <unit11 xml="destr" met="60000" crys="50000" deut="15000"/><!-- Zerstörer -->
+      <unit12 xml="rip" met="5000000" crys="4000000" deut="1000000"/><!-- Todesstern -->
+      <unit13 xml="bcru" met="30000" crys="40000" deut="15000"/><!-- Schlachtkreuzer -->
     </group1>
     <group2 count="10" xml="defence">
       <unit0 xml="msl" met="2000"/>
