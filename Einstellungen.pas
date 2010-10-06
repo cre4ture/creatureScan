@@ -119,8 +119,8 @@ type
     CH_Unicheck: TCheckBox;
     txt_beep_sound_file: TEdit;
     Label10: TLabel;
-    Button8: TButton;
-    Button9: TButton;
+    btn_select1: TButton;
+    btn_play1: TButton;
     GroupBox11: TGroupBox;
     Label2: TLabel;
     CB_FakeClipbrdViewer: TCheckBox;
@@ -131,6 +131,17 @@ type
     cb_auto_serverzeit: TCheckBox;
     cb_askmoon: TCheckBox;
     cb_check_solsys_data_for_moon: TCheckBox;
+    ColorDialog1: TColorDialog;
+    GroupBox14: TGroupBox;
+    lbl_vacation: TLabel;
+    lbl_noob: TLabel;
+    lbl_inactive: TLabel;
+    sh_lbl_vacation: TShape;
+    sh_lbl_noob: TShape;
+    sh_lbl_inactive: TShape;
+    Shape4: TShape;
+    txt_UniCheckName: TEdit;
+    Label11: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure LB_FDClick(Sender: TObject);
     procedure KeyPress_OnlyNumbers(Sender: TObject; var Key: Char);
@@ -151,8 +162,10 @@ type
     procedure btn_plugin_optionsClick(Sender: TObject);
     procedure Button6Click(Sender: TObject);
     procedure Button7Click(Sender: TObject);
-    procedure Button9Click(Sender: TObject);
-    procedure Button8Click(Sender: TObject);
+    procedure btn_play1Click(Sender: TObject);
+    procedure btn_select1Click(Sender: TObject);
+    procedure lbl_vacationClick(Sender: TObject);
+    procedure CH_UnicheckClick(Sender: TObject);
   private
     procedure RefreshPluginSprachdatei;
     { Private-Deklarationen }
@@ -218,6 +231,7 @@ begin
   sync_Raids.Checked := (gr_Raids in ClientGroup.Rights);
   CH_Chat.Checked := (gr_Chat in ClientGroup.Rights);
   sync_Stats.Checked := (gr_Stats in ClientGroup.Rights);
+  CH_UnicheckClick(CH_Unicheck);
 end;
 
 procedure TFRM_Einstellungen.TXT_ColorMaxChange(Sender: TObject);
@@ -421,7 +435,7 @@ begin
     txt_fleet_alert_sound.Color := clRed;
 end;
 
-procedure TFRM_Einstellungen.Button9Click(Sender: TObject);
+procedure TFRM_Einstellungen.btn_play1Click(Sender: TObject);
 begin
   FRM_Main.Play_Alert_Sound(txt_beep_sound_file.Text);
 
@@ -432,7 +446,7 @@ begin
 
 end;
 
-procedure TFRM_Einstellungen.Button8Click(Sender: TObject);
+procedure TFRM_Einstellungen.btn_select1Click(Sender: TObject);
 begin
   od_sound.FileName := txt_beep_sound_file.Text;
   if od_sound.Execute then
@@ -440,6 +454,28 @@ begin
     txt_beep_sound_file.Text := od_sound.FileName;
   end;
 
+end;
+
+procedure TFRM_Einstellungen.lbl_vacationClick(Sender: TObject);
+var sh: TShape;
+    comp: TComponent;
+    lbl: TLabel;
+begin
+  lbl := Sender as TLabel;
+  comp := FindComponent('sh_'+lbl.Name);
+  if comp = nil then exit;
+  sh := comp as TShape;
+
+  ColorDialog1.Color := sh.Brush.Color;
+  if ColorDialog1.Execute then
+  begin
+    sh.Brush.Color := ColorDialog1.Color;
+  end;
+end;
+
+procedure TFRM_Einstellungen.CH_UnicheckClick(Sender: TObject);
+begin
+  txt_UniCheckName.Enabled := CH_Unicheck.Checked;
 end;
 
 end.

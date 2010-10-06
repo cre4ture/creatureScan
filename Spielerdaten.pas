@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, Spin, IniFiles, OGame_Types, languages, OGameData;
+  StdCtrls, Spin, IniFiles, OGame_Types, languages, OGameData, quickupdate;
 
 type
   TFRM_Spielerdaten = class(TForm)
@@ -35,17 +35,22 @@ type
     Label2: TLabel;
     cb_redesign: TCheckBox;
     CB_OGame_Universename: TComboBox;
+    btn_update: TButton;
     procedure CB_OGame_SiteChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormPaint(Sender: TObject);
     procedure E_GalaKeyPress(Sender: TObject; var Key: Char);
     procedure BTN_OKClick(Sender: TObject);
     procedure E_UniChange(Sender: TObject);
+    procedure btn_updateClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     ODB: TObject;
+    procedure updateGameSites;
     { Private-Deklarationen }
   public
     game_domain: string;
+    urlName: string;
     UniverseName: String;
     DefInTF: Boolean;
     GalaCount, SysCount: Integer;
@@ -146,17 +151,9 @@ begin
 end;
 
 procedure TFRM_Spielerdaten.FormCreate(Sender: TObject);
-var i: integer;
 begin
   if SaveCaptions then SaveAllCaptions(Self,LangFile);
   if LoadCaptions then LoadAllCaptions(Self,LangFile);
-
-  CB_OGame_Site.Items.Clear;
-  for i := 0 to TOgameDataBase(ODB).game_data.Count -1 do
-    CB_OGame_Site.Items.Add(TOgameDataBase(ODB).game_data.GameSites[i].name);
-
-  CB_OGame_Site.ItemIndex := 0;
-  CB_OGame_SiteChange(Self);
 end;
 
 procedure TFRM_Spielerdaten.FormPaint(Sender: TObject);
@@ -196,6 +193,7 @@ begin
     begin
       universe := TOgameDataBase(ODB).
                     game_data.GameSites[site].UniverseList[uni];
+      urlName := universe.urlName;
       case universe.galaxyCount of
         19: RB_GalaCount19.Checked := true;
         50: RB_GalaCount50.Checked := true;
@@ -205,8 +203,43 @@ begin
       cb_TF_calc.Text := IntToStr(round(universe.tfFleetFactor*100));
       CH_DefInTF.Checked := (universe.tfDefFactor > 0);
       cb_redesign.Checked := universe.redesign_rules;
+    end
+    else
+    begin
+      urlName := CB_OGame_Universename.Text;
     end;
   end; 
+end;
+
+procedure TFRM_Spielerdaten.btn_updateClick(Sender: TObject);
+var frm_quickupdate: Tfrm_quickupdate;
+begin
+  frm_quickupdate := Tfrm_quickupdate.Create(Self, ODB, false);
+  try
+    if frm_quickupdate.ShowModal = mrOk then
+    begin
+      TOgameDataBase(ODB).updateGameData;
+      updateGameSites;
+    end;
+  finally
+    frm_quickupdate.Free;
+  end;
+end;
+
+procedure TFRM_Spielerdaten.FormShow(Sender: TObject);
+begin
+  updateGameSites;
+end;
+
+procedure TFRM_Spielerdaten.updateGameSites;
+var i: integer;
+begin
+  CB_OGame_Site.Items.Clear;
+  for i := 0 to TOgameDataBase(ODB).game_data.Count -1 do
+    CB_OGame_Site.Items.Add(TOgameDataBase(ODB).game_data.GameSites[i].name);
+
+  CB_OGame_Site.ItemIndex := 0;
+  CB_OGame_SiteChange(Self);
 end;
 
 end.

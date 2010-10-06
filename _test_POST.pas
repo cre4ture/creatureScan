@@ -536,6 +536,8 @@ var read, write: string;
       ap, li: integer;
       pos: TPlanetPosition;
   begin
+    list := nil; // suppress warning
+    
     if begin_at > end_before then
       raise Exception.Create('SendReports_between(pos1 > pos2)');
 
@@ -563,6 +565,8 @@ var root, sinfo, times, planet, rtime: THTMLElement;
     ScanList: TReportTimeList;
     s: string;
 begin
+  ScanList := nil; // suppress warning
+  
   log('start sync reports, gala ' + IntToStr(gala),10);
 
   read := '';

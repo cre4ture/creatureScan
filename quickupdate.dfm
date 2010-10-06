@@ -81,7 +81,7 @@ object frm_quickupdate: Tfrm_quickupdate
         WideText = 'Status'
       end>
   end
-  object Button1: TButton
+  object btn_update: TButton
     Left = 421
     Top = 285
     Width = 81
@@ -90,7 +90,7 @@ object frm_quickupdate: Tfrm_quickupdate
     Caption = 'Update!'
     Default = True
     TabOrder = 1
-    OnClick = Button1Click
+    OnClick = btn_updateClick
   end
   object Button2: TButton
     Left = 341

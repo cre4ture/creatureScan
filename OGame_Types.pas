@@ -91,6 +91,8 @@ const
     (fsc_0_Rohstoffe,fsc_1_Flotten,fsc_2_Verteidigung,fsc_3_Gebaeude,fsc_4_Forschung);
   //------------------------------------------------------------------------
 
+  sys_playerstat_inactive = 0;
+  sys_playerstat_longinactive = 2;
   sys_playerstat_urlaub = 3;
   sys_playerstat_noob = 4;
 type

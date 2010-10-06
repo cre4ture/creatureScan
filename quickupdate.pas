@@ -17,7 +17,7 @@ type
   end;
   Tfrm_quickupdate = class(TForm)
     vst_files: TVirtualStringTree;
-    Button1: TButton;
+    btn_update: TButton;
     lbl_update: TLabel;
     Button2: TButton;
     Label1: TLabel;
@@ -30,7 +30,7 @@ type
       var CellText: WideString);
     procedure Button3Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
+    procedure btn_updateClick(Sender: TObject);
     procedure vst_filesCompareNodes(Sender: TBaseVirtualTree; Node1,
       Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
     procedure vst_filesBeforeCellPaint(Sender: TBaseVirtualTree;
@@ -38,15 +38,17 @@ type
       CellPaintMode: TVTCellPaintMode; CellRect: TRect;
       var ContentRect: TRect);
   private
+    ODB: TObject;
     { Private-Deklarationen }
   public
+    enable_plugin_reload: boolean;
     function getUpdates: boolean;
     function applyUpdates: integer;
+    constructor Create(AOwner: TComponent); overload; override; // throw exception!
+    constructor Create(AOwner: TComponent; aODB: TObject;
+      aEnablePluginReload: boolean); overload;
     { Public-Deklarationen }
   end;
-
-var
-  frm_quickupdate: Tfrm_quickupdate;
 
 implementation
 
@@ -59,7 +61,6 @@ uses IdHashMessageDigest, idHash, Math, Prog_Unit;
  var
    idmd5 : TIdHashMessageDigest5;
    fs : TFileStream;
-   hash : T4x4LongWordRecord;
  begin
    idmd5 := TIdHashMessageDigest5.Create;
    fs := TFileStream.Create(fileName, fmOpenRead OR fmShareDenyWrite) ;
@@ -140,6 +141,7 @@ begin
     net.free;
     mem.Free;
   end;
+  btn_update.Enabled := Result;
 end;
 
 
@@ -202,8 +204,9 @@ var node: PVirtualNode;
     localPath, localfile: string;
     tmp_plugin: string;
 begin
-  tmp_plugin := ODataBase.LanguagePlugIn.PluginFilename;
-  ODataBase.LanguagePlugIn.LoadPluginFile('','','');
+  tmp_plugin := TOgameDataBase(ODB).LanguagePlugIn.PluginFilename;
+  if enable_plugin_reload then
+    TOgameDataBase(ODB).LanguagePlugIn.LoadPluginFile('','','');
   try
 
     Result := 0;
@@ -226,12 +229,15 @@ begin
     ShowMessage('Update erfolgreich! ' + IntToStr(Result) + ' Dateien bearbeitet!');
 
   finally
-    ODataBase.LanguagePlugIn.PluginFilename := tmp_plugin;
-    ODataBase.SelectPlugIn(false);
+    if enable_plugin_reload then
+    begin
+      TOgameDataBase(ODB).LanguagePlugIn.PluginFilename := tmp_plugin;
+      TOgameDataBase(ODB).SelectPlugIn(false);
+    end;
   end;
 end;
 
-procedure Tfrm_quickupdate.Button1Click(Sender: TObject);
+procedure Tfrm_quickupdate.btn_updateClick(Sender: TObject);
 begin
   applyUpdates;
   ModalResult := mrOk;
@@ -261,6 +267,20 @@ begin
       TargetCanvas.Brush.Color := clRed;
     TargetCanvas.FillRect(CellRect);
   end;
+end;
+
+constructor Tfrm_quickupdate.Create(AOwner: TComponent; aODB: TObject;
+  aEnablePluginReload: boolean);
+begin
+  inherited Create(AOwner);
+  enable_plugin_reload := aEnablePluginReload;
+  self.ODB := aODB;
+end;
+
+constructor Tfrm_quickupdate.Create(AOwner: TComponent);
+begin
+  raise Exception.Create('Tfrm_quickupdate.Create: disabled contructor!');
+  inherited;
 end;
 
 end.

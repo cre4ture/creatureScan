@@ -146,6 +146,10 @@ var
 
   explorer_links: TStringList;
 
+  explorer_bgcolor_vaction: TColor;
+  explorer_bgcolor_noob: TColor;
+  explorer_bgcolor_inactive: TColor;
+
 
 procedure explorer_save(ini: TIniFile);
 procedure explorer_load(ini: TIniFile);
@@ -495,6 +499,9 @@ begin
   ini.WriteInteger(Section,'TimeFormat',Integer(explorer_Zeitformat));
   ini.WriteBool(Section,'MouseOver',explorer_mouseover);
   ini.WriteInteger(Section,'TF_Size',explorer_TF_Size);
+  ini.WriteInteger(Section, 'bgcolor_vacation', Integer(explorer_bgcolor_vaction));
+  ini.WriteInteger(Section, 'bgcolor_noob', Integer(explorer_bgcolor_noob));
+  ini.WriteInteger(Section, 'bgcolor_inactive', Integer(explorer_bgcolor_inactive));
 
   ini.EraseSection('explorer_links');
   for i := 0 to explorer_links.Count-1 do
@@ -507,6 +514,9 @@ begin
   explorer_Zeitformat := TExplorerZeitFormat(ini.ReadInteger(Section,'TimeFormat',Integer(ezf_Datum)));
   explorer_mouseover := ini.ReadBool(Section,'MouseOver',true);
   explorer_TF_Size := ini.ReadInteger(Section,'TF_Size',20000);
+  explorer_bgcolor_vaction := ini.ReadInteger(Section, 'bgcolor_vacation', Integer(clNavy));
+  explorer_bgcolor_noob := ini.ReadInteger(Section, 'bgcolor_noob', Integer(rgb(0,45,0)));
+  explorer_bgcolor_inactive := ini.ReadInteger(Section, 'bgcolor_inactive', Integer(clMaroon));
 
   explorer_links := TStringList.Create;
   ini.ReadSection('explorer_links',explorer_links);
@@ -908,15 +918,26 @@ procedure TExplorer.VST_SystemBeforeCellPaint_(Sender: TBaseVirtualTree;
   TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
   CellRect: TRect);
 begin
-  if (Column = col_Player)and(sys_playerstat_urlaub in System.Planeten[Node.Index+1].Status) then
+  if (Column = col_Player)and
+     (sys_playerstat_inactive in System.Planeten[Node.Index+1].Status) then
   begin
-    TargetCanvas.Brush.Color := clnavy;
-    TargetCanvas.FillRect(CellRect);
+    TargetCanvas.Brush.Color := explorer_bgcolor_inactive;
+    if TargetCanvas.Brush.Color <> 0 then
+      TargetCanvas.FillRect(CellRect);
   end;
-  if (Column = col_Player)and(sys_playerstat_noob in System.Planeten[Node.Index+1].Status) then
+  if (Column = col_Player)and
+     (sys_playerstat_urlaub in System.Planeten[Node.Index+1].Status) then
   begin
-    TargetCanvas.Brush.Color := rgb(0,45,0);
-    TargetCanvas.FillRect(CellRect);
+    TargetCanvas.Brush.Color := explorer_bgcolor_vaction;
+    if TargetCanvas.Brush.Color <> 0 then
+      TargetCanvas.FillRect(CellRect);
+  end;
+  if (Column = col_Player)and
+     (sys_playerstat_noob in System.Planeten[Node.Index+1].Status) then
+  begin
+    TargetCanvas.Brush.Color := explorer_bgcolor_noob;
+    if TargetCanvas.Brush.Color <> 0 then
+      TargetCanvas.FillRect(CellRect);
   end;
   if (Column = col_TF)and(haveSystem)and(System.Planeten[Node.Index+1].TF[0] + System.Planeten[Node.Index+1].TF[1] > explorer_TF_Size) then
   begin

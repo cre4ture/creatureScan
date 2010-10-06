@@ -9,6 +9,7 @@ type
   TGameUniverse = class
   public
     name: string;
+    urlName: string; // needed if uniname and urlCheckName different
     galaxyCount: integer;
     solsysCount: integer;
     gameSpeedFactor: Single;
@@ -50,7 +51,19 @@ type
     destructor Destroy; override;
   end;
 
+function StrEmptyDef(value, default: string): string;
+
 implementation
+
+uses StrUtils;
+
+function StrEmptyDef(value, default: string): string;
+begin
+  if value = '' then
+    Result := default
+  else
+    Result := value;
+end;
 
 function TGameData.Count: integer;
 begin
@@ -172,6 +185,7 @@ constructor TGameUniverse.Create(const name: string; const xml: THTMLElement);
 begin
   self.name := name;
   // now load universe data:
+  urlname             := StrEmptyDef  (xml.AttributeValue['urlname']        , name);
   galaxyCount         := StrToIntDef  (xml.AttributeValue['galaxycount']    , 9);
   solsysCount         := StrToIntDef  (xml.AttributeValue['solsyscount']    , 499);
   gameSpeedFactor     := StrToFloatDef(xml.AttributeValue['gamespeedfactor'], 1.0);

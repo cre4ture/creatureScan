@@ -15,6 +15,7 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
   Position = poScreenCenter
   OnCreate = FormCreate
   OnPaint = FormPaint
+  OnShow = FormShow
   DesignSize = (
     343
     425)
@@ -80,7 +81,7 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
     object CB_OGame_Site: TComboBox
       Left = 48
       Top = 32
-      Width = 233
+      Width = 201
       Height = 21
       Hint = 
         'w'#228'hle hier ob du in den deutschen Unis (ogame.de) oder in den en' +
@@ -170,11 +171,20 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
     object CB_OGame_Universename: TComboBox
       Left = 48
       Top = 75
-      Width = 235
+      Width = 201
       Height = 21
-      ItemHeight = 0
+      ItemHeight = 13
       TabOrder = 1
       OnChange = E_UniChange
+    end
+    object btn_update: TButton
+      Left = 256
+      Top = 40
+      Width = 49
+      Height = 49
+      Caption = 'Update'
+      TabOrder = 9
+      OnClick = btn_updateClick
     end
   end
   object BTN_OK: TButton

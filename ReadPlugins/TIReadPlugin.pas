@@ -325,22 +325,6 @@ begin
   finally
     FreeMem(buf);
   end;
-
-  (*if Result then
-  begin
-    //Benutzer nach Mond fragen (nur wenn nicht eindeutig -> AskMond)
-    if AskMond then
-    begin
-      //Ereignissbehandlungroutine
-      handled := false;
-      if Assigned(OnAskMoon) then
-        OnAskMoon(Self,Bericht,isMoon,handled);
-
-      if handled then
-        Bericht.Head.Position.Mond := isMoon
-
-    end;
-  end;  *)
 end;
 
 function TLangPlugIn.ReadReports(handle: integer): Integer;

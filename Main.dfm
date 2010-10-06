@@ -1,6 +1,6 @@
 object FRM_Main: TFRM_Main
-  Left = 379
-  Top = 120
+  Left = 499
+  Top = 180
   Width = 549
   Height = 463
   Caption = 'creatureScan'
@@ -218,7 +218,7 @@ object FRM_Main: TFRM_Main
         ParentFont = False
         TabOrder = 2
         OnDblClick = Frame_Bericht1PB_BDblClick
-        object Shape1: TShape
+        object sb_start_bg: TShape
           Left = 0
           Top = 0
           Width = 429
@@ -227,6 +227,16 @@ object FRM_Main: TFRM_Main
           Brush.Color = clBlack
           Pen.Style = psClear
           Pen.Width = 0
+        end
+        object lbl_dbl_click: TLabel
+          Left = 0
+          Top = 0
+          Width = 429
+          Height = 343
+          Align = alClient
+          AutoSize = False
+          Transparent = False
+          OnDblClick = BTN_GalaxieClick
         end
         object lbl_title: TLabel
           Left = 8
@@ -320,6 +330,7 @@ object FRM_Main: TFRM_Main
           Color = clBlack
           ParentColor = False
           WordWrap = True
+          OnDblClick = BTN_GalaxieClick
         end
         object Label7: TLabel
           Left = 8
@@ -333,6 +344,7 @@ object FRM_Main: TFRM_Main
           Color = clBlack
           ParentColor = False
           WordWrap = True
+          OnDblClick = BTN_GalaxieClick
         end
         object Label8: TLabel
           Left = 8
@@ -346,6 +358,7 @@ object FRM_Main: TFRM_Main
           Color = clBlack
           ParentColor = False
           WordWrap = True
+          OnDblClick = BTN_GalaxieClick
         end
         object Label9: TLabel
           Left = 8
@@ -357,6 +370,7 @@ object FRM_Main: TFRM_Main
           Color = clBlack
           ParentColor = False
           WordWrap = True
+          OnDblClick = BTN_GalaxieClick
         end
         object ico_active: TImage
           Left = 300
@@ -870,6 +884,11 @@ object FRM_Main: TFRM_Main
         ShortCut = 16460
         OnClick = Listenansicht1Click
       end
+      object ZwischenablagefrMondScans1: TMenuItem
+        Caption = 'Zwischenablage f'#252'r (Mond?)Scans'
+        ShortCut = 16461
+        OnClick = ZwischenablagefrMondScans1Click
+      end
     end
     object Funktionen1: TMenuItem
       Caption = 'Fun&ktionen'
@@ -1299,6 +1318,7 @@ object FRM_Main: TFRM_Main
       0000000000000000000000000000}
   end
   object PopupMenu1: TPopupMenu
+    OnPopup = PopupMenu1Popup
     Left = 468
     Top = 156
     object Lschen1: TMenuItem

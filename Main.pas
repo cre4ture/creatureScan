@@ -10,7 +10,7 @@ uses
   clipbrd, ClipboardViewerForm, EditScan, stringlistedit, xmldom,
   XMLIntf, msxmldom, XMLDoc, cs_XML, oFight, clipbrdfunctions, UniTree,
   frm_pos_size_ini, MusiPlayer, TIReadPlugin, PlanetListInterface,
-  TrayIcon, PostErrorReport;
+  TrayIcon, PostErrorReport, quickupdate;
 
 const
   Transporter_space = 25000;
@@ -156,7 +156,7 @@ type
     Scan1: TMenuItem;
     nchstenAuswhlen1: TMenuItem;
     vorherigenauswhlen1: TMenuItem;
-    Shape1: TShape;
+    sb_start_bg: TShape;
     Forum1: TMenuItem;
     Wiki1: TMenuItem;
     ico_active: TImage;
@@ -166,6 +166,8 @@ type
     Update1: TMenuItem;
     Softupdate1: TMenuItem;
     updatecheck2: TMenuItem;
+    ZwischenablagefrMondScans1: TMenuItem;
+    lbl_dbl_click: TLabel;
     procedure btn_lastClick(Sender: TObject);
     procedure btn_nextClick(Sender: TObject);
     procedure LblWikiLinkClick(Sender: TObject);
@@ -248,6 +250,8 @@ type
     procedure Wiki1Click(Sender: TObject);
     procedure PostErrorReport1Click(Sender: TObject);
     procedure Softupdate1Click(Sender: TObject);
+    procedure ZwischenablagefrMondScans1Click(Sender: TObject);
+    procedure PopupMenu1Popup(Sender: TObject);
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
@@ -286,6 +290,7 @@ type
     procedure Notification(AComponent: TComponent; Operation: TOperation);
       override;
   public
+    frm_quickupdate: Tfrm_quickupdate;
     TrayIco: TTrayIcon;
     DockExplorer: TExplorer;
     PlayerOptions: TPlayerOptions;
@@ -339,7 +344,7 @@ uses Notizen, Favoriten, Info,
   Uebersicht, Connections, Export, Einstellungen, Suchen_Ersetzen,
   KB_List, Add_KB, Languages, Delete_Scans,
   Stats_Einlesen, DateUtils, _test_POST, ComConst, StrUtils, sync_cS_db_engine,
-  SDBFile, Mond_Abfrage, softupdate;
+  SDBFile, Mond_Abfrage, moon_or_not;
 
 {$R *.DFM}
 
@@ -371,6 +376,7 @@ begin
     // by the public function "notification"
   end;
   fSearchWindows.Free;
+  frm_quickupdate.Free;
 end;
 
 procedure TFRM_Main.BTN_CopyClick(Sender: TObject);
@@ -472,6 +478,7 @@ begin
   fSearchWindows := TList.Create;
   fLatestPlanetListSource := nil; // initialise
   mLatestPlanetListSource := nil; // set buttons enabled
+  frm_quickupdate := Tfrm_quickupdate.Create(Self, ODataBase, true);
   
   lbl_title.Caption := lbl_title.Caption + VNumber;
 
@@ -553,7 +560,7 @@ var p: TPlanetPosition;
 begin
   if lst_others.Selected = nil then
     Exit;
-  
+
   ID := strtoint(lst_others.Selected.SubItems[0]);
   if ID < 0 then
     Exit;
@@ -698,8 +705,27 @@ end;
 
 procedure TFRM_Main.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
-  CanClose := (not CloseToSystray) or beenden or not((Mouse.CursorPos.x > Left + Width - 50)and(Mouse.CursorPos.x < Left + Width + 50)and
-                             (Mouse.CursorPos.y > Top - 50)and(Mouse.CursorPos.y < Top + 50));
+  CanClose := (not CloseToSystray) or beenden or
+     not((Mouse.CursorPos.x > Left + Width - 50)and
+         (Mouse.CursorPos.x < Left + Width + 50)and
+         (Mouse.CursorPos.y > Top - 50)and
+         (Mouse.CursorPos.y < Top + 50)
+         );
+
+  if CanClose and ( frm_report_basket.vst_reports.RootNodeCount > 0 ) then
+  begin
+    if Application.MessageBox('Die Zwischenablage für Mond?Scans enthält noch '#13#10 +
+      'ungespeicherte Scanberichte, wirklich beenden?',
+      'Ungespeicherte Scans in der TmpReportBox',
+      MB_YESNO or MB_ICONQUESTION) = IDNO then
+    begin
+      frm_report_basket.Show;
+      CanClose := False;
+      beenden := false;
+      exit;
+    end;
+  end;
+
   Beenden := CanClose;
   if not CanClose then
   begin
@@ -850,6 +876,7 @@ begin
   form.CH_Clipboard.Checked := CVActive;
   form.txt_beep_sound_file.Text := PlayerOptions.Beep_SoundFile;
   form.CH_Unicheck.Checked := soUniCheck in Einstellungen;
+  form.txt_UniCheckName.Text := ODataBase.UniCheckName;
   form.CH_Beep.Checked := soBeepByWatchClipboard in Einstellungen;
   form.CH_AutoDelete.Checked := ODataBase.DeleteScansWhenAddSys;
   form.ch_startupServer.Checked := soStartupServer in Einstellungen;
@@ -910,6 +937,9 @@ begin
   form.RB_Explorer_genaueZeitangabe.Checked := explorer_Zeitformat = ezf_DatumUhrzeit;
   form.CH_explorer_MouseOver.Checked := explorer_mouseover;
   form.TXT_TF_markierung_groesse.Text := IntToStr(explorer_TF_Size);
+  form.sh_lbl_vacation.Brush.Color := explorer_bgcolor_vaction;
+  form.sh_lbl_noob.Brush.Color := explorer_bgcolor_noob;
+  form.sh_lbl_inactive.Brush.Color := explorer_bgcolor_inactive;
 
   //Fake ClipboadViewer (für Linux/Wine)
   form.CB_FakeClipbrdViewer.Checked := TIM_FakeCV.Enabled;
@@ -934,6 +964,7 @@ begin
     if form.CH_Beep.Checked then include(Einstellungen,soBeepByWatchClipboard);
     PlayerOptions.Beep_SoundFile := form.txt_beep_sound_file.Text;
     if form.CH_Unicheck.Checked then Include(Einstellungen,soUniCheck);
+    ODataBase.UniCheckName := form.txt_UniCheckName.Text;
     ODataBase.DeleteScansWhenAddSys := form.CH_AutoDelete.Checked;
     PlayerOptions.AskMoon_enabled := form.cb_askmoon.Checked;
     ODataBase.check_solsys_data_before_askMoon := form.cb_check_solsys_data_for_moon.Checked;
@@ -985,6 +1016,9 @@ begin
     if form.RB_Explorer_nurDatum.Checked then explorer_Zeitformat := ezf_Datum else explorer_Zeitformat := ezf_DatumUhrzeit;
     explorer_mouseover := form.CH_explorer_MouseOver.Checked;
     explorer_TF_Size := StrToInt(form.TXT_TF_markierung_groesse.Text);
+    explorer_bgcolor_vaction := form.sh_lbl_vacation.Brush.Color;
+    explorer_bgcolor_noob := form.sh_lbl_noob.Brush.Color;
+    explorer_bgcolor_inactive := form.sh_lbl_inactive.Brush.Color;
 
     //Fake ClipboadViewer (für Linux/Wine)
     TIM_FakeCV.Enabled := form.CB_FakeClipbrdViewer.Checked;
@@ -1314,13 +1348,13 @@ begin
     else
       ShowMessage(STR_MSG_konnte_aktuellste_Version_nicht_ermitteln);
 
-  if frm_soft_update.getUpdates then
+  if frm_quickupdate.getUpdates then
   begin
     if Application.MessageBox(
          PCHar('Es gibt QuickUpdates, soll der Updatedialog geöffnet werden?'),
            'Quick Updates',MB_YESNO or MB_ICONQUESTION) = idYes then
     begin
-      frm_soft_update.ShowModal;
+      frm_quickupdate.ShowModal;
     end;
   end;
 end;
@@ -1524,7 +1558,7 @@ begin
   Einstellungen := [];
   if ini.ReadBool(GeneralSection,'AddNewScanToList',true) then include(Einstellungen,soAddNewScanToList);
   if ini.ReadBool(GeneralSection,'ShowScanCountMessage',false) then include(Einstellungen,soShowScanCountMessage);
-  if ini.ReadBool(GeneralSection,'BeepByWatchClipboard',false) then include(Einstellungen,soBeepByWatchClipboard);
+  if ini.ReadBool(GeneralSection,'BeepByWatchClipboard',true) then include(Einstellungen,soBeepByWatchClipboard);
   if ini.readBool(GeneralSection,'soUniCheck',false) then include(Einstellungen,soUniCheck);
   if ini.ReadBool(GeneralSection,'soStartupServer',false) then include(Einstellungen,soStartupServer);
   CVActive := ini.ReadBool(GeneralSection,'WatchClipboard',true);
@@ -2181,16 +2215,9 @@ end;
 
 procedure TFRM_Main.LangPluginOnAskMoon(Sender: TOgameDataBase;
   const Report: TScanBericht; var isMoon, Handled: Boolean);
-var FRM_Mond: TFRM_Mond;
 begin
-  if PlayerOptions.AskMoon_enabled then
-  begin
-    FRM_Mond := TFRM_Mond.Create(Self, Sender.LanguagePlugIn);
-    Beep;
-    isMoon := (FRM_Mond.Open(Report));
-    Handled := true;
-    FRM_Mond.free;
-  end;
+  frm_report_basket.addReport(Report);
+  Handled := false; // so we don't add it to DB, we do it later!
 end;
 
 procedure TFRM_Main.btn_fight_startClick(Sender: TObject);
@@ -2220,7 +2247,18 @@ end;
 
 procedure TFRM_Main.Softupdate1Click(Sender: TObject);
 begin
-  frm_soft_update.ShowModal;
+  frm_quickupdate.ShowModal;
+end;
+
+procedure TFRM_Main.ZwischenablagefrMondScans1Click(Sender: TObject);
+begin
+  frm_report_basket.Show;
+end;
+
+procedure TFRM_Main.PopupMenu1Popup(Sender: TObject);
+begin
+  Lschen1.Enabled := (lst_others.Selected <> nil) and
+    (lst_others.Selected.SubItems[0] <> '-1');
 end;
 
 end.
