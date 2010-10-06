@@ -7,15 +7,15 @@
   <raids maxraids24h="5"/>
   <game count="8">
     <site index="0" name="ogame.de">
-      <uni name="andromeda"/>
-      <uni name="barym"/>
-      <uni name="capella"/>
-      <uni name="draco"/>
-      <uni name="electra" gamespeedfactor="4.0" tffleetfactor="0.5"/>
-      <uni name="fornax" gamespeedfactor="2.0"/>
-      <uni name="gemini"/>
-      <uni name="hydra"/>
-      <uni name="io"/>
+      <uni name="andromeda" urlname="uni101"/>
+      <uni name="barym" urlname="uni102"/>
+      <uni name="capella" urlname="uni103"/>
+      <uni name="draco" urlname="uni104"/>
+      <uni name="electra" urlname="uni105" gamespeedfactor="4.0" tffleetfactor="0.5"/>
+      <uni name="fornax" urlname="uni106" gamespeedfactor="2.0"/>
+      <uni name="gemini" urlname="uni107"/>
+      <uni name="hydra" urlname="uni108"/>
+      <uni name="io" urlname="uni109"/>
       <uni name="uni$" symbol="$" index="1" to="13" redesign="0"/>
       <uni name="uni14" redesign="0" tfdeffactor="0.3"/>
       <uni name="uni15" redesign="0" tfdeffactor="0.3"/>
