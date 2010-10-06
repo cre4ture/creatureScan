@@ -1,9 +1,9 @@
 object FRM_POST_TEST: TFRM_POST_TEST
   Left = 294
   Top = 0
+  Width = 613
+  Height = 778
   Caption = 'FRM_POST'
-  ClientHeight = 743
-  ClientWidth = 580
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -301,10 +301,14 @@ object FRM_POST_TEST: TFRM_POST_TEST
     OnClick = Button10Click
   end
   object IdHTTP1: TIdHTTP
+    MaxLineAction = maException
+    ReadTimeout = 0
     AllowCookies = False
     ProxyParams.BasicAuthentication = False
     ProxyParams.ProxyPort = 0
     Request.ContentLength = -1
+    Request.ContentRangeEnd = 0
+    Request.ContentRangeStart = 0
     Request.ContentType = 'text/html'
     Request.Accept = 'text/html, */*'
     Request.BasicAuthentication = False

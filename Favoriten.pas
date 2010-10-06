@@ -1124,6 +1124,8 @@ procedure TFRM_Favoriten.VST_ScanListAfterCellPaint(
 var I,im,y: integer;
     items: TNotizArray;
 begin
+  items := nil; // suppress warning
+
   if Column = 17 then   //Sterne (Bwwertung)
   begin
     im := TFav(Sender.GetNodeData(Node)^).Stars;

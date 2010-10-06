@@ -40,7 +40,7 @@ const
   pi_TSyncRaids      = 1029;
   pi_TSyncStats      = 1030;
 
-const VNumber = '1.8e2';
+const VNumber = '1.9a';
       
 
 {$DEFINE oanzahl}  //ohne Anzahl!! -- brauchts nirgends mehr!
@@ -113,7 +113,8 @@ type
     UserPosition: TPlanetPosition;
     Username: TPlayerName;
     game_domain: string;
-    UniDomain: String;  // andromeda
+    UniDomain: string;  // andromeda, X -> domain can be pinged, but in url there is an other name like uniXXX.ogame.de
+    UniCheckName: string;
     SaveDir, PlayerInf: String;
     Importing: Boolean;
     DeleteScansWhenAddSys: Boolean;
@@ -159,6 +160,7 @@ type
     function GetLastActivity(pos: TPlanetPosition): int64;
     function GetPlayerStatusAtPos(pos: TPlanetPosition): string;
     function Time_To_AgeStr(time: TDateTime): String;
+    procedure updateGameData;
   end;
   TFUni = (fsAsk,fsNone,fsDeleteAll);
 
@@ -353,6 +355,7 @@ begin
   for i := 0 to 2 do
     ini.WriteInteger('StartPosition', 'Pos' + inttostr(i),UserPosition.P[i]);
   ini.WriteString('UserOptions', 'UniDomain', UniDomain);
+  ini.WriteString('UserOptions', 'UniCheckName', UniCheckName);
   ini.WriteBool('UserOptions', 'DefInTF', DefInTF);
   ini.WriteFloat('UserOptions', 'SpeedFactor', SpeedFactor);
   ini.WriteString('UserOptions', 'PluginFile', LanguagePlugIn.PluginFilename);
@@ -388,8 +391,11 @@ begin
   
   UniDomain := ini.ReadString('UserOptions','UniDomain','');
   if UniDomain = '' then
-     UniDomain := 'uni' + ini.ReadString('UserOptions','Uni',''); // import old settings
-     
+    UniDomain := 'uni' + ini.ReadString('UserOptions','Uni',''); // import old settings
+  UniCheckName := ini.ReadString('UserOptions','UniCheckName','');
+  if UniCheckName = '' then
+    UniCheckName := UniDomain;
+
   DefInTF := ini.ReadBool('UserOptions','DefInTF',False);
   SpeedFactor := ini.ReadFloat('UserOptions','SpeedFactor', 1);
   game_domain := ini.ReadString('UserOptions','ogame_domain','--n/a--');
@@ -491,7 +497,7 @@ function TOgameDataBase.initSysFile: Boolean;
   var old: TcSSolSysDB_for_File;
       i: integer;
   begin
-    old := TcSSolSysDB_for_File.Create(filename, UniDomain); 
+    old := TcSSolSysDB_for_File.Create(filename, UniDomain);
     try
       for i := 0 to old.Count-1 do
       begin
@@ -545,7 +551,7 @@ function TOgameDataBase.initScanFile: boolean;
   var old: TcSReportDB_for_File;
       i: integer;
   begin
-    old := TcSReportDB_for_File.Create(filename, UniDomain); 
+    old := TcSReportDB_for_File.Create(filename, UniDomain);
     try
       for i := 0 to old.Count-1 do
       begin
@@ -870,9 +876,13 @@ begin
       langplugin_onaskmoonprocedure(Self, Scan,
                                     Scan.Head.Position.Mond,
                                     phandled);
-    end;
-
-    UniTree.AddNewReport(Scan);
+      if phandled then
+        UniTree.AddNewReport(Scan);
+      // else: throw away! (maybee the onaskmoonporcedure saved the scan somewhere in order to add it later
+    end
+    else
+      UniTree.AddNewReport(Scan);
+      
     inc(Result);
   end;
 
@@ -895,7 +905,7 @@ function TOgameDataBase.SelectPlugIn(ForceDialog: boolean): Boolean;
 var dialog: TFRM_SelectPlugin;
     serverURL: string;
 begin
-  serverURL := UniDomain + '.' + game_domain;
+  serverURL := UniCheckName + '.' + game_domain;
   chdir(ExtractFilePath(Application.ExeName));
   LanguagePlugIn.LoadPluginFile(LanguagePlugIn.PluginFilename,
       serverURL, PlayerInf);
@@ -943,13 +953,15 @@ function TOgameDataBase.CheckUserOptions(ForceDialog: Boolean): boolean;
     spidaForm.SpeedFaktor := SpeedFactor;
     spidaForm.TF_factor := truemmerfeld_faktor;
     spidaForm.redesign := OGame_IsBetaUni;
+    spidaForm.urlName := UniCheckName;
     if ForceDialog then //im nachhinnein
     begin
       spidaForm.CB_OGame_Site.Enabled := False;
       spidaForm.CB_OGame_Universename.Enabled := False;
       spidaForm.RB_GalaCount9.Enabled := False;
       spidaForm.RB_GalaCount19.Enabled := False;
-      spidaForm.RB_GalaCount50.Enabled := False; 
+      spidaForm.RB_GalaCount50.Enabled := False;
+      spidaForm.btn_update.Enabled := false;
     end;
     Result := spidaForm.Execute;
     if Result then
@@ -964,6 +976,7 @@ function TOgameDataBase.CheckUserOptions(ForceDialog: Boolean): boolean;
       SpeedFactor := spidaForm.SpeedFaktor;
       truemmerfeld_faktor := spidaForm.TF_factor;
       OGame_IsBetaUni := spidaForm.redesign;
+      UniCheckName := spidaForm.urlName;
     end;
     spidaForm.free;
   end;
@@ -1231,6 +1244,12 @@ begin
 
   if (not Handled) and Assigned(OnAskMoon) then
     OnAskMoon(Sender, Report, isMoon, Handled);
+end;
+
+procedure TOgameDataBase.updateGameData;
+begin
+  game_data.Free;
+  game_data := TGameData.Create(xml_data_file);
 end;
 
 end.

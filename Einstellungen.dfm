@@ -27,7 +27,7 @@ object FRM_Einstellungen: TFRM_Einstellungen
     Top = 0
     Width = 531
     Height = 200
-    ActivePage = TS_ScansSysteme
+    ActivePage = ts_Flotten
     Anchors = [akLeft, akTop, akRight, akBottom]
     MultiLine = True
     ParentShowHint = False
@@ -243,10 +243,17 @@ object FRM_Einstellungen: TFRM_Einstellungen
         TabOrder = 0
         object Label10: TLabel
           Left = 28
-          Top = 96
+          Top = 112
           Width = 28
           Height = 13
           Caption = 'Datei:'
+        end
+        object Label11: TLabel
+          Left = 8
+          Top = 56
+          Width = 175
+          Height = 13
+          Caption = 'UrlName: (http://<xxx>.ogame.de/...)'
         end
         object CH_Clipboard: TCheckBox
           Left = 8
@@ -258,11 +265,11 @@ object FRM_Einstellungen: TFRM_Einstellungen
         end
         object CH_Beep: TCheckBox
           Left = 8
-          Top = 76
+          Top = 92
           Width = 317
           Height = 17
           Caption = 'Spiele Sound ab wenn Scan/System/Stats erkannt wurde(n)'
-          TabOrder = 1
+          TabOrder = 3
         end
         object CH_Unicheck: TCheckBox
           Left = 8
@@ -275,33 +282,42 @@ object FRM_Einstellungen: TFRM_Einstellungen
           Caption = 'Uni-Check (ob die Daten aus dem richtigen Uni sind)'
           ParentShowHint = False
           ShowHint = True
-          TabOrder = 2
+          TabOrder = 1
+          OnClick = CH_UnicheckClick
         end
         object txt_beep_sound_file: TEdit
           Left = 64
-          Top = 96
+          Top = 112
           Width = 189
           Height = 21
-          TabOrder = 3
+          TabOrder = 4
           Text = 'beep'
         end
-        object Button8: TButton
+        object btn_select1: TButton
           Left = 288
-          Top = 96
+          Top = 112
           Width = 21
           Height = 21
           Caption = '...'
-          TabOrder = 4
-          OnClick = Button8Click
+          TabOrder = 6
+          OnClick = btn_select1Click
         end
-        object Button9: TButton
+        object btn_play1: TButton
           Left = 256
-          Top = 96
+          Top = 112
           Width = 29
           Height = 21
           Caption = 'play'
           TabOrder = 5
-          OnClick = Button9Click
+          OnClick = btn_play1Click
+        end
+        object txt_UniCheckName: TEdit
+          Left = 192
+          Top = 56
+          Width = 121
+          Height = 21
+          TabOrder = 2
+          Text = 'txt_UniCheckName'
         end
       end
       object GroupBox11: TGroupBox
@@ -381,7 +397,7 @@ object FRM_Einstellungen: TFRM_Einstellungen
       object GroupBox9: TGroupBox
         Left = 148
         Top = 4
-        Width = 373
+        Width = 125
         Height = 93
         Caption = ' '
         TabOrder = 1
@@ -418,6 +434,104 @@ object FRM_Einstellungen: TFRM_Einstellungen
           Height = 21
           TabOrder = 0
           Text = '20000'
+        end
+      end
+      object GroupBox14: TGroupBox
+        Left = 312
+        Top = 4
+        Width = 201
+        Height = 101
+        Caption = ' Farben f'#252'r u, n, i Status der Spieler '
+        Color = clBtnFace
+        ParentColor = False
+        TabOrder = 3
+        object Shape4: TShape
+          Left = 8
+          Top = 16
+          Width = 185
+          Height = 81
+          Brush.Color = clBlack
+        end
+        object sh_lbl_inactive: TShape
+          Left = 16
+          Top = 72
+          Width = 169
+          Height = 17
+          Brush.Color = 74
+        end
+        object sh_lbl_noob: TShape
+          Left = 16
+          Top = 48
+          Width = 169
+          Height = 17
+          Brush.Color = 11520
+        end
+        object sh_lbl_vacation: TShape
+          Left = 16
+          Top = 24
+          Width = 169
+          Height = 17
+          Brush.Color = clNavy
+        end
+        object lbl_vacation: TLabel
+          Left = 16
+          Top = 24
+          Width = 169
+          Height = 13
+          Hint = 'W'#228'hle hier die Farbe Schwarz, um diese Funktion zu deaktivieren!'
+          Alignment = taCenter
+          AutoSize = False
+          Caption = 'Urlaubsmodus <click>'
+          Color = clNavy
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWhite
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ParentColor = False
+          ParentFont = False
+          Transparent = True
+          OnClick = lbl_vacationClick
+        end
+        object lbl_noob: TLabel
+          Left = 16
+          Top = 48
+          Width = 169
+          Height = 13
+          Hint = 'W'#228'hle hier die Farbe Schwarz, um diese Funktion zu deaktivieren!'
+          Alignment = taCenter
+          AutoSize = False
+          Caption = 'Noobstatus <click>'
+          Color = 11520
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWhite
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ParentColor = False
+          ParentFont = False
+          Transparent = True
+          OnClick = lbl_vacationClick
+        end
+        object lbl_inactive: TLabel
+          Left = 16
+          Top = 72
+          Width = 169
+          Height = 13
+          Hint = 'W'#228'hle hier die Farbe Schwarz, um diese Funktion zu deaktivieren!'
+          Alignment = taCenter
+          AutoSize = False
+          Caption = 'Inaktive Spieler <click>'
+          Color = clMaroon
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWhite
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ParentColor = False
+          ParentFont = False
+          Transparent = True
+          OnClick = lbl_vacationClick
         end
       end
     end
@@ -1017,7 +1131,11 @@ object FRM_Einstellungen: TFRM_Einstellungen
   end
   object od_sound: TOpenDialog
     Filter = 'Sounds|*.wav;*.mp3;*.mid;|Alle|*.*'
-    Left = 424
-    Top = 86
+    Left = 376
+    Top = 150
+  end
+  object ColorDialog1: TColorDialog
+    Left = 432
+    Top = 150
   end
 end
