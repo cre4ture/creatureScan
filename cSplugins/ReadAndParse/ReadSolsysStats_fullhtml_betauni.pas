@@ -292,7 +292,6 @@ function ThtmlSysRead_betauni.ReadFullHTML(doc_html: THTMLElement;
   var solsys: TSystemCopy): Boolean;
 var tbody, tag, tag_row, tag_pos: THTMLElement;
     table: THTMLTable;
-    r: Integer;
     i, row_nr, r_nr, p: Integer;
     got_koords: boolean;
     s: string;
@@ -364,18 +363,17 @@ begin
               end;
             end;
 
-            // Suche nach "Kolonisieren"-Tags auch für koords:
-
-            { // 11.10.2009: Ogame hat's mit diesen Links wohl verkackt -.-
+            // Suche nach "Umsiedeln"-Tags auch für koords:
             if (not got_koords)and(solsys.Planeten[row_nr].Player = '') then
             begin
               tag_pos := HTMLFindRoutine_NameAttribute(tag_row, 'td', 'class', 'planetname1');
               if tag_pos <> nil then
               begin
                 tag_pos := tag_pos.FindChildTag('a');
-                if tag_pos <> nil then
+                if (tag_pos <> nil) and
+                   (pos('planetMoveDefault',tag_pos.AttributeValue['class']) > 0) then
                 begin
-                  s := tag_pos.AttributeValue['href'];
+                  s := tag_pos.AttributeValue['onclick'];
                   p := pos('galaxy=',s);
                   if p > 0 then
                   begin
@@ -393,7 +391,7 @@ begin
                 end;
               end;
             end;
-            }
+              
 
             inc(row_nr);
           end;
@@ -543,8 +541,6 @@ var tbody: THTMLElement;
     table: THTMLTable;
     s: string;
     i, first, p: Integer;
-    timepos: TPlanetPosition;
-    y,m,d,h,min: Word;
 begin
   Result := False;
   //Leeren:
@@ -670,6 +666,17 @@ begin
               //Ally-Tag "leeren"
               tag.ClearChilds;
               tag.Content := '';
+            end
+            else
+            begin
+              // versuche Ally tag aus erstem <a> element zu lesen
+              if tag_cell.ChildNameCount('a') = 2 then
+              begin
+                tag := tag_cell.FindChildTag('a',0);
+                statentry.Ally := trim(tag.FullTagContent);
+                tag.ClearChilds;
+                tag.Content := '';
+              end;
             end;
           end;
 

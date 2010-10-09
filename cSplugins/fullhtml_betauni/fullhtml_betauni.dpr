@@ -222,6 +222,9 @@ begin
   Result := -1;
   if not _get_RS(Handle, rs) then Exit;
 
+  // workaround cause csHelper only copies HTML Code
+  rs.generateTextIfMissing;
+
   rs.readscanlist := ReportRead.Read(rs.GetText());
   rs.rsl_index := 0;
   Result := Length(rs.readscanlist);
@@ -292,7 +295,10 @@ end;
 
 function CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
 begin
-  Result := UniCheck.CallFleet(pos, job);
+  if job = fet_espionage then
+    Result := UniCheck.SendSpio(pos)
+  else
+    Result := UniCheck.CallFleet(pos, job);
 end;
 
 procedure RunOptions;
