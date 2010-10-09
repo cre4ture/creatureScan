@@ -15,7 +15,6 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
   Position = poScreenCenter
   OnCreate = FormCreate
   OnPaint = FormPaint
-  OnShow = FormShow
   DesignSize = (
     343
     425)

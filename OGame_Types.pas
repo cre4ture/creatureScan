@@ -210,7 +210,7 @@ type
     fet_colony      //Kolonisieren
   );
   const
-  FleetEventTypeTranslate: array[TFleetEventType] of string = (
+  FleetEventTypeNames: array[TFleetEventType] of string = (
     'none',
     'deploy',
     'transport',
@@ -218,6 +218,15 @@ type
     'espionage',
     'harvest',
     'colony'
+  );
+  FleetEventTypeTranslate_: array[TFleetEventType] of string = (
+    'none',
+    'Stationieren',
+    'Transport',
+    'Angriff',
+    'Spionage',
+    'Abbauen',
+    'Koloniesieren'
   );
   type
   TFleetEventFlag = (fef_return, fef_friendly, fef_neutral, fef_hostile);
@@ -285,8 +294,9 @@ var
   OGame_IsBetaUni: Boolean;
 
 
-function FleetEventTypeToStrEx(flt: TFleetEvent): string;
-function FleetEventTypeToStr(fj: TFleetEventType): string;
+function FleetEventTypeToStrEx_(flt: TFleetEvent): string;
+function FleetEventTypeToStr_(fj: TFleetEventType): string;
+function FleetEventTypeToNameStr(fj: TFleetEventType): string;
 function ReadBufScan(Buffer: Pointer): TScanBericht;
 function WriteBufScan(Scan: TScanBericht; var Buf: pointer): integer;
 procedure DeleteEmptyChar(var s: string);
@@ -1205,21 +1215,27 @@ begin
   end;
 end;
 
-function FleetEventTypeToStr(fj: TFleetEventType): string;
+function FleetEventTypeToNameStr(fj: TFleetEventType): string;
 begin
-  Result := FleetEventTypeTranslate[fj];
+  Result := FleetEventTypeNames[fj];
 end;
-function FleetEventTypeToStrEx(flt: TFleetEvent): string;
+
+function FleetEventTypeToStr_(fj: TFleetEventType): string;
 begin
-  Result := FleetEventTypeTranslate[flt.head.eventtype];
+  Result := FleetEventTypeTranslate_[fj];
+end;
+
+function FleetEventTypeToStrEx_(flt: TFleetEvent): string;
+begin
+  Result := FleetEventTypeTranslate_[flt.head.eventtype];
   if fef_return in flt.head.eventflags then
-    Result := Result + ' return';
+    Result := Result + ' (R)';
   if fef_friendly in flt.head.eventflags then
-    Result := Result + ' friendly';
+    Result := Result + ', freundlich';
   if fef_neutral in flt.head.eventflags then
-    Result := Result + ' neutral';
+    Result := Result + ', neutral';
   if fef_hostile in flt.head.eventflags then
-    Result := Result + ' hostile';
+    Result := Result + ', feindlich';
 end;
 
 function SameFleetEvent(Fleet1, Fleet2: TFleetEvent): Boolean;

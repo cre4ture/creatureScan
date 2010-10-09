@@ -301,7 +301,7 @@ type
                            soAutoUpdateCheck,
                            soStartupServer
                            );
-    LastClipBoard: String;       //LastClipboard wird nurnoch gesetzt, wenn das programm selber in die Zwischenablage setzt, die nicht verarbeitet werden sollen! (z.b. Copy_button)
+    LastClipBoard: String;   //LastClipboard wird nurnoch gesetzt, wenn das programm selber in die Zwischenablage setzt, die nicht verarbeitet werden sollen! (z.b. Copy_button)
     SoundModul: TMusiPlayer;
     procedure ShowScan(NR: integer); overload;
     procedure ShowScan(Pos: TPlanetPosition; list: TPlanetListInterface = nil); overload;
@@ -512,7 +512,7 @@ begin
   if SaveCaptions then SaveAllCaptions(Self,LangFile);
   if LoadCaptions then LoadAllCaptions(Self,LangFile);
 
-  LastClipBoard := clipboard.AsText;
+  LastClipBoard := '<<<<<NEU>>>>>'; //clipboard.AsText;
 
   OnClipboardContentChanged := FormClipboardContentChanged;
   beenden := false;
@@ -1723,7 +1723,7 @@ begin
       Text := GetClipboardText
     else
     begin
-      Text := Html;
+      Text := '';
     end;
   finally
     CloseClipboard;

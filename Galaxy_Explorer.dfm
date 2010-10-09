@@ -284,6 +284,10 @@ object Explorer: TExplorer
       Default = True
       OnClick = Suche1Click
     end
+    object spionage1: TMenuItem
+      Caption = 'Spiosonde schicken'
+      OnClick = spionage1Click
+    end
     object N1: TMenuItem
       Caption = '-'
     end

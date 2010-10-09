@@ -91,6 +91,7 @@ type
     IL_ScanSize: TImageList;
     PM_Notizen: TPopupMenu;
     musternotiz1: TMenuItem;
+    Spionagesondenschicken1: TMenuItem;
     procedure musternotiz1Click(Sender: TObject);
     procedure VST_ScanListGetPopupMenu(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; const P: TPoint;
@@ -154,6 +155,7 @@ type
       Y: Integer);
     procedure VST_ScanListHeaderClick(Sender: TVTHeader;
       HitInfo: TVTHeaderHitInfo);
+    procedure Spionagesondenschicken1Click(Sender: TObject);
   published
   private
     mListInterface: TFRM_Fav_PlanetListInterface;
@@ -1686,6 +1688,13 @@ procedure TFRM_Favoriten.VST_ScanListHeaderClick(Sender: TVTHeader;
 begin
   VST_ScanListHeaderClickX(Sender, HitInfo.Column, HitInfo.Button,
     HitInfo.Shift, HitInfo.X, HitInfo.Y);
+end;
+
+procedure TFRM_Favoriten.Spionagesondenschicken1Click(Sender: TObject);
+begin
+  if VST_ScanList.GetFirstSelected <> nil then
+  with TFav(VST_ScanList.GetNodeData(VST_ScanList.GetFirstSelected)^) do
+    ODataBase.LanguagePlugIn.CallFleet(Position, fet_espionage);
 end;
 
 end.

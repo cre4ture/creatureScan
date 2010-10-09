@@ -787,9 +787,12 @@ begin
     BTN_nextRaid.Visible := i >= 0;
     BTN_Last24.Visible := RC24 > 0;
     if not (raid.head.arrival_time_u = -1) then
-      LBL_Raid_Info.Caption := STR_NextRaid +
-         CountdownTimeToStr((raid.head.arrival_time_u - ODataBase.FleetBoard.GameTime.UnixTime)/60/60/24)
-         + STR_ByPlayer + Raid.head.player
+      LBL_Raid_Info.Caption :=
+        CountdownTimeToStr(
+          UnixToDateTime(raid.head.arrival_time_u)-ODataBase.FleetBoard.GameTime.Time) + ' ' +
+             FleetEventTypeToStrEx_(raid) +
+             ' (' + ODataBase.GetPlayerAtPos(raid.head.target) + ')'
+
     else LBL_Raid_Info.Caption := '';
     if RC24 > 0 then
     begin

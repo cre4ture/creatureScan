@@ -113,7 +113,9 @@ begin
           if ODataBase.LanguagePlugIn.ReadStats(handle, st,st_typ) then
           begin
             ODataBase.Statistic.AddStats(st_typ.NameType,st_typ.PointType,st);
-            if CH_Beep.Checked then Beep;
+
+            if CH_Beep.Checked then
+              FRM_Main.Play_Alert_Sound(FRM_Main.PlayerOptions.Beep_SoundFile);
 
             // Suche nach eigenen Punkten:
             for i := 0 to 99 do
