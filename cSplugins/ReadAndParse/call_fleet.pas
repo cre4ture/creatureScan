@@ -14,6 +14,7 @@ type
 
     // CallFleet
     CallFleetLinkTemplate: string;
+    SendSpioLinkTemplate: string;
     JobNrs: array[TFleetEventType] of string;
     typ_planet, typ_mond, typ_TF: string;
 
@@ -21,12 +22,14 @@ type
 
     fsession_id: string;
     procedure get_parse_session_ID_html(html: string);
-    function getFleetLink(pos: TPlanetPosition; job: TFleetEventType): string;
+    function fillVarsInLink(url: string;
+      pos: TPlanetPosition; job: TFleetEventType): string;
   public
     property session_id: string read fsession_id write fsession_id;
     constructor Create(ini: TIniFile; serverURL: String);
     function _CheckUni_HTML(html: string): Boolean;
     function CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
+    function SendSpio(pos: TPlanetPosition): Boolean;
   end;
 
 implementation
@@ -47,6 +50,7 @@ begin
   //ShowMessage(UniServer);
 
   CallFleetLinkTemplate := ini.ReadString('UniCheck','callfleet','');
+  SendSpioLinkTemplate := ini.ReadString('UniCheck','sendspio','');
   CheckUniKeyword := ini.ReadString('UniCheck','Keyword',' ');
   msg_daten_einlesen := ini.ReadString('UniCheck', 'msg_read_data', 'First, turn >>uni check<< on. Second, read data.');
   typ_planet := ini.ReadString('UniCheck','typ_planet','');
@@ -55,7 +59,7 @@ begin
 
   for job := low(job) to high(job) do
   begin
-    JobNrs[job] := ini.ReadString('UniCheck', 'job_' + FleetEventTypeToStr(job), '');
+    JobNrs[job] := ini.ReadString('UniCheck', 'job_' + FleetEventTypeToNameStr(job), '');
   end;
 end;
 
@@ -104,16 +108,15 @@ begin
     Exit;
   end;
 
-  url := getFleetLink(pos,job);
+  url := fillVarsInLink(CallFleetLinkTemplate,pos,job);
   ShellExecute(0,'open',PChar(url),'','',0);
-  
+
   Result := True;
 end;
 
-function TUniCheck.getFleetLink(pos: TPlanetPosition; job: TFleetEventType): string;
-var url: string;
+function TUniCheck.fillVarsInLink(url: string;
+  pos: TPlanetPosition; job: TFleetEventType): string;
 begin
-  url := CallFleetLinkTemplate;
   url := StringReplace(url, '{server}', UniServer, [rfReplaceAll, rfIgnoreCase]);
 
   url := StringReplace(url, '{galaxy}', IntToStr(pos.P[0]), [rfReplaceAll, rfIgnoreCase]);
@@ -129,6 +132,22 @@ begin
   url := StringReplace(url, '{mission}', JobNrs[job], [rfReplaceAll, rfIgnoreCase]);
 
   Result := url;
+end;
+
+function TUniCheck.SendSpio(pos: TPlanetPosition): Boolean;
+var url: string;
+begin
+  Result := False;
+  if session_id = '' then
+  begin
+    ShowMessage(msg_daten_einlesen);
+    Exit;
+  end;
+
+  url := fillVarsInLink(SendSpioLinkTemplate,pos,fet_espionage);
+  ShellExecute(0,'open',PChar(url),'','',0);
+
+  Result := True;
 end;
 
 end.

@@ -364,12 +364,11 @@ function ThtmlPhalanxRead_betauni.readHtmlTag(tag: THTMLElement): boolean;
 var el, tag_ul: THTMLElement;
     fleet: TFleetEvent;
     i, sec: integer;
-    timepos: TPlanetPosition;
+    timepos, tmppos: TPlanetPosition;
     time_ber: TDateTime;
 
     s: string;
     p: integer;
-    fce: ThtmlPhalanx_fligthclassEx;
 
     fet: TFleetEventType;
 begin
@@ -404,7 +403,14 @@ begin
       end;
 
       if pos('(R)', s) > 0 then
+      begin
         include(fleet.head.eventflags, fef_return);
+
+        // tausche positionen, if positions was first read 
+        tmppos := fleet.head.origin;
+        fleet.head.origin := fleet.head.target;
+        fleet.head.target := tmppos;
+      end;
 
     end
     else
@@ -412,14 +418,22 @@ begin
     begin
       s := el.FullTagContent;
       p := pos('[',s);
-      ReadPosOrTime(s,p+1,fleet.head.origin);
+      ReadPosOrTime(s,p+1,tmppos);
+      if fef_return in fleet.head.eventflags then
+        fleet.head.target := tmppos
+      else
+        fleet.head.origin := tmppos;
     end
     else
     if s = 'destCoords' then
     begin
       s := el.FullTagContent;
       p := pos('[',s);
-      ReadPosOrTime(s,p+1,fleet.head.target);
+      ReadPosOrTime(s,p+1,tmppos);
+      if not(fef_return in fleet.head.eventflags) then
+        fleet.head.target := tmppos
+      else
+        fleet.head.origin := tmppos;
     end
     else
     if s = 'arrivalTime' then

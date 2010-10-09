@@ -45,6 +45,7 @@ type
     function GetHTMLRoot: THTMLElement;
     function GetText: String;
     function GetHTMLString: string;
+    procedure generateTextIfMissing;
   end;
 
 function GetReadSource(Handle: Integer): TReadSource;
@@ -69,6 +70,14 @@ begin
     html_root.Free;
 
   inherited;
+end;
+
+procedure TReadSource.generateTextIfMissing;
+begin
+  if text = '' then
+  begin
+    SetTextSource(HTMLGenerateHumanReadableText(GetHTMLRoot));
+  end;
 end;
 
 function TReadSource.GetHTMLRoot: THTMLElement;

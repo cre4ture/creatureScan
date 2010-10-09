@@ -323,7 +323,7 @@ end;
 
 function TReadReport_Text._ReadScanHeader_RegEx(var s1: string; var Head: TScanHead): Boolean;
 var regex: Tregexpn;
-    p, i: integer;
+    p: integer;
     M,D,h,min,sec: integer;
 begin
   Result := False;
@@ -400,10 +400,8 @@ end;
 
 function TReadReport_Text._ReadScanHeaders(var s1: string; var Head: TScanHead): Boolean;
 var p,p2 : integer;
-    Y,M,D : Word;
     month, day: integer;
     TimePos : TPlanetPosition;
-    Time_dt: TDateTime;
     s, delemch : string;
 
     function readPlayerName: boolean;
