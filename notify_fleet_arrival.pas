@@ -42,7 +42,7 @@ begin
   zeit := info_fleet.head.arrival_time_u - gameTime.UnixTime;
 
 
-  s := FleetEventTypeToStr(info_fleet.head.eventtype);
+  s := FleetEventTypeToStr_(info_fleet.head.eventtype);
   
 
   s := s + ' [' + PositionToStrMond(info_fleet.head.target) + '] ' +

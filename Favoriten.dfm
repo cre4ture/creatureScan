@@ -327,6 +327,11 @@ object FRM_Favoriten: TFRM_Favoriten
       ShortCut = 16466
       OnClick = Raid1Click
     end
+    object Spionagesondenschicken1: TMenuItem
+      Caption = 'Spionieren'
+      ShortCut = 16467
+      OnClick = Spionagesondenschicken1Click
+    end
     object Galaxyansicht1: TMenuItem
       Caption = 'Galaxyansicht'
       ShortCut = 16455

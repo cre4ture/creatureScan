@@ -1,0 +1,65 @@
+package creatureScan_tools;
+
+{$R *.res}
+{$R '..\lib\xmlparser\LibXmlComps.dcr'}
+{$ALIGN 8}
+{$ASSERTIONS OFF}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$IMPLICITBUILD OFF}
+{$DEFINE delphi}
+
+requires
+  rtl,
+  vcl;
+
+contains
+  fast_strings in '..\lib\uli\htmllib\fast_strings.pas',
+  html in '..\lib\uli\htmllib\html.pas',
+  MemCheckObject in '..\lib\uli\htmllib\MemCheckObject.pas',
+  parser in '..\lib\uli\htmllib\parser.pas',
+  MergeSocket in '..\lib\uli\SocketMultiplexer\MergeSocket.pas',
+  MultiplexList in '..\lib\uli\SocketMultiplexer\MultiplexList.pas',
+  ReadWriteEvent in '..\lib\uli\SocketMultiplexer\ReadWriteEvent.pas',
+  SocketThreadList in '..\lib\uli\SocketMultiplexer\SocketThreadList.pas',
+  SplitSocket in '..\lib\uli\SocketMultiplexer\SplitSocket.pas',
+  StatusThread in '..\lib\uli\SocketMultiplexer\StatusThread.pas',
+  TCPSocket in '..\lib\uli\SocketMultiplexer\TCPSocket.pas',
+  TThreadSocketSplitter in '..\lib\uli\SocketMultiplexer\TThreadSocketSplitter.pas',
+  myevent in '..\lib\uli\myevent.pas',
+  SDBFile in '..\lib\uli\SDBFile.pas',
+  ClipboardViewerForm in '..\lib\uli\ClipboardViewerForm.pas',
+  clipbrdFunctions in '..\lib\uli\clipbrdFunctions.pas',
+  MusiPlayer in '..\lib\uli\MusiPlayer.pas',
+  notifywindow in '..\lib\uli\notifywindow.pas',
+  sliding_window in '..\lib\uli\sliding_window.pas',
+  LibXmlComps in '..\lib\xmlparser\LibXmlComps.pas',
+  LibXmlParser in '..\lib\xmlparser\LibXmlParser.pas',
+  frm_pos_size_ini in '..\lib\uli\frm_pos_size_ini.pas',
+  TrayIcon in '..\lib\gltrayicon\TrayIcon.pas',
+  creaturesStrUtils in '..\lib\uli\creaturesStrUtils.pas',
+  FileUtils_UH in '..\lib\uli\FileUtils_UH.pas',
+  regexpname in '..\lib\uli\regexpname.pas',
+  TemplateReplace in '..\lib\uli\TemplateReplace.pas',
+  topmost_uh in '..\lib\uli\topmost_uh.pas',
+  HyperLinksDecorator in '..\lib\TRegExpr\Source\HyperLinksDecorator.pas',
+  RegExpr in '..\lib\TRegExpr\Source\RegExpr.pas';
+
+end.

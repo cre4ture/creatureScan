@@ -142,7 +142,7 @@ procedure TFRM_KB_List.VST_RAIDGetText(Sender: TBaseVirtualTree;
           3: CellText := PositionToStrMond(head.target);
           4: CellText := ODataBase.GetPlayerAtPos(head.target);
           5: begin
-               CellText := FleetEventTypeToStrEx(rd);
+               CellText := FleetEventTypeToStrEx_(rd);
              end;
           6: if Sender = VST_RAID then
              begin
@@ -634,7 +634,7 @@ begin
     flt := ODataBase.FleetBoard.Fleets[next_f];
     FRM_Main.StatusBar1.Panels[4].Text := CountdownTimeToStr(
       UnixToDateTime(flt.head.arrival_time_u)-gameNow) + ' ' +
-         FleetEventTypeToStrEx(flt) +
+         FleetEventTypeToStrEx_(flt) +
          ' (' + ODataBase.GetPlayerAtPos(flt.head.target) + ')';
   end
   else

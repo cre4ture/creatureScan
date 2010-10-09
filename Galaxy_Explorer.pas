@@ -47,6 +47,7 @@ type
     SB_PasteSystem: TSpeedButton;
     folgeeingelesenenSystemen1: TMenuItem;
     N4: TMenuItem;
+    spionage1: TMenuItem;
     procedure SB_PasteSystemClick(Sender: TObject);
     procedure folgeeingelesenenSystemen1Click(Sender: TObject);
     //procedure PaintBox1Paint(Sender: TObject);
@@ -111,6 +112,7 @@ type
       TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
       CellPaintMode: TVTCellPaintMode; CellRect: TRect;
       var ContentRect: TRect);
+    procedure spionage1Click(Sender: TObject);
   private
     tablewidth: integer;
     TopMost: boolean;
@@ -1044,6 +1046,11 @@ procedure TExplorer.VST_SystemBeforeCellPaint(Sender: TBaseVirtualTree;
   var ContentRect: TRect);
 begin
   VST_SystemBeforeCellPaint_(Sender, TargetCanvas, Node, Column, CellRect);
+end;
+
+procedure TExplorer.spionage1Click(Sender: TObject);
+begin
+  ODataBase.LanguagePlugIn.CallFleet(Position, fet_espionage);
 end;
 
 end.

@@ -97,8 +97,6 @@ const
 
   //Bericht_Frame
   STR_Last24Hours: string = 'Raid last 24h: ';
-  STR_NextRaid: string = 'Raid in ';
-  STR_ByPlayer: string = ' von ';
   STR_Spionageabwehr_kurz: string = ' s.a.';
   STR_Scanner: string = 'von: ';
   STR_Besitzer: string = ' Besitzer: ';
@@ -321,8 +319,6 @@ begin
 
   Section := 'Bericht_Frame';
   IniAction('STR_Last24Hours', STR_Last24Hours,Aktion);
-  IniAction('STR_NextRaid', STR_NextRaid,Aktion);
-  IniAction('STR_ByPlayer', STR_ByPlayer,Aktion);
   IniAction('STR_Spionageabwehr_kurz', STR_Spionageabwehr_kurz,Aktion);
   IniAction('STR_Scanner', STR_Scanner,Aktion);
   IniAction('STR_Besitzer', STR_Besitzer,Aktion);

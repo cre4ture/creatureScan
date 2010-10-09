@@ -178,10 +178,21 @@ end;
 
 function Tfrm_quickupdate.applyUpdates: integer;
 
+  procedure testFilename(filename: string);
+  begin
+    if pos('..', filename) > 0 then
+      raise Exception.Create(
+        'Filename includes backreferences! This is not allowed!');
+  end;
+
   procedure doUpdate(localfile: string; fileurl: string);
   var fs: TFileStream;
       localbackup: string;
   begin
+    // nur Änderungen an "Unterverzeichnissen" erlaubt,
+    // also teste den Pfad vorher!
+    testFilename(localfile);
+    
     localbackup := localfile + '.bak';
     CopyFile(PChar(localfile),PChar(localbackup), false);
     try

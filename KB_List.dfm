@@ -20,7 +20,7 @@ object FRM_KB_List: TFRM_KB_List
     Top = 25
     Width = 786
     Height = 234
-    ActivePage = TS_KB_fertig
+    ActivePage = TS_KB_laufend
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
@@ -175,7 +175,7 @@ object FRM_KB_List: TFRM_KB_List
           end
           item
             Position = 5
-            Width = 124
+            Width = 128
             WideText = 'Auftrag'
           end>
       end

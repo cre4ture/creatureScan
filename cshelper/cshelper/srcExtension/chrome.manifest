@@ -1,0 +1,5 @@
+content cshelper chrome/cshelper/content/
+skin cshelper global chrome/cshelper/skin/global/
+locale cshelper en-US chrome/cshelper/locale/en-US/
+
+overlay chrome://browser/content/browser.xul chrome://cshelper/content/cshelperOverlay.xul

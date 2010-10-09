@@ -43,7 +43,6 @@ type
     procedure BTN_OKClick(Sender: TObject);
     procedure E_UniChange(Sender: TObject);
     procedure btn_updateClick(Sender: TObject);
-    procedure FormShow(Sender: TObject);
   private
     ODB: TObject;
     procedure updateGameSites;
@@ -154,6 +153,8 @@ procedure TFRM_Spielerdaten.FormCreate(Sender: TObject);
 begin
   if SaveCaptions then SaveAllCaptions(Self,LangFile);
   if LoadCaptions then LoadAllCaptions(Self,LangFile);
+
+  updateGameSites;
 end;
 
 procedure TFRM_Spielerdaten.FormPaint(Sender: TObject);
@@ -224,11 +225,6 @@ begin
   finally
     frm_quickupdate.Free;
   end;
-end;
-
-procedure TFRM_Spielerdaten.FormShow(Sender: TObject);
-begin
-  updateGameSites;
 end;
 
 procedure TFRM_Spielerdaten.updateGameSites;
