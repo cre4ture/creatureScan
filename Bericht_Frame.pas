@@ -1129,6 +1129,7 @@ end;
 
 procedure TFrame_Bericht.DrawPlanetInfo;
 var y, dy: integer;
+    player: string;
 begin
   with PB_B do
   begin
@@ -1138,12 +1139,17 @@ begin
     Canvas.Brush.Color := clBlue;
     dy := Canvas.TextHeight('[]')+6;
     Canvas.Rectangle(0,y,Width,y+dy);
+    player := fplanetInfo.Player;
+    if ODataBase <> nil then
+      player := player + '(' +
+        ODataBase.LanguagePlugIn.StatusToStr(fplanetInfo.Status) + ')';
+        
     if not Bericht.Head.Position.Mond then
       Canvas.TextOut(3,y+3,'[' + PositionToStrMond(Bericht.Head.Position) + ']'
-                       + fplanetInfo.PlanetName + ' (' + fplanetInfo.Player + ')')
+                       + fplanetInfo.PlanetName + ' (' + player + ')')
     else
       Canvas.TextOut(3,y+3,'[' + PositionToStrMond(Bericht.Head.Position) + ']'
-                       + STR_Mond + ' (' + fplanetInfo.Player + ')');
+                       + STR_Mond + ' (' + player + ')');
 
     inc(y,dy);
     PB_B.Height := y;

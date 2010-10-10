@@ -129,7 +129,6 @@ type
     cb_auto_fav_list: TCheckBox;
     GroupBox13: TGroupBox;
     cb_auto_serverzeit: TCheckBox;
-    cb_askmoon: TCheckBox;
     cb_check_solsys_data_for_moon: TCheckBox;
     ColorDialog1: TColorDialog;
     GroupBox14: TGroupBox;

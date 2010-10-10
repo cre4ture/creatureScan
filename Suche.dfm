@@ -737,6 +737,13 @@ object FRM_Suche: TFRM_Suche
     OnPopup = PopupMenu1Popup
     Left = 92
     Top = 184
+    object Spionieren1: TMenuItem
+      Caption = 'Spionieren'
+      OnClick = Spionieren1Click
+    end
+    object N2: TMenuItem
+      Caption = '-'
+    end
     object Kopieren1: TMenuItem
       Caption = 'Kopieren'
       ShortCut = 16451

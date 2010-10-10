@@ -283,7 +283,7 @@ begin
   if SaveCaptions then SaveAllCaptions(Self,LangFile);
   if LoadCaptions then LoadAllCaptions(Self,LangFile);
   topmost := false;
-  StatusBar1.Panels[0].Text := STR_topmost;
+  StatusBar1.Panels[0].Text := STR_normal;
 
   collecting := nil;
   LoadFormSizePos(IniFile,self);
@@ -1376,7 +1376,9 @@ begin
   if x < StatusBar1.Panels[0].Width then
   begin
     TopMost := not TopMost;
-    if TopMost then StatusBar1.Panels[0].Text := STR_normal else StatusBar1.Panels[0].Text := STR_topmost;
+    if not TopMost then
+      StatusBar1.Panels[0].Text := STR_normal
+    else StatusBar1.Panels[0].Text := STR_topmost;
     SetTopMost(topmost, Self);
   end;
 end;

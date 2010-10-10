@@ -40,7 +40,6 @@ type
     ServerPort: Word;
     phpPost: String;
     StartSystray: Boolean;
-    AskMoon_enabled: Boolean;
 
     //BeepSound
     Beep_SoundFile: String;
@@ -881,7 +880,6 @@ begin
   form.CH_AutoDelete.Checked := ODataBase.DeleteScansWhenAddSys;
   form.ch_startupServer.Checked := soStartupServer in Einstellungen;
   form.TXT_ServerStartPort.Text := IntToStr(PlayerOptions.ServerPort);
-  form.cb_askmoon.Checked := PlayerOptions.AskMoon_enabled;
   form.cb_check_solsys_data_for_moon.Checked := ODataBase.check_solsys_data_before_askMoon;
 
   form.TXT_SS.Text := LBL_WF_0_2.Caption;
@@ -966,7 +964,6 @@ begin
     if form.CH_Unicheck.Checked then Include(Einstellungen,soUniCheck);
     ODataBase.UniCheckName := form.txt_UniCheckName.Text;
     ODataBase.DeleteScansWhenAddSys := form.CH_AutoDelete.Checked;
-    PlayerOptions.AskMoon_enabled := form.cb_askmoon.Checked;
     ODataBase.check_solsys_data_before_askMoon := form.cb_check_solsys_data_for_moon.Checked;
     if form.ch_startupServer.Checked then Include(Einstellungen,soStartupServer);
     PlayerOptions.ServerPort := StrToInt(form.TXT_ServerStartPort.Text);
@@ -2120,7 +2117,6 @@ begin
   DoOption(GeneralSection,'fleet_auto_time_sync'     ,false                     ,PlayerOptions.Fleet_auto_time_sync);
 
   // Nachfrage nach Mond:
-  DoOption(GeneralSection,'ask_moon_enabled'         ,true                      ,PlayerOptions.AskMoon_enabled);
   DoOption(GeneralSection,'check_solsys_data_askMoon',false                     ,ODataBase.check_solsys_data_before_askMoon);
 end;
 
