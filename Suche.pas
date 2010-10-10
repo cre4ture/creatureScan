@@ -7,7 +7,7 @@ uses
   Gauges, StdCtrls, ExtCtrls, ComCtrls, Mask, Tabnotbk, OGame_Types, Prog_Unit, ImgList,
   Menus, Galaxy_Explorer, VirtualTrees, Galaxien_Rechte, VSTPopup, inifiles,
   clipbrd, VTHeaderPopup, Math, FavFilter, langmodform, frm_pos_size_ini,
-  PlanetListInterface;
+  PlanetListInterface, topmost_uh;
 
 const
   SearchiniSection = 'SearchWindow';
@@ -69,6 +69,8 @@ type
     GroupBox4: TGroupBox;
     cb_koords: TComboBox;
     cb_negativearea: TCheckBox;
+    Spionieren1: TMenuItem;
+    N2: TMenuItem;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BTN_SucheClick(Sender: TObject);
     procedure BTN_SchliesenClick(Sender: TObject);
@@ -112,6 +114,7 @@ type
       var CustomDraw: Boolean);
     procedure VST_ResultHeaderClick(Sender: TVTHeader;
       HitInfo: TVTHeaderHitInfo);
+    procedure Spionieren1Click(Sender: TObject);
   private
     mPosListInterface: TPlanetListInterface;
     e, Topmost : boolean;
@@ -401,7 +404,7 @@ begin
   lbl_statusinfo.Caption := '( ' + ODataBase.LanguagePlugIn.StatusToStr(s) + ' )';
 
   Refresh_cb_koords;
-  StatusBar1.Panels[0].Text := STR_topmost;
+  StatusBar1.Panels[0].Text := STR_normal;
 
   mPosListInterface := TFRM_SuchePlanetListInterface.Create(self);
 end;
@@ -541,8 +544,9 @@ begin
   begin
     Topmost := not Topmost;
     if Topmost
-      then begin SetWindowPos(Handle,HWND_TOPMOST,0,0,0,0,SWP_NOMOVE OR SWP_NOSIZE); StatusBar1.Panels[STAT_Topmost].Text := STR_normal; end
-      else begin SetWindowPos(Handle,HWND_NOTOPMOST,0,0,0,0,SWP_NOMOVE OR SWP_NOSIZE); StatusBar1.Panels[STAT_Topmost].Text := STR_topmost; end;
+      then StatusBar1.Panels[STAT_Topmost].Text := STR_topmost
+      else StatusBar1.Panels[STAT_Topmost].Text := STR_normal;
+    SetTopMost(Topmost, Self);
   end;
 end;
 
@@ -760,6 +764,13 @@ procedure TFRM_Suche.VST_ResultHeaderClick(Sender: TVTHeader;
 begin
   VST_ResultHeaderClickX(Sender, HitInfo.Column, HitInfo.Button, 
     HitInfo.Shift, HitInfo.X, HitInfo.Y);
+end;
+
+procedure TFRM_Suche.Spionieren1Click(Sender: TObject);
+begin
+  if VST_Result.GetFirstSelected <> nil then
+    with TSearch_ND(VST_Result.GetNodeData(VST_Result.GetFirstSelected)^) do
+      ODataBase.LanguagePlugIn.CallFleet(Koord, fet_espionage);
 end;
 
 end.

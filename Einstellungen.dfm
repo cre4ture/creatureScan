@@ -27,7 +27,7 @@ object FRM_Einstellungen: TFRM_Einstellungen
     Top = 0
     Width = 531
     Height = 200
-    ActivePage = ts_Flotten
+    ActivePage = TS_ScansSysteme
     Anchors = [akLeft, akTop, akRight, akBottom]
     MultiLine = True
     ParentShowHint = False
@@ -196,22 +196,13 @@ object FRM_Einstellungen: TFRM_Einstellungen
           Text = '48'
           OnKeyPress = KeyPress_OnlyNumbers
         end
-        object cb_askmoon: TCheckBox
-          Left = 8
-          Top = 88
-          Width = 325
-          Height = 17
-          Anchors = [akLeft, akTop, akRight]
-          Caption = 'Mondnachfrage bei Unklarheit aktivieren'
-          TabOrder = 4
-        end
         object cb_check_solsys_data_for_moon: TCheckBox
           Left = 8
           Top = 104
           Width = 306
           Height = 17
           Caption = #252'berpr'#252'fe vor Mondfrage das Sonnesystem'
-          TabOrder = 5
+          TabOrder = 4
         end
       end
       object GroupBox12: TGroupBox
