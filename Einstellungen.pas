@@ -141,6 +141,7 @@ type
     Shape4: TShape;
     txt_UniCheckName: TEdit;
     Label11: TLabel;
+    cb_no_moon: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure LB_FDClick(Sender: TObject);
     procedure KeyPress_OnlyNumbers(Sender: TObject; var Key: Char);

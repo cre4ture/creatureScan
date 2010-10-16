@@ -30,12 +30,13 @@ type
     Panel2: TPanel;
     btn_pasteEvents: TButton;
     Panel3: TPanel;
-    lbl_servertime: TLabel;
+    lbl_servertime_: TLabel;
     Label2: TLabel;
     btn_time_sync: TButton;
     ProgressBar1: TProgressBar;
     tim_time_sync_auto: TTimer;
     IL_mission: TImageList;
+    sh_servertime: TShape;
     procedure tim_time_sync_autoTimer(Sender: TObject);
     procedure btn_time_syncClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -97,13 +98,13 @@ var
 
 implementation
 
-uses Main, Languages, Connections, Math, DateUtils, OtherTime;
+uses Main, Languages, Connections, Math, DateUtils, OtherTime, IdException;
 
 {$R *.DFM}
 
 procedure TFRM_KB_List.FormCreate(Sender: TObject);
 begin
-  notify_grp := TNotify_frm_grp.Create;
+  notify_grp := TNotify_frm_grp.Create(Application);
 
   VST_RAID.NodeDataSize := SizeOf(Integer);
   VST_HISTORY.NodeDataSize := SizeOf(Integer);
@@ -238,13 +239,22 @@ begin
           (abs(last_delta_2 - delta) > 1/24/60/60) or
           (abs(last_delta_3 - delta) > 1/24/60/60) do
     begin
-      if not get_server_time_http(url, server_time) then raise Exception.Create('error getting time from server');
-      ODataBase.FleetBoard.GameTime.setTime(server_time);
+      try
+        if not get_server_time_http(url, server_time) then
+          raise Exception.Create('error getting time from server');
+        ODataBase.FleetBoard.GameTime.setTime(server_time);
 
-      last_delta_3 := last_delta_2;
-      last_delta_2 := last_delta_1;
-      last_delta_1 := delta;
-      delta := ODataBase.FleetBoard.GameTime.TimeDelta;
+        last_delta_3 := last_delta_2;
+        last_delta_2 := last_delta_1;
+        last_delta_1 := delta;
+        delta := ODataBase.FleetBoard.GameTime.TimeDelta;
+
+      except
+        on EIdConnectTimeout do
+        begin
+          sleep(1000); // ignore, and try again
+        end;
+      end;
 
       inc(i);
       ProgressBar1.Position := i;
@@ -256,19 +266,19 @@ begin
 
     ODataBase.FleetBoard.GameTime.TimeDelta := (delta + last_delta_1 + last_delta_2 + last_delta_3) / 4;
 
-    lbl_servertime.Color := clLime;
+    sh_servertime.Brush.Color := clLime;
   except
-    lbl_servertime.Color := clRed;
+    sh_servertime.Brush.Color := clRed;
   end;
 
   ProgressBar1.Visible := False;
   delta := ODataBase.FleetBoard.GameTime.TimeDelta;
   if delta > 0 then
-    lbl_servertime.Hint := '+ ' + TimeToStr(delta)
+    lbl_servertime_.Hint := '+ ' + TimeToStr(delta)
   else
-    lbl_servertime.Hint := '- ' + TimeToStr(delta);
+    lbl_servertime_.Hint := '- ' + TimeToStr(delta);
 
-  lbl_servertime.ShowHint := True;
+  lbl_servertime_.ShowHint := True;
 
   btn_time_sync.Enabled := true;
 end;
@@ -587,7 +597,7 @@ var i, next_f: integer;
     flt: TFleetEvent;
 begin
   // Zeige Serverzeit:
-  lbl_servertime.Caption := DateTimeToStr(ODataBase.FleetBoard.GameTime.Time);
+  lbl_servertime_.Caption := DateTimeToStr(ODataBase.FleetBoard.GameTime.Time);
 
   next_f := -1;
 

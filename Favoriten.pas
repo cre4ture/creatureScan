@@ -1627,17 +1627,22 @@ function TFRM_Favoriten.getColumnAt(x: integer): integer;
 var d: integer;
 begin
   Result := 0;
-  d := x - VST_ScanList.Header.Columns[Result].Left;
-  while (Result < VST_ScanList.Header.Columns.Count)and
-        (
-          (not (coVisible in VST_ScanList.Header.Columns[Result].Options))or
-          (d < 0)or
-          (d > VST_ScanList.Header.Columns[Result].Width)
-        ) do
+  while (Result < VST_ScanList.Header.Columns.Count) do
   begin
-    inc(Result);
     d := x - VST_ScanList.Header.Columns[Result].Left;
+    if  (coVisible in VST_ScanList.Header.Columns[Result].Options) and
+        (d > 0)and
+        (d < VST_ScanList.Header.Columns[Result].Width) then
+    begin
+      break;
+    end
+    else
+    begin
+      inc(Result);
+    end;
   end;
+  if (Result >= VST_ScanList.Header.Columns.Count) then
+    Result := -1;
 end;
 
 { TFRM_Fav_ScanListInterface }

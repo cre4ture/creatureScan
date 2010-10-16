@@ -4,7 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, VirtualTrees, OGame_Types, Prog_Unit, Bericht_Frame;
+  Dialogs, StdCtrls, VirtualTrees, OGame_Types, Prog_Unit, Bericht_Frame,
+  Menus;
 
 type
   PReportRec = ^TReportRec;
@@ -18,6 +19,13 @@ type
     Button1: TButton;
     Button2: TButton;
     Frame_Bericht1: TFrame_Bericht;
+    PopupMenu1: TPopupMenu;
+    diesisteinMond1: TMenuItem;
+    diesisteinPlanetscan1: TMenuItem;
+    Lschen1: TMenuItem;
+    N1: TMenuItem;
+    cb_only_planets: TCheckBox;
+    allemarkieren1: TMenuItem;
     procedure vst_reportsFocusChanged(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex);
     procedure vst_reportsGetText(Sender: TBaseVirtualTree;
@@ -30,11 +38,17 @@ type
     procedure vst_reportsGetNodeDataSize(Sender: TBaseVirtualTree;
       var NodeDataSize: Integer);
     procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure diesisteinMond1Click(Sender: TObject);
+    procedure diesisteinPlanetscan1Click(Sender: TObject);
+    procedure Lschen1Click(Sender: TObject);
+    procedure cb_only_planetsClick(Sender: TObject);
+    procedure allemarkieren1Click(Sender: TObject);
   private
     { Private-Deklarationen }
   public
     procedure addReport(scan: TScanBericht);
-    procedure solveSelectedProblemReport(moon: boolean);
+    procedure solveSelectedProblemReport(moon: boolean; delete: boolean = false);
     { Public-Deklarationen }
   end;
 
@@ -59,19 +73,32 @@ begin
   BringToFront;
 end;
 
-procedure Tfrm_report_basket.solveSelectedProblemReport(moon: boolean);
+procedure Tfrm_report_basket.solveSelectedProblemReport(moon: boolean;
+  delete: boolean = false);
 var sel: PVirtualNode;
     clear: TScanBericht;
 begin
   sel := vst_reports.GetFirstSelected();
-  if sel <> nil then
+  while (sel <> nil) do
   begin
-    with TReportRec(vst_reports.GetNodeData(sel)^) do
-    begin
-      report^.Head.Position.Mond := moon;
-      ODataBase.UniTree.AddNewReport(report^);
-    end;
-    vst_reports.DeleteNode(sel);
+    if not delete then
+      with TReportRec(vst_reports.GetNodeData(sel)^) do
+      begin
+        report^.Head.Position.Mond := moon;
+        ODataBase.UniTree.AddNewReport(report^);
+      end;
+    sel := vst_reports.GetNextSelected(sel);
+  end;
+  // at the end, delete all selected nodes:
+  vst_reports.DeleteSelectedNodes;
+
+  vst_reports.FocusedNode := vst_reports.GetFirst();
+  if vst_reports.FocusedNode <> nil then
+  begin
+    vst_reports.Selected[vst_reports.FocusedNode] := true;
+  end
+  else
+  begin  // nothing left in list
     clear := Frame_Bericht1.Bericht;
     clear.Head.Position.P[0] := 0;
     Frame_Bericht1.SetBericht(clear);
@@ -80,12 +107,10 @@ end;
 
 procedure Tfrm_report_basket.vst_reportsFocusChanged(
   Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
-var snode: PVirtualNode;
 begin
-  snode := vst_reports.GetFirstSelected();
-  Button1.Enabled := snode <> nil;
+  Button1.Enabled := node <> nil;
   Button2.Enabled := Button1.Enabled;
-  if snode <> nil then
+  if node <> nil then
   begin
     with TReportRec(vst_reports.GetNodeData(node)^) do
     begin
@@ -118,11 +143,13 @@ end;
 procedure Tfrm_report_basket.Button1Click(Sender: TObject);
 begin
   solveSelectedProblemReport(true);
+  vst_reports.SetFocus;
 end;
 
 procedure Tfrm_report_basket.Button2Click(Sender: TObject);
 begin
   solveSelectedProblemReport(false);
+  vst_reports.SetFocus;
 end;
 
 procedure Tfrm_report_basket.vst_reportsGetNodeDataSize(
@@ -134,6 +161,37 @@ end;
 procedure Tfrm_report_basket.FormCreate(Sender: TObject);
 begin
   vst_reportsFocusChanged(vst_reports, nil, 0);
+end;
+
+procedure Tfrm_report_basket.FormShow(Sender: TObject);
+begin
+  cb_only_planets.Checked := FRM_Main.PlayerOptions.noMoonQuestion;
+  vst_reports.SetFocus;
+end;
+
+procedure Tfrm_report_basket.diesisteinMond1Click(Sender: TObject);
+begin
+  solveSelectedProblemReport(true);
+end;
+
+procedure Tfrm_report_basket.diesisteinPlanetscan1Click(Sender: TObject);
+begin
+  solveSelectedProblemReport(false);
+end;
+
+procedure Tfrm_report_basket.Lschen1Click(Sender: TObject);
+begin
+  solveSelectedProblemReport(false (* dont't care *), true);
+end;
+
+procedure Tfrm_report_basket.cb_only_planetsClick(Sender: TObject);
+begin
+  FRM_Main.PlayerOptions.noMoonQuestion := cb_only_planets.Checked;
+end;
+
+procedure Tfrm_report_basket.allemarkieren1Click(Sender: TObject);
+begin
+  vst_reports.SelectAll(false);
 end;
 
 end.

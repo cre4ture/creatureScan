@@ -76,7 +76,9 @@ uses cS_XML, Classes, Prog_Unit;
 function TFleetBoard.AddFleet(fleet: TFleetEvent): Integer;
 begin
   Result := -1;
-  if (fleet.head.arrival_time_u > GameTime.UnixTime)and
+  if  ValidPosition(fleet.head.origin) and
+      ValidPosition(fleet.head.target) and
+     (fleet.head.arrival_time_u > GameTime.UnixTime)and
      (FindFleet(fleet.head.origin, fleet.head.target,
                 fleet.head.eventtype, fleet.head.arrival_time_u,
                 fleet.head.player, Fleets) = -1) then

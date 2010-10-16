@@ -199,9 +199,17 @@ object FRM_Einstellungen: TFRM_Einstellungen
         object cb_check_solsys_data_for_moon: TCheckBox
           Left = 8
           Top = 104
-          Width = 306
+          Width = 313
           Height = 17
           Caption = #252'berpr'#252'fe vor Mondfrage das Sonnesystem'
+          TabOrder = 5
+        end
+        object cb_no_moon: TCheckBox
+          Left = 8
+          Top = 88
+          Width = 313
+          Height = 17
+          Caption = 'Mondfrage deaktivieren (unklar -> kein Mond)'
           TabOrder = 4
         end
       end

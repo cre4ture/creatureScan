@@ -46,7 +46,7 @@ type
     function applyUpdates: integer;
     constructor Create(AOwner: TComponent); overload; override; // throw exception!
     constructor Create(AOwner: TComponent; aODB: TObject;
-      aEnablePluginReload: boolean); overload;
+      aEnablePluginReload: boolean); reintroduce; overload;
     { Public-Deklarationen }
   end;
 
