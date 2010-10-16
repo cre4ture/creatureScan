@@ -1,9 +1,9 @@
 object FRM_Solsys: TFRM_Solsys
   Left = 285
   Top = 147
+  Width = 788
+  Height = 407
   Caption = 'FRM_Solsys'
-  ClientHeight = 372
-  ClientWidth = 755
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,7 +13,7 @@ object FRM_Solsys: TFRM_Solsys
   OldCreateOrder = False
   OnCreate = FormCreate
   DesignSize = (
-    755
+    772
     372)
   PixelsPerInch = 96
   TextHeight = 13
