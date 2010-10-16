@@ -41,6 +41,9 @@ type
     phpPost: String;
     StartSystray: Boolean;
 
+    // Scan/Systeme
+    noMoonQuestion: boolean;
+
     //BeepSound
     Beep_SoundFile: String;
 
@@ -880,6 +883,7 @@ begin
   form.CH_AutoDelete.Checked := ODataBase.DeleteScansWhenAddSys;
   form.ch_startupServer.Checked := soStartupServer in Einstellungen;
   form.TXT_ServerStartPort.Text := IntToStr(PlayerOptions.ServerPort);
+  form.cb_no_moon.Checked := PlayerOptions.noMoonQuestion;
   form.cb_check_solsys_data_for_moon.Checked := ODataBase.check_solsys_data_before_askMoon;
 
   form.TXT_SS.Text := LBL_WF_0_2.Caption;
@@ -965,6 +969,8 @@ begin
     ODataBase.UniCheckName := form.txt_UniCheckName.Text;
     ODataBase.DeleteScansWhenAddSys := form.CH_AutoDelete.Checked;
     ODataBase.check_solsys_data_before_askMoon := form.cb_check_solsys_data_for_moon.Checked;
+    PlayerOptions.noMoonQuestion := form.cb_no_moon.Checked;
+
     if form.ch_startupServer.Checked then Include(Einstellungen,soStartupServer);
     PlayerOptions.ServerPort := StrToInt(form.TXT_ServerStartPort.Text);
 
@@ -2118,6 +2124,7 @@ begin
 
   // Nachfrage nach Mond:
   DoOption(GeneralSection,'check_solsys_data_askMoon',false                     ,ODataBase.check_solsys_data_before_askMoon);
+  DoOption(GeneralSection,'no_moon_question'         ,false                     ,PlayerOptions.noMoonQuestion);
 end;
 
 procedure TFRM_Main.Play_Alert_Sound(filename: string);
@@ -2212,8 +2219,15 @@ end;
 procedure TFRM_Main.LangPluginOnAskMoon(Sender: TOgameDataBase;
   const Report: TScanBericht; var isMoon, Handled: Boolean);
 begin
-  frm_report_basket.addReport(Report);
-  Handled := false; // so we don't add it to DB, we do it later!
+  if PlayerOptions.noMoonQuestion then
+  begin
+    Handled := true;  // simply add it to DB
+  end
+  else
+  begin
+    frm_report_basket.addReport(Report);
+    Handled := false; // so we don't add it to DB, we do it later!
+  end;
 end;
 
 procedure TFRM_Main.btn_fight_startClick(Sender: TObject);

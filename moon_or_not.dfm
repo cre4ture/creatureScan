@@ -13,6 +13,7 @@ object frm_report_basket: Tfrm_report_basket
   OldCreateOrder = False
   Position = poMainFormCenter
   OnCreate = FormCreate
+  OnShow = FormShow
   DesignSize = (
     592
     383)
@@ -39,9 +40,10 @@ object frm_report_basket: Tfrm_report_basket
     Header.Font.Name = 'MS Sans Serif'
     Header.Font.Style = []
     Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
+    PopupMenu = PopupMenu1
     TabOrder = 0
     TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowRoot, toShowTreeLines, toThemeAware, toUseBlendedImages]
-    TreeOptions.SelectionOptions = [toFullRowSelect]
+    TreeOptions.SelectionOptions = [toFullRowSelect, toMultiSelect]
     OnFocusChanged = vst_reportsFocusChanged
     OnFreeNode = vst_reportsFreeNode
     OnGetText = vst_reportsGetText
@@ -61,20 +63,20 @@ object frm_report_basket: Tfrm_report_basket
   object Button1: TButton
     Left = 8
     Top = 353
-    Width = 75
+    Width = 113
     Height = 25
     Anchors = [akLeft, akBottom]
-    Caption = 'Mond!'
+    Caption = 'Mond (Strg+M)'
     TabOrder = 1
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 88
+    Left = 128
     Top = 353
-    Width = 75
+    Width = 121
     Height = 25
     Anchors = [akLeft, akBottom]
-    Caption = 'Kein Mond!'
+    Caption = 'Planet (Strg+P)'
     TabOrder = 2
     OnClick = Button2Click
   end
@@ -103,6 +105,44 @@ object frm_report_basket: Tfrm_report_basket
       inherited BTN_Last24: TSpeedButton
         Left = 317
       end
+    end
+  end
+  object cb_only_planets: TCheckBox
+    Left = 272
+    Top = 358
+    Width = 297
+    Height = 17
+    Hint = 'n'#252'tzlich zb. in einem sehr jungen Universum'
+    Anchors = [akLeft, akTop, akRight]
+    Caption = 'nicht mehr Fragen (alles keine Mondscans)'
+    TabOrder = 4
+    OnClick = cb_only_planetsClick
+  end
+  object PopupMenu1: TPopupMenu
+    Left = 104
+    Top = 144
+    object diesisteinMond1: TMenuItem
+      Caption = 'dies ist ein Mondscan!'
+      ShortCut = 16461
+      OnClick = diesisteinMond1Click
+    end
+    object diesisteinPlanetscan1: TMenuItem
+      Caption = 'dies ist ein Planetscan!'
+      ShortCut = 16464
+      OnClick = diesisteinPlanetscan1Click
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object Lschen1: TMenuItem
+      Caption = 'L'#246'schen'
+      ShortCut = 46
+      OnClick = Lschen1Click
+    end
+    object allemarkieren1: TMenuItem
+      Caption = 'Alle markieren'
+      ShortCut = 16449
+      OnClick = allemarkieren1Click
     end
   end
 end

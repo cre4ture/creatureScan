@@ -217,7 +217,6 @@ object FRM_KB_List: TFRM_KB_List
       Height = 27
       Align = alClient
       AutoSize = False
-      Caption = 'lbl_flotte'
       WordWrap = True
     end
     object Panel2: TPanel
@@ -254,7 +253,16 @@ object FRM_KB_List: TFRM_KB_List
     DesignSize = (
       786
       25)
-    object lbl_servertime: TLabel
+    object sh_servertime: TShape
+      Left = 584
+      Top = 0
+      Width = 165
+      Height = 24
+      Anchors = [akTop, akRight]
+      Pen.Style = psClear
+      Pen.Width = 0
+    end
+    object lbl_servertime_: TLabel
       Left = 584
       Top = 0
       Width = 165
@@ -270,6 +278,7 @@ object FRM_KB_List: TFRM_KB_List
       Font.Style = []
       ParentBiDiMode = False
       ParentFont = False
+      Transparent = True
     end
     object Label2: TLabel
       Left = 528
