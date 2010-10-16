@@ -114,7 +114,7 @@ var filename: string;
     mode: word;
 begin
   filename := ExtractFilePath(Application.ExeName) +
-    ExtractFileName(plugin.PluginFilename) + '\sys_tests.cssys';
+    FRM_MainTest.txt_serverURL.Text + '\sys_tests.cssys';
 
   if not DirectoryExists(ExtractFilePath(filename)) then
     CreateDir(ExtractFilePath(filename));

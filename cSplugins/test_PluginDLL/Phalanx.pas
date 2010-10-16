@@ -73,15 +73,7 @@ begin
     1: CellText := PositionToStrMond(fleets[index].head.origin);
     2: CellText := PositionToStrMond(fleets[index].head.target);
     3: begin
-         CellText := FleetEventTypeToStr(fleets[index].head.eventtype);
-         if fef_return in fleets[index].head.eventflags then
-           CellText := CellText + ' return';
-         if fef_friendly in fleets[index].head.eventflags then
-           CellText := CellText + ' friendly';
-         if fef_neutral in fleets[index].head.eventflags then
-           CellText := CellText + ' neutral';
-         if fef_hostile in fleets[index].head.eventflags then
-           CellText := CellText + ' hostile';
+         CellText := FleetEventTypeToNameStr(fleets[index].head.eventtype);
        end;
     4: CellText := fleets[index].head.player;
     5: CellText := IntToStr(fleets[index].head.unique_id);

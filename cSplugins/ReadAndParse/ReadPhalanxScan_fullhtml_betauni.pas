@@ -42,7 +42,7 @@ type
     function checkTags(CurElement: THTMLElement; Data: pointer): Boolean;
     function readHtmlTag(tag: THTMLElement): boolean;
     function readHtmlTag_ress_fleet(const tag: THTMLElement;
-      const fce: ThtmlPhalanx_fligthclassEx; var fleet: TFleetEvent): boolean;
+       var fleet: TFleetEvent): boolean;
     function readHtmlTag_planetposition_and_fleettype(const tag: THTMLElement;
       const fce: ThtmlPhalanx_fligthclassEx; var fleet: TFleetEvent): boolean;
     function readHtmlTag_ships(const tag: THTMLElement;
@@ -237,8 +237,9 @@ begin
   Result := doc_html.DeleteTagRoutine(checkTags, nil);
 end;
 
+// read antigame fleetinfo
 function ThtmlPhalanxRead_betauni.readHtmlTag_ress_fleet(const tag: THTMLElement;
-  const fce: ThtmlPhalanx_fligthclassEx; var fleet: TFleetEvent): boolean;
+   var fleet: TFleetEvent): boolean;
 var s, s_ships: string;
     el: THTMLElement;
     ress: TInfoArray;
@@ -247,26 +248,30 @@ var s, s_ships: string;
 begin
   Result := False;
 
-  el := tag.ParentElement.FindChildTag('div',tag.TagNameNr-1);
+  el := tag.FindChildTag('li',tag.ChildNameCount('li')-1);
   if el = nil then Exit;
 
-  s := el.FullTagContent;
-  s := ReplaceStr(s,#13,' ');
+  s := el.FullTagContent + (tag.TagPath);
+  //s := ReplaceStr(s,#13,' ');
   //s := ReplaceStr(s,#10,' ');
   s_ships := ReplaceStr(s,':',' ');
 
-  c := readreport._LeseTeilScanBericht(s_ships, ships, sg_Flotten, False);
-  Result := c > 0;
-  if Result then
-  begin
-    fleet.ships := ships;
-  end;
+  try
+    c := readreport._LeseTeilScanBericht(s_ships, ships, sg_Flotten, False);
+    Result := c > 0;
+    if Result then
+    begin
+      fleet.ships := ships;
+    end;
 
-  c := readreport._LeseTeilScanBericht(s, ress, sg_Rohstoffe, False);
-  Result := c > 0;
-  if Result then
-  begin
-    fleet.ress := ress;
+    c := readreport._LeseTeilScanBericht(s, ress, sg_Rohstoffe, False);
+    Result := c > 0;
+    if Result then
+    begin
+      fleet.ress := ress;
+    end;
+  except
+    Result := false;
   end;
 end;
 
@@ -494,8 +499,8 @@ begin
   for i := 0 to length(fleet.ships)-1 do
     fleet.ships[i] := 0;
 
-  {//Ress/Fleet einlesen
-  readHtmlTag_ress_fleet(tag,fce,fleet);}
+  //Ress/Fleet einlesen
+  readHtmlTag_ress_fleet(tag_ul,fleet);
 
   Add(fleet);
 end;
