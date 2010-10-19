@@ -3,12 +3,12 @@ package creatureScan_tools;
 {$R *.res}
 {$R '..\lib\xmlparser\LibXmlComps.dcr'}
 {$ALIGN 8}
-{$ASSERTIONS OFF}
+{$ASSERTIONS ON}
 {$BOOLEVAL OFF}
 {$DEBUGINFO OFF}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
-{$IOCHECKS ON}
+{$IOCHECKS OFF}
 {$LOCALSYMBOLS OFF}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
