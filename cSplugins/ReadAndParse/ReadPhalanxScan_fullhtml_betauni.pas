@@ -423,6 +423,7 @@ begin
     begin
       s := el.FullTagContent;
       p := pos('[',s);
+      FillChar(tmppos, sizeof(tmppos), 0);
       ReadPosOrTime(s,p+1,tmppos);
       if fef_return in fleet.head.eventflags then
         fleet.head.target := tmppos
@@ -434,6 +435,7 @@ begin
     begin
       s := el.FullTagContent;
       p := pos('[',s);
+      FillChar(tmppos, sizeof(tmppos), 0);
       ReadPosOrTime(s,p+1,tmppos);
       if not(fef_return in fleet.head.eventflags) then
         fleet.head.target := tmppos
