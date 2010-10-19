@@ -970,6 +970,7 @@ begin
     ODataBase.DeleteScansWhenAddSys := form.CH_AutoDelete.Checked;
     ODataBase.check_solsys_data_before_askMoon := form.cb_check_solsys_data_for_moon.Checked;
     PlayerOptions.noMoonQuestion := form.cb_no_moon.Checked;
+    frm_report_basket.cb_only_planets.Checked := PlayerOptions.noMoonQuestion;
 
     if form.ch_startupServer.Checked then Include(Einstellungen,soStartupServer);
     PlayerOptions.ServerPort := StrToInt(form.TXT_ServerStartPort.Text);
