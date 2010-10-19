@@ -192,6 +192,7 @@ end;
 procedure Tfrm_report_basket.allemarkieren1Click(Sender: TObject);
 begin
   vst_reports.SelectAll(false);
+  vst_reports.FocusedNode := vst_reports.GetFirstSelected(); // Force focus changed event
 end;
 
 end.
