@@ -889,6 +889,7 @@ begin
     if (Now - LastUpdate > 1/24/60/20) then // Hier wird die Systemzeit Verwendet!!
     begin
 
+      // alles nullen!  (Position und Pointer sichern)
       item := InitPointer;
       p := Position;
       FillChar(fav^,sizeof(fav^),0);
@@ -902,8 +903,9 @@ begin
       notes := FRM_Notizen.GetPlanetInfo(p);
 
       i := ODataBase.FleetBoard.FindNextArrivingFleet(Position, fet_attack);
-      if i >= 0 then Raid_dt := UnixToDateTime(ODataBase.FleetBoard.Fleets.Fleets[i].head.arrival_time_u)
-        else Raid_dt := -1;
+      if i >= 0 then
+        Raid_dt := UnixToDateTime(ODataBase.FleetBoard.Fleets.Fleets[i].head.arrival_time_u)
+      else Raid_dt := -1;
 
       Last24h := ODataBase.FleetBoard.GetLast24HoursRaidCount(Position);
       RaidCount := ODataBase.FleetBoard.GetRaidCount(Position);
