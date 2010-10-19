@@ -1,9 +1,9 @@
 object frm_sync_cS_db_engine: Tfrm_sync_cS_db_engine
-  Left = 0
-  Top = 0
+  Left = 247
+  Top = 224
+  Width = 387
+  Height = 263
   Caption = 'Sync mit php...'
-  ClientHeight = 228
-  ClientWidth = 371
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,6 +11,7 @@ object frm_sync_cS_db_engine: Tfrm_sync_cS_db_engine
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poDefaultPosOnly
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   DesignSize = (

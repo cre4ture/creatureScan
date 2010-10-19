@@ -117,8 +117,13 @@ begin
     try
 
       FRM_POST_TEST.txt_url.Text := mini.ReadString('cS_db_server', sname+'_url', '');
-      FRM_POST_TEST.do_login(mini.ReadString('cS_db_server', sname+'_user', ''),
-                             mini.ReadString('cS_db_server', sname+'_pass', ''));
+      if not FRM_POST_TEST.do_login(mini.ReadString('cS_db_server', sname+'_user', ''),
+                             mini.ReadString('cS_db_server', sname+'_pass', ''))
+      then
+      begin
+        ShowMessage('Login Fehlgeschlagen. Evtl. stimmt der Username oder das Passwort nicht.');
+        exit;
+      end;
 
       //FRM_POST_TEST.Button4Click(Self);
       //FRM_POST_TEST.Button9Click(Self);
@@ -164,7 +169,10 @@ procedure Tfrm_sync_cS_db_engine.ReloadList;
 var list: TStringList;
     i: integer;
     sname: string;
+    last: string;
 begin
+  last := cb_servers.Text;
+  
   cb_servers.Clear;
   list := TStringList.Create;
   mini.ReadSection('cS_db_server',list);
@@ -178,6 +186,8 @@ begin
     end;
   end;
   list.Free;
+
+  cb_servers.ItemIndex := cb_servers.Items.IndexOf(last);
 end;
 
 end.
