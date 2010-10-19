@@ -92,7 +92,7 @@ type
     function ScanToXMLString(Scan: TScanBericht): string;
     function entflines(s: string): String;
     procedure SetServerUniSize(gala: integer; solsys: integer);
-    procedure ParseAnswer(xml: string);
+    function ParseAnswer(xml: string): boolean;
     procedure Sync_Report(gala: Integer);
     procedure Sync_Systems(Sender: TObject);
     procedure POST(param: string = '');
@@ -425,11 +425,12 @@ begin
   Memo1.Lines.Text := s;
 end;
 
-procedure TFRM_POST_TEST.ParseAnswer(xml: string);
+function TFRM_POST_TEST.ParseAnswer(xml: string): boolean;
 var parser: TXmlParser;
 //    write: boolean;
 begin
 //  write := False;
+  Result := true;
   parser := TXmlParser.Create;
   parser.LoadFromBuffer(PChar(xml));
   parser.StartScan;
@@ -444,8 +445,11 @@ begin
             parse_unknown(parser, true);
           end;
           if parser.CurName = 'error' then
-              log('error: '+parser.CurAttr.Value('type')+':'+
-                               parser.CurAttr.Value('no'),10);
+          begin
+            log('error: '+parser.CurAttr.Value('type')+':'+
+                             parser.CurAttr.Value('no'),10);
+            Result := false; // report error
+          end;
         end;
       ptContent: if parser.CurName = 'error' then
               log(parser.CurContent,10);
@@ -789,6 +793,9 @@ begin
   Memo1.Lines.Add('<read><serverinfo/></read>');
 
   POST(param);
+
+  if not ParseAnswer(Memo2.Lines.Text) then
+    exit; // error on login!
 
   res := THTMLElement.Create(nil, 'root');
   try
