@@ -10,7 +10,8 @@
     
     Description:
     
-    TODO
+    this file converts xml structures to "normal" cS_engine structures
+    and vice versa
     
 */
 
@@ -137,6 +138,11 @@ function cSxml_private_remove_zero(&$attr_list)
   }
   
   return $attr_list;
+}
+
+function cSxml_sxml_to_highscore($tag)
+{
+  
 }
 
 
