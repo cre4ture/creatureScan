@@ -150,7 +150,13 @@ function ibot_private_read_handler_reporttimes_gala($tag)
   {
     $gala = $tag['attrs']['gala'];
     
-    $times = cSsql_get_report_times_gala($gala);
+    $since = 0; // all scans, no time limit
+    if (isset($tag['attrs']['since']))
+    {
+      $since = $tag['attrs']['since'];  // if limit is given, use it!
+    }
+    
+    $times = cSsql_get_report_times_gala($gala, $since);
     
     //print_r($times);
     

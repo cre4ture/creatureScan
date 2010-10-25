@@ -282,14 +282,22 @@ function cSsql_solsys_get_by_pos($gala, $sys)
   return cSsql_private_get_solsys_from_query($query); 
 }
 
-function cSsql_get_report_times_gala($gala)
+/** returns a list of scans in one galaxy
+ * this can be filtered by the $since_time param
+ * 
+ * @param galaxy 
+ * @param since_time filters all scans older than this date (unix timestamp)
+ * 
+ * @return list with elements of array ( 'time', 'id' )
+ */
+function cSsql_get_report_times_gala($gala, $since_time)
 {
   global $sqlconf;
   
   $gala = mysql_escape_string($gala);
   $query = "SELECT id, sys, pos, moon, time
               FROM `".$sqlconf['report_table']."`
-              WHERE (gala = '$gala')
+              WHERE (`gala` = '$gala' AND `time` >= $since_time)
               ORDER BY sys ASC, pos ASC, moon ASC, time DESC";
   $sql = mysql_query($query);
   
@@ -323,7 +331,7 @@ function cSsql_get_solsys_times_timestamp($from, $to)
   $query .= " ) 
             GROUP BY gala, sys";
             
-  //echo $query;
+  // echo $query;
   
   $sql = mysql_query($query);
   $result = false;
@@ -335,6 +343,7 @@ function cSsql_get_solsys_times_timestamp($from, $to)
       $result[$solsys['gala']][$solsys['sys']] = $solsys['time'];
     }
   }
+  
   return $result;
 }
 
@@ -379,6 +388,100 @@ function cSsql_solsys_get_by_id($id)
             WHERE `id` = '$id'";
             
   return cSsql_private_get_solsys_from_query($query); 
+}
+
+function cSsql_highscore_get_new($table, $timestamp, $type)
+{
+  $timestamp = mysql_escape_string($timestamp);
+  $type = mysql_escape_string($type);
+
+  $query = "SELECT * 
+            FROM `".$table."`
+            WHERE ( type = '$type'";
+  if ($timestamp != '0')
+    $query .= " AND timestamp > '$timestamp'";
+  $query .= " )"; 
+  
+  $sql = mysql_query($query);
+  $result = false;
+  if (!cSsql_write_error($sql))
+  {
+    $result = Array();
+    while ($rank = mysql_fetch_array($sql, MYSQL_ASSOC))  
+    {
+      $result[$rank['rank']] = $rank;
+    }
+  }
+  return $result;     
+}
+
+function cSsql_highscore_player_get_new($timestamp, $type)
+{
+  global $sqlconf;
+  return cSsql_highscore_get_new($sqlconf['highscore_player_table'], $timestamp, $type);
+}
+
+function cSsql_highscore_ally_get_new($timestamp, $type)
+{
+  global $sqlconf;
+  return cSsql_highscore_get_new($sqlconf['highscore_ally_table'], $timestamp, $type);
+}
+
+function cSsql_private_transform_update_query($values)
+{
+  $result = "";
+  foreach($values as $key => $value)
+  {
+    $result .= " `".mysql_escape_string($key).
+               "`='".mysql_escape_string($value)."'";
+  }
+  
+  return $result;
+}
+
+function cSsql_highscore_add_new($table, $data)
+{
+  $rank = mysql_escape_string($data['rank']);
+  $type = mysql_escape_string($data['type']);
+  $time = mysql_escape_string($data['time']);
+  
+  $query = "SELECT time 
+            FROM `$table`
+            WHERE ( rank = '$rank' AND type = '$type' 
+                    AND time > '$time' )";
+  $sql = mysql_query($query);
+  if (cSsql_write_error($sql)) return false;
+                    
+  if (mysql_affected_rows() > 0)  // Wenn schon ein aktuellerer vorhanden
+    return false;
+    
+  $query = "UPDATE `".$table."`
+                   SET (".cSsql_private_transform_update_query($data).") 
+                   WHERE ( rank='$rank' AND type='$type' )";
+
+  $sql = mysql_query($query);
+  if (cSsql_write_error($sql)) return false;
+  
+  if (mysql_affected_rows() == 0)
+  {
+    $query = array_to_insertquery($table, $data);
+    $sql = mysql_query($query);
+    return (!cSsql_write_error($sql));
+  }
+  
+  return true;
+}
+
+function cSsql_highscore_player_add_new($data)
+{
+  global $sqlconf;
+  return cSsql_highscore_add_new($sqlconf['highscore_player_table'], $data);
+}
+
+function cSsql_highscore_ally_add_new($data)
+{
+  global $sqlconf;
+  return cSsql_highscore_add_new($sqlconf['highscore_ally_table'], $data);
 }
 
 

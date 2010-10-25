@@ -30,6 +30,10 @@ $data = file_get_contents('php://input'); // hier kein urldecode!!!!
 // connect to database
 cSsql_db_login();
 
+// write test protocoll:
+/*$sql = 'INSERT INTO testdata (date, data) VALUES ( NOW(), \''.mysql_escape_string($data).'\')';
+mysql_query($sql);*/
+
 // do all work
 ibot_exec($data);
 
