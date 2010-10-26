@@ -6,7 +6,12 @@ uses
   Classes, OGame_Types, Windows, SysUtils, IniFiles, Dialogs, Languages;
 
 const
-  DLLVNumber = 23;
+  DLLVNumber = 24;
+
+{ V24:
+   Added OpenSolSys  21.10.2010
+
+   }
 
 // RELEASE 1.8d 16.11.2009
 
@@ -27,6 +32,7 @@ type
 
   TCheckUni = function(Handle: Integer): Boolean;
   TCallFleet = function (pos: TPlanetPosition; job: TFleetEventType): Boolean;
+  TOpenSolSys = function (pos: TSolSysPosition): Boolean;
   //Scans
   TReadScansFunction = function(Handle: Integer): integer;
   TGetScanFunction = function(Handle: integer; Scan: Pointer; var AskMoon: Boolean): Boolean;
@@ -68,6 +74,7 @@ type
     PReadStats: TReadStats;
     PCheckUni: TCheckUni;
     PCallFleet: TCallFleet;
+    POpenSolSys: TOpenSolSys;
     PRunOptions: TRunOptions;
     PStrToStatus: TStrToStatus;
     PStatusToStr: TStatusToStr;
@@ -94,6 +101,7 @@ type
     function ReadSource_New: integer;
     procedure ReadSource_Free(handle: integer);
     function CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
+    function OpenSolSys(pos: TSolSysPosition): Boolean;
     function GetReport(handle: integer; var Bericht: TScanBericht;
       out moon_unknown: Boolean): Boolean;
     function ReadReports(handle: integer): Integer;
@@ -133,6 +141,7 @@ begin
   @PReadStats := GetProcAddress(DllHandle, 'ReadStats');
   @PCheckUni := GetProcAddress(DllHandle, 'CheckUni');
   @PCallFleet := GetProcAddress(DllHandle, 'CallFleet');
+  @POpenSolSys := GetProcAddress(DllHandle, 'OpenSolSys');
   @PRunOptions := GetProcAddress(DllHandle, 'RunOptions');
   @PStrToStatus := GetProcAddress(DllHandle, 'StrToStatus');
   @PStatusToStr := GetProcAddress(DllHandle, 'StatusToStr');
@@ -453,6 +462,15 @@ begin
     fleet := ReadBufFleet(buf);
   end
   else Result := false;
+end;
+
+function TLangPlugIn.OpenSolSys(pos: TSolSysPosition): Boolean;
+begin
+  if Assigned(POpenSolSys) then
+    Result := POpenSolSys(pos)
+  else
+    raise Exception.Create(
+      'TLangPlugIn.OpenSolSys(): dll does not support this feature');
 end;
 
 end.

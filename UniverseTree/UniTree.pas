@@ -85,6 +85,7 @@ type
     function GetPhalanxList(Gala, Sys: Integer): TPlanetPosList; overload;
     function GetPhalanxList(Solsys: TPlanetPosition): TPlanetPosList; overload;
     function UniSys(Gala, SolSys: Integer): Integer;
+    function UniSystem(Gala, SolSys: Integer): TSystemCopy;
     function UniReport(pos: TPlanetPosition): Integer; overload;
     function UniReport(gala,sys,planet: Integer; moon: Boolean): Integer; overload;
     function AddNewSolSys(Sys: TSystemCopy): Integer; virtual;
@@ -1081,7 +1082,7 @@ var i{,j,k}: Integer;
     c: integer;
     a: TIntegerList;
     {scan: TScanBericht;}
-begin      //Schon sortierte Liste!!!
+begin      //Schon sortierte Liste (neueren Scans zu erst)!!!
   with PTreePlanet(Pos)^ do
   begin
     a := Reports;
@@ -1690,6 +1691,13 @@ begin
       break;
     end;
   end;
+end;
+
+function TUniverseTree.UniSystem(Gala, SolSys: Integer): TSystemCopy;
+var i: integer;
+begin
+  i := UniSys(Gala, SolSys);
+  Result := SolSysDB[i];
 end;
 
 end.

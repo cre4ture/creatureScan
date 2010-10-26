@@ -8,19 +8,23 @@ uses
 
 type
   Tfrm_config_cS_engine = class(TForm)
-    txt_url: TEdit;
-    Label1: TLabel;
-    txt_username: TEdit;
-    Label2: TLabel;
-    txt_password: TEdit;
-    Label3: TLabel;
     Button1: TButton;
     Button2: TButton;
-    cb_auto: TCheckBox;
-    se_min: TSpinEdit;
-    Label4: TLabel;
-    txt_name: TEdit;
+    gb_config: TGroupBox;
+    gb_login: TGroupBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
     Label5: TLabel;
+    txt_url: TEdit;
+    txt_username: TEdit;
+    txt_password: TEdit;
+    txt_name: TEdit;
+    Label6: TLabel;
+    se_max_days_age: TSpinEdit;
+    Label7: TLabel;
+    Label8: TLabel;
+    cb_dont_sync_deletet_planets: TCheckBox;
   private
     { Private-Deklarationen }
   public

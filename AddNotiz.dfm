@@ -1,6 +1,6 @@
 object FRM_AddNotiz: TFRM_AddNotiz
-  Left = 657
-  Top = 782
+  Left = 441
+  Top = 367
   BorderStyle = bsDialog
   Caption = 'Hinzuf'#252'gen einer Notiz'
   ClientHeight = 152

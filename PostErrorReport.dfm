@@ -1,6 +1,6 @@
 object frm_postErrorReport: Tfrm_postErrorReport
-  Left = 296
-  Top = 137
+  Left = 298
+  Top = 41
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsDialog
   Caption = 'Senden eines Error Reports'

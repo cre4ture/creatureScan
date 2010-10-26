@@ -71,6 +71,7 @@ type
     cb_negativearea: TCheckBox;
     Spionieren1: TMenuItem;
     N2: TMenuItem;
+    tim_take_focus_again: TTimer;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BTN_SucheClick(Sender: TObject);
     procedure BTN_SchliesenClick(Sender: TObject);
@@ -115,6 +116,7 @@ type
     procedure VST_ResultHeaderClick(Sender: TVTHeader;
       HitInfo: TVTHeaderHitInfo);
     procedure Spionieren1Click(Sender: TObject);
+    procedure tim_take_focus_againTimer(Sender: TObject);
   private
     mPosListInterface: TPlanetListInterface;
     e, Topmost : boolean;
@@ -769,8 +771,19 @@ end;
 procedure TFRM_Suche.Spionieren1Click(Sender: TObject);
 begin
   if VST_Result.GetFirstSelected <> nil then
+  begin
     with TSearch_ND(VST_Result.GetNodeData(VST_Result.GetFirstSelected)^) do
       ODataBase.LanguagePlugIn.CallFleet(Koord, fet_espionage);
+
+    tim_take_focus_again.Enabled := true;
+  end;
+end;
+
+procedure TFRM_Suche.tim_take_focus_againTimer(Sender: TObject);
+begin
+  tim_take_focus_again.Enabled := false;
+  Application.BringToFront;
+  Self.SetFocus;
 end;
 
 end.

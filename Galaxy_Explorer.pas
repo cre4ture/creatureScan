@@ -48,6 +48,7 @@ type
     folgeeingelesenenSystemen1: TMenuItem;
     N4: TMenuItem;
     spionage1: TMenuItem;
+    ffneSysteminOGame1: TMenuItem;
     procedure SB_PasteSystemClick(Sender: TObject);
     procedure folgeeingelesenenSystemen1Click(Sender: TObject);
     //procedure PaintBox1Paint(Sender: TObject);
@@ -113,6 +114,7 @@ type
       CellPaintMode: TVTCellPaintMode; CellRect: TRect;
       var ContentRect: TRect);
     procedure spionage1Click(Sender: TObject);
+    procedure ffneSysteminOGame1Click(Sender: TObject);
   private
     tablewidth: integer;
     TopMost: boolean;
@@ -442,7 +444,7 @@ begin
   else NT := nPlanet;
   end;
 
-  FRM_Notizen.ShowAddDialog(Position,NT,self); //Achtung: Mond wird mit einberechnet weitergegeben!
+  FRM_Notizen.ShowAddDialog(Self,Position,NT); //Achtung: Mond wird mit einberechnet weitergegeben!
   VST_System.Refresh;
 end;
 
@@ -1051,6 +1053,14 @@ end;
 procedure TExplorer.spionage1Click(Sender: TObject);
 begin
   ODataBase.LanguagePlugIn.CallFleet(Position, fet_espionage);
+end;
+
+procedure TExplorer.ffneSysteminOGame1Click(Sender: TObject);
+var pos: TSolSysPosition;
+begin
+  pos[0] := Position.P[0];
+  pos[1] := Position.P[1];
+  ODataBase.LanguagePlugIn.OpenSolSys(pos);
 end;
 
 end.
