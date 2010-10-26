@@ -36,7 +36,7 @@ type
 
 
 const
-  iopluginVersion = 23;
+  iopluginVersion = 24;
 
   RA_KeyWord_Count = 5;
   ST_KeyWord_Count = 2;
@@ -301,6 +301,11 @@ begin
     Result := UniCheck.CallFleet(pos, job);
 end;
 
+function OpenSolSys(pos: TSolSysPosition): Boolean;
+begin
+  Result := UniCheck.OpenSolSys(pos);
+end;
+
 procedure RunOptions;
 var ini: TIniFile;
 begin
@@ -361,6 +366,7 @@ exports
   ReadPhalanxScan,
   GetPhalaxScan,
   CallFleet,
+  OpenSolSys,
 
   ReadSource_New,
   ReadSource_Free,

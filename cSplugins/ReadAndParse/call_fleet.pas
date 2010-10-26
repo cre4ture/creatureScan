@@ -15,6 +15,7 @@ type
     // CallFleet
     CallFleetLinkTemplate: string;
     SendSpioLinkTemplate: string;
+    OpenSolSysLinkTemplate: string;
     JobNrs: array[TFleetEventType] of string;
     typ_planet, typ_mond, typ_TF: string;
 
@@ -30,6 +31,7 @@ type
     function _CheckUni_HTML(html: string): Boolean;
     function CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
     function SendSpio(pos: TPlanetPosition): Boolean;
+    function OpenSolSys(spos: TSystemPosition): Boolean;
   end;
 
 implementation
@@ -51,7 +53,8 @@ begin
 
   CallFleetLinkTemplate := ini.ReadString('UniCheck','callfleet','');
   SendSpioLinkTemplate := ini.ReadString('UniCheck','sendspio','');
-  CheckUniKeyword := ini.ReadString('UniCheck','Keyword',' ');
+  OpenSolSysLinkTemplate := ini.ReadString('UniCheck','opensolsys','');
+  CheckUniKeyword := ini.ReadString('UniCheck','Keyword','<<<empty>>>');
   msg_daten_einlesen := ini.ReadString('UniCheck', 'msg_read_data', 'First, turn >>uni check<< on. Second, read data.');
   typ_planet := ini.ReadString('UniCheck','typ_planet','');
   typ_mond := ini.ReadString('UniCheck','typ_mond','');
@@ -148,6 +151,28 @@ begin
   ShellExecute(0,'open',PChar(url),'','',0);
 
   Result := True;
+end;
+
+function TUniCheck.OpenSolSys(spos: TSystemPosition): Boolean;
+var pos: TPlanetPosition;
+    url: string;
+begin
+  Result := false;
+  if session_id = '' then
+  begin
+    ShowMessage(msg_daten_einlesen);
+    Exit;
+  end;
+
+  pos.P[0] := spos[0];
+  pos.P[1] := spos[1];
+  pos.P[2] := 1;
+  pos.Mond := false;
+
+  url := fillVarsInLink(OpenSolSysLinkTemplate,pos,fet_espionage);
+  ShellExecute(0,'open',PChar(url),'','',0);
+
+  Result := true;
 end;
 
 end.
