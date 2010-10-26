@@ -1,6 +1,6 @@
 object FRM_Main: TFRM_Main
-  Left = 499
-  Top = 180
+  Left = 269
+  Top = 125
   Width = 549
   Height = 463
   Caption = 'creatureScan'
@@ -709,7 +709,7 @@ object FRM_Main: TFRM_Main
       object BTN_Copy: TButton
         Left = 2
         Top = 32
-        Width = 96
+        Width = 47
         Height = 25
         Anchors = [akLeft, akTop, akRight]
         Caption = 'C&opy'
@@ -763,6 +763,15 @@ object FRM_Main: TFRM_Main
         Caption = '>>'
         TabOrder = 7
         OnClick = btn_nextClick
+      end
+      object Button1: TButton
+        Left = 56
+        Top = 32
+        Width = 41
+        Height = 25
+        Caption = 'Button1'
+        TabOrder = 8
+        OnClick = Button1Click
       end
     end
   end

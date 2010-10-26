@@ -170,6 +170,7 @@ type
     updatecheck2: TMenuItem;
     ZwischenablagefrMondScans1: TMenuItem;
     lbl_dbl_click: TLabel;
+    Button1: TButton;
     procedure btn_lastClick(Sender: TObject);
     procedure btn_nextClick(Sender: TObject);
     procedure LblWikiLinkClick(Sender: TObject);
@@ -254,6 +255,7 @@ type
     procedure Softupdate1Click(Sender: TObject);
     procedure ZwischenablagefrMondScans1Click(Sender: TObject);
     procedure PopupMenu1Popup(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
@@ -2270,6 +2272,60 @@ procedure TFRM_Main.PopupMenu1Popup(Sender: TObject);
 begin
   Lschen1.Enabled := (lst_others.Selected <> nil) and
     (lst_others.Selected.SubItems[0] <> '-1');
+end;
+
+procedure TFRM_Main.Button1Click(Sender: TObject);
+var url: string;
+
+  procedure param(pname, pvalue: string); overload;
+  begin
+    url := url + '&' + pname + '=' + pvalue;
+  end;
+
+  procedure param(pname: string; pvalue: int64); overload;
+  begin
+    if pvalue = -1 then
+      param(pname, 'undefined')
+    else
+      param(pname, IntToStr(pvalue));
+  end;
+
+var scan: TScanBericht;
+    i: integer;
+begin
+  scan := Frame_Bericht1.Bericht;
+  if not ValidPosition(scan.Head.Position) then
+    exit;
+
+  url := 'http://websim.speedsim.net/index.php?lang=de&referrer=cS';
+
+  (*param('tech_a0_0','undefined');
+  param('tech_a0_1','undefined');
+  param('tech_a0_2','undefined');*)
+
+  param('enemy_name', scan.Head.Planet);
+  param('enemy_pos', PositionToStr_(scan.Head.Position)); // don't know if sim supports the [x:xxx:x M] extension
+  param('enemy_metal', scan.Bericht[sg_Rohstoffe][sb_Metall]);
+  param('enemy_crystal', scan.Bericht[sg_Rohstoffe][sb_Kristall]);
+  param('enemy_deut', scan.Bericht[sg_Rohstoffe][sb_Deuterium]);
+
+  param('tech_d0_0', scan.Bericht[sg_Forschung][sb_Waffentechnik]);
+  param('tech_d0_1', scan.Bericht[sg_Forschung][sb_Schildtechnik]);
+  param('tech_d0_2', scan.Bericht[sg_Forschung][sb_Raumschiffpanzerung]);
+
+  for i := 0 to fsc_1_Flotten-1 do
+  begin
+    param('ship_d0_' + IntToStr(i) + '_b',
+      scan.Bericht[sg_Flotten][i]);
+  end;
+
+  for i := 0 to fsc_2_Verteidigung-1 do
+  begin
+    param('ship_d0_' + IntToStr(fsc_1_Flotten + i) + '_b',
+      scan.Bericht[sg_Verteidigung][i]);
+  end;
+
+  ShellExecute(Self.Handle,'open',PChar(url),'','',0);
 end;
 
 end.

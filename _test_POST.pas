@@ -51,6 +51,9 @@ type
     mem_log: TMemo;
     Button7: TButton;
     Button10: TButton;
+    se_max_days_age: TSpinEdit;
+    Label6: TLabel;
+    cb_filter_no_planet: TCheckBox;
     procedure BTN_genSysClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
@@ -103,7 +106,7 @@ type
 var
   FRM_POST_TEST: TFRM_POST_TEST;
 
-function GetPlanetReportList(Pos: TPlanetPosition): TReportTimeList;
+function GetPlanetReportList(Pos: TPlanetPosition; since_u: int64): TReportTimeList;
 
 implementation
 
@@ -490,6 +493,7 @@ procedure TFRM_POST_TEST.Sync_Report(gala: Integer);
 var read, write: string;
     p_count: Integer;
     pos: TPlanetPosition;
+    since_u: int64;
 
   procedure SetPositionProgress(sys: integer);
   var next: integer;
@@ -510,7 +514,7 @@ var read, write: string;
       sit_get:
         begin  //anfragen! id bezieht sich auf die serverseitige db
 
-          log('get report id(' + IntToStr(id) + ') [' +
+          log('get report id(S' + IntToStr(id) + ') [' +
                PositionToStrMond(pos) + ']', 10);
 
           read := read + '<report_id id="' + IntToStr(id) + '"/>';
@@ -519,7 +523,7 @@ var read, write: string;
         begin  //senden! id bezieht sich auf die lokale db
           scan := ODataBase.Berichte[id];
 
-          log('send report id(' + IntToStr(id) + ') [' +
+          log('send report id(C' + IntToStr(id) + ') [' +
                PositionToStrMond(scan.Head.Position) + ']', 10);
 
           write := write + ScanToXMLString(scan);
@@ -550,7 +554,7 @@ var read, write: string;
       pos := AbsPlanetNrToPlanetPosition(ap);
       SetPositionProgress(pos.P[1]);
 
-      list := GetPlanetReportList(pos);
+      list := GetPlanetReportList(pos, since_u);
       for li := 0 to length(list)-1 do
       begin
         SendID(sit_send, list[li].ID);
@@ -567,9 +571,12 @@ var root, sinfo, times, planet, rtime: THTMLElement;
 
     time_u: Int64;
     ScanList: TReportTimeList;
+    solsys: TSystemCopy;
     s: string;
 begin
   ScanList := nil; // suppress warning
+
+  solsys.System.P[1] := 0; // mark invalid!
   
   log('start sync reports, gala ' + IntToStr(gala),10);
 
@@ -580,9 +587,14 @@ begin
                   50 + ((gala * 50) div max_Galaxy));
 
   start := now;
+  since_u := DateTimeToUnix(now - se_max_days_age.Value);
+
   Memo1.Clear;
-  s := '<read><serverinfo/><reporttimes_gala gala="' + inttostr(gala) + '"';
-  s := s + '/></read>';
+  s := '<read><serverinfo/><reporttimes_gala' +
+       ' gala="' + inttostr(gala) + '"' +
+       ' since="' + inttostr(since_u) + '"' +
+       '/></read>';
+
   Memo1.Lines.Add(s);
   log('send request: ' + s,0);
   POST;
@@ -628,47 +640,58 @@ begin
       abspos := PlanetPositionToAbsPlanetNr(pos);
 
       SendReports_between(labspos, abspos);
-      ScanList := GetPlanetReportList(Pos);
-
-      sl := 0;
-      j := 0;
-      while (j < planet.ChildCount)and(sl < length(ScanList)) do
+      ScanList := GetPlanetReportList(Pos, since_u);
+      if (solsys.System.P[0] <> pos.P[0])or // hole neues sonnensystem nur wenn nötig
+         (solsys.System.P[1] <> pos.P[1]) then
       begin
-        rtime := planet.ChildElements[j];
-        time_u := StrToInt64(rtime.AttributeValue['time']);
+        solsys := ODataBase.UniTree.UniSystem(pos.p[0], pos.P[1]);
+      end;
 
-        if ScanList[sl].Time_u > time_u then
-        begin  //Wenn lokal neuer als remote
-          SendID(sit_send, ScanList[sl].ID);
-          inc(sl);  //nächster lokaler
-        end
-        else
-        if ScanList[sl].Time_u < time_u then
-        begin  //Wenn remote neuer als lokal
+      if (not cb_filter_no_planet.Checked)or // wenn nicht filter aktiv
+         (solsys.Planeten[pos.P[2]].Player <> '') then  // oder filter greift nicht, dann sync!
+      begin
+      
+        sl := 0;
+        j := 0;
+        while (j < planet.ChildCount)and(sl < length(ScanList)) do
+        begin
+          rtime := planet.ChildElements[j];
+          time_u := StrToInt64(rtime.AttributeValue['time']);
+
+          if ScanList[sl].Time_u > time_u then
+          begin  //Wenn lokal neuer als remote
+            SendID(sit_send, ScanList[sl].ID);
+            inc(sl);  //nächster lokaler
+          end
+          else
+          if ScanList[sl].Time_u < time_u then
+          begin  //Wenn remote neuer als lokal
+            SendID(sit_get, StrToInt(rtime.AttributeValue['id']));
+            inc(j);  //nächster remote
+          end
+          else
+          begin  //Wenn beide Zeiten gleich sind
+            inc(sl);  //Zähle beide weiter (sonst ist nix zu tun!)
+            inc(j);
+          end;
+        end;
+
+        // an dieser Stelle ist eine der beiden Listen durchgearbeitet
+        // jetzt muss der verbleibende Rest in der anderen Liste noch gesendet werden
+
+        while (j < planet.ChildCount) do  // remote Liste
+        begin
+          rtime := planet.ChildElements[j];
           SendID(sit_get, StrToInt(rtime.AttributeValue['id']));
-          inc(j);  //nächster remote
-        end
-        else
-        begin  //Wenn beide Zeiten gleich sind
-          inc(sl);  //Zähle beide weiter (sonst ist nix zu tun!)
           inc(j);
         end;
-      end;
 
-      // an dieser Stelle ist eine der beiden Listen durchgearbeitet
-      // jetzt muss der verbleibende Rest in der anderen Liste noch gesendet werden
+        while (sl < length(ScanList)) do  // lokale Liste
+        begin
+          SendID(sit_send, ScanList[sl].ID);
+          inc(sl);
+        end;
 
-      while (j < planet.ChildCount) do  // remote Liste
-      begin
-        rtime := planet.ChildElements[j];
-        SendID(sit_get, StrToInt(rtime.AttributeValue['id']));
-        inc(j);
-      end;
-
-      while (sl < length(ScanList)) do  // lokale Liste
-      begin
-        SendID(sit_send, ScanList[sl].ID);
-        inc(sl);
       end;
 
       SetPositionProgress(pos.P[1]);
@@ -735,7 +758,8 @@ end;
 
 procedure TFRM_POST_TEST.POST(param: string = '');
 var startpost: Tdatetime;
-    url: string;
+    url, s: string;
+    buf: TMemoryStream;
 begin
   if pos('?', txt_url.Text) > 0 then
     param := '&' + param
@@ -749,10 +773,17 @@ begin
 
   url := txt_url.Text + param;
 
-  startpost := now;
-  Memo2.Text := IdHTTP1.Post(url,Memo1.Lines);
-  startpost := Now - startpost;
-  TXT_post.Text := FloatToStrF(startpost*24*60*60,ffNumber,80,4) + ' s';
+  s := Memo1.Text;
+  buf := TMemoryStream.Create;
+  try
+    buf.Write(PChar(s)^, length(s));
+    startpost := now;
+    Memo2.Text := IdHTTP1.Post(url,buf);
+    startpost := Now - startpost;
+    TXT_post.Text := FloatToStrF(startpost*24*60*60,ffNumber,80,4) + ' s';
+  finally
+    buf.Free;
+  end;
 end;
 
 procedure TFRM_POST_TEST.BTN_POST_Click(Sender: TObject);
@@ -861,9 +892,24 @@ begin
   Memo1.Lines.Add('<write>' + entflines(StatToXML_(ODataBase.Statistic.StatisticType[sntPlayer,sptPoints].Stats[0],st)) + '</write>');
 end;
 
-function GetPlanetReportList(Pos: TPlanetPosition): TReportTimeList;
+function GetPlanetReportList(Pos: TPlanetPosition; since_u: int64): TReportTimeList;
+var i,j: integer;
 begin
   Result := ODataBase.UniTree.GetPlanetReportList(Pos);
+  i := 0;
+  while i < length(Result) do
+  begin
+    if Result[i].Time_u >= since_u then
+      inc(i)
+    else
+    begin
+      // da die Liste sortiert ist (neuere Scans zu erst)
+      // kann sie einfach beim ersten Treffer gekürzt werden:
+
+      SetLength(Result, i);
+      break;
+    end;
+  end;
 end;
 
 end.

@@ -1,8 +1,8 @@
 object FRM_POST_TEST: TFRM_POST_TEST
-  Left = 294
+  Left = 275
   Top = 0
-  Width = 613
-  Height = 778
+  Width = 610
+  Height = 738
   Caption = 'FRM_POST'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -42,6 +42,13 @@ object FRM_POST_TEST: TFRM_POST_TEST
     Width = 44
     Height = 13
     Caption = 'Protokoll:'
+  end
+  object Label6: TLabel
+    Left = 304
+    Top = 56
+    Width = 124
+    Height = 13
+    Caption = 'Maximales Alter (in Tagen)'
   end
   object txt_url: TEdit
     Left = 20
@@ -300,6 +307,24 @@ object FRM_POST_TEST: TFRM_POST_TEST
     TabOrder = 12
     OnClick = Button10Click
   end
+  object se_max_days_age: TSpinEdit
+    Left = 432
+    Top = 56
+    Width = 121
+    Height = 22
+    MaxValue = 0
+    MinValue = 0
+    TabOrder = 13
+    Value = 90
+  end
+  object cb_filter_no_planet: TCheckBox
+    Left = 304
+    Top = 80
+    Width = 161
+    Height = 17
+    Caption = 'cb_filter_no_planet'
+    TabOrder = 14
+  end
   object IdHTTP1: TIdHTTP
     MaxLineAction = maException
     ReadTimeout = 0
@@ -321,7 +346,7 @@ object FRM_POST_TEST: TFRM_POST_TEST
   object Timer1: TTimer
     Interval = 100
     OnTimer = Timer1Timer
-    Left = 236
-    Top = 96
+    Left = 84
+    Top = 400
   end
 end

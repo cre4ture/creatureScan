@@ -92,6 +92,7 @@ type
     PM_Notizen: TPopupMenu;
     musternotiz1: TMenuItem;
     Spionagesondenschicken1: TMenuItem;
+    tim_take_focus_again: TTimer;
     procedure musternotiz1Click(Sender: TObject);
     procedure VST_ScanListGetPopupMenu(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; const P: TPoint;
@@ -156,6 +157,7 @@ type
     procedure VST_ScanListHeaderClick(Sender: TVTHeader;
       HitInfo: TVTHeaderHitInfo);
     procedure Spionagesondenschicken1Click(Sender: TObject);
+    procedure tim_take_focus_againTimer(Sender: TObject);
   published
   private
     mListInterface: TFRM_Fav_PlanetListInterface;
@@ -485,7 +487,8 @@ var node: PVirtualNode;
 begin
   node := VST_ScanList.GetFirstSelected;
   if node <> nil then
-    FRM_Notizen.ShowAddDialog(TFav(VST_ScanList.GetNodeData(node)^).Position,nPlanet,Self);
+    FRM_Notizen.ShowAddDialog(Self,
+      TFav(VST_ScanList.GetNodeData(node)^).Position,nPlanet);
 end;
 
 procedure TFRM_Favoriten.BTN_RefreshClick(Sender: TObject);
@@ -1702,8 +1705,19 @@ end;
 procedure TFRM_Favoriten.Spionagesondenschicken1Click(Sender: TObject);
 begin
   if VST_ScanList.GetFirstSelected <> nil then
-  with TFav(VST_ScanList.GetNodeData(VST_ScanList.GetFirstSelected)^) do
-    ODataBase.LanguagePlugIn.CallFleet(Position, fet_espionage);
+  begin
+    with TFav(VST_ScanList.GetNodeData(VST_ScanList.GetFirstSelected)^) do
+      ODataBase.LanguagePlugIn.CallFleet(Position, fet_espionage);
+
+    tim_take_focus_again.Enabled := True;
+  end;
+end;
+
+procedure TFRM_Favoriten.tim_take_focus_againTimer(Sender: TObject);
+begin
+  tim_take_focus_again.Enabled := false;
+  Application.BringToFront;
+  Self.SetFocus;
 end;
 
 end.

@@ -69,7 +69,7 @@ type
   public
     procedure Add(Notiz: TNotiz);
     function GetPlanetInfo(APos: TPlanetPosition): TNotizArray;
-    procedure ShowAddDialog(Position: TPlanetPosition; NT: TNotizTyp = nPlanet; Sender: TForm = nil);
+    procedure ShowAddDialog(Sender: TForm; Position: TPlanetPosition; NT: TNotizTyp = nPlanet);
     procedure AddPlanet(Notiz: string; Planet: TPLanetPosition; Image: integer);
     procedure AddPlayer(Notiz: string; Player: TPlayerName; Image: integer);
     procedure AddAlly(Notiz: string; Ally: TPlayerName; Image: integer);
@@ -238,13 +238,12 @@ begin
   end;
 end;
 
-procedure TFRM_Notizen.ShowAddDialog(Position: TPlanetPosition; NT: TNotizTyp = nPlanet; Sender: TForm = nil);
+procedure TFRM_Notizen.ShowAddDialog(Sender: TForm; Position: TPlanetPosition; NT: TNotizTyp = nPlanet);
 var FRM: TFRM_AddNotiz;
     i: integer;
     Player, Ally: string;
 begin
   Position.Mond := False; //keine notizen für mond extra!!!!!!!!!!
-  if Sender = nil then Sender := Application.MainForm;
   FRM := TFRM_AddNotiz.Create(Sender);
   FRM.LBL_PLanet.Caption := PositionToStr_(Position);
   Player := '';

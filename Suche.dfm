@@ -739,6 +739,7 @@ object FRM_Suche: TFRM_Suche
     Top = 184
     object Spionieren1: TMenuItem
       Caption = 'Spionieren'
+      ShortCut = 16467
       OnClick = Spionieren1Click
     end
     object N2: TMenuItem
@@ -777,5 +778,12 @@ object FRM_Suche: TFRM_Suche
   object VTHeaderPopupMenu1: TVTHeaderPopupMenu
     Left = 120
     Top = 184
+  end
+  object tim_take_focus_again: TTimer
+    Enabled = False
+    Interval = 300
+    OnTimer = tim_take_focus_againTimer
+    Left = 208
+    Top = 192
   end
 end

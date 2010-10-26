@@ -1,6 +1,6 @@
 object Explorer: TExplorer
   Left = 313
-  Top = 145
+  Top = 186
   Width = 482
   Height = 463
   Caption = 'Galaxie-Explorer'
@@ -485,6 +485,10 @@ object Explorer: TExplorer
     end
     object N3: TMenuItem
       Caption = '-'
+    end
+    object ffneSysteminOGame1: TMenuItem
+      Caption = #246'ffne System in OGame'
+      OnClick = ffneSysteminOGame1Click
     end
     object folgeeingelesenenSystemen1: TMenuItem
       Caption = 'folge eingelesenen Systemen'

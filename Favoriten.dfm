@@ -1,6 +1,6 @@
 object FRM_Favoriten: TFRM_Favoriten
   Left = 218
-  Top = 127
+  Top = 163
   Width = 1043
   Height = 456
   Caption = 'Scanbericht '#220'bersicht'
@@ -808,5 +808,12 @@ object FRM_Favoriten: TFRM_Favoriten
       Caption = 'musternotiz'
       OnClick = musternotiz1Click
     end
+  end
+  object tim_take_focus_again: TTimer
+    Enabled = False
+    Interval = 300
+    OnTimer = tim_take_focus_againTimer
+    Left = 384
+    Top = 160
   end
 end
