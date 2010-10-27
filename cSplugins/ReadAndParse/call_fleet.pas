@@ -77,21 +77,22 @@ begin
 end;
 
 procedure TUniCheck.get_parse_session_ID_html(html: string);
-var p,p2,p3,pe,pet: integer;
+var p,p2,p3,pe,pet,i: integer;
 const url_session_id = 'session=';
+      term_chars: string = '& #'; // alle zeichen die der ID folgen können
 begin
   p := pos(CheckUniKeyword+UniServer,html);
   p2 := PosEx(url_session_id, html, p);
-  p3 := PosEx(#$A, html, p);
+  p3 := PosEx(#$A, html, p); // new line
   if (p2 > 0)and(p3 > p2) then
   begin
-    pe := high(pe);
-    pet := PosEx('&', html, p2);
-    if (pet > 0)and(pet < pe) then pe := pet;
-    pet := PosEx(' ', html, p2);
-    if (pet > 0)and(pet < pe) then pe := pet;
-    pet := PosEx(#$A, html, p2);
-    if (pet > 0)and(pet < pe) then pe := pet;
+    pe := p3; // ende
+
+    for i := 1 to length(term_chars) do // string!!! 1 start index
+    begin
+      pet := PosEx(term_chars[i], html, p2);
+      if (pet > 0)and(pet < pe) then pe := pet;
+    end;
 
     if pe > 0 then
     begin
