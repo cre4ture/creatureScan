@@ -8,6 +8,7 @@ uses
 
 type
   TRessType = (rtMetal, rtKristal, rtDeuterium, rtEnergy);
+  TSetRessources = array[TRessType] of Int64;
   TLanguage = Word;
   TScanGroup = (sg_Rohstoffe, sg_Flotten, sg_Verteidigung, sg_Gebaeude,
                 sg_Forschung);
@@ -279,6 +280,7 @@ var
   game_sites_OLD: array of String;
   xspio_idents: array[TScanGroup] of array of String;
   maxPlanetTemp: array[1..max_Planeten] of single;
+  maxPlanetTemp_redesign: array[1..max_Planeten] of single;
   fleet_resources: array[0..fsc_1_Flotten-1] of Tresources;
   def_resources: array[0..fsc_2_Verteidigung-1] of Tresources;
 
@@ -317,11 +319,14 @@ procedure SortPlanetScanList(var List: TReportTimeList;
 function GetMineEnergyConsumption(Scan: TScanbericht): Integer;
 function calcPlanetTemp(solsatenergy: single): single;
 function calcSolSatEnergy(Scan: TScanBericht): Integer;
-function calcProduktionsFaktor(Scan: TScanBericht; var needed_energy: Integer): single;
-function GetMineProduction_(Scan: TScanBericht; const SpeedFactor: Single;
-  const Mine: TRessType; prod_faktor: single): Integer;
-function MineProduction(Stufe: Integer; Mine: TRessType; planetPos: integer;
-  prod_faktor: single): Integer;
+function calcProduktionsFaktor(Scan: TScanBericht; out needed_energy: Integer): single;
+function GetMineProduction_(const Scan: TScanBericht;
+  const SpeedFactor: Single;
+  const Mine: TRessType;
+  const prod_faktor: single;
+  const calcMaxTemp: single (* set NaN for no use*)): integer;
+function MineProduction(Stufe: Integer; Mine: TRessType;
+  prod_faktor: single; planetTempMax: single): Integer;
 procedure Initialise(XML_Data_File: string);
 function CalcTF(Scan: TScanBericht; DefInTF: Boolean): Tresources;
 function FusionsKWDeut(stufe: integer): integer;
@@ -344,7 +349,7 @@ procedure ClearScanBericht(var scan: TScanBericht);
 function BufFleetSize: Integer;
 function ReadBufFleet(Buffer: Pointer): TFleetEvent;
 procedure WriteBufFleet(const Fleet: TFleetEvent; Buffer: Pointer);
-function CalcScanRess_Now(Scan: TScanBericht; const Mine: TRessType;
+function CalcScanRess_Now_(Scan: TScanBericht; const Mine: TRessType;
   alter_h: single; production_per_h: integer): Integer;
 function GetStorageSize(scan: TScanBericht; resstype: TRessType): integer;
 function GetScanGrpCount(Scan: TScanBericht): integer;
@@ -498,6 +503,9 @@ begin
     s := Attributes.Value('maxtemp');
     if (i >= 1)and(i <= max_Planeten)and(s <> '') then
       maxPlanetTemp[i] := StrToFloat(s);
+    s := Attributes.Value('maxtemp_redesign');
+    if (i >= 1)and(i <= max_Planeten)and(s <> '') then
+      maxPlanetTemp_redesign[i] := StrToFloat(s);
   end
   else
   if TagName = 'units' then
@@ -922,7 +930,7 @@ begin
   end;
 end; 
 
-function CalcScanRess_Now(Scan: TScanBericht; const Mine: TRessType;
+function CalcScanRess_Now_(Scan: TScanBericht; const Mine: TRessType;
   alter_h: single; production_per_h: integer): Integer;
 var max, ress: Integer;
 begin
@@ -974,7 +982,7 @@ begin
                                       // -> Mittelwert ist meist genauer
 
   if OGame_IsBetaUni then
-    Result := (solsatenergy * 6) - 160
+    Result := (solsatenergy * 6) - 140
   else
     Result := (solsatenergy - 20) * 4;
 end;
@@ -1007,7 +1015,7 @@ begin
   Result := trunc((gesammt - enrgy_SolKW - enrgy_FusionKW) / anzahl_solsat);
 end;
 
-function calcProduktionsFaktor(Scan: TScanBericht; var needed_energy: Integer): single;
+function calcProduktionsFaktor(Scan: TScanBericht; out needed_energy: Integer): single;
 begin
   needed_energy := GetMineEnergyConsumption(Scan);
   if needed_energy >= 0 then
@@ -1026,9 +1034,12 @@ begin
     Result := -1;
 end;
 
-function GetMineProduction_(Scan: TScanBericht; const SpeedFactor: Single;
-  const Mine: TRessType; prod_faktor: single): Integer;
-//var M: TRessType;
+function GetMineProduction_(const Scan: TScanBericht;
+  const SpeedFactor: Single;
+  const Mine: TRessType;
+  const prod_faktor: single;
+  const calcMaxTemp: single): Integer;
+var maxTemp: single;
 begin
   if Scan.Head.Position.Mond then  //UHO: 26.08.08 Monde haben keine Produktion!!
   begin
@@ -1047,19 +1058,29 @@ begin
     rtMetal: Result := {Grundeinkommen 20met} 20 +
         MineProduction(Scan.Bericht[sg_Gebaeude,sb_Mine_array[Mine]],
                         Mine,
-                        Scan.Head.Position.P[2],
-                        prod_faktor);
+                        prod_faktor,
+                        -1); // temperature is not needed for MetalMine
     rtKristal: Result := {Grundeinkommen 10kris} 10 +
         MineProduction(Scan.Bericht[sg_Gebaeude,sb_Mine_array[Mine]],
                         Mine,
-                        Scan.Head.Position.P[2],
-                        prod_faktor);
+                        prod_faktor,
+                        -1); // temperature is not needed for Crystal mine
     rtDeuterium:
       begin
+        if IsNan(calcMaxTemp) then
+        begin
+          if OGame_IsBetaUni then
+            maxTemp := maxPlanetTemp_redesign[Scan.Head.Position.P[2]]
+          else
+            maxTemp := maxPlanetTemp[Scan.Head.Position.P[2]];
+        end
+        else
+          maxTemp := calcMaxTemp;
+
         Result := MineProduction(Scan.Bericht[sg_Gebaeude,sb_Mine_array[Mine]],
                                   Mine,
-                                  Scan.Head.Position.P[2],
-                                  prod_faktor);
+                                  prod_faktor,
+                                  maxTemp);
         Result := Result - FusionsKWDeut(Scan.Bericht[sg_Gebaeude,sb_FusionsKW]);
       end;
     rtEnergy: Result := 0; {Es gibt keine Mine für Energie ^^}
@@ -1071,8 +1092,8 @@ begin
   end;
 end;
 
-function MineProduction(Stufe: Integer; Mine: TRessType; planetPos: integer;
-  prod_faktor: single): integer;
+function MineProduction(Stufe: Integer; Mine: TRessType;
+  prod_faktor: single; planetTempMax: single): integer;
 begin
   if Stufe <= 0 then
     Result := 0
@@ -1081,7 +1102,13 @@ begin
     case Mine of
       rtMetal: Result := trunc(30 * Stufe * IntPower(1.1,Stufe));
       rtKristal: Result := trunc(20 * Stufe * IntPower(1.1,Stufe));
-      rtDeuterium: Result := trunc(10 * Stufe * IntPower(1.1,Stufe) * (-0.002 * maxPlanetTemp[planetPos] + 1.28));
+      rtDeuterium:
+        if OGame_IsBetaUni then
+          Result := trunc(10 * Stufe * IntPower(1.1,Stufe)
+            * (1.44 - (0.004 * planetTempMax)))
+        else
+          Result := trunc(10 * Stufe * IntPower(1.1,Stufe)
+            * (-0.002 * planetTempMax + 1.28));
     else
       raise Exception.Create('MineProduction: Unknown type of mine for calculation!');
     end;

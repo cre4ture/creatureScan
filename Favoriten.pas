@@ -29,8 +29,8 @@ type
     PlayerPunkte, FleetPunkte, Allypunkte: Cardinal;
     Ress: Array[0..4] of Integer;
     Ress_div_Def: integer;
-    MProduction: Array[TRessType] of Integer;
-    v_Ress: array[TRessType] of Integer;
+    MProduction: TSetRessources;
+    v_Ress: TSetRessources;
     v_Ress_all: Integer;
     v_Ress_div_Def: integer;
     needed_energy: Integer;
@@ -38,6 +38,8 @@ type
     MProductionAll: Integer;
     TF: TResources;
     notes: TNotizArray;
+    calcMaxTemp: Single;
+    solsatEnergy: Integer;
   end;
   TPlanetItem = record
     Pos: TPlanetPosition;
@@ -923,7 +925,8 @@ begin
         ScanGrpCount := GetScanGrpCount(report);
 
         // UHO: 17.04.09 jetzt verwenden wir den generic Scan
-        ODataBase.UniTree.genericReport(Position, report);
+        // UHO: 28.10.2010: added research for solsysEnergy!
+        ODataBase.UniTree.genericReport_withResearch(Position, report);
 
         ScanTime := UnixToDateTime(report.Head.Time_u);
         Fleet := FleetPoints(report);
@@ -935,24 +938,19 @@ begin
                    report.Bericht[sg_Rohstoffe,1]+
                    report.Bericht[sg_Rohstoffe,2]; // m+k+d!
 
+        // calc estimated ressources
+        ODataBase.calcScanRess_NowScan(report, MProduction,
+          prod_faktor, needed_energy, solsatEnergy, calcMaxTemp, v_Ress);
 
-        prod_faktor := calcProduktionsFaktor(report, needed_energy);
+        // sum all produktion
         MProductionAll := 0;
         for m := low(m) to high(m) do
-        begin
-          MProduction[m] := GetMineProduction_(report, ODataBase.SpeedFactor,
-                                 m, prod_faktor);
           MProductionAll := MProductionAll + MProduction[m];
-        end;
 
-        //Berechne v_* 
-        alter_h := (GameNow - ScanTime)*24;
+        // sum estimated resources
         v_Ress_all := 0;
         for m := rtMetal to rtDeuterium do
-        begin
-          v_Ress[m] := CalcScanRess_Now(report, m, alter_h, MProduction[m]);
           v_Ress_all := v_Ress_all + v_Ress[m];
-        end;
 
         if Def >= 0 then
         begin

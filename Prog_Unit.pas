@@ -161,6 +161,13 @@ type
     function GetPlayerStatusAtPos(pos: TPlanetPosition): string;
     function Time_To_AgeStr(time: TDateTime): String;
     procedure updateGameData;
+    procedure calcScanRess_NowScan(const report: TScanBericht;
+      out mine_production: TSetRessources;
+      out prod_faktor: single;
+      out needed_energy: Integer;
+      out solsatenergy: integer;
+      out planettemp: single;
+      out ress_now: TSetRessources);
   end;
   TFUni = (fsAsk,fsNone,fsDeleteAll);
 
@@ -191,7 +198,7 @@ function Time_To_AgeStr_Ex(a_now, time: TDateTime): String;
 implementation
 
 uses Languages, Connections, cS_XML, Export,
-  SDBFile;
+  SDBFile, OtherTime, Math;
 
 
 function TOgameDataBase.LeseFleets(handle: integer): Boolean;
@@ -1250,6 +1257,37 @@ procedure TOgameDataBase.updateGameData;
 begin
   game_data.Free;
   game_data := TGameData.Create(xml_data_file);
+end;
+
+procedure TOgameDataBase.calcScanRess_NowScan(const report: TScanBericht;
+  out mine_production: TSetRessources;
+  out prod_faktor: single;
+  out needed_energy: Integer;
+  out solsatenergy: integer;
+  out planettemp: single;
+  out ress_now: TSetRessources);
+var m: TRessType;
+    alter_h: single;
+begin
+  solsatenergy := calcSolSatEnergy(report);
+  if solsatenergy <> -1 then
+    planettemp := calcPlanetTemp(solsatenergy)
+  else
+    planettemp := NaN; // not a number
+
+  prod_faktor := calcProduktionsFaktor(report, needed_energy);
+  for m := low(m) to high(m) do
+  begin
+    mine_production[m] := GetMineProduction_(report, SpeedFactor,
+                           m, prod_faktor, planettemp);
+  end;
+
+  alter_h := (FleetBoard.GameTime.UnixTime - report.head.Time_u)/(60*60);
+  ress_now[rtEnergy] := report.Bericht[sg_Rohstoffe][sb_Energie];
+  for m := rtMetal to rtDeuterium do
+  begin
+    ress_now[m] := CalcScanRess_Now_(report, m, alter_h, mine_production[m]);
+  end;
 end;
 
 end.
