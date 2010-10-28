@@ -54,21 +54,21 @@
     <site index="7" name="XNOVA"/>
   </game>
   <planets count="15">
-    <planet1 maxtemp="123"/>
-    <planet2 maxtemp="123"/>
-    <planet3 maxtemp="120"/>
-    <planet4 maxtemp="66.7"/>
-    <planet5 maxtemp="64.5"/>
-    <planet6 maxtemp="63"/>
-    <planet7 maxtemp="41"/>
-    <planet8 maxtemp="39"/>
-    <planet9 maxtemp="36"/>
-    <planet10 maxtemp="14.5"/>
-    <planet11 maxtemp="12"/>
-    <planet12 maxtemp="11"/>
-    <planet13 maxtemp="-43"/>
-    <planet14 maxtemp="-44"/>
-    <planet15 maxtemp="-46"/>
+    <planet1 maxtemp="123" maxtemp_redesign="240"/>
+    <planet2 maxtemp="123" maxtemp_redesign="190"/>
+    <planet3 maxtemp="120" maxtemp_redesign="140"/>
+    <planet4 maxtemp="66.7" maxtemp_redesign="90"/>
+    <planet5 maxtemp="64.5" maxtemp_redesign="80"/>
+    <planet6 maxtemp="63" maxtemp_redesign="70"/>
+    <planet7 maxtemp="41" maxtemp_redesign="60"/>
+    <planet8 maxtemp="39" maxtemp_redesign="50"/>
+    <planet9 maxtemp="36" maxtemp_redesign="40"/>
+    <planet10 maxtemp="14.5" maxtemp_redesign="30"/>
+    <planet11 maxtemp="12" maxtemp_redesign="20"/>
+    <planet12 maxtemp="11" maxtemp_redesign="10"/>
+    <planet13 maxtemp="-43" maxtemp_redesign="-30"/>
+    <planet14 maxtemp="-44" maxtemp_redesign="-70"/>
+    <planet15 maxtemp="-46" maxtemp_redesign="-110"/>
   </planets>
   <units groupcount="5">
     <group0 count="4" xml="resources">

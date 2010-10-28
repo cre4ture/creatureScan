@@ -76,7 +76,7 @@ type
     procedure DrawShortStyle;
     function GetShowProduction: Boolean;
     procedure SetShowProduction(const B: Boolean);
-    procedure calcMineProductionAndEnergy;
+    procedure calcMineProductionEnergyAndVRess;
     procedure _DrawNormal_Group(sg: TScangroup;
       header, show_zero_items: boolean; cols: integer; var y: integer; rowheight: integer;
       ya: integer; scan: TScanBericht; text_color: TColor);
@@ -93,8 +93,9 @@ type
   public
     plugin: TLangPlugIn;
     DontShowRaids: Boolean;
-    mineprod_h: array[TRessType] of Integer;
+    mineprod_h: TSetRessources;
     energy_consumption: Integer;
+    v_Ress: TSetRessources;
     produktionsfaktor: single;
     solsatenergy: integer;
     planettemp: single;
@@ -155,17 +156,14 @@ begin
     dt_forschungsdate := UnixToDateTime(player_info.ResearchTime_u);
   end;
 
-  calcMineProductionAndEnergy;
+  calcMineProductionEnergyAndVRess;
 
-  //calculate ress_now:
   if calc_resources then
   begin
-    alter_h := (ODataBase.FleetBoard.GameTime.UnixTime - (Bericht.Head.time_u)) / 60 / 60;
-
+    // overwrite ress_now: 
     for m := rtMetal to rtDeuterium do
     begin
-      Bericht_calc.Bericht[sg_Rohstoffe][sb_Ress_array[m]] :=
-        CalcScanRess_Now(Bericht_orig, m, alter_h, mineprod_h[m]);
+      Bericht_calc.Bericht[sg_Rohstoffe][sb_Ress_array[m]] := v_Ress[m];
     end;
   end;
 
@@ -898,28 +896,19 @@ begin
   Leerstellenweglassen1.Checked := not F_HideEmptySpace;
 end;
 
-procedure TFrame_Bericht.calcMineProductionAndEnergy;
-var m: TRessType;
+procedure TFrame_Bericht.calcMineProductionEnergyAndVRess;
 begin
-  solsatenergy := calcSolSatEnergy(Bericht);
-  if solsatenergy <> -1 then
+  ODataBase.calcScanRess_NowScan(Bericht_calc,   // in
+    mineprod_h, produktionsfaktor,      // out
+    energy_consumption, solsatenergy, planettemp, v_Ress);       // out
+
+  if not IsNan(planettemp) then
   begin
-    planettemp := calcPlanetTemp(solsatenergy);
     planettemp_str := '~ ' + FloatToStr(planettemp) + ' °C';
   end
   else
   begin
-    planettemp := -99999;
     planettemp_str := 'n/a';
-  end;
-
-  produktionsfaktor := calcProduktionsFaktor(Bericht, energy_consumption);
-  if Length(Bericht.Bericht[sg_Gebaeude]) > 0 then
-  for m := low(m) to high(m) do
-  begin
-    mineprod_h[m] := trunc(
-                         GetMineProduction_(Bericht, speedfactor, m, produktionsfaktor)
-                         );
   end;
 end;
 

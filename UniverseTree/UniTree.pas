@@ -76,7 +76,10 @@ type
     Player: TPlayerDB;
     OnSolSysChanged: TUniTreeEvPos;
     OnReportChanged: TUniTreeEvPos;
+    // without research!!! take next function if you like to have research!
     function genericReport(const pos: TPlanetPosition;
+      out report_out: TScanBericht): TScanGroup;
+    function genericReport_withResearch(const pos: TPlanetPosition;
       out report_out: TScanBericht): TScanGroup;
     constructor Create(GalaxyCount, SolSysCount, PlanetCount: Integer;
       aSolSysDB: TcSSolSysDB; aReportDB: TcSReportDB);
@@ -1698,6 +1701,17 @@ var i: integer;
 begin
   i := UniSys(Gala, SolSys);
   Result := SolSysDB[i];
+end;
+
+function TUniverseTree.genericReport_withResearch(
+  const pos: TPlanetPosition; out report_out: TScanBericht): TScanGroup;
+var gpi: TPlayerInformation;
+    i: integer;
+begin
+  Result := genericReport(pos, report_out);
+  gpi := Player.GetPlayerInfo(report_out.Head.Spieler);
+  for i := 0 to Length(gpi.Research)-1 do
+    report_out.Bericht[sg_Forschung][i] := gpi.Research[i];
 end;
 
 end.
