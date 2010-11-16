@@ -36,7 +36,7 @@ type
 
 
 const
-  iopluginVersion = 24;
+  iopluginVersion = 25;
 
   RA_KeyWord_Count = 5;
   ST_KeyWord_Count = 2;
@@ -295,10 +295,15 @@ end;
 
 function CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
 begin
+  Result := UniCheck.CallFleet(pos, job);
+end;
+
+function directCallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
+begin
   if job = fet_espionage then
     Result := UniCheck.SendSpio(pos)
   else
-    Result := UniCheck.CallFleet(pos, job);
+    Result := false;
 end;
 
 function OpenSolSys(pos: TSolSysPosition): Boolean;
@@ -366,6 +371,7 @@ exports
   ReadPhalanxScan,
   GetPhalaxScan,
   CallFleet,
+  directCallFleet,
   OpenSolSys,
 
   ReadSource_New,

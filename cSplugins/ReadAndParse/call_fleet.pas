@@ -3,7 +3,7 @@ unit call_fleet;
 interface
 
 uses
-  OGame_Types, IniFiles, SysUtils, StrUtils, ShellApi, Dialogs;
+  OGame_Types, IniFiles, SysUtils, StrUtils, ShellApi, Dialogs, Windows;
 
 type
   TUniCheck = class
@@ -149,7 +149,7 @@ begin
   end;
 
   url := fillVarsInLink(SendSpioLinkTemplate,pos,fet_espionage);
-  ShellExecute(0,'open',PChar(url),'','',0);
+  ShellExecute(0,'open',PChar(url),'','',SW_SHOWNA);
 
   Result := True;
 end;
