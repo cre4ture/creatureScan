@@ -34,6 +34,7 @@ type
     str_url_key_events: string;
 
     time_regexp: Tregexpn;
+    arrival_regexp: Tregexpn;
 
 
     fleets: TList;
@@ -68,7 +69,7 @@ const
     'Transport',  //Transportieren    OK
     'Angreifen',     //Angreifen      OK
     'Spionage',  //Spionage           OK
-    'Ressourcen abbauen', //Recyclen  OK
+    'Abbau',     //Recyclen  OK
     'Kolonisieren'    //Kolonisieren  OK
   );
 
@@ -148,7 +149,12 @@ begin
   str_planet := ini.ReadString(ThtmlPhalanx_inisection, 'key_planet', 'n/a');
 
   time_regexp := Tregexpn.Create;
-  time_regexp.setexpression(ini.ReadString(ThtmlPhalanx_inisection, 'time_regexp', 'n/a'));
+  time_regexp.setexpression(
+    ini.ReadString(ThtmlPhalanx_inisection, 'time_regexp', 'n/a'));
+
+  arrival_regexp := Tregexpn.Create;
+  arrival_regexp.setexpression(
+    ini.ReadString(ThtmlPhalanx_inisection, 'arrival_regexp', 'n/a'));
 
   str_url_key_events := ini.ReadString(ThtmlPhalanx_inisection, 'url_key_events', 'n/a');
 end;
@@ -446,7 +452,10 @@ begin
     if s = 'arrivalTime' then
     begin
       s := trim(el.FullTagContent);
-      ReadPosOrTime(s,1,timepos);
+      arrival_regexp.match(s);
+      timepos.P[0] := StrToInt(arrival_regexp.getsubexpr('h'));
+      timepos.P[1] := StrToInt(arrival_regexp.getsubexpr('min'));
+      timepos.P[2] := StrToInt(arrival_regexp.getsubexpr('sec'));
     end
     else
     if s = 'countDown' then

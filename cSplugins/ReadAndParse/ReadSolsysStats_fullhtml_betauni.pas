@@ -290,9 +290,9 @@ end;
 
 function ThtmlSysRead_betauni.ReadFullHTML(doc_html: THTMLElement;
   var solsys: TSystemCopy): Boolean;
-var tbody, tag, tag_row, tag_pos: THTMLElement;
+var tbody, tag, tag_row, tag_pos, tag_a: THTMLElement;
     table: THTMLTable;
-    i, row_nr, r_nr, p: Integer;
+    i, row_nr, r_nr, p, j: Integer;
     got_koords: boolean;
     s: string;
 begin
@@ -369,25 +369,30 @@ begin
               tag_pos := HTMLFindRoutine_NameAttribute(tag_row, 'td', 'class', 'planetname1');
               if tag_pos <> nil then
               begin
-                tag_pos := tag_pos.FindChildTag('a');
-                if (tag_pos <> nil) and
-                   (pos('planetMoveDefault',tag_pos.AttributeValue['class']) > 0) then
+                for j := 0 to 1 do
                 begin
-                  s := tag_pos.AttributeValue['onclick'];
-                  p := pos('galaxy=',s);
-                  if p > 0 then
+                  tag_a := tag_pos.FindChildTag('a', j);
+                  if (tag_a <> nil) and
+                     (pos('planetMoveDefault',tag_a.AttributeValue['class']) > 0) then
                   begin
-                    solsys.System.P[0] := ReadInt(s,p+7);
-                    p := pos('system=',s);
-
-                    got_koords := (p>0);
-                    if got_koords then
+                    s := tag_a.AttributeValue['onclick'];
+                    p := pos('galaxy=',s);
+                    if p > 0 then
                     begin
-                      solsys.System.P[1] := ReadInt(s,p+7);
-                      solsys.System.P[2] := 1;
-                      solsys.System.Mond := false;
+                      solsys.System.P[0] := ReadInt(s,p+7);
+                      p := pos('system=',s);
+
+                      got_koords := (p>0);
+                      if got_koords then
+                      begin
+                        solsys.System.P[1] := ReadInt(s,p+7);
+                        solsys.System.P[2] := 1;
+                        solsys.System.Mond := false;
+                      end;
                     end;
                   end;
+                  if got_koords then
+                    break;
                 end;
               end;
             end;
