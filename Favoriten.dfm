@@ -21,7 +21,7 @@ object FRM_Favoriten: TFRM_Favoriten
   object P_Top: TPanel
     Left = 0
     Top = 0
-    Width = 1027
+    Width = 1035
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -99,8 +99,8 @@ object FRM_Favoriten: TFRM_Favoriten
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 402
-    Width = 1027
+    Top = 410
+    Width = 1035
     Height = 19
     Panels = <
       item
@@ -117,8 +117,8 @@ object FRM_Favoriten: TFRM_Favoriten
   object VST_ScanList: TVirtualStringTree
     Left = 0
     Top = 29
-    Width = 1027
-    Height = 373
+    Width = 1035
+    Height = 381
     Align = alClient
     ClipboardFormats.Strings = (
       'CSV'
@@ -316,6 +316,14 @@ object FRM_Favoriten: TFRM_Favoriten
         Alignment = taRightJustify
         Position = 31
         WideText = 'Raids gesammt'
+      end
+      item
+        Position = 32
+        WideText = 'lpa'
+      end
+      item
+        Position = 33
+        WideText = 'lpi'
       end>
   end
   object PopupMenu1: TPopupMenu
@@ -354,6 +362,19 @@ object FRM_Favoriten: TFRM_Favoriten
       Caption = 'L'#246'schen'
       ShortCut = 46
       OnClick = Lschen1Click
+    end
+    object N2: TMenuItem
+      Caption = '-'
+    end
+    object SpielerStatsnachschlagen1: TMenuItem
+      Caption = 'Spieler nachschlagen'
+      ShortCut = 49235
+      OnClick = SpielerStatsnachschlagen1Click
+    end
+    object Allynachschlagen1: TMenuItem
+      Caption = 'Ally nachschlagen'
+      ShortCut = 49217
+      OnClick = Allynachschlagen1Click
     end
   end
   object ImageList1: TImageList

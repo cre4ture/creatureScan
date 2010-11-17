@@ -90,7 +90,7 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=D:\devel\creatureScan\creatureScan
+OutputDir=.\creatureScan
 UnitOutputDir=.\dcu
 PackageDLLOutputDir=
 PackageDCPOutputDir=
@@ -115,7 +115,7 @@ AutoIncBuild=1
 MajorVer=2
 MinorVer=0
 Release=0
-Build=174
+Build=190
 Debug=0
 PreRelease=0
 Special=0
@@ -126,7 +126,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=
 FileDescription=
-FileVersion=2.0.0.174
+FileVersion=2.0.0.190
 InternalName=
 LegalCopyright=
 LegalTrademarks=
@@ -134,3 +134,18 @@ OriginalFilename=
 ProductName=
 ProductVersion=1.0.0.0
 Comments=
+[HistoryLists\hlConditionals]
+Count=1
+Item0=delphi
+[HistoryLists\hlUnitAliases]
+Count=1
+Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
+[HistoryLists\hlSearchPath]
+Count=1
+Item0=D:\devel\lib\uli\TClipboardViewer
+[HistoryLists\hlUnitOutputDirectory]
+Count=1
+Item0=.\dcu
+[HistoryLists\hlOutputDirectorry]
+Count=1
+Item0=.\creatureScan

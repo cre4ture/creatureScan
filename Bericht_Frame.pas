@@ -156,15 +156,19 @@ begin
     dt_forschungsdate := UnixToDateTime(player_info.ResearchTime_u);
   end;
 
-  calcMineProductionEnergyAndVRess;
-
-  if calc_resources then
+  if ODataBase <> nil then
   begin
-    // overwrite ress_now: 
-    for m := rtMetal to rtDeuterium do
+    calcMineProductionEnergyAndVRess;
+
+    if calc_resources then
     begin
-      Bericht_calc.Bericht[sg_Rohstoffe][sb_Ress_array[m]] := v_Ress[m];
+      // overwrite ress_now:
+      for m := rtMetal to rtDeuterium do
+      begin
+        Bericht_calc.Bericht[sg_Rohstoffe][sb_Ress_array[m]] := v_Ress[m];
+      end;
     end;
+
   end;
 
   Refresh;

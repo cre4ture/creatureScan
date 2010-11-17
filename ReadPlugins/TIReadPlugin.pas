@@ -6,7 +6,9 @@ uses
   Classes, OGame_Types, Windows, SysUtils, IniFiles, Dialogs, Languages;
 
 const
-  DLLVNumber = 24;
+  DLLVNumber = 25;
+
+{  V25: new directCallFleet 
 
 { V24:
    Added OpenSolSys  21.10.2010
@@ -74,6 +76,7 @@ type
     PReadStats: TReadStats;
     PCheckUni: TCheckUni;
     PCallFleet: TCallFleet;
+    PdirectCallFleet: TCallFleet;
     POpenSolSys: TOpenSolSys;
     PRunOptions: TRunOptions;
     PStrToStatus: TStrToStatus;
@@ -100,7 +103,8 @@ type
     SBItems: array[TScanGroup] of TStringList;
     function ReadSource_New: integer;
     procedure ReadSource_Free(handle: integer);
-    function CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
+    function CallFleet_(pos: TPlanetPosition; job: TFleetEventType): Boolean;
+    function directCallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
     function OpenSolSys(pos: TSolSysPosition): Boolean;
     function GetReport(handle: integer; var Bericht: TScanBericht;
       out moon_unknown: Boolean): Boolean;
@@ -141,6 +145,7 @@ begin
   @PReadStats := GetProcAddress(DllHandle, 'ReadStats');
   @PCheckUni := GetProcAddress(DllHandle, 'CheckUni');
   @PCallFleet := GetProcAddress(DllHandle, 'CallFleet');
+  @PdirectCallFleet := GetProcAddress(DllHandle, 'directCallFleet');
   @POpenSolSys := GetProcAddress(DllHandle, 'OpenSolSys');
   @PRunOptions := GetProcAddress(DllHandle, 'RunOptions');
   @PStrToStatus := GetProcAddress(DllHandle, 'StrToStatus');
@@ -155,12 +160,20 @@ begin
 
 end;
 
-function TLangPlugIn.CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
+function TLangPlugIn.CallFleet_(pos: TPlanetPosition; job: TFleetEventType): Boolean;
 begin
   if Assigned(PCallFleet) then
     Result := PCallFleet(pos, job)
   else
     raise Exception.Create('TLangPlugIn.CallFleet(): dll does not support this feature');
+end;
+
+function TLangPlugIn.directCallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
+begin
+  if Assigned(PdirectCallFleet) then
+    Result := PdirectCallFleet(pos, job)
+  else
+    raise Exception.Create('TLangPlugIn.directCallFleet(): dll does not support this feature');
 end;
 
 function TLangPlugIn.CheckClipboardUni(handle: integer): Boolean;

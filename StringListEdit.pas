@@ -11,7 +11,7 @@ type
     Memo1: TMemo;
     Panel1: TPanel;
     Button1: TButton;
-    Button2: TButton;
+    Button2: TButton; 
   private
     { Private-Deklarationen }
   public

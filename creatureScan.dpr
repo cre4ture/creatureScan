@@ -77,7 +77,8 @@ uses
   PlanetListInterface in 'PlanetListInterface.pas',
   PostErrorReport in 'PostErrorReport.pas' {frm_postErrorReport},
   quickupdate in 'quickupdate.pas' {frm_quickupdate},
-  moon_or_not in 'moon_or_not.pas' {frm_report_basket};
+  moon_or_not in 'moon_or_not.pas' {frm_report_basket},
+  FetchStats in 'FetchStats.pas';
 
 {$R *.RES}
 

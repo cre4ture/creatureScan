@@ -93,9 +93,12 @@ const
   //------------------------------------------------------------------------
 
   sys_playerstat_inactive = 0;
+  sys_playerstat_locked = 1;
   sys_playerstat_longinactive = 2;
   sys_playerstat_urlaub = 3;
   sys_playerstat_noob = 4;
+  sys_playerstat_hard = 5;
+
 type
   TPlayerName = String[25]; //vermutlich 20
   TAllyName = String[10];  //vermutlich 8

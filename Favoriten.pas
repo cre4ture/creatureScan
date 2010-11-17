@@ -40,6 +40,7 @@ type
     notes: TNotizArray;
     calcMaxTemp: Single;
     solsatEnergy: Integer;
+    lpa, lpi: integer;
   end;
   TPlanetItem = record
     Pos: TPlanetPosition;
@@ -95,6 +96,9 @@ type
     musternotiz1: TMenuItem;
     Spionagesondenschicken1: TMenuItem;
     tim_take_focus_again: TTimer;
+    SpielerStatsnachschlagen1: TMenuItem;
+    Allynachschlagen1: TMenuItem;
+    N2: TMenuItem;
     procedure musternotiz1Click(Sender: TObject);
     procedure VST_ScanListGetPopupMenu(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; const P: TPoint;
@@ -160,6 +164,8 @@ type
       HitInfo: TVTHeaderHitInfo);
     procedure Spionagesondenschicken1Click(Sender: TObject);
     procedure tim_take_focus_againTimer(Sender: TObject);
+    procedure SpielerStatsnachschlagen1Click(Sender: TObject);
+    procedure Allynachschlagen1Click(Sender: TObject);
   published
   private
     mListInterface: TFRM_Fav_PlanetListInterface;
@@ -817,7 +823,7 @@ begin
         //TF (Flotte)
         24: CellText := IntToStrKP(tf[0] + tf[1] + tf[2]);
         //Berechnete Rohstoffe (Produktion mit einberechnet!)
-        25..29,31: CellText := IntToStrKP(getIntValColumn(Column, fav));
+        25..29,31,32,33: CellText := IntToStrKP(getIntValColumn(Column, fav));
       end;
     end;
   end;
@@ -867,7 +873,7 @@ begin
       Fav1.TF[0]+Fav1.TF[1]+Fav1.TF[2] > Fav2.TF[0]+Fav2.TF[1]+Fav2.TF[2],
       1,-1);
     //Berechnete Rohstoffe (Produktion mit einberechnet!)
-    25..29,31: if getIntValColumn(Column, Fav1) > getIntValColumn(Column, Fav2) then
+    25..29,31,32,33: if getIntValColumn(Column, Fav1) > getIntValColumn(Column, Fav2) then
               Result := 1 else Result := -1;
 //    30: if Fav1.notes then, ka wie des genau mit den notizen klappen soll (nach welcher regel?)
         
@@ -886,6 +892,7 @@ var p: TPlanetPosition;
     m: TRessType;
     alter_h: single;
     item: PPlanetItem;
+    gpi: PPlayerInformation;
 begin
   if nd <> nil then
   begin
@@ -902,6 +909,9 @@ begin
       Position := p;
 
       LastUpdate := Now; // Hier wird die Systemzeit Verwendet!!
+
+      lpa := -1;
+      lpi := lpa;
 
       Stars := item.Sterne;
 
@@ -939,8 +949,12 @@ begin
                    report.Bericht[sg_Rohstoffe,2]; // m+k+d!
 
         // calc estimated ressources
-        ODataBase.calcScanRess_NowScan(report, MProduction,
-          prod_faktor, needed_energy, solsatEnergy, calcMaxTemp, v_Ress);
+        try
+          ODataBase.calcScanRess_NowScan(report, MProduction,
+            prod_faktor, needed_energy, solsatEnergy, calcMaxTemp, v_Ress);
+        except
+          ShowMessage('Error on Update: ' + PositionToStrMond(Position));
+        end;
 
         // sum all produktion
         MProductionAll := 0;
@@ -959,8 +973,10 @@ begin
         end
         else
         begin
-          Ress_div_Def := -1;
-          v_Ress_div_Def := -1;
+          Ress_div_Def := trunc(Ress[4]/(1));
+          v_Ress_div_Def := trunc(v_Ress_all/(1));
+//          Ress_div_Def := -1;
+//          v_Ress_div_Def := -1;
         end;
 
         TF := CalcTF(report,ODataBase.DefInTF);
@@ -990,6 +1006,12 @@ begin
           AllyPunkte := Statistik[Allyplatz].Punkte;
         end;
 
+        gpi := ODataBase.UniTree.Player.GetPlayerInfo(Player);
+        if gpi <> nil then
+        begin
+          lpa := gpi^.lpa;
+          lpi := gpi^.lpi;
+        end;
       end;
     end;
   end;
@@ -1401,6 +1423,8 @@ begin
       28: Result := v_Ress_all;
       29: Result := v_Ress_div_Def;
       31: Result := RaidCount;
+      32: Result := lpa;
+      33: Result := lpi;
     else
       Result := -1;
     end;
@@ -1705,7 +1729,7 @@ begin
   if VST_ScanList.GetFirstSelected <> nil then
   begin
     with TFav(VST_ScanList.GetNodeData(VST_ScanList.GetFirstSelected)^) do
-      ODataBase.LanguagePlugIn.CallFleet(Position, fet_espionage);
+      ODataBase.LanguagePlugIn.directCallFleet(Position, fet_espionage);
 
     tim_take_focus_again.Enabled := True;
   end;
@@ -1716,6 +1740,36 @@ begin
   tim_take_focus_again.Enabled := false;
   Application.BringToFront;
   Self.SetFocus;
+end;
+
+procedure TFRM_Favoriten.SpielerStatsnachschlagen1Click(Sender: TObject);
+var plani: TSystemPlanet;
+begin
+  if VST_ScanList.GetFirstSelected <> nil then
+  begin
+    with TFav(VST_ScanList.GetNodeData(VST_ScanList.GetFirstSelected)^) do
+    begin
+      plani := ODataBase.UniTree.UniSystem(Position.P[0], Position.P[1]).
+        Planeten[Position.P[2]];
+      FRM_Main.SucheImInet(sitPlayer, plani.Ally, plani.Player,
+        ODataBase.UniDomain);
+    end;
+  end;
+end;
+
+procedure TFRM_Favoriten.Allynachschlagen1Click(Sender: TObject);
+var plani: TSystemPlanet;
+begin
+  if VST_ScanList.GetFirstSelected <> nil then
+  begin
+    with TFav(VST_ScanList.GetNodeData(VST_ScanList.GetFirstSelected)^) do
+    begin
+      plani := ODataBase.UniTree.UniSystem(Position.P[0], Position.P[1]).
+        Planeten[Position.P[2]];
+      FRM_Main.SucheImInet(sitAllanz, plani.Ally, plani.Player,
+        ODataBase.UniDomain);
+    end;
+  end;
 end;
 
 end.
