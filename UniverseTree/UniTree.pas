@@ -14,16 +14,20 @@ type
     Research: array[0..fsc_4_Forschung-1] of Integer;
     ResearchTime_u: Int64;
     ResearchPlanet: TPlanetPosition;
+    lpa, lpi: integer; // see TFRM_Suche
   end;
   TPlayerDB = class
   private
     FPlayerList: TList;
     function FFindPlayer(aName: TPlayerName): Integer;
+    function newPlayerInfo(name: string): PPlayerInformation;
   public
     constructor Create;
     destructor Destroy; override;
     procedure ANewReport(Report: TScanBericht);
-    function GetPlayerInfo(aName: TPlayerName): TPlayerInformation;
+    procedure setLPA_LPI(const player: TPlayerName; const lpa, lpi: integer);
+    { Returns a record with name == '' if nothing was found }
+    function GetPlayerInfo(aName: TPlayerName): PPlayerInformation;
   end;
   TIntegerList = array of Integer;
   PTreePlanet = ^TTreePlanet;
@@ -601,10 +605,7 @@ begin
     i := FFindPlayer(Report.Head.Spieler);
     if (i = -1) then
     begin
-      New(ppi);
-      ppi^.ResearchTime_u := 0;
-      ppi^.Name := Report.Head.Spieler;
-      FPlayerList.Add(ppi);
+      ppi := newPlayerInfo(Report.Head.Spieler);
     end
     else ppi := FPlayerList[i];
 
@@ -645,15 +646,15 @@ begin
   end;
 end;
 
-function TPlayerDB.GetPlayerInfo(aName: TPlayerName): TPlayerInformation;
+function TPlayerDB.GetPlayerInfo(aName: TPlayerName): PPlayerInformation;
 var i: integer;
 begin
+  Result := nil;
   i := FFindPlayer(aName);
   if (i >= 0) then
   begin
-    Result := TPlayerInformation(FPlayerList[i]^);
-  end
-  else Result.Name := '';
+    Result := PPlayerInformation(FPlayerList[i]);
+  end;
 end;
 
 function TUniverseTree.PTreeSys(gala, sys: Integer): PTreeSolSys;
@@ -1705,13 +1706,45 @@ end;
 
 function TUniverseTree.genericReport_withResearch(
   const pos: TPlanetPosition; out report_out: TScanBericht): TScanGroup;
-var gpi: TPlayerInformation;
+var gpi: PPlayerInformation;
     i: integer;
 begin
   Result := genericReport(pos, report_out);
   gpi := Player.GetPlayerInfo(report_out.Head.Spieler);
-  for i := 0 to Length(gpi.Research)-1 do
-    report_out.Bericht[sg_Forschung][i] := gpi.Research[i];
+  if (gpi <> nil)and(gpi^.ResearchTime_u <> 0) then
+  begin
+    for i := 0 to Length(gpi.Research)-1 do
+      report_out.Bericht[sg_Forschung][i] := gpi.Research[i];
+  end;
+end;
+
+function TPlayerDB.newPlayerInfo(name: string): PPlayerInformation;
+begin
+  New(Result);
+  Result^.ResearchTime_u := 0;
+  Result^.Name := name;
+  Result^.lpa := -4;
+  Result^.lpi := -4;
+  FPlayerList.Add(Result);
+end;
+
+procedure TPlayerDB.setLPA_LPI(const player: TPlayerName; const lpa,
+  lpi: integer);
+var i: integer;
+    ppi: PPlayerInformation;
+begin
+  if (player <> '')and(lpa >= 0)and(lpi >= 0) then
+  begin
+    i := FFindPlayer(player);
+    if (i = -1) then
+    begin
+      ppi := newPlayerInfo(player);
+    end
+    else ppi := FPlayerList[i];
+
+    ppi^.lpa := lpa;
+    ppi^.lpi := lpi;
+  end;
 end;
 
 end.

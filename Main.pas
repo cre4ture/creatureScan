@@ -53,6 +53,10 @@ type
     Fleet_alert: Boolean;
     Fleet_Soundfile: String;
     Fleet_auto_time_sync: Boolean;
+
+    // Websim
+    websim_techs: array[0..2] of integer;
+    websim_engines: array[0..2] of integer;
   end;
   TFRM_Main = class(TClipboardViewer)
     MainMenu1: TMainMenu;
@@ -171,6 +175,7 @@ type
     ZwischenablagefrMondScans1: TMenuItem;
     lbl_dbl_click: TLabel;
     Button1: TButton;
+    Spionage2: TMenuItem;
     procedure btn_lastClick(Sender: TObject);
     procedure btn_nextClick(Sender: TObject);
     procedure LblWikiLinkClick(Sender: TObject);
@@ -256,6 +261,7 @@ type
     procedure ZwischenablagefrMondScans1Click(Sender: TObject);
     procedure PopupMenu1Popup(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure Spionage2Click(Sender: TObject);
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
@@ -272,7 +278,6 @@ type
     property mLatestPlanetListSource: TPlanetListInterface
       read fLatestPlanetListSource write setPlanetListSource;
     procedure simplyShowScan(Pos: TPlanetPosition);
-    procedure call_fleet_link(pos: TPlanetPosition; job: TFleetEventType);
     procedure SearchList(nr: integer; pos: TPlanetPosition);
     procedure PaintScan(scan: TScanBericht; save: TScanGroup = sg_Forschung);
     procedure Wellenangriff(Scan: TScanbericht);
@@ -912,6 +917,14 @@ begin
   form.cb_fleet_alert_sound.Checked := PlayerOptions.Fleet_alert;
   form.cb_auto_serverzeit.Checked := PlayerOptions.Fleet_auto_time_sync;
 
+  // websim
+  form.se_tech_0.Value := PlayerOptions.websim_techs[0];
+  form.se_tech_1.Value := PlayerOptions.websim_techs[1];
+  form.se_tech_2.Value := PlayerOptions.websim_techs[2];
+  form.se_engine_0.Value := PlayerOptions.websim_engines[0];
+  form.se_engine_1.Value := PlayerOptions.websim_engines[1];
+  form.se_engine_2.Value := PlayerOptions.websim_engines[2];
+
   with cSServer.Users do
   begin
     LockUsers;
@@ -1040,6 +1053,15 @@ begin
     PlayerOptions.Fleet_alert := form.cb_fleet_alert_sound.Checked;
     PlayerOptions.Fleet_auto_time_sync := form.cb_auto_serverzeit.Checked;
 
+    // websim
+    PlayerOptions.websim_techs[0] := form.se_tech_0.Value;
+    PlayerOptions.websim_techs[1] := form.se_tech_1.Value;
+    PlayerOptions.websim_techs[2] := form.se_tech_2.Value;
+    PlayerOptions.websim_engines[0] :=  form.se_engine_0.Value;
+    PlayerOptions.websim_engines[1] :=  form.se_engine_1.Value;
+    PlayerOptions.websim_engines[2] :=  form.se_engine_2.Value;
+
+
     if form.cb_auto_fav_list.Checked then
       FRM_Favoriten.ListType := flt_all_auto_list
     else
@@ -1108,7 +1130,7 @@ begin
 end;
 
 procedure TFRM_Main.PaintScan(scan: TScanBericht; save: TScanGroup = sg_Forschung);
-var gpi: TPlayerInformation;
+var gpi: PPlayerInformation;
 begin
   Frame_Bericht1.SetBericht(NewScanBericht(Scan), save);
 
@@ -1123,9 +1145,9 @@ begin
   if (Bericht[sg_Forschung][0] = -1) then
   begin
     gpi := ODataBase.UniTree.Player.GetPlayerInfo(Head.Spieler);
-    if (gpi.Name <> '') then
+    if (gpi <> nil)and(gpi^.ResearchTime_u <> 0) then
     begin
-      Frame_Bericht1.Add_PlayerInfo(gpi);
+      Frame_Bericht1.Add_PlayerInfo(gpi^);
     end;
   end;
   Frame_Bericht1.Report_Refresh;
@@ -1141,18 +1163,6 @@ procedure TFRM_Main.BTN_UniversumClick(Sender: TObject);
 begin
   FRM_Uebersicht.Show;
 end;
-
-procedure TFRM_Main.call_fleet_link(pos: TPlanetPosition; job: TFleetEventType);
-{var s: string;
-begin
-  s := getFleetLink(pos, job);
-  if s <> '' then
-    ShellExecute(Self.Handle,'open',PChar(s),'','',0);
-end;}
-begin
-  ODataBase.LanguagePlugIn.CallFleet(pos, job);
-end;
-
 
 function TFRM_Main.NewSearch: TFRM_Suche;
 begin
@@ -1190,7 +1200,7 @@ end;
 
 procedure TFRM_Main.ShowSmallScan(P: TPlanetPosition);
 var i: integer;
-    gpi: TPlayerInformation;
+    gpi: PPlayerInformation;
     gen_report: TScanBericht;
     save: TScanGroup;
 begin
@@ -1204,9 +1214,9 @@ begin
       if (Bericht[sg_Forschung][0] = -1) then
       begin
         gpi := ODataBase.UniTree.Player.GetPlayerInfo(Head.Spieler);
-        if (gpi.Name <> '') then
+        if (gpi <> nil) and (gpi^.ResearchTime_u <> 0) then
         begin
-          Frame_Bericht2.Add_PlayerInfo(gpi);
+          Frame_Bericht2.Add_PlayerInfo(gpi^);
         end;
       end;
     Frame_Bericht2.Report_Refresh;
@@ -1219,7 +1229,8 @@ end;
 
 procedure TFRM_Main.Spionage1Click(Sender: TObject);
 begin
-  call_fleet_link(Frame_Bericht1.Bericht.Head.Position, fet_espionage);
+  ODataBase.LanguagePlugIn.directCallFleet(
+    Frame_Bericht1.Bericht.Head.Position, fet_espionage);
 end;
 
 procedure TFRM_Main.OpenInBrowser(url: String);
@@ -1692,7 +1703,8 @@ end;
 
 procedure TFRM_Main.Angriff1Click(Sender: TObject);
 begin
-  call_fleet_link(Frame_Bericht1.Bericht.Head.Position, fet_attack);
+  ODataBase.LanguagePlugIn.CallFleet_(
+    Frame_Bericht1.Bericht.Head.Position, fet_attack);
 end;
 
 procedure TFRM_Main.ApplicationEvents1Message(var Msg: tagMSG;
@@ -2114,6 +2126,7 @@ procedure TFRM_Main.SaveLoad_SimpleOptions(ini: TIniFile; save: boolean);
       Value := ini.ReadInteger(Section,Ident,Default);
   end;
 
+var i: integer;
 begin
   //BeepSoundfile
   DoOption(GeneralSection,'Beep_SoundFile'           ,'.\data\read_sound.wav'   ,PlayerOptions.Beep_SoundFile);
@@ -2128,6 +2141,13 @@ begin
   // Nachfrage nach Mond:
   DoOption(GeneralSection,'check_solsys_data_askMoon',false                     ,ODataBase.check_solsys_data_before_askMoon);
   DoOption(GeneralSection,'no_moon_question'         ,false                     ,PlayerOptions.noMoonQuestion);
+
+  //websim
+
+  for i := 0 to 2 do
+    DoOption(GeneralSection,'websim_tech_'+IntToStr(i)   ,0                     ,PlayerOptions.websim_techs[i]);
+  for i := 0 to 2 do
+    DoOption(GeneralSection,'websim_engine_'+IntToStr(i) ,0                     ,PlayerOptions.websim_engines[i]);
 end;
 
 procedure TFRM_Main.Play_Alert_Sound(filename: string);
@@ -2290,6 +2310,14 @@ var url: string;
       param(pname, IntToStr(pvalue));
   end;
 
+  procedure param(pname: string; pvalue: boolean); overload;
+  begin
+    if pvalue then
+      param(pname, '1')
+    else
+      param(pname, '0');
+  end;
+
 var scan: TScanBericht;
     i: integer;
 begin
@@ -2297,11 +2325,21 @@ begin
   if not ValidPosition(scan.Head.Position) then
     exit;
 
+  // Description of params:
+  // http://forum.speedsim.net/viewtopic.php?t=430
+
   url := 'http://websim.speedsim.net/index.php?lang=de&referrer=cS';
 
-  (*param('tech_a0_0','undefined');
-  param('tech_a0_1','undefined');
-  param('tech_a0_2','undefined');*)
+  for i := 0 to 2 do
+    param('tech_a0_' + IntToStr(i),PlayerOptions.websim_techs[i]);
+
+  for i := 0 to 2 do
+    param('engine0_' + IntToStr(i),PlayerOptions.websim_engines[i]);
+
+  param('start_pos', PositionToStr_(PlayerOptions.StartPlanet));
+
+  param('perc-df', round(truemmerfeld_faktor*100));
+  param('def_to_df', ODataBase.DefInTF);
 
   param('enemy_name', scan.Head.Planet);
   param('enemy_pos', PositionToStr_(scan.Head.Position)); // don't know if sim supports the [x:xxx:x M] extension
@@ -2326,6 +2364,12 @@ begin
   end;
 
   ShellExecute(Self.Handle,'open',PChar(url),'','',0);
+end;
+
+procedure TFRM_Main.Spionage2Click(Sender: TObject);
+begin
+  ODataBase.LanguagePlugIn.CallFleet_(
+    Frame_Bericht1.Bericht.Head.Position, fet_espionage);
 end;
 
 end.

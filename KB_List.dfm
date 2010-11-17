@@ -18,8 +18,8 @@ object FRM_KB_List: TFRM_KB_List
   object PageControl1: TPageControl
     Left = 0
     Top = 25
-    Width = 786
-    Height = 234
+    Width = 794
+    Height = 242
     ActivePage = TS_KB_laufend
     Align = alClient
     TabOrder = 0
@@ -29,8 +29,8 @@ object FRM_KB_List: TFRM_KB_List
       object VST_RAID: TVirtualStringTree
         Left = 0
         Top = 0
-        Width = 778
-        Height = 206
+        Width = 786
+        Height = 214
         Align = alClient
         ClipboardFormats.Strings = (
           'CSV'
@@ -183,8 +183,8 @@ object FRM_KB_List: TFRM_KB_List
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 286
-    Width = 786
+    Top = 294
+    Width = 794
     Height = 19
     Panels = <
       item
@@ -204,8 +204,8 @@ object FRM_KB_List: TFRM_KB_List
   end
   object Panel1: TPanel
     Left = 0
-    Top = 259
-    Width = 786
+    Top = 267
+    Width = 794
     Height = 27
     Align = alBottom
     BevelOuter = bvNone
@@ -213,7 +213,7 @@ object FRM_KB_List: TFRM_KB_List
     object lbl_flotte: TLabel
       Left = 109
       Top = 0
-      Width = 677
+      Width = 685
       Height = 27
       Align = alClient
       AutoSize = False
@@ -245,13 +245,13 @@ object FRM_KB_List: TFRM_KB_List
   object Panel3: TPanel
     Left = 0
     Top = 0
-    Width = 786
+    Width = 794
     Height = 25
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 3
     DesignSize = (
-      786
+      794
       25)
     object sh_servertime: TShape
       Left = 584
@@ -320,7 +320,7 @@ object FRM_KB_List: TFRM_KB_List
     Top = 56
   end
   object PopupMenu1: TPopupMenu
-    Left = 76
+    Left = 80
     Top = 56
     object entf1: TMenuItem
       Caption = 'L'#246'schen'
@@ -338,6 +338,14 @@ object FRM_KB_List: TFRM_KB_List
       OnClick = Bearbeiten1Click
     end
     object N1: TMenuItem
+      Caption = '-'
+    end
+    object ScanZiel1: TMenuItem
+      Caption = 'Scan Ziel'
+      ShortCut = 16467
+      OnClick = ScanZiel1Click
+    end
+    object N2: TMenuItem
       Caption = '-'
     end
     object paste1: TMenuItem
@@ -763,5 +771,11 @@ object FRM_KB_List: TFRM_KB_List
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000}
+  end
+  object tim_take_focus_again: TTimer
+    Enabled = False
+    OnTimer = tim_take_focus_againTimer
+    Left = 420
+    Top = 97
   end
 end

@@ -24,8 +24,8 @@ object FRM_Main: TFRM_Main
   object P_ExplorerDock: TPanel
     Left = 0
     Top = 0
-    Width = 533
-    Height = 390
+    Width = 541
+    Height = 398
     Align = alClient
     BevelOuter = bvNone
     Color = clBlack
@@ -34,8 +34,8 @@ object FRM_Main: TFRM_Main
     OnResize = P_ExplorerDockResize
     inline Frame_Bericht2: TFrame_Bericht
       Left = 0
-      Top = 261
-      Width = 533
+      Top = 269
+      Width = 541
       Height = 129
       HorzScrollBar.Style = ssHotTrack
       VertScrollBar.Style = ssHotTrack
@@ -47,10 +47,10 @@ object FRM_Main: TFRM_Main
       TabOrder = 0
       TabStop = True
       inherited PB_B: TPaintBox
-        Width = 516
+        Width = 524
       end
       inherited Panel1: TPanel
-        Width = 516
+        Width = 524
         inherited LBL_Raid24_Info: TLabel
           Left = 354
         end
@@ -63,15 +63,15 @@ object FRM_Main: TFRM_Main
   object P_Scan: TPanel
     Left = 0
     Top = 0
-    Width = 533
-    Height = 390
+    Width = 541
+    Height = 398
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
     object Splitter1: TSplitter
-      Left = 429
+      Left = 437
       Top = 0
-      Height = 390
+      Height = 398
       Align = alRight
       MinSize = 20
       ResizeStyle = rsLine
@@ -79,16 +79,16 @@ object FRM_Main: TFRM_Main
     object Panel2: TPanel
       Left = 0
       Top = 0
-      Width = 429
-      Height = 390
+      Width = 437
+      Height = 398
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
       inline Frame_Bericht1: TFrame_Bericht
         Left = 0
         Top = 0
-        Width = 429
-        Height = 343
+        Width = 437
+        Height = 351
         HorzScrollBar.Style = ssHotTrack
         VertScrollBar.Style = ssHotTrack
         Align = alClient
@@ -100,11 +100,11 @@ object FRM_Main: TFRM_Main
         TabStop = True
         OnDblClick = Frame_Bericht1PB_BDblClick
         inherited PB_B: TPaintBox
-          Width = 429
+          Width = 437
           OnDblClick = Frame_Bericht1PB_BDblClick
         end
         inherited Panel1: TPanel
-          Width = 429
+          Width = 437
           inherited LBL_Raid24_Info: TLabel
             Left = 308
           end
@@ -127,8 +127,8 @@ object FRM_Main: TFRM_Main
       end
       object P_WF: TPanel
         Left = 0
-        Top = 343
-        Width = 429
+        Top = 351
+        Width = 437
         Height = 47
         Align = alBottom
         BevelInner = bvLowered
@@ -205,8 +205,8 @@ object FRM_Main: TFRM_Main
       object p_startscreen: TPanel
         Left = 0
         Top = 0
-        Width = 429
-        Height = 343
+        Width = 437
+        Height = 351
         Align = alClient
         BevelOuter = bvNone
         Color = clBlack
@@ -221,8 +221,8 @@ object FRM_Main: TFRM_Main
         object sb_start_bg: TShape
           Left = 0
           Top = 0
-          Width = 429
-          Height = 343
+          Width = 437
+          Height = 351
           Align = alClient
           Brush.Color = clBlack
           Pen.Style = psClear
@@ -231,8 +231,8 @@ object FRM_Main: TFRM_Main
         object lbl_dbl_click: TLabel
           Left = 0
           Top = 0
-          Width = 429
-          Height = 343
+          Width = 437
+          Height = 351
           Align = alClient
           AutoSize = False
           Transparent = False
@@ -661,16 +661,16 @@ object FRM_Main: TFRM_Main
       end
     end
     object Panel1: TPanel
-      Left = 432
+      Left = 440
       Top = 0
       Width = 101
-      Height = 390
+      Height = 398
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
       DesignSize = (
         101
-        390)
+        398)
       object lst_others: TListView
         Left = 3
         Top = 84
@@ -769,7 +769,7 @@ object FRM_Main: TFRM_Main
         Top = 32
         Width = 41
         Height = 25
-        Caption = 'Button1'
+        Caption = 'sim'
         TabOrder = 8
         OnClick = Button1Click
       end
@@ -777,8 +777,8 @@ object FRM_Main: TFRM_Main
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 390
-    Width = 533
+    Top = 398
+    Width = 541
     Height = 19
     Panels = <
       item
@@ -1341,13 +1341,17 @@ object FRM_Main: TFRM_Main
     Top = 264
     object Angriff1: TMenuItem
       Tag = 1
-      Caption = 'Angriff'
+      Caption = 'Angriff...'
       OnClick = Angriff1Click
     end
     object Spionage1: TMenuItem
       Tag = 2
-      Caption = 'Spionage'
+      Caption = 'Spionage (direct)'
       OnClick = Spionage1Click
+    end
+    object Spionage2: TMenuItem
+      Caption = 'Spionage...'
+      OnClick = Spionage2Click
     end
     object N10: TMenuItem
       Caption = '-'

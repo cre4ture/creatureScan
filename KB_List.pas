@@ -37,6 +37,9 @@ type
     tim_time_sync_auto: TTimer;
     IL_mission: TImageList;
     sh_servertime: TShape;
+    ScanZiel1: TMenuItem;
+    N2: TMenuItem;
+    tim_take_focus_again: TTimer;
     procedure tim_time_sync_autoTimer(Sender: TObject);
     procedure btn_time_syncClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -75,6 +78,8 @@ type
       var ContentRect: TRect);
     procedure VST_RAIDHeaderClick(Sender: TVTHeader;
       HitInfo: TVTHeaderHitInfo);
+    procedure ScanZiel1Click(Sender: TObject);
+    procedure tim_take_focus_againTimer(Sender: TObject);
   private
     { Private-Deklarationen }
     SortDirection_Raids: TSortDirection;
@@ -751,6 +756,44 @@ begin
   // wrapper for old handler
   VST_RAIDHeaderClick_1(Sender, HitInfo.Column, HitInfo.Button,
      HitInfo.Shift, HitInfo.X, HitInfo.Y);
+end;
+
+procedure TFRM_KB_List.ScanZiel1Click(Sender: TObject);
+var list: TVirtualStringTree;
+    db: TcSFleetDB;
+    ri: integer; // raid index
+    node: PVirtualNode;
+begin
+  case PageControl1.ActivePageIndex of
+    0: begin
+         list := VST_RAID;
+         db := ODataBase.FleetBoard.Fleets;
+       end;
+    1: begin
+         list := VST_HISTORY;
+         db := ODataBase.FleetBoard.History;
+       end;
+  else
+    exit;
+  end;
+
+
+  node := list.GetFirstSelected();
+  if node <> nil then
+  begin
+    ri := Integer(list.GetNodeData(node)^);
+    ODataBase.LanguagePlugIn.directCallFleet(
+      db.Fleets[ri].head.target, fet_espionage);
+
+    tim_take_focus_again.Enabled := True;
+  end;
+end;
+
+procedure TFRM_KB_List.tim_take_focus_againTimer(Sender: TObject);
+begin
+  tim_take_focus_again.Enabled := false;
+  Application.BringToFront;
+  Self.SetFocus;
 end;
 
 end.

@@ -2,7 +2,7 @@ object frm_sync_cS_db_engine: Tfrm_sync_cS_db_engine
   Left = 249
   Top = 288
   Width = 369
-  Height = 369
+  Height = 372
   Caption = 'Sync mit php...'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,8 +15,8 @@ object frm_sync_cS_db_engine: Tfrm_sync_cS_db_engine
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   DesignSize = (
-    353
-    334)
+    361
+    345)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -43,7 +43,7 @@ object frm_sync_cS_db_engine: Tfrm_sync_cS_db_engine
   object lbl_countdown: TLabel
     Left = 184
     Top = 72
-    Width = 161
+    Width = 169
     Height = 13
     Alignment = taCenter
     Anchors = [akLeft, akTop, akRight]
@@ -64,7 +64,7 @@ object frm_sync_cS_db_engine: Tfrm_sync_cS_db_engine
   object Button1: TButton
     Left = 206
     Top = 24
-    Width = 57
+    Width = 67
     Height = 21
     Anchors = [akTop, akRight]
     Caption = 'Neu...'
@@ -72,7 +72,7 @@ object frm_sync_cS_db_engine: Tfrm_sync_cS_db_engine
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 270
+    Left = 278
     Top = 24
     Width = 75
     Height = 21
@@ -84,8 +84,8 @@ object frm_sync_cS_db_engine: Tfrm_sync_cS_db_engine
   object mem_log: TMemo
     Left = 8
     Top = 168
-    Width = 337
-    Height = 159
+    Width = 345
+    Height = 169
     Anchors = [akLeft, akTop, akRight, akBottom]
     ReadOnly = True
     ScrollBars = ssVertical
@@ -94,7 +94,7 @@ object frm_sync_cS_db_engine: Tfrm_sync_cS_db_engine
   object ProgressBar1: TProgressBar
     Left = 8
     Top = 122
-    Width = 337
+    Width = 345
     Height = 25
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 4
@@ -102,7 +102,7 @@ object frm_sync_cS_db_engine: Tfrm_sync_cS_db_engine
   object btn_sync: TButton
     Left = 8
     Top = 91
-    Width = 337
+    Width = 345
     Height = 25
     Anchors = [akLeft, akTop, akRight]
     Caption = 'SYNC'
@@ -121,7 +121,7 @@ object frm_sync_cS_db_engine: Tfrm_sync_cS_db_engine
   object se_time: TSpinEdit
     Left = 256
     Top = 48
-    Width = 89
+    Width = 97
     Height = 22
     Anchors = [akTop, akRight]
     MaxValue = 0

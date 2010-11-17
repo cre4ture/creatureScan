@@ -7,7 +7,8 @@ uses
   Gauges, StdCtrls, ExtCtrls, ComCtrls, Mask, Tabnotbk, OGame_Types, Prog_Unit, ImgList,
   Menus, Galaxy_Explorer, VirtualTrees, Galaxien_Rechte, VSTPopup, inifiles,
   clipbrd, VTHeaderPopup, Math, FavFilter, langmodform, frm_pos_size_ini,
-  PlanetListInterface, topmost_uh;
+  PlanetListInterface, topmost_uh, FetchStats, IdBaseComponent,
+  IdThreadComponent;
 
 const
   SearchiniSection = 'SearchWindow';
@@ -20,6 +21,8 @@ type
     Platz, FleetPlatz, AllyPlatz: Cardinal;
     Punkte, FleetPunkte, AllyPunkte: Cardinal;
     Datum: TDateTime;
+    LastPointsActivity_days: integer;
+    LastPointsIncrease_days: integer;
     TF: array[0..1] of Cardinal;
     scantime_u: Int64;
   end;
@@ -72,6 +75,9 @@ type
     Spionieren1: TMenuItem;
     N2: TMenuItem;
     tim_take_focus_again: TTimer;
+    TabSheet1: TTabSheet;
+    cb_lpa: TCheckBox;
+    cb_status_neg: TCheckBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BTN_SucheClick(Sender: TObject);
     procedure BTN_SchliesenClick(Sender: TObject);
@@ -117,15 +123,20 @@ type
       HitInfo: TVTHeaderHitInfo);
     procedure Spionieren1Click(Sender: TObject);
     procedure tim_take_focus_againTimer(Sender: TObject);
+    procedure IdThreadComponent1Run(Sender: TIdCustomThreadComponent);
   private
     mPosListInterface: TPlanetListInterface;
     e, Topmost : boolean;
     Direction : TSortDirection;
     FilterArea: TPlanetRangeList;
+
+    lpaThread: TThread;
+
     procedure Refresh_cb_koords;
     function get_ScanTime_u(pos: TPlanetPosition): int64;
     { Private-Deklarationen }
   public
+    function getLPA(name: string; status: TStatus; out lpi: integer): integer;
     procedure Clear;
     function SucheSysteme: integer;
     procedure DeleteEmptyCharEdit(Edit: TEdit);
@@ -147,6 +158,32 @@ type
     function selectPreviousPlanet(out pos: TPlanetPosition): Boolean; override;
   end;
 
+  TFetchLPA_LPI_Thread = class(TThread)
+  private
+    frm: TFRM_Suche;
+    vst: TVirtualStringTree;
+
+    firstnode: PVirtualNode;
+    node: PVirtualNode;
+    data: TSearch_ND;
+
+    Canceled: Boolean;
+    node_processed_count, max_nodes: integer;
+
+    procedure getFirstNode;
+    procedure getNextNode;
+    procedure getNodeData;
+    procedure findNextNodeToFetch;
+    procedure writeNodeData_and_getNextNode;
+
+  public
+    procedure CancelJob;
+    procedure Execute; override;
+    constructor Create(aFrm: TFRM_Suche; aVst: TVirtualStringTree);
+    destructor Destroy; override;
+    procedure StartJob;
+  end;
+
 const
   STAT_Laden = 1;
   STAT_Summary = 2;
@@ -156,7 +193,7 @@ function trim_X(s: string): string;
 
 implementation
 
-uses Main, Languages, DateUtils, Stat_Points, Favoriten;
+uses Main, Languages, DateUtils, Stat_Points, Favoriten, UniTree;
 
 {$R *.DFM}
 
@@ -195,8 +232,15 @@ end;
 function TFRM_Suche.SucheSysteme: integer;
 var s_punkte, s_flotte: Integer;
 
-  function FilterStats(place, points, fleetplace, fleetpoints: integer): Boolean;
+  function FilterStats(playername: string; place, points, fleetplace, fleetpoints: integer): Boolean;
   begin
+    if (playername = '') and
+       ((cb_punkte_gk.ItemIndex <> 0) or (cb_flotte_gk.ItemIndex <> 0)) then
+    begin
+      Result := false;
+      exit;
+    end;
+
     Result := True;
     case cb_punkte_gk.ItemIndex of
     0:; //nix
@@ -238,6 +282,25 @@ var s_punkte, s_flotte: Integer;
     end;
   end;
 
+  function filterStatus(status, flags: TStatus): boolean;
+  begin
+    Result := true;
+    if (TXT_Status.Text = '') then exit;
+
+    Result := (
+                CH_Status_Genau.Checked and
+                (flags = (*Planeten[Planet].*)Status)
+              )
+              or
+              (
+                (not CH_Status_Genau.Checked) and
+                (flags <= (*Planeten[Planet].*)Status)
+              );
+
+    if cb_status_neg.Checked then
+      Result := not Result;
+  end;
+
   function SearchSystem(Sys : Integer): integer;
   var Planet : integer;
       TF: cardinal;
@@ -273,7 +336,7 @@ var s_punkte, s_flotte: Integer;
           (((TXT_Player.Text = '')or(pos(UpperCase(TXT_Player.Text),UpperCase(Planeten[P.P[2]].Player)) > 0))and
            ((TXT_ally.Text = '')or(pos(UpperCase(TXT_ally.Text),UpperCase(Planeten[P.P[2]].Ally)) > 0))and
            ((TXT_Planet.Text = '')or(p.Mond and (UpperCase(TXT_Planet.Text) = UpperCase(STR_Mond)))or(pos(UpperCase(TXT_Planet.Text),UpperCase(Planeten[P.P[2]].PlanetName)) > 0)))and
-           ((TXT_Status.Text = '')or(((not CH_Status_Genau.Checked)and(flags <= Planeten[Planet].Status)))or(CH_Status_Genau.Checked and (flags = Planeten[Planet].Status)))and
+           filterStatus(Planeten[Planet].Status, flags) and
            (Planeten[Planet].TF[0] + Planeten[Planet].TF[1] >= TF)  then
         begin
           statsplace := ODataBase.Stats.StatPlace(Planeten[Planet].Player);
@@ -282,7 +345,7 @@ var s_punkte, s_flotte: Integer;
           fleetplace := ODataBase.FleetStats.StatPlace(Planeten[Planet].Player);
           fleetpoints := ODataBase.FleetStats.Statistik[fleetplace].Punkte;
 
-          if FilterStats(statsplace, statpoints, fleetplace, fleetpoints) then
+          if FilterStats(Planeten[Planet].Player, statsplace, statpoints, fleetplace, fleetpoints) then
           begin
              ItemData := VST_Result.GetNodeData(VST_Result.AddChild(nil));
              inc(Result);
@@ -299,6 +362,8 @@ var s_punkte, s_flotte: Integer;
              ItemData^.TF[0] := Planeten[Planet].TF[0];
              ItemData^.TF[1] := Planeten[Planet].TF[1];
              ItemData^.Datum := UnixToDateTime(Time_u);
+             ItemData^.LastPointsActivity_days := -1;
+             ItemData^.LastPointsIncrease_days := -1;
              if p.Mond then
                ItemData^.Planet := STR_Mond
              else ItemData^.Planet := Planeten[Planet].PlanetName;
@@ -315,10 +380,13 @@ var s_punkte, s_flotte: Integer;
         end;
       end;
     end;
+
   end;
 
 var i,max : integer;
 begin
+  TFetchLPA_LPI_Thread(lpaThread).CancelJob;
+
   VST_Result.BeginUpdate;
   if CH_Del_Result.Checked then VST_Result.Clear;
   e := false;
@@ -326,6 +394,7 @@ begin
   StatusBar1.Panels[STAT_Laden].Text := inttostr(0);
   Application.ProcessMessages;
   Result := 0;
+
   for i := 0 to ODataBase.Systeme.Count-1 do
   begin
     inc(Result,SearchSystem(i));
@@ -335,6 +404,11 @@ begin
       break;
   end;
   VST_Result.EndUpdate;
+
+  if cb_lpa.Checked then
+  begin
+    TFetchLPA_LPI_Thread(lpaThread).StartJob;
+  end;
 end;
 
 procedure TFRM_Suche.BTN_SucheClick(Sender: TObject);
@@ -355,7 +429,8 @@ begin
     DeleteEmptyCharEdit(TXT_Player);
     DeleteEmptyCharEdit(TXT_Planet);
     DeleteEmptyCharEdit(TXT_ally);
-    StatusBar1.Panels[STAT_Summary].Text := STR_Ergebnisse + IntToStr(SucheSysteme);
+    StatusBar1.Panels[STAT_Summary].Text :=
+      STR_Ergebnisse + IntToStr(SucheSysteme);
     BTN_Suche.Caption := STR_Suchen;
     e := true;
     StatusBar1.Panels[STAT_Laden].Text := '100';
@@ -409,6 +484,8 @@ begin
   StatusBar1.Panels[0].Text := STR_normal;
 
   mPosListInterface := TFRM_SuchePlanetListInterface.Create(self);
+
+  lpaThread := TFetchLPA_LPI_Thread.Create(self, VST_Result);
 end;
 
 procedure TFRM_Suche.DeleteEmptyCharEdit(Edit: TEdit);
@@ -445,6 +522,8 @@ begin
      11: CellText := IntToStrKP(TF[0]+TF[1]);
      12: CellText := ODataBase.LanguagePlugIn.StatusToStr(Status);
      13: CellText := ODataBase.Time_To_AgeStr(Datum);
+     14: CellText := IntToStr(LastPointsActivity_days);
+     15: CellText := IntToStr(LastPointsIncrease_days);
     end;
   end;
 end;
@@ -497,6 +576,8 @@ begin
   9, 10: if(nd1.AllyPunkte > nd2.AllyPunkte) then Result := 1 else Result := -1;
   11: if (nd1.TF[0]+nd1.TF[1] > nd2.TF[0]+nd2.Tf[1]) then Result := 1 else Result := -1;
   13: Result := CompareValue(nd1.Datum, nd2.Datum);
+  14: Result := CompareValue(nd1.LastPointsActivity_days, nd2.LastPointsActivity_days);
+  15: Result := CompareValue(nd1.LastPointsIncrease_days, nd2.LastPointsIncrease_days);
   else
     VST_ResultGetText(Sender,Node1,Column,ttNormal,S1);
     VST_ResultGetText(Sender,Node2,Column,ttNormal,S2);
@@ -684,6 +765,7 @@ begin
   SaveFormSizePos(ini, {trim_X}(Name), Self);
   ini.UpdateFile;
   ini.Free;
+  lpaThread.Free;
 end;
 
 function TFRM_Suche.getFocusedPlanet: TPlanetPosition;
@@ -773,7 +855,7 @@ begin
   if VST_Result.GetFirstSelected <> nil then
   begin
     with TSearch_ND(VST_Result.GetNodeData(VST_Result.GetFirstSelected)^) do
-      ODataBase.LanguagePlugIn.CallFleet(Koord, fet_espionage);
+      ODataBase.LanguagePlugIn.directCallFleet(Koord, fet_espionage);
 
     tim_take_focus_again.Enabled := true;
   end;
@@ -784,6 +866,232 @@ begin
   tim_take_focus_again.Enabled := false;
   Application.BringToFront;
   Self.SetFocus;
+end;
+
+function TFRM_Suche.getLPA(name: string; status: TStatus; out lpi: integer): integer;
+var fs: TFetchStats;
+    arr: TStatsArray;
+    i, start, points: integer;
+    ppi: PPlayerInformation;
+begin
+  SetLength(arr, 0);
+  Result := -2;
+  lpi := -2;
+
+  begin
+
+    ppi := ODataBase.UniTree.Player.GetPlayerInfo(name);
+    if (ppi <> nil) and (ppi^.lpa >= 0) then
+    begin
+      Result := ppi^.lpa;
+      lpi := ppi^.lpi;
+      exit;
+    end;
+
+    fs := TFetchStats.Create;
+    try
+      try
+        arr := fs.getLastStats(name);
+      except
+        Result := -3;
+        exit;
+      end;
+
+      // find first valid entry
+      start := length(arr)-1;
+      if start < 0 then exit;
+      while (start >= 1) and (arr[start].value_points = -1) do
+        dec(start);
+
+      // count inactivity
+      Result := 0;
+      i := start;
+      points := arr[i].value_points;
+      dec(i);
+      while (i >= 0) and
+            (arr[i].value_points = points) and
+            (points <> -1) do
+      begin
+        inc(Result);
+        dec(i);
+      end;
+
+      // count days since last point increase
+      lpi := 0;
+      i := start;
+      points := arr[i].value_points;
+      dec(i);
+      while (i >= 0) and
+            (arr[i].value_points >= points) and
+            (points <> -1) do
+      begin
+        inc(lpi);
+        points := arr[i].value_points;
+        dec(i);
+      end;
+    finally
+      fs.Free;
+    end;
+  end;
+end;
+
+procedure TFRM_Suche.IdThreadComponent1Run(
+  Sender: TIdCustomThreadComponent);
+begin
+
+end;
+
+{ TFetchLPA_LPI_Thread }
+
+procedure TFetchLPA_LPI_Thread.CancelJob;
+begin
+  Canceled := true;
+  while (not Self.Suspended) and
+        (not Self.Terminated) do
+  begin
+    Application.ProcessMessages;
+    Sleep(500);
+  end;
+end;
+
+constructor TFetchLPA_LPI_Thread.Create(aFrm: TFRM_Suche;
+  aVst: TVirtualStringTree);
+begin
+  inherited Create(false);   // suspends self in execute
+  frm := aFrm;
+  vst := aVst;
+  Canceled := false;
+end;
+
+destructor TFetchLPA_LPI_Thread.Destroy;
+begin
+  Self.Terminate;
+  if Self.Suspended then
+    Self.Resume;
+  Self.WaitFor;
+  inherited;
+end;
+
+procedure TFetchLPA_LPI_Thread.Execute;
+begin
+  while (not Self.Terminated) do
+  begin
+    // wait for new job
+    Self.Suspend;
+
+    // start
+    Synchronize(getFirstNode);
+    while (not Self.Terminated) and
+          (not Self.Canceled) and
+          (node <> nil) do
+    begin
+      data.LastPointsActivity_days :=
+        frm.getLPA(data.Player, data.Status, data.LastPointsIncrease_days);
+        
+      Synchronize(writeNodeData_and_getNextNode);
+    end;
+  end;
+end;
+
+procedure TFetchLPA_LPI_Thread.findNextNodeToFetch;
+
+  // returns if fetching is needed
+  function checkFetch: boolean;
+  var pi: PPlayerInformation;
+  begin
+    // check player status
+    result := ( [sys_playerstat_inactive, sys_playerstat_urlaub,
+        sys_playerstat_noob, sys_playerstat_hard] * data.Status = [] );
+
+    if (Result) then
+    begin
+      // if status ok, check ODataBase for already fetched data
+      pi := ODataBase.UniTree.Player.GetPlayerInfo(data.Player);
+      Result := (pi = nil) or (pi^.lpa < 0);
+
+      // if odatabase had data, we need no fetching, but have to write
+      // the data to the list
+      if (not result) then
+      begin
+        with TSearch_ND(vst.GetNodeData(node)^) do
+        begin
+          LastPointsActivity_days := pi^.lpa;
+          LastPointsIncrease_days := pi^.lpi;
+        end;
+        vst.RepaintNode(node);
+      end;
+    end
+    else
+    begin
+      // if status is not ok, mark -2
+      with TSearch_ND(vst.GetNodeData(node)^) do
+      begin
+        LastPointsActivity_days := -2;
+        LastPointsIncrease_days := -2;
+      end;
+      vst.RepaintNode(node);
+    end;
+  end;
+
+begin
+  while (node <> nil) and (not checkFetch) do
+  begin
+    getNextNode;
+  end;
+  // exit here if we found a node to fetch, or node == nil (end of list)
+end;
+
+procedure TFetchLPA_LPI_Thread.getFirstNode;
+begin
+  frm.StatusBar1.Panels[STAT_Laden].Text := '0';
+  node := vst.GetFirst();
+  getNodeData;
+  findNextNodeToFetch;
+end;
+
+procedure TFetchLPA_LPI_Thread.getNextNode;
+begin
+  inc(node_processed_count);
+  if max_nodes <> 0 then
+    frm.StatusBar1.Panels[STAT_Laden].Text :=
+      IntToStr(trunc(100*node_processed_count/max_nodes));
+    
+  node := vst.GetNext(node);
+  getNodeData;
+end;
+
+procedure TFetchLPA_LPI_Thread.getNodeData;
+begin
+  if (node <> nil) then
+    data := TSearch_ND(vst.getNodeData(node)^)
+  else
+    frm.StatusBar1.Panels[STAT_Laden].Text := '100';
+end;
+
+procedure TFetchLPA_LPI_Thread.StartJob;
+begin
+  Canceled := false;
+  node_processed_count := 0;
+  max_nodes := vst.RootNodeCount;
+  Resume;
+end;
+
+procedure TFetchLPA_LPI_Thread.writeNodeData_and_getNextNode;
+var pdata: ^TSearch_ND;
+begin
+  pdata := vst.GetNodeData(node);
+  if pdata^.Player <> data.Player then
+    raise Exception.Create('TFetchLPA_LPI_Thread.writeNodeData_and_getNextNode: Internal Error!');
+  pdata^ := data;
+
+  // save results for later usage
+  ODataBase.UniTree.Player.setLPA_LPI(data.Player,
+    data.LastPointsActivity_days,
+    data.LastPointsIncrease_days);
+
+  vst.RepaintNode(node);
+  getNextNode;
+  findNextNodeToFetch;
 end;
 
 end.

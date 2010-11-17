@@ -1052,7 +1052,7 @@ end;
 
 procedure TExplorer.spionage1Click(Sender: TObject);
 begin
-  ODataBase.LanguagePlugIn.CallFleet(Position, fet_espionage);
+  ODataBase.LanguagePlugIn.directCallFleet(Position, fet_espionage);
 end;
 
 procedure TExplorer.ffneSysteminOGame1Click(Sender: TObject);

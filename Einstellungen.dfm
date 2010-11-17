@@ -27,7 +27,7 @@ object FRM_Einstellungen: TFRM_Einstellungen
     Top = 0
     Width = 531
     Height = 200
-    ActivePage = TS_ScansSysteme
+    ActivePage = TS_Websim
     Anchors = [akLeft, akTop, akRight, akBottom]
     MultiLine = True
     ParentShowHint = False
@@ -716,6 +716,127 @@ object FRM_Einstellungen: TFRM_Einstellungen
           Height = 21
           TabOrder = 1
           Text = '00:50:00'
+        end
+      end
+    end
+    object TS_Websim: TTabSheet
+      Caption = 'Websim'
+      ImageIndex = 11
+      object GroupBox15: TGroupBox
+        Left = 0
+        Top = 0
+        Width = 353
+        Height = 153
+        Caption = ' Meine Forschungen '
+        TabOrder = 0
+        object Label12: TLabel
+          Left = 8
+          Top = 24
+          Width = 73
+          Height = 13
+          Caption = 'Waffentechnik:'
+        end
+        object Label25: TLabel
+          Left = 8
+          Top = 48
+          Width = 67
+          Height = 13
+          Caption = 'Schildtechnik:'
+        end
+        object Label26: TLabel
+          Left = 8
+          Top = 72
+          Width = 71
+          Height = 13
+          Caption = 'Panzertechnik:'
+        end
+        object Label27: TLabel
+          Left = 144
+          Top = 24
+          Width = 112
+          Height = 13
+          Caption = 'Verbrennungstriebwerk:'
+        end
+        object Label28: TLabel
+          Left = 144
+          Top = 48
+          Width = 76
+          Height = 13
+          Caption = 'Impulstriebwerk:'
+        end
+        object Label29: TLabel
+          Left = 144
+          Top = 72
+          Width = 86
+          Height = 13
+          Caption = 'Hyperraumantrieb:'
+        end
+        object Label30: TLabel
+          Left = 8
+          Top = 104
+          Width = 209
+          Height = 13
+          Caption = 'Startplanet, siehe Tab "Angriffsberechnung"'
+        end
+        object se_tech_0: TSpinEdit
+          Left = 88
+          Top = 24
+          Width = 41
+          Height = 22
+          MaxValue = 0
+          MinValue = 0
+          TabOrder = 0
+          Value = 0
+        end
+        object se_tech_1: TSpinEdit
+          Left = 88
+          Top = 48
+          Width = 41
+          Height = 22
+          MaxValue = 0
+          MinValue = 0
+          TabOrder = 1
+          Value = 0
+        end
+        object se_tech_2: TSpinEdit
+          Left = 88
+          Top = 72
+          Width = 41
+          Height = 22
+          MaxValue = 0
+          MinValue = 0
+          TabOrder = 2
+          Value = 0
+        end
+        object se_engine_0: TSpinEdit
+          Left = 264
+          Top = 24
+          Width = 41
+          Height = 22
+          MaxValue = 0
+          MinValue = 0
+          TabOrder = 3
+          Value = 0
+        end
+        object se_engine_1: TSpinEdit
+          Left = 264
+          Top = 48
+          Width = 41
+          Height = 22
+          MaxValue = 0
+          MinValue = 0
+          TabOrder = 4
+          Value = 0
+        end
+        object se_engine_2: TSpinEdit
+          Left = 264
+          Top = 72
+          Width = 41
+          Height = 22
+          MaxValue = 0
+          MinValue = 0
+          TabOrder = 5
+          Value = 0
         end
       end
     end
