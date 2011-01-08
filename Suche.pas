@@ -75,7 +75,7 @@ type
     Spionieren1: TMenuItem;
     N2: TMenuItem;
     tim_take_focus_again: TTimer;
-    TabSheet1: TTabSheet;
+    ts_specials: TTabSheet;
     cb_lpa: TCheckBox;
     cb_status_neg: TCheckBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -486,6 +486,13 @@ begin
   mPosListInterface := TFRM_SuchePlanetListInterface.Create(self);
 
   lpaThread := TFetchLPA_LPI_Thread.Create(self, VST_Result);
+
+  ts_specials.TabVisible := FRM_Main.Dir.Visible;
+  if not ts_specials.Visible then
+  begin
+    VST_Result.Header.Columns.Delete(15);
+    VST_Result.Header.Columns.Delete(14);
+  end;
 end;
 
 procedure TFRM_Suche.DeleteEmptyCharEdit(Edit: TEdit);
