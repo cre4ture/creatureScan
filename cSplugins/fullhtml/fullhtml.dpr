@@ -5,20 +5,20 @@ uses
   Classes,
   IniFiles,
   Dialogs,
+  OGame_Types in '..\..\OGame_Types.pas',
   clipbrd,
   Windows,
   DateUtils,
   StrUtils,
-  OGame_Types in '..\..\OGame_Types.pas',
+  ReadPhalanxScan_fullhtml in '..\ReadAndParse\ReadPhalanxScan_fullhtml.pas',
   CoordinatesRanges in '..\..\CoordinatesRanges.pas',
   Languages in '..\..\Languages.pas',
   SelectLanguage in '..\..\SelectLanguage.pas' {FRM_SelectLanguage},
-  ReadPhalanxScan_fullhtml in '..\ReadAndParse\ReadPhalanxScan_fullhtml.pas',
   ReadReport_Text in '..\ReadAndParse\ReadReport_Text.pas',
   ReadSolsysStats_fullhtml in '..\ReadAndParse\ReadSolsysStats_fullhtml.pas',
   readsource in '..\readsource.pas',
-  readsource_cs in '..\readsource_cs.pas',
-  call_fleet in '..\ReadAndParse\call_fleet.pas';
+  call_fleet in '..\ReadAndParse\call_fleet.pas',
+  readsource_cs in '..\readsource_cs.pas';
 
 type
   TScanReadOptions = record
@@ -36,7 +36,7 @@ type
 
 
 const
-  iopluginVersion = 23;
+  iopluginVersion = 25;
 
   RA_KeyWord_Count = 5;
   ST_KeyWord_Count = 2;
@@ -52,13 +52,12 @@ var
 
   StatusItems: string;
 
-
   Sys_Options: TSys_Read_Options;
   ReportRead: TReadReport_Text;
   StatRead: ThtmlStatRead;
   SysRead: ThtmlSysRead;
-  Phalanx_getIndex: integer;
   PhalanxRead: ThtmlPhalanxRead;
+  Phalanx_getIndex: integer;
 
   UniCheck: TUniCheck;
 
@@ -79,8 +78,8 @@ end;
 function ReadPhalanxScan(Handle: integer): TFleetsInfoSource;
 var rs: TReadSource_cS;
 begin
+  Result.count := 0;
   Result.typ := fist_none;
-  Result.count := -1;
   if not _get_RS(Handle, rs) then Exit;
 
   PhalanxRead.Clear;
@@ -351,11 +350,26 @@ begin
   Result := UniCheck.CallFleet(pos, job);
 end;
 
+function directCallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
+begin
+  if job = fet_espionage then
+    Result := UniCheck.SendSpio(pos)
+  else
+    Result := false;
+end;
+
+function OpenSolSys(pos: TSolSysPosition): Boolean;
+begin
+  Result := UniCheck.OpenSolSys(pos);
+end;
+
 procedure RunOptions;
 var ini: TIniFile;
 begin
   ini := TIniFile.Create(UserIniFile);
+
     ShowMessage('No options available!');
+
   ini.Free;
 end;
 
@@ -409,6 +423,8 @@ exports
   ReadPhalanxScan,
   GetPhalaxScan,
   CallFleet,
+  directCallFleet,
+  OpenSolSys,
   
   ReadSource_New,
   ReadSource_Free,
