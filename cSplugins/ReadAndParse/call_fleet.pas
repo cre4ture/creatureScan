@@ -8,7 +8,6 @@ uses
 type
   TUniCheck = class
   private
-    //Uni: integer;
     UniServer: String;
     CheckUniKeyword: String;
 
