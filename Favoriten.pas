@@ -12,10 +12,10 @@ const filetype = 'cS favlist 1.0';
 const filetypelength = 14;
 
 type
-  PPlanetItem = ^TPlanetItem;
+  TPlanetItem = class; // prototype
   PFav = ^TFav;
   TFav = record
-    InitPointer: PPlanetItem;
+    InitPointer: TPlanetItem;
     Position : TPlanetPosition;
     ScanGrpCount: Integer;
     LastUpdate: TDateTime;
@@ -42,20 +42,22 @@ type
     solsatEnergy: Integer;
     lpa, lpi: integer;
   end;
-  TPlanetItem = record
-    Pos: TPlanetPosition;
-    Sterne: Integer;
-    shown_node: PVirtualNode;  //Gibt den Eintrag in der VST-Liste an, (nil wenn rausgefiltert)
-  end;
-  //Fav-List: programmiert, aber dann dochnicht fertiggestellt und verwendet!
-  TFavList = class
+  TPlanetItem = class
   private
-    FList: TList;
+    fPos: TPlanetPosition;
+    fSterne: Integer;
+    fShownNode: PVirtualNode;  //Gibt den Eintrag in der VST-Liste an, (nil wenn rausgefiltert)
+    fVSTList: TVirtualStringTree;
   public
-    constructor Create;
+    property pos: TPlanetPosition read fPos;
+    property sterne: Integer read fSterne write fSterne;
+
+    function getVisibleNode: PVirtualNode;
+    function showNode: PVirtualNode;
+    procedure hideNode;
+    constructor Create(const aPos: TPlanetPosition;
+      const aSterne: Integer; aVSTList: TVirtualStringTree);
     destructor Destroy; override;
-    function Add(planet: TPlanetPosition): Integer;
-    procedure Delete(index: Integer);
   end;
 
   TFavFileEntry_10_Pos = packed record
@@ -172,7 +174,6 @@ type
     //Direction: TSortDirection;
     //SColumn: Integer;
     IniFile: String;
-    collecting: TMemIniFile;
     topmost: boolean;
     scanlist_file: TFileStream;
     VST_clickpos: TPoint;
@@ -183,13 +184,11 @@ type
     function FleetPoints(Scan: TScanbericht): integer;
     function DefPoints(Scan: TScanbericht): integer;
     procedure updateNode(nd: PVirtualNode);
-    procedure AddToVSTList_forceupdate(item: PPlanetItem);
     procedure SavePosition_Count(const i: Integer); overload;
-    procedure SavePosition_Count(const item: PPlanetItem); overload;
+    procedure SavePosition_Count(const item: TPlanetItem); overload;
     function getfilterinfo: string;
     procedure Set_CB_Koords(cb_k: TComboBox = nil);
     function getIntValColumn(Column: TColumnIndex; fav: TFav): Integer;
-    procedure RemoveFromVSTList(item: PPlanetItem);
     procedure InitFavListFile(filename: string);
     procedure FreeFavListFile;
     function scanfile_getentrypos(index: integer): Int64;
@@ -212,7 +211,7 @@ type
     FleetDefValues: array of integer;
     property ListType: TFavListType read fListType write SetListType;
     procedure AddByTime(alter: TDateTime);
-    function Add(pos: TPlanetPosition; Sterne: integer = -1; load: boolean = False): integer;
+    function Add(pos: TPlanetPosition; Sterne: integer = 0; load: boolean = False): integer;
     function Find(Pos: TPlanetPosition): integer;
     procedure Show;
     function getSelectedPlanet(): TPlanetPosition;
@@ -295,7 +294,6 @@ begin
   topmost := false;
   StatusBar1.Panels[0].Text := STR_normal;
 
-  collecting := nil;
   LoadFormSizePos(IniFile,self);
   {//--- erstelle popup für headers ---------------------------------------------
   Menu := TVSTPopUpMenu.Create(Self);
@@ -308,40 +306,6 @@ begin
   LoadOldFromIni;    //alte laden und löschen
 
   mListInterface := TFRM_Fav_PlanetListInterface.Create(self);
-end;
-
-procedure TFRM_Favoriten.AddToVSTList_forceupdate(item: PPlanetItem);
-//30.09.08 UHO OK
-begin
-  if not ValidPosition(item^.Pos) then
-    Exit;
-
-  if (item^.shown_node = nil)   //wenn nicht schon in der liste vorhanden
-      then
-  begin
-    //item^.shown_node := VST_ScanList.AddChild(nil, item); -> wird in OnInitNode übernommen
-    VST_ScanList.AddChild(nil, item);
-
-    //Anzahl aktualisieren:
-    StatusBar1.Panels[1].Text := STR_Anzahl + IntToStr(VST_ScanList.RootNodeCount);
-  end
-  else
-  begin
-    TFav(VST_ScanList.GetNodeData(item^.shown_node)^).LastUpdate := -1; //update erzwingen
-  end;
-end;
-
-procedure TFRM_Favoriten.RemoveFromVSTList(item: PPlanetItem);
-begin
-  if (item^.shown_node <> nil) then //ist es überhaubt in der Liste vorhanden?
-  begin
-    VST_ScanList.DeleteNode(item^.shown_node);
-    //item^.shown_node := nil; -> wird in OnFreeNode übernommen  (wird auch bei "Clear" ausgeführt)
-
-    //Anzahl aktualisieren:
-    StatusBar1.Panels[1].Text := STR_Anzahl + IntToStr(VST_ScanList.RootNodeCount);
-    StatusBar1.Refresh;
-  end;
 end;
 
 procedure TFRM_Favoriten.BTN_AddClick(Sender: TObject);
@@ -359,6 +323,9 @@ begin
     ma := m/(24*60);
     AddByTime(ma);
   end;
+  //Belegung anzeigen:
+  StatusBar1.Panels[1].Text := IntToStr(VST_ScanList.RootNodeCount) + ' / ' +
+                               IntToStr(ScanList.Count) + ' Filter: ' + getfilterinfo();
 end;
 
 procedure TFRM_Favoriten.AddByTime(alter: TDateTime);
@@ -510,63 +477,48 @@ begin
                                IntToStr(ScanList.Count) + ' Filter: ' + getfilterinfo();
 end;
 
-function TFRM_Favoriten.Add(pos: TPlanetPosition; Sterne: integer = -1; load: boolean = False): integer;
+function TFRM_Favoriten.Add(pos: TPlanetPosition;
+  Sterne: integer = 0; load: boolean = False): integer;
 var i: integer;
-//30.09.08 UHO OK, add wird auch von load verwendet
-    item: PPlanetItem;
+// add wird auch von load verwendet
+    item: TPlanetItem;
 begin
-  Result := -2;
-  item := nil;
-  if ValidPosition(Pos) then                                                         
+  //Suche nach vorhandenem Eintrag: TODO: suchbaum!?  (oder einfach ein array[1..9,1..499,1..15] of pointer)
+  Result := -1;
+  for i := 0 to ScanList.Count-1 do
   begin
-    //Suche nach vorhandenem Eintrag: TODO: suchbaum!?  (oder einfach ein array[1..9,1..499,1..15] of pointer)
-    Result := -1;
-    for i := 0 to ScanList.Count-1 do
+    item := ScanList[i];
+    if SamePlanet(item.Pos,Pos) then
     begin
-      item := ScanList[i];
-      if SamePlanet(item^.Pos,Pos) then
-      begin
-        Result := i;
-        if Sterne >= 0 then
-          item^.Sterne := Sterne;
-        break;
-      end;
+      Result := i;
+      break;
     end;
-
-    //Wenn kein Eintrag gefunden -> neuen erstellen:
-    if Result = -1 then
-    begin
-      New(item);
-      item^.Pos := Pos;
-      item^.shown_node := nil; //init
-
-      if Sterne >= 0 then
-        item^.Sterne := Sterne
-      else item^.Sterne := 0;
-
-      Result := ScanList.Add(item);
-    end;
-
-    //Auf Filter testen und aus der VST-Liste entfernen/hinzufügen
-    i := ODataBase.UniTree.UniReport(pos);
-    if (item <> nil) and
-       (i >= 0) and
-       Filter(ODataBase.Berichte[i]) then
-    begin
-      //hinzufügen: (nur wenn nicht schon vorhanden)
-      AddToVSTList_forceupdate(item);
-
-      //start sort timer (so wird nicht ständig sortiert, wenn mehrere Scans hinzukommen:
-      tim_startsort.Enabled := True;
-    end
-    else
-    begin
-      //entfernen:
-      RemoveFromVSTList(item);
-    end;
-
-    if not load then SavePosition_Count(Result); //sofort speichern!
   end;
+
+  //Wenn kein Eintrag gefunden -> neuen erstellen:
+  if Result < 0 then
+  begin
+    item := TPlanetItem.Create(pos, Sterne, VST_ScanList);
+    Result := ScanList.Add(item);
+  end;
+
+  //Auf Filter testen und aus der VST-Liste entfernen/hinzufügen
+  i := ODataBase.UniTree.UniReport(pos);
+  if (item <> nil) and
+     (i >= 0) and
+     Filter(ODataBase.Berichte[i]) then
+  begin
+    item.showNode();
+
+    //start sort timer (so wird nicht ständig sortiert, wenn mehrere Scans hinzukommen:
+    tim_startsort.Enabled := True;
+  end
+  else
+  begin
+    item.hideNode;
+  end;
+
+  if not load then SavePosition_Count(Result); //sofort speichern!
 end;
 
 function TFRM_Favoriten.getfilterinfo: string;
@@ -885,14 +837,14 @@ begin
 end;
 
 procedure TFRM_Favoriten.updateNode(nd: PVirtualNode);
-var p: TPlanetPosition;
-    fav: ^TFav;
+var fav: ^TFav;
     i, sb: integer;
     report: TScanBericht;
     m: TRessType;
     alter_h: single;
-    item: PPlanetItem;
+    item: TPlanetItem;
     gpi: PPlayerInformation;
+    p: TPlanetPosition;
 begin
   if nd <> nil then
   begin
@@ -901,12 +853,12 @@ begin
     if (Now - LastUpdate > 1/24/60/20) then // Hier wird die Systemzeit Verwendet!!
     begin
 
-      // alles nullen!  (Position und Pointer sichern)
+      // alles nullen! (InitPointer sichern)
       item := InitPointer;
-      p := Position;
       FillChar(fav^,sizeof(fav^),0);
       InitPointer := item;
-      Position := p;
+      Position := item.pos;
+      p := item.pos;
 
       LastUpdate := Now; // Hier wird die Systemzeit Verwendet!!
 
@@ -1136,7 +1088,7 @@ begin
       with TFav(VST_ScanList.GetNodeData(node)^) do
       begin
         LastUpdate := -1;
-        InitPointer^.Sterne := StrToInt(Key);
+        InitPointer.Sterne := StrToInt(Key);
         SavePosition_Count(InitPointer);
       end;
       updateNode(node);
@@ -1201,7 +1153,8 @@ end;
 procedure TFRM_Favoriten.Lschen1Click(Sender: TObject);
 var //node, del : PVirtualNode;
     i: integer;
-    item: PPlanetItem;
+    item: TPlanetItem;
+    node: PVirtualNode;
 begin
   VST_ScanList.BeginUpdate;
   try
@@ -1209,41 +1162,35 @@ begin
     while i < ScanList.Count do
     begin
       item := ScanList[i];
-      if (
-           (item^.shown_node <> nil) and
-           (vsSelected in item^.shown_node^.States)
-         ) then
+      node := item.getVisibleNode;
+      if (node <> nil) and (vsSelected in node.States) then
       begin
-        RemoveFromVSTList(item);
+        if TFav(VST_ScanList.GetNodeData(node)^).InitPointer <> item then
+        begin
+          raise Exception.Create('Fatal internal ERROR in TFRM_Favoriten.Lschen1Click: Check Failed!');
+        end;
+        // delete and hide item
+        item.Free;
 
+        // overwrite position with last item
         ScanList[i] := ScanList[ScanList.Count-1];
 
+        // remove last
         ScanList.Delete(ScanList.Count-1);
-        Dispose(item);
 
+        // save last item at its new position
         SavePosition_Count(i);
       end
       else
         inc(i);
     end;
-    {node := VST_ScanList.GetFirstSelected;
-    while node <> nil do
-    begin
-      DeleteOutArray(TFav(VST_ScanList.GetNodeData(node)^).Position);
-      del := node;
-      node := VST_ScanList.GetNextSelected(node);
-      VST_ScanList.DeleteNode(del);
-      inc(i);
-      if (i mod 10) = 0 then
-      begin
-        StatusBar1.Panels[1].Text := STR_Anzahl + IntToStr(VST_ScanList.RootNodeCount);
-        StatusBar1.Refresh;
-      end;
-    end;  }
+
   finally
     VST_ScanList.EndUpdate;
   end;
-  StatusBar1.Panels[1].Text := STR_Anzahl + IntToStr(VST_ScanList.RootNodeCount);
+  //Belegung anzeigen:
+  StatusBar1.Panels[1].Text := IntToStr(VST_ScanList.RootNodeCount) + ' / ' +
+                               IntToStr(ScanList.Count) + ' Filter: ' + getfilterinfo();
 end;
 
 procedure TFRM_Favoriten.musternotiz1Click(Sender: TObject);
@@ -1257,7 +1204,7 @@ begin
   FRM_Notizen.show;
 end;
 
-procedure TFRM_Favoriten.SavePosition_Count(const item: PPlanetItem);
+procedure TFRM_Favoriten.SavePosition_Count(const item: TPlanetItem);
 var i: integer;
 begin
   i := ScanList.IndexOf(item);
@@ -1269,26 +1216,28 @@ end;
 
 procedure TFRM_Favoriten.SavePosition_Count(const i: Integer);
 var c: integer;
-    item: PPlanetItem;
+    item: TPlanetItem;
     fileentry: TFavFileEntry_10;
 begin
   c := ScanList.Count;
-  //neue Größe:
   scanlist_file.Size := scanfile_getentrypos(c);  //länge = adresse vom eintrag nach dem letzten eintrag!
 
-  if (i < 0) then raise Exception.Create('TFRM_Favoriten.SavePosition: i<0!');
-  if (i < c){and(i >= 0)} then
+  if (i < 0) then
+    raise Exception.Create('TFRM_Favoriten.SavePosition: i<0!');
+    
+  if (i < c) then // hier kann es passieren, dass er das eben gelöschte element wieder screiben soll: wenn c = 0!, aber keine exception!
   begin
     item := ScanList[i];
-    fileentry.Position.Position[0] := item^.Pos.P[0];
-    fileentry.Position.Position[1] := item^.Pos.P[1];
-    fileentry.Position.Position[2] := item^.Pos.P[2];
-    fileentry.Position.P_Mond := item^.Pos.Mond;
-    fileentry.Stars := item^.Sterne;
+    fileentry.Position.Position[0] := item.Pos.P[0];
+    fileentry.Position.Position[1] := item.Pos.P[1];
+    fileentry.Position.Position[2] := item.Pos.P[2];
+    fileentry.Position.P_Mond := item.Pos.Mond;
+    fileentry.Stars := item.Sterne;
 
     scanlist_file.Position := scanfile_getentrypos(i);
     scanlist_file.WriteBuffer(fileentry, sizeof(fileentry));
   end;
+  
 end;
 
 procedure TFRM_Favoriten.BTN_FilterClick(Sender: TObject);
@@ -1371,30 +1320,6 @@ begin
     BTN_RefreshClick(Self);
 end;
 
-function TFavList.Add(planet: TPlanetPosition): Integer;
-begin
-  Result := 0; //Don't use TFavList!!
-end;
-
-constructor TFavList.Create;
-begin
-  inherited;
-  FList := TList.Create;
-end;
-
-procedure TFavList.Delete(index: Integer);
-begin
-
-end;
-
-destructor TFavList.Destroy;
-begin
-  FList.Free;
-  inherited;
-end;
-
-
-
 procedure TFRM_Favoriten.StatusBar1MouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
@@ -1453,11 +1378,8 @@ begin
   fav := Sender.GetNodeData(Node);
   with fav^ do
   begin
-    Position := InitPointer^.Pos;
+    Position := InitPointer.Pos;
     LastUpdate := -1;
-
-    //Als "angezeigt" markieren
-    InitPointer^.shown_node := Node;
   end;
 end;
 
@@ -1469,7 +1391,7 @@ begin
   with fav^ do
   begin
     //Markierung "angezeigt" entfernen
-    InitPointer^.shown_node := nil;
+    InitPointer.fShownNode := nil;
   end;
 end;
 
@@ -1518,7 +1440,8 @@ begin
 end;
 
 procedure TFRM_Favoriten.LoadFavFileData;
-var item: TPlanetItem;
+var Pos: TPlanetPosition;
+    sterne: Integer;
     entry: TFavFileEntry_10;
 
     // TODO: wenns grad passt: add() -> aufteilen in 2 teile,
@@ -1527,20 +1450,24 @@ var item: TPlanetItem;
 begin
   VST_ScanList.BeginUpdate;
   try
-    ScanList.Clear; //sicherstellen, das die indizes der scanliste auch
-                    //die indizes der datei sind!
+    //sicherstellen, das die indizes der scanliste auch
+    //die indizes der datei sind!
+    if ScanList.Count > 0 then
+      raise Exception.Create('TFRM_Favoriten.LoadFavFileData:' +
+        'Can''t load new data, there is already data in list!');
+
     scanlist_file.Position := scanfile_getentrypos(0); //erster eintrag!
     while scanlist_file.Position < scanlist_file.Size do
     begin
       scanlist_file.Read(entry, sizeof(entry));
 
-      item.Pos.P[0] := entry.Position.Position[0];
-      item.Pos.P[1] := entry.Position.Position[1];
-      item.Pos.P[2] := entry.Position.Position[2];
-      item.Pos.Mond := entry.Position.P_Mond;
-      item.Sterne := entry.Stars;
+      Pos.P[0] := entry.Position.Position[0];
+      Pos.P[1] := entry.Position.Position[1];
+      Pos.P[2] := entry.Position.Position[2];
+      Pos.Mond := entry.Position.P_Mond;
+      sterne := entry.Stars;
 
-      Add(item.Pos, item.Sterne, True {don't save});
+      Add(Pos, sterne, True {don't save});
     end;
   finally
     VST_ScanList.EndUpdate;
@@ -1581,40 +1508,45 @@ end;
 procedure TFRM_Favoriten.Refresh_and_delMissing;
 var i,nr: integer;
     pos: TPlanetPosition;
-    item: PPlanetItem;
+    item: TPlanetItem;
 begin
-  {for i := 0 to LV_Favoriten.Items.Count-1 do
-    GetScan(LV_Favoriten.Items[i]);}
-
   VST_ScanList.BeginUpdate;
-  VST_ScanList.Clear;  //shown_node wird automatisch auf nil gesetzt (OnFreeNode)
-  i := 0;
-  while (i < ScanList.Count) do
-  begin
-    item := ScanList[i];
-    pos := item^.Pos;
-    nr := ODataBase.UniTree.UniReport(pos);
-    if (nr >= 0) then
+  try
+
+    // leere liste
+    VST_ScanList.Clear;  //shown_node wird automatisch auf nil gesetzt (OnFreeNode)
+    
+    i := 0;
+    while (i < ScanList.Count) do
     begin
-      if Filter(ODataBase.Berichte[nr]) then
+      item := ScanList[i];
+      pos := item.Pos;
+      nr := ODataBase.UniTree.UniReport(pos);
+      if (nr >= 0) then
       begin
-        AddToVSTList_forceupdate(item);
+        if Filter(ODataBase.Berichte[nr]) then
+        begin
+          item.showNode();
+        end;
+
+        inc(i); //nur weiterzählen wenn eintrag nicht gelöscht!
+      end
+      else
+      begin
+        item.Free;
+        ScanList.Delete(i);
       end;
 
-      inc(i); //nur weiterzählen wenn eintrag nicht gelöscht!
-    end
-    else
-    begin
-      ScanList.Delete(i);
+      if ScanList.Count > 0 then
+      begin
+        StatusBar1.Panels[2].Text := Inttostr(Trunc((i+1)/ScanList.Count)*100) + '%';
+        StatusBar1.Refresh;
+      end;
     end;
-
-    if ScanList.Count > 0 then
-    begin
-      StatusBar1.Panels[2].Text := Inttostr(Trunc((i+1)/ScanList.Count)*100) + '%';
-      StatusBar1.Refresh;
-    end;
+    
+  finally
+    VST_ScanList.EndUpdate;
   end;
-  VST_ScanList.EndUpdate;
 end;
 
 procedure TFRM_Favoriten.VST_ScanListBeforeCellPaint(
@@ -1770,6 +1702,51 @@ begin
         ODataBase.UniDomain);
     end;
   end;
+end;
+
+{ TPlanetItem }
+
+constructor TPlanetItem.Create(const aPos: TPlanetPosition;
+  const aSterne: Integer; aVSTList: TVirtualStringTree);
+begin
+  inherited Create();
+  if (not ValidPosition(aPos)) then
+    raise Exception.Create('TPlanetItem.Create: Invalid Position: ' +
+      PositionToStrMond(aPos));
+
+  if aSterne < 0 then
+    raise Exception.Create('TPlanetItem.Create: Negative Value of aSterne not allowed!');
+
+  fPos := aPos;
+  fSterne := aSterne;
+  fVSTList := aVSTList;
+  fShownNode := nil;
+end;
+
+destructor TPlanetItem.Destroy;
+begin
+  hideNode;
+  inherited;
+end;
+
+procedure TPlanetItem.hideNode;
+begin
+  if (fShownNode <> nil) then
+    fVSTList.DeleteNode(fShownNode);
+  fShownNode := nil;
+end;
+
+function TPlanetItem.getVisibleNode: PVirtualNode;
+begin
+  Result := fShownNode;
+end;
+
+function TPlanetItem.showNode: PVirtualNode;
+begin
+  if (fShownNode = nil) then
+    fShownNode := fVSTList.AddChild(nil, Self)
+  else
+    TFav(fVSTList.GetNodeData(fShownNode)^).LastUpdate := -1; //update erzwingen
 end;
 
 end.
