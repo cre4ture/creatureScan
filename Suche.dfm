@@ -91,7 +91,7 @@ object FRM_Suche: TFRM_Suche
       Top = 0
       Width = 771
       Height = 101
-      ActivePage = Search_Normal
+      ActivePage = ts_specials
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
       object Search_Normal: TTabSheet
@@ -353,7 +353,7 @@ object FRM_Suche: TFRM_Suche
           end
         end
       end
-      object TabSheet1: TTabSheet
+      object ts_specials: TTabSheet
         Caption = 'Specials'
         ImageIndex = 2
         object cb_lpa: TCheckBox

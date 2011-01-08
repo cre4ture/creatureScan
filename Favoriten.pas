@@ -306,6 +306,12 @@ begin
   LoadOldFromIni;    //alte laden und löschen
 
   mListInterface := TFRM_Fav_PlanetListInterface.Create(self);
+
+  if not FRM_Main.Dir.Visible then
+  begin
+    VST_ScanList.Header.Columns.Delete(33);
+    VST_ScanList.Header.Columns.Delete(32);
+  end;
 end;
 
 procedure TFRM_Favoriten.BTN_AddClick(Sender: TObject);
