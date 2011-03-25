@@ -7,7 +7,7 @@
 		<em:iconURL/>
 		<em:id>creature@creax.de</em:id>
 		<em:name>cshelper</em:name>
-		<em:version>0.1.0</em:version>
+		<em:version>1.2</em:version>
 		<em:updateURL/>
 		<em:type>2</em:type>
 		<em:targetApplication>
@@ -17,5 +17,5 @@
 				<em:minVersion>3.0</em:minVersion>
 			</RDF:Description>
 		</em:targetApplication>
-	<em:targetPlatform/><em:optionsURL/><em:updateKey/><em:hidden/></RDF:Description>
+	<em:targetPlatform/><em:optionsURL>chrome://cshelper/content/uni_config.xul</em:optionsURL><em:updateKey/><em:hidden/></RDF:Description>
 </RDF>

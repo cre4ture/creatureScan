@@ -1,7 +1,133 @@
+
+/**
+* cshelper namespace.
+*/
+if ("undefined" == typeof(cshelper)) {
+	var cshelper = {};
+};
+
 function cshelper_myTestLog(document, msg) {
 	var log = document.getElementById('playerName');
 	log.innerHTML += '<br>'+msg;
 }
+
+/**
+* Controls the browser overlay for the Hello World extension.
+*/
+cshelper.BrowserOverlay = {
+
+	statusClicked : function(aEvent) {
+		
+		if ("undefined" == typeof(this.active)) {
+			this.active = true;
+		}
+		
+		//window.alert("click");
+		
+		switch (aEvent.button) {
+			case 0:   // linke maustaste
+				//window.alert("linke taste");
+				this.active = !this.active;
+				if (this.active) {
+					window.alert("cSHelper is now active!")
+				} else {
+					window.alert("cSHelper is disabled!")
+				}
+				/*var status_panel = panel.getElementById("cshelper-status");
+				if (status_panel == NULL)
+					window.alert("failed to get cshelper-status");
+				else
+					window.alert("succed to get cshelper-status");*/
+				break;
+			case 1:   // mittlere maustaste
+				//window.alert("mittlere taste");
+			break;
+			case 2:   // rechte maustaste
+				//window.alert("rechte taste");
+				//document.getElementById('gm-status-popup').openPopup(
+				//    document.getElementById('gm-status'),
+				//    'before_end', 0, 0, false, false);
+			break;
+		}
+		
+		return false;
+	},
+	
+	getUniUrl : function(document) {
+		return document.location.hostname.toLowerCase();
+	},
+	
+	getTCPPort : function(uni_url) {
+	
+		const Cc = Components.classes;
+		const Ci = Components.interfaces; 
+		
+		var uni_prefs = Cc["@mozilla.org/preferences-service;1"].
+			getService(Components.interfaces.nsIPrefService).
+				getBranch("cshelper.host.port.");
+		               32
+		if (uni_prefs.prefHasUserValue(uni_url)) {
+			return uni_prefs.getIntPref(uni_url);
+		} else {
+			return -1;
+		}
+	},
+	
+	doWeUseTCP : function(document) {
+		return (this.getTCPPort(this.getUniUrl(document)) > 0);
+	},
+	
+	getTCPConnection : function(uni_url)
+	{
+		if ("undefined" == typeof(this.connection)) {
+			this.connection = {}
+		}
+		
+		if ("undefined" == typeof(this.connection[uni_url])) {
+			this.connection[uni_url] = {}
+		}
+		
+		const connection = this.connection[uni_url];
+		
+		if (
+					("undefined" == typeof(connection.outputStream)) ||
+					(false == connection.transport.isAlive())
+				) {
+			
+			var port = this.getTCPPort(uni_url);
+
+			const Cc = Components.classes;
+			const Ci = Components.interfaces; 
+			var socketTransportService = Components.classes['@mozilla.org/network/socket-transport-service;1']
+				.getService(Components.interfaces.nsISocketTransportService); 
+			connection.transport = socketTransportService.createTransport(null, null, "localhost", port, null); 
+			connection.outputStream = connection.transport.openOutputStream(1, 0, 0); 
+			connection.inputStream = connection.transport.openInputStream(1, 0, 0);
+			
+		}
+		
+		return connection;
+	},
+	
+	sendStringThroughTCPIP : function(string, uni_url)
+	{
+		
+		out = this.getTCPConnection(uni_url).outputStream;
+		out.write(string, string.length);
+		var endmsg = "\n\rCS:HELPER:END:OF:TRANSMISSION\n\r";
+		out.write(endmsg, endmsg.length);
+		
+	},
+	
+	sendHTML_To_cS_TCPIP : function(string, event, document)
+	{
+		string = "SourceURL:" + event.originalTarget.location.href + " " + string;
+		this.sendStringThroughTCPIP(string, this.getUniUrl(document));
+	}
+
+}
+
+cshelper.BrowserOverlay.sendTCPIP = true;
 
 function copyToClipboard(string, event, document)	{
 	// cshelper_myTestLog(document, ' COPY_BEGIN  ');
@@ -36,15 +162,26 @@ function copyToClipboard2(string, event, document)	{
 	clip.setData(trans,null,clipid.kGlobalClipboard);
 }
 
-function cshelper_pageLoad(event_pageload)	{
+function cshelper_pageLoad(event_pageload) {
+	
 	var document = event_pageload.target;
 	var href = document.location.href;
+	
+	if (typeof(cshelper.BrowserOverlay.active) != "undefined" 
+			&& !cshelper.BrowserOverlay.active) {
+		cshelper_myTestLog(document, 'cSHelper disabled!');
+		return;
+	}
 	
 	var inhalt_ajax_handler_galaxy = function (event) 
 				{
 					if (event.target.id == "galaxytable")
-					{	
-						copyToClipboard(document.body.innerHTML, event_pageload, document);
+					{
+						if (cshelper.BrowserOverlay.doWeUseTCP(document)) {
+							cshelper.BrowserOverlay.sendHTML_To_cS_TCPIP(document.body.innerHTML, event_pageload, document);
+						} else {
+							copyToClipboard(document.body.innerHTML, event_pageload, document);
+						}
 						//cshelper_myTestLog(document, 'COPY SUCCESS');			
 					}
 				
@@ -54,7 +191,11 @@ function cshelper_pageLoad(event_pageload)	{
 				{
 					if (event.target.className == "content")
 					{	
-						copyToClipboard2(document.body.innerHTML, event_pageload, document);
+						if (cshelper.BrowserOverlay.sendTCPIP) {
+							cshelper.BrowserOverlay.sendHTML_To_cS_TCPIP(document.body.innerHTML, event_pageload, document);
+						} else {
+							copyToClipboard2(document.body.innerHTML, event_pageload, document);
+						}
 						//cshelper_myTestLog(document, 'COPY SUCCESS');			
 					}
 				
@@ -64,7 +205,11 @@ function cshelper_pageLoad(event_pageload)	{
 				{
 					if (event.target.tagName == "FORM")
 					{	
-						copyToClipboard(document.body.innerHTML, event_pageload, document);
+						if (cshelper.BrowserOverlay.sendTCPIP) {
+							cshelper.BrowserOverlay.sendHTML_To_cS_TCPIP(document.body.innerHTML, event_pageload, document);
+						} else {
+							copyToClipboard(document.body.innerHTML, event_pageload, document);
+						}
 						//cshelper_myTestLog(document, 'COPY SUCCESS');			
 					}
 				
