@@ -4,7 +4,7 @@
 		<em:creator>creature</em:creator>
 		<em:description/>
 		<em:homepageURL>creatureScan.creax.de</em:homepageURL>
-		<em:iconURL/>
+		<em:iconURL>chrome://cshelper/skin/creatureScan.png</em:iconURL>
 		<em:id>creature@creax.de</em:id>
 		<em:name>cshelper</em:name>
 		<em:version>1.2</em:version>
