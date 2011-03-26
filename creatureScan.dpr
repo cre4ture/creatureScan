@@ -78,7 +78,8 @@ uses
   PostErrorReport in 'PostErrorReport.pas' {frm_postErrorReport},
   quickupdate in 'quickupdate.pas' {frm_quickupdate},
   moon_or_not in 'moon_or_not.pas' {frm_report_basket},
-  FetchStats in 'FetchStats.pas';
+  FetchStats in 'FetchStats.pas',
+  chelper_server in 'chelper_server.pas' {frm_cshelper_ctrl};
 
 {$R *.RES}
 
@@ -219,6 +220,7 @@ begin
   Application.CreateForm(Tfrm_sync_cS_db_engine, frm_sync_cS_db_engine);
   Application.CreateForm(Tfrm_postErrorReport, frm_postErrorReport);
   Application.CreateForm(Tfrm_report_basket, frm_report_basket);
+  Application.CreateForm(Tfrm_cshelper_ctrl, frm_cshelper_ctrl);
   Application.Run;
 
   FRM_Chat.Free;

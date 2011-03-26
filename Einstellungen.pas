@@ -115,12 +115,7 @@ type
     TabSheet1: TTabSheet;
     GroupBox2: TGroupBox;
     CH_Clipboard: TCheckBox;
-    CH_Beep: TCheckBox;
     CH_Unicheck: TCheckBox;
-    txt_beep_sound_file: TEdit;
-    Label10: TLabel;
-    btn_select1: TButton;
-    btn_play1: TButton;
     GroupBox11: TGroupBox;
     Label2: TLabel;
     CB_FakeClipbrdViewer: TCheckBox;
@@ -157,6 +152,15 @@ type
     Label29: TLabel;
     se_engine_2: TSpinEdit;
     Label30: TLabel;
+    Label10: TLabel;
+    GroupBox16: TGroupBox;
+    Label31: TLabel;
+    cb_cshelper_listener: TCheckBox;
+    txt_cshelper_listener_port: TEdit;
+    CH_Beep: TCheckBox;
+    txt_beep_sound_file: TEdit;
+    btn_play1: TButton;
+    btn_select1: TButton;
     procedure FormCreate(Sender: TObject);
     procedure LB_FDClick(Sender: TObject);
     procedure KeyPress_OnlyNumbers(Sender: TObject; var Key: Char);

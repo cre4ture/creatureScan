@@ -57,6 +57,10 @@ type
     // Websim
     websim_techs: array[0..2] of integer;
     websim_engines: array[0..2] of integer;
+
+    // cshelper_listener
+    cshl_active: boolean;
+    cshl_port: integer;
   end;
   TFRM_Main = class(TClipboardViewer)
     MainMenu1: TMainMenu;
@@ -176,6 +180,7 @@ type
     lbl_dbl_click: TLabel;
     Button1: TButton;
     Spionage2: TMenuItem;
+    Expedition1: TMenuItem;
     procedure btn_lastClick(Sender: TObject);
     procedure btn_nextClick(Sender: TObject);
     procedure LblWikiLinkClick(Sender: TObject);
@@ -262,6 +267,8 @@ type
     procedure PopupMenu1Popup(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Spionage2Click(Sender: TObject);
+    procedure Expedition1Click(Sender: TObject);
+    procedure frmevents1Click(Sender: TObject);
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
@@ -312,6 +319,7 @@ type
                            );
     LastClipBoard: String;   //LastClipboard wird nurnoch gesetzt, wenn das programm selber in die Zwischenablage setzt, die nicht verarbeitet werden sollen! (z.b. Copy_button)
     SoundModul: TMusiPlayer;
+    procedure intelligentReadData(const text, html: string);
     procedure ShowScan(NR: integer); overload;
     procedure ShowScan(Pos: TPlanetPosition; list: TPlanetListInterface = nil); overload;
     function NewExplorer: TExplorer;
@@ -353,7 +361,7 @@ uses Notizen, Favoriten, Info,
   Uebersicht, Connections, Export, Einstellungen, Suchen_Ersetzen,
   KB_List, Add_KB, Languages, Delete_Scans,
   Stats_Einlesen, DateUtils, _test_POST, ComConst, StrUtils, sync_cS_db_engine,
-  SDBFile, Mond_Abfrage, moon_or_not;
+  SDBFile, Mond_Abfrage, moon_or_not, chelper_server;
 
 {$R *.DFM}
 
@@ -967,6 +975,10 @@ begin
 
   form.cb_auto_fav_list.Checked := (FRM_Favoriten.ListType = flt_all_auto_list);
 
+  // cshelper_listener
+  form.cb_cshelper_listener.Checked := PlayerOptions.cshl_active;
+  form.txt_cshelper_listener_port.Text := IntToStr(PlayerOptions.cshl_port);
+
   if Form.ShowModal = mrOK then
   begin
     for i := 0 to length(FRM_Favoriten.FleetDefRessValues)-1 do
@@ -1061,11 +1073,16 @@ begin
     PlayerOptions.websim_engines[1] :=  form.se_engine_1.Value;
     PlayerOptions.websim_engines[2] :=  form.se_engine_2.Value;
 
-
     if form.cb_auto_fav_list.Checked then
       FRM_Favoriten.ListType := flt_all_auto_list
     else
       FRM_Favoriten.ListType := flt_list;
+
+    // cshelper_listener
+    PlayerOptions.cshl_active := form.cb_cshelper_listener.Checked;
+    PlayerOptions.cshl_port := StrToInt(form.txt_cshelper_listener_port.Text);
+    frm_cshelper_ctrl.update(PlayerOptions.cshl_port, PlayerOptions.cshl_active);
+
   end;
   Form.free;
 end;
@@ -1423,6 +1440,9 @@ begin
     DockExplorer.Hide;
     Hide;
   end;
+
+  // start cshl_server
+  frm_cshelper_ctrl.update(PlayerOptions.cshl_port, PlayerOptions.cshl_active);
 end;
 
 procedure TFRM_Main.Zwischenablageberwachen1Click(Sender: TObject);
@@ -1673,22 +1693,23 @@ procedure TFRM_Main.Einlesen1Click(Sender: TObject);
 var dialog: TFRM_Stats_Einlesen;
     tim_en: Boolean;
 begin
-  tim_en := CVActive;
-  CVActive := False;
   dialog := TFRM_Stats_Einlesen.Create(Self);
+  try
 
-  dialog.TXT_punkte.Text := IntToStrKP(ODataBase.Stats_own);
-  dialog.TXT_fleet.Text := IntToStrKP(ODataBase.FleetStats_own);
-  dialog.TXT_Ally.Text := IntToStrKP(ODataBase.AllyStats_own);
+    dialog.TXT_punkte.Text := IntToStrKP(ODataBase.Stats_own);
+    dialog.TXT_fleet.Text := IntToStrKP(ODataBase.FleetStats_own);
+    dialog.TXT_Ally.Text := IntToStrKP(ODataBase.AllyStats_own);
 
-  if dialog.ShowModal = mrOK then
-  begin
-    ODataBase.Stats_own := ReadInt(dialog.TXT_punkte.Text, 1);
-    ODataBase.FleetStats_own := ReadInt(dialog.TXT_fleet.Text, 1);
-    ODataBase.AllyStats_own := ReadInt(dialog.TXT_Ally.Text, 1);
+    if dialog.ShowModal = mrOK then
+    begin
+      ODataBase.Stats_own := ReadInt(dialog.TXT_punkte.Text, 1);
+      ODataBase.FleetStats_own := ReadInt(dialog.TXT_fleet.Text, 1);
+      ODataBase.AllyStats_own := ReadInt(dialog.TXT_Ally.Text, 1);
+    end;
+    
+  finally
+    dialog.free;
   end;
-  dialog.free;
-  CVActive := tim_en;
 end;
 
 procedure TFRM_Main.FormClipboardContentChanged(Sender: TObject);
@@ -1721,9 +1742,43 @@ begin
   end;
 end;
 
+procedure TFRM_Main.intelligentReadData(const text, html: string);
+var handle: integer;
+begin
+  handle := ODataBase.LanguagePlugIn.ReadSource_New();
+  try
+
+    ODataBase.LanguagePlugIn.SetReadSourceText(handle,
+      text, ODataBase.FleetBoard.GameTime.UnixTime);
+    ODataBase.LanguagePlugIn.SetReadSourceHTML(handle,
+      html, ODataBase.FleetBoard.GameTime.UnixTime);
+
+    if
+       (
+         (not(soUniCheck in Einstellungen))or
+         (ODataBase.LanguagePlugIn.CheckClipboardUni(handle))
+       )
+       then
+    begin
+      if (ODataBase.LeseMehrereScanberichte(handle) > 0)or
+         (ODataBase.LeseSystem(handle))or
+         (ODataBase.LeseStats(handle))or
+         (ODataBase.LeseFleets(handle)) then
+      begin
+        //Erfolgreich Eingelesen
+        if soBeepByWatchClipboard in Einstellungen then
+          Play_Alert_Sound(PlayerOptions.Beep_SoundFile);
+      end;
+    end;
+
+  finally
+    ODataBase.LanguagePlugIn.ReadSource_Free(handle);
+  end;
+end;
+
 procedure TFRM_Main.TIM_afterClipboardchangeTimer(Sender: TObject);
 var Text, Html: string;
-    i, handle: integer;
+    i: integer;
 begin
   TIM_afterClipboardchange.Enabled := False;
 
@@ -1749,37 +1804,7 @@ begin
 
   if ((Text <> LastClipBoard)) then
   begin
-
-    handle := ODataBase.LanguagePlugIn.ReadSource_New();
-    try
-
-      ODataBase.LanguagePlugIn.SetReadSourceText(handle,
-        text, ODataBase.FleetBoard.GameTime.UnixTime);
-      ODataBase.LanguagePlugIn.SetReadSourceHTML(handle,
-        html, ODataBase.FleetBoard.GameTime.UnixTime);
-
-      if
-         (
-           (not(soUniCheck in Einstellungen))or
-           (ODataBase.LanguagePlugIn.CheckClipboardUni(handle))
-         )
-         then
-      begin
-        if (ODataBase.LeseMehrereScanberichte(handle) > 0)or
-           (ODataBase.LeseSystem(handle))or
-           (ODataBase.LeseStats(handle))or
-           (ODataBase.LeseFleets(handle)) then
-        begin
-          //Erfolgreich Eingelesen
-          if soBeepByWatchClipboard in Einstellungen then
-            Play_Alert_Sound(PlayerOptions.Beep_SoundFile);
-
-        end;
-      end;
-
-    finally
-      ODataBase.LanguagePlugIn.ReadSource_Free(handle);
-    end;
+    intelligentReadData(text, html);
   end;
 end;
 
@@ -2148,6 +2173,11 @@ begin
     DoOption(GeneralSection,'websim_tech_'+IntToStr(i)   ,0                     ,PlayerOptions.websim_techs[i]);
   for i := 0 to 2 do
     DoOption(GeneralSection,'websim_engine_'+IntToStr(i) ,0                     ,PlayerOptions.websim_engines[i]);
+
+  // cshelper-listener
+  DoOption(GeneralSection,'cshelper_listener_active' ,false                     ,PlayerOptions.cshl_active);
+  DoOption(GeneralSection,'cshelper_listener_port'   ,32432                     ,PlayerOptions.cshl_port);
+
 end;
 
 procedure TFRM_Main.Play_Alert_Sound(filename: string);
@@ -2370,6 +2400,34 @@ procedure TFRM_Main.Spionage2Click(Sender: TObject);
 begin
   ODataBase.LanguagePlugIn.CallFleet_(
     Frame_Bericht1.Bericht.Head.Position, fet_espionage);
+end;
+
+procedure TFRM_Main.Expedition1Click(Sender: TObject);
+var fleet: TFleetEvent;
+    i: integer;
+begin
+  fleet.head.target := Frame_Bericht1.Bericht.Head.Position;
+  fleet.head.target.P[2] := 16;
+  fleet.head.eventtype := fet_expedition;
+
+  SetLength(fleet.ships, fsc_1_Flotten);
+  for i := 0 to fsc_1_Flotten-1 do
+    fleet.ships[i] := 0;
+
+  SetLength(fleet.ress, fsc_0_Rohstoffe);
+  for i := 0 to fsc_0_Rohstoffe-1 do
+    fleet.ress[i] := 0;
+
+  fleet.ships[1] := 37; // Groﬂer Transporter
+  fleet.ships[3] := 66; // Schwerer J‰ger
+  fleet.ships[8] := 1;  // Spionagesonde
+
+  ODataBase.LanguagePlugIn.CallFleetEx(fleet);
+end;
+
+procedure TFRM_Main.frmevents1Click(Sender: TObject);
+begin
+  frm_cshelper_ctrl.show();
 end;
 
 end.

@@ -6,9 +6,11 @@ uses
   Classes, OGame_Types, Windows, SysUtils, IniFiles, Dialogs, Languages;
 
 const
-  DLLVNumber = 25;
+  DLLVNumber = 26;
 
-{  V25: new directCallFleet 
+{ V26: new CallFleetEx
+
+  V25: new directCallFleet
 
 { V24:
    Added OpenSolSys  21.10.2010
@@ -33,8 +35,9 @@ type
   TReadRaidAuftrag = function(s: PChar; var Auftrag: TRaidAuftrag): Boolean;
 
   TCheckUni = function(Handle: Integer): Boolean;
-  TCallFleet = function (pos: TPlanetPosition; job: TFleetEventType): Boolean;
-  TOpenSolSys = function (pos: TSolSysPosition): Boolean;
+  TCallFleet = function(pos: TPlanetPosition; job: TFleetEventType): Boolean;
+  TCallFleetEx = function(fleet: pointer): Boolean;
+  TOpenSolSys = function(pos: TSolSysPosition): Boolean;
   //Scans
   TReadScansFunction = function(Handle: Integer): integer;
   TGetScanFunction = function(Handle: integer; Scan: Pointer; var AskMoon: Boolean): Boolean;
@@ -76,6 +79,7 @@ type
     PReadStats: TReadStats;
     PCheckUni: TCheckUni;
     PCallFleet: TCallFleet;
+    PCallFleetEx: TCallFleetEx;
     PdirectCallFleet: TCallFleet;
     POpenSolSys: TOpenSolSys;
     PRunOptions: TRunOptions;
@@ -104,6 +108,7 @@ type
     function ReadSource_New: integer;
     procedure ReadSource_Free(handle: integer);
     function CallFleet_(pos: TPlanetPosition; job: TFleetEventType): Boolean;
+    function CallFleetEx(fleet: TFleetEvent): Boolean;
     function directCallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
     function OpenSolSys(pos: TSolSysPosition): Boolean;
     function GetReport(handle: integer; var Bericht: TScanBericht;
@@ -145,6 +150,7 @@ begin
   @PReadStats := GetProcAddress(DllHandle, 'ReadStats');
   @PCheckUni := GetProcAddress(DllHandle, 'CheckUni');
   @PCallFleet := GetProcAddress(DllHandle, 'CallFleet');
+  @PCallFleetEx := GetProcAddress(DllHandle, 'CallFleetEx');
   @PdirectCallFleet := GetProcAddress(DllHandle, 'directCallFleet');
   @POpenSolSys := GetProcAddress(DllHandle, 'OpenSolSys');
   @PRunOptions := GetProcAddress(DllHandle, 'RunOptions');
@@ -471,8 +477,12 @@ begin
   if Assigned(PGetPhalaxScan) then
   begin
     GetMem(buf, BufFleetSize());
-    Result := PGetPhalaxScan(buf);
-    fleet := ReadBufFleet(buf);
+    try
+      Result := PGetPhalaxScan(buf);
+      fleet := ReadBufFleet(buf);
+    finally
+      FreeMem(buf);
+    end;
   end
   else Result := false;
 end;
@@ -484,6 +494,24 @@ begin
   else
     raise Exception.Create(
       'TLangPlugIn.OpenSolSys(): dll does not support this feature');
+end;
+
+function TLangPlugIn.CallFleetEx(fleet: TFleetEvent): Boolean;
+var buf: pointer;
+begin
+  if Assigned(PCallFleetEx) then
+  begin
+    GetMem(buf, BufFleetSize());
+    try
+      WriteBufFleet(fleet, buf);
+      Result := PCallFleetEx(buf);
+    finally
+      FreeMem(buf);
+    end;
+  end
+  else
+    raise Exception.Create(
+      'TLangPlugIn.CallFleetEx(): dll does not support this feature');
 end;
 
 end.

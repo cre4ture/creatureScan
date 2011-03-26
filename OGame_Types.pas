@@ -211,7 +211,8 @@ type
     fet_attack,     //Angreifen
     fet_espionage,  //Spionage
     fet_harvest,    //Recyclen
-    fet_colony      //Kolonisieren
+    fet_colony,     //Kolonisieren
+    fet_expedition  //Expedition
   );
   const
   FleetEventTypeNames: array[TFleetEventType] of string = (
@@ -221,7 +222,8 @@ type
     'attack',
     'espionage',
     'harvest',
-    'colony'
+    'colony',
+    'expedition'
   );
   FleetEventTypeTranslate_: array[TFleetEventType] of string = (
     'none',
@@ -230,7 +232,8 @@ type
     'Angriff',
     'Spionage',
     'Abbauen',
-    'Koloniesieren'
+    'Kolonisieren',
+    'Expedition'
   );
   type
   TFleetEventFlag = (fef_return, fef_friendly, fef_neutral, fef_hostile);

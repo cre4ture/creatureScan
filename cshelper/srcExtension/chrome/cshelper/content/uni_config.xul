@@ -17,9 +17,9 @@
 		
 		  <listhead>
 		    <listheader label="Uni-URL"/>
-		    <listheader label="Aktiviert"/>
-		    <listheader label="Typ"/>
-		    <listheader label="Port"/>
+		    <listheader label="Aktiviert" width="70"/>
+		    <listheader label="Typ" width="60"/>
+		    <listheader label="Port" width="70"/>
 		  </listhead>
 		
 		  <listcols>
@@ -32,9 +32,9 @@
 		</listbox>
 		
 	    <groupbox orient="vertical">
-			<button label="(De-)Aktivieren"/>
-			<button label="TCP/clipb"/>
-			<button label="Port ändern"/>
+			<button label="(De-)Aktivieren" oncommand="onActivateClick(event);"/>
+			<button label="TCP/clipb" oncommand="onChangeTypeClick(event);"/>
+			<button label="Port ändern" oncommand="onChangePortClick(event);"/>
 		</groupbox>
 		
 	</groupbox> 

@@ -1020,6 +1020,7 @@ object FRM_Main: TFRM_Main
       end
       object frmevents1: TMenuItem
         Caption = 'frm_events'
+        OnClick = frmevents1Click
       end
     end
   end
@@ -1359,6 +1360,10 @@ object FRM_Main: TFRM_Main
     object Raideintragen1: TMenuItem
       Caption = 'Raid eintragen...'
       OnClick = Raideintragen1Click
+    end
+    object Expedition1: TMenuItem
+      Caption = 'Expedition...'
+      OnClick = Expedition1Click
     end
   end
 end

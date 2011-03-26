@@ -252,6 +252,8 @@ begin
               if (pos[0] <> max_Galaxy)or(pos[1] <> max_Systems)or(pos[2] <> max_Planeten) then
                 raise Exception.Create('Server pos_count definitions are not compatible!')
               else SetServerUniSize(max_Galaxy, max_Systems);
+
+              // TODO: wenn dieser Tag nicht gefunden wurde, bleibt ServerUni uninitialisiert, -> Zugriffsverletzung...
             end;
 
             if parser.CurName = 'solsystime' then
