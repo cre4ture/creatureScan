@@ -29,6 +29,7 @@ type
     constructor Create(ini: TIniFile; serverURL: String);
     function _CheckUni_HTML(html: string): Boolean;
     function CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
+    function CallFleetEx(fleet: TFleetEvent): Boolean;
     function SendSpio(pos: TPlanetPosition): Boolean;
     function OpenSolSys(spos: TSystemPosition): Boolean;
   end;
@@ -173,6 +174,45 @@ begin
   ShellExecute(0,'open',PChar(url),'','',0);
 
   Result := true;
+end;
+
+function TUniCheck.CallFleetEx(fleet: TFleetEvent): Boolean;
+var url: string;
+
+  procedure param(pname, pvalue: string); overload;
+  begin
+    url := url + '&' + pname + '=' + pvalue;
+  end;
+
+  procedure param(pname: string; pvalue: int64); overload;
+  begin
+    if pvalue = -1 then
+      param(pname, 'undefined')
+    else
+      param(pname, IntToStr(pvalue));
+  end;
+
+var i: integer;
+begin
+  Result := False;
+  if session_id = '' then
+  begin
+    ShowMessage(msg_daten_einlesen);
+    Exit;
+  end;
+
+  url := fillVarsInLink(CallFleetLinkTemplate,fleet.head.target,
+    fleet.head.eventtype);
+
+  for i := 0 to fsc_1_Flotten-1 do
+  begin
+    param('am' + IntToStr(202+i),
+      fleet.ships[i]);
+  end;
+
+  ShellExecute(0,'open',PChar(url),'','',0);
+
+  Result := True;
 end;
 
 end.

@@ -70,7 +70,8 @@ const
     'Angreifen',     //Angreifen      OK
     'Spionage',  //Spionage           OK
     'Abbau',     //Recyclen  OK
-    'Kolonisieren'    //Kolonisieren  OK
+    'Kolonisieren',    //Kolonisieren  OK
+    'Expedition'
   );
 
 implementation
