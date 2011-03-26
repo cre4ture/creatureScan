@@ -57,17 +57,39 @@ cshelper.BrowserOverlay = {
 		return document.location.hostname.toLowerCase();
 	},
 	
+	isHelperActiveFor : function(document) {
+		
+		var uni_url = this.getUniUrl(document);
+		
+		const Cc = Components.classes;
+		const Ci = Components.interfaces; 
+		
+		var unis = Cc["@mozilla.org/preferences-service;1"]
+			.getService(Components.interfaces.nsIPrefService)
+				.getBranch("cshelper.hostlist.");
+		
+		if (unis.prefHasUserValue(uni_url)) {
+			// entry exists -> is active?
+			return unis.getBoolPref(uni_url);
+		} else {
+			var def_value = true; // no entry -> all unis are active by default
+			unis.setBoolPref(uni_url, def_value);
+			return def_value; 
+		}
+		
+	},
+	
 	getTCPPort : function(uni_url) {
 	
 		const Cc = Components.classes;
 		const Ci = Components.interfaces; 
 		
-		var uni_prefs = Cc["@mozilla.org/preferences-service;1"].
-			getService(Components.interfaces.nsIPrefService).
-				getBranch("cshelper.host.port.");
-		               32
-		if (uni_prefs.prefHasUserValue(uni_url)) {
-			return uni_prefs.getIntPref(uni_url);
+		var uni_prefs = Cc["@mozilla.org/preferences-service;1"]
+			.getService(Components.interfaces.nsIPrefService)
+				.getBranch("cshelper.host." + uni_url + ".");
+
+		if (uni_prefs.prefHasUserValue("port")) {
+			return uni_prefs.getIntPref("port");
 		} else {
 			return -1;
 		}
@@ -167,6 +189,16 @@ function cshelper_pageLoad(event_pageload) {
 	var document = event_pageload.target;
 	var href = document.location.href;
 	
+	// is this a ogame site ?
+	if (document.location.href.search("/game/index.php") <= -1) {
+		return; // exit if no ogame site
+	} 
+	
+	if (!cshelper.BrowserOverlay.isHelperActiveFor(document)) {
+		cshelper_myTestLog(document, 'cSHelper disabled <br> for this universe!');
+		return;
+	}
+	
 	if (typeof(cshelper.BrowserOverlay.active) != "undefined" 
 			&& !cshelper.BrowserOverlay.active) {
 		cshelper_myTestLog(document, 'cSHelper disabled!');
@@ -217,19 +249,19 @@ function cshelper_pageLoad(event_pageload) {
 	
 	cshelper_myTestLog(document, 'cSHelper active!');
 	
-	if ((document.location.href.search("/game/index.php") > -1) && (document.location.href.search("page=messages") > -1)) {
+	if ((document.location.href.search("page=messages") > -1)) {
 		var inhalt = document.getElementById('netz'); 
 		inhalt.addEventListener("DOMNodeInserted", inhalt_ajax_handler_msgs, true);
 		cshelper_myTestLog(document, 'Messages detected!');
 	}
 	
-	else if ((document.location.href.search("/game/index.php") > -1) && (document.location.href.search("page=statistics") > -1)) {
+	else if ((document.location.href.search("page=statistics") > -1)) {
 		var inhalt = document.getElementById('inhalt'); 
 		inhalt.addEventListener("DOMNodeInserted", inhalt_ajax_handler_stats, true);
 		cshelper_myTestLog(document, 'Statistics detected!');
 	}
 	
-	else if ((document.location.href.search("/game/index.php") > -1) && (document.location.href.search("page=galaxy") > -1))
+	else if ((document.location.href.search("page=galaxy") > -1))
 	{
 		var inhalt = document.getElementById('inhalt'); 
 		inhalt.addEventListener("DOMNodeInserted", inhalt_ajax_handler_galaxy, true);

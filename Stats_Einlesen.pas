@@ -13,25 +13,22 @@ type
     PaintBox2: TPaintBox;
     PaintBox3: TPaintBox;
     PaintBox4: TPaintBox;
-    Panel1: TPanel;
-    Label1: TLabel;
-    Label2: TLabel;
     Timer1: TTimer;
-    Panel2: TPanel;
-    Button1: TButton;
-    CH_Beep: TCheckBox;
-    TXT_punkte: TEdit;
-    Label3: TLabel;
-    TXT_fleet: TEdit;
-    TXT_Ally: TEdit;
-    Label4: TLabel;
     Label5: TLabel;
+    Label4: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    TXT_punkte: TEdit;
+    TXT_Ally: TEdit;
+    TXT_fleet: TEdit;
+    Button1: TButton;
     procedure PaintBox3Paint(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
-    procedure Timer1Timer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure FormHide(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
   private
-    LastClipBoard: String;
     { Private-Deklarationen }
   public
     { Public-Deklarationen }
@@ -89,70 +86,29 @@ begin
   end;
 end;
 
-procedure TFRM_Stats_Einlesen.Timer1Timer(Sender: TObject);
-var st: TStat;
-    st_typ: TStatTypeEx;
-    text: string;
-
-    i, handle: integer;
-begin
-  try
-    text := ClipBoard.AsText;
-    if Text <> LastClipBoard then
-    begin
-      handle := ODataBase.LanguagePlugIn.ReadSource_New();
-      try
-
-        ODataBase.LanguagePlugIn.SetReadSourceText(handle,
-          text, ODataBase.FleetBoard.GameTime.UnixTime);
-        ODataBase.LanguagePlugIn.SetReadSourceHTML(handle,
-          ReadClipboardHtml, ODataBase.FleetBoard.GameTime.UnixTime);
-
-        LastClipBoard := Text;//Memo1.Lines.Text;
-        begin
-          if ODataBase.LanguagePlugIn.ReadStats(handle, st,st_typ) then
-          begin
-            ODataBase.Statistic.AddStats(st_typ.NameType,st_typ.PointType,st);
-
-            if CH_Beep.Checked then
-              FRM_Main.Play_Alert_Sound(FRM_Main.PlayerOptions.Beep_SoundFile);
-
-            // Suche nach eigenen Punkten:
-            for i := 0 to 99 do
-            begin
-              if st.Stats[i].Name = ODataBase.Username then
-              begin
-                if (st_typ.PointType = sptPoints)and(st_typ.NameType = sntPlayer) then
-                begin
-                  TXT_punkte.Text := IntToStr(st.Stats[i].Punkte);
-                  TXT_punkte.Color := clLime;
-                  break;
-                end;
-              end;
-            end;
-          end;
-        end;
-
-      finally
-        ODataBase.LanguagePlugIn.ReadSource_Free(handle);
-      end;
-    end;
-  except
-
-  end;
-  PaintBox1.Repaint;
-  PaintBox2.Repaint;
-  PaintBox4.Repaint;
-end;
-
 procedure TFRM_Stats_Einlesen.FormCreate(Sender: TObject);
 begin
   if SaveCaptions then SaveAllCaptions(Self,LangFile);
   if LoadCaptions then LoadAllCaptions(Self,LangFile);
-  
-  LastClipBoard := ClipBoard.AsText;
+ 
   DoubleBuffered := True;
-  CH_Beep.Checked := True;
+end;
+
+procedure TFRM_Stats_Einlesen.FormShow(Sender: TObject);
+begin
+  Timer1.Enabled := true;
+end;
+
+procedure TFRM_Stats_Einlesen.FormHide(Sender: TObject);
+begin
+  Timer1.Enabled := false;
+end;
+
+procedure TFRM_Stats_Einlesen.Timer1Timer(Sender: TObject);
+begin
+  PaintBox1.Refresh;
+  PaintBox2.Refresh;
+  PaintBox4.Refresh;
 end;
 
 end.

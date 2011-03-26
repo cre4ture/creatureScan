@@ -1,2 +1,2 @@
 download eclipse, install XulBooster
-and open workspace here
+and open workspace from here: "../"

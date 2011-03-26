@@ -1126,10 +1126,33 @@ begin
 end;
 
 function TOgameDataBase.LeseStats(handle: integer): Boolean;
+var st: TStat;
+    st_typ: TStatTypeEx;
+    i: integer;
 begin
-  Result := False;
-  //Geht leider nochnicht, da nochnicht alle plugins automatisch unterscheiden
-  //können welchen typ von statitik es einliest!
+  Result := Self.LanguagePlugIn.ReadStats(handle, st,st_typ)
+    and Self.Statistic.AddStats(st_typ.NameType,st_typ.PointType,st);
+
+  if Result then
+  begin
+    // Suche nach eigenen Punkten:
+    for i := 0 to 99 do
+    begin
+      if st.Stats[i].Name = Self.Username then
+      begin
+        if (st_typ.PointType = sptPoints)and(st_typ.NameType = sntPlayer) then
+          Stats_own := st.Stats[i].Punkte
+        else
+        if (st_typ.PointType = sptPoints)and(st_typ.NameType = sntAlliance) then
+          AllyStats_own := st.Stats[i].Punkte
+        else
+        if (st_typ.PointType = sptFleet)and(st_typ.NameType = sntPlayer) then
+          FleetStats_own := st.Stats[i].Punkte;
+          
+        break;
+      end;
+    end;
+  end;
 end;
 
 function TOgameDataBase.GetStats: TStatPoints;

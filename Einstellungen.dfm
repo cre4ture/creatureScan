@@ -22,12 +22,19 @@ object FRM_Einstellungen: TFRM_Einstellungen
     233)
   PixelsPerInch = 96
   TextHeight = 13
+  object Label10: TLabel
+    Left = 36
+    Top = 160
+    Width = 28
+    Height = 13
+    Caption = 'Datei:'
+  end
   object PageControl1: TPageControl
     Left = 0
     Top = 0
     Width = 531
     Height = 200
-    ActivePage = TS_Websim
+    ActivePage = TabSheet1
     Anchors = [akLeft, akTop, akRight, akBottom]
     MultiLine = True
     ParentShowHint = False
@@ -237,16 +244,9 @@ object FRM_Einstellungen: TFRM_Einstellungen
         Left = 0
         Top = 4
         Width = 333
-        Height = 145
+        Height = 85
         Caption = ' '#220'berwachen der Zwischenablage '
         TabOrder = 0
-        object Label10: TLabel
-          Left = 28
-          Top = 112
-          Width = 28
-          Height = 13
-          Caption = 'Datei:'
-        end
         object Label11: TLabel
           Left = 8
           Top = 56
@@ -262,14 +262,6 @@ object FRM_Einstellungen: TFRM_Einstellungen
           Caption = 'Aktiviert'
           TabOrder = 0
         end
-        object CH_Beep: TCheckBox
-          Left = 8
-          Top = 92
-          Width = 317
-          Height = 17
-          Caption = 'Spiele Sound ab wenn Scan/System/Stats erkannt wurde(n)'
-          TabOrder = 3
-        end
         object CH_Unicheck: TCheckBox
           Left = 8
           Top = 38
@@ -284,32 +276,6 @@ object FRM_Einstellungen: TFRM_Einstellungen
           TabOrder = 1
           OnClick = CH_UnicheckClick
         end
-        object txt_beep_sound_file: TEdit
-          Left = 64
-          Top = 112
-          Width = 189
-          Height = 21
-          TabOrder = 4
-          Text = 'beep'
-        end
-        object btn_select1: TButton
-          Left = 288
-          Top = 112
-          Width = 21
-          Height = 21
-          Caption = '...'
-          TabOrder = 6
-          OnClick = btn_select1Click
-        end
-        object btn_play1: TButton
-          Left = 256
-          Top = 112
-          Width = 29
-          Height = 21
-          Caption = 'play'
-          TabOrder = 5
-          OnClick = btn_play1Click
-        end
         object txt_UniCheckName: TEdit
           Left = 192
           Top = 56
@@ -323,7 +289,7 @@ object FRM_Einstellungen: TFRM_Einstellungen
         Left = 338
         Top = 4
         Width = 181
-        Height = 145
+        Height = 69
         Caption = ' Linux/Wine '
         TabOrder = 1
         object Label2: TLabel
@@ -353,6 +319,75 @@ object FRM_Einstellungen: TFRM_Einstellungen
           Text = '1000'
           OnKeyPress = KeyPress_OnlyNumbers
         end
+      end
+      object GroupBox16: TGroupBox
+        Left = 338
+        Top = 76
+        Width = 181
+        Height = 69
+        Caption = ' cSHelper TCP-Listener '
+        TabOrder = 2
+        object Label31: TLabel
+          Left = 8
+          Top = 40
+          Width = 59
+          Height = 13
+          Caption = 'Portnummer:'
+        end
+        object cb_cshelper_listener: TCheckBox
+          Left = 8
+          Top = 16
+          Width = 161
+          Height = 17
+          Hint = 
+            'Am angegebenen Port wird auf eingehende Verbindungen zum cS-Help' +
+            'er und die Daten gewartet.'
+          Caption = 'Port ge'#246'ffnet'
+          TabOrder = 0
+        end
+        object txt_cshelper_listener_port: TEdit
+          Left = 76
+          Top = 36
+          Width = 97
+          Height = 21
+          TabOrder = 1
+          Text = '32432'
+          OnKeyPress = KeyPress_OnlyNumbers
+        end
+      end
+      object CH_Beep: TCheckBox
+        Left = 8
+        Top = 100
+        Width = 317
+        Height = 17
+        Caption = 'Spiele Sound ab wenn Scan/System/Stats erkannt wurde(n)'
+        TabOrder = 3
+      end
+      object txt_beep_sound_file: TEdit
+        Left = 64
+        Top = 120
+        Width = 189
+        Height = 21
+        TabOrder = 4
+        Text = 'beep'
+      end
+      object btn_play1: TButton
+        Left = 256
+        Top = 120
+        Width = 29
+        Height = 21
+        Caption = 'play'
+        TabOrder = 5
+        OnClick = btn_play1Click
+      end
+      object btn_select1: TButton
+        Left = 288
+        Top = 120
+        Width = 21
+        Height = 21
+        Caption = '...'
+        TabOrder = 6
+        OnClick = btn_select1Click
       end
     end
     object TS_GalaxieExplorer: TTabSheet
@@ -1251,11 +1286,11 @@ object FRM_Einstellungen: TFRM_Einstellungen
   end
   object od_sound: TOpenDialog
     Filter = 'Sounds|*.wav;*.mp3;*.mid;|Alle|*.*'
-    Left = 376
-    Top = 150
+    Left = 352
+    Top = 86
   end
   object ColorDialog1: TColorDialog
-    Left = 432
-    Top = 150
+    Left = 384
+    Top = 86
   end
 end

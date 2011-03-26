@@ -70,7 +70,8 @@ const
                                      'attack',
                                      'spy',
                                      'recycle',
-                                     'colonize'
+                                     'colonize',
+                                     'expedition'
                                    );
   xflt_origintag                   = 'origin';
   xflt_targettag                   = 'target';
