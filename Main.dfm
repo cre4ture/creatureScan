@@ -1354,16 +1354,16 @@ object FRM_Main: TFRM_Main
       Caption = 'Spionage...'
       OnClick = Spionage2Click
     end
+    object Expedition1: TMenuItem
+      Caption = 'Expedition...'
+      OnClick = Expedition1Click
+    end
     object N10: TMenuItem
       Caption = '-'
     end
     object Raideintragen1: TMenuItem
       Caption = 'Raid eintragen...'
       OnClick = Raideintragen1Click
-    end
-    object Expedition1: TMenuItem
-      Caption = 'Expedition...'
-      OnClick = Expedition1Click
     end
   end
 end
