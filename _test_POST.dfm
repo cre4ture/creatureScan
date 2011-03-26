@@ -2,7 +2,7 @@ object FRM_POST_TEST: TFRM_POST_TEST
   Left = 275
   Top = 0
   Width = 610
-  Height = 738
+  Height = 772
   Caption = 'FRM_POST'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -328,7 +328,7 @@ object FRM_POST_TEST: TFRM_POST_TEST
   object IdHTTP1: TIdHTTP
     MaxLineAction = maException
     ReadTimeout = 0
-    AllowCookies = False
+    AllowCookies = True
     ProxyParams.BasicAuthentication = False
     ProxyParams.ProxyPort = 0
     Request.ContentLength = -1
