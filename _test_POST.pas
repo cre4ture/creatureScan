@@ -816,6 +816,8 @@ var res, tag: THTMLElement;
 begin
   Result := false;
   sessionid := '';
+  if (IdHTTP1.CookieManager <> nil) then
+    IdHTTP1.CookieManager.CookieCollection.Clear;
 
   param := '';
   param:=param+'action=login&';
