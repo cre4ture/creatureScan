@@ -24,6 +24,7 @@
   $range = "1=1"; // Überbleibsel....
   
   ini_set('session.use_cookies', '0');
+  ini_set('session.use_only_cookies', '0');
   session_name("cSsid");
   session_start();
   
@@ -88,3 +89,4 @@
   }
    
 ?>
+
