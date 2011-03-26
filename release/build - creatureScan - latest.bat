@@ -1,0 +1,1 @@
+D:\devel\creatureScan\release\build_creatureScan_zip.bat creatureScan_1_9d.zip
