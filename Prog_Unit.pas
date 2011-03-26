@@ -40,7 +40,7 @@ const
   pi_TSyncRaids      = 1029;
   pi_TSyncStats      = 1030;
 
-const VNumber = '1.9c';
+const VNumber = '1.9d';
       
 
 {$DEFINE oanzahl}  //ohne Anzahl!! -- brauchts nirgends mehr!
