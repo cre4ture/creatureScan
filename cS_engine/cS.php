@@ -19,10 +19,10 @@ cSsql_db_login();
 
 ?>
 
-<form action="<? echo $_SERVER['PHP_SELF']; ?>" name="logout" method="post">
+<form action="<?php echo $_SERVER['PHP_SELF']; ?>" name="logout" method="post">
 <input name="action" value="logout" type="submit"/>
 </form>
-<form action="<? echo $_SERVER['PHP_SELF']; ?>" name="f" method="post">
+<form action="<?php echo $_SERVER['PHP_SELF']; ?>" name="f" method="post">
 solsys: <br />
 <input id="gala" name="galaxie" value="<?php echo ign_udef_index($_POST,'galaxie') ?>" />:
 <input id="sys" name="system" value="<?php echo ign_udef_index($_POST,'system') ?>" />
@@ -34,7 +34,7 @@ solsys: <br />
 <input name="system" value="<?php echo (ign_udef_index($_POST,'system',0)+1) ?>" type="submit"/>
 <input name="action" value="deletesys" type="submit"/>
 </form>
-<form action="<? echo $_SERVER["PHP_SELF"] ?>" name="w" method="post">
+<form action="<?php echo $_SERVER["PHP_SELF"] ?>" name="w" method="post">
 <input name="action" value="overview" type="submit"/>
 </form>
 <style type="text/css">
@@ -512,3 +512,4 @@ a { text-decoration: none; }
 	    break;
   }
 ?>
+
