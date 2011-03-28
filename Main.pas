@@ -1083,6 +1083,8 @@ begin
     PlayerOptions.cshl_port := StrToInt(form.txt_cshelper_listener_port.Text);
     frm_cshelper_ctrl.update(PlayerOptions.cshl_port, PlayerOptions.cshl_active);
 
+    ODataBase.SaveUserOptions;
+
   end;
   Form.free;
 end;
