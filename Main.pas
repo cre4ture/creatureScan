@@ -2370,8 +2370,8 @@ begin
 
   param('start_pos', PositionToStr_(PlayerOptions.StartPlanet));
 
-  param('perc-df', round(truemmerfeld_faktor*100));
-  param('def_to_df', ODataBase.DefInTF);
+  param('perc-df', round(TF_faktor_Fleet*100));
+  param('def_to_df', TF_faktor_Def > 0);
 
   param('enemy_name', scan.Head.Planet);
   param('enemy_pos', PositionToStr_(scan.Head.Position)); // don't know if sim supports the [x:xxx:x M] extension

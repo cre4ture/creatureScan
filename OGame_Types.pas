@@ -19,7 +19,8 @@ const
   max_Galaxy: word = 9;
   max_Systems: word = 499;
 
-  truemmerfeld_faktor: Double = 0.3; //normal 30%      
+  TF_faktor_Fleet: Double = 0.3; //normal 30%
+  TF_faktor_Def: Double = 0.0; //normal 0%
 
   {$IFDEF spacepioneers}
   max_Planeten = 16;
@@ -340,7 +341,7 @@ function GetMineProduction_(const Scan: TScanBericht;
 function MineProduction(Stufe: Integer; Mine: TRessType;
   prod_faktor: single; planetTempMax: single): Integer;
 procedure Initialise(XML_Data_File: string);
-function CalcTF(Scan: TScanBericht; DefInTF: Boolean): Tresources;
+function CalcTF(Scan: TScanBericht): Tresources;
 function FusionsKWDeut(stufe: integer): integer;
 function NextPlanet(var Pos: TPlanetPosition): Boolean;
 function CompareSys(Sys1, Sys2: TSystemCopy;
@@ -1129,13 +1130,13 @@ begin
   end;
 end;
 
-function CalcTF(Scan: TScanBericht; DefInTF: Boolean): TResources;
+function CalcTF(Scan: TScanBericht): TResources;
 
-  procedure AddToResult(res: TResources; count: integer);
+  procedure AddToResult(res: TResources; count: integer; faktor: Double);
   var r: integer;
   begin
     for r := 0 to length(res)-1 do
-      Result[r] := Result[r] + res[r]*count;
+      Result[r] := Result[r] + round((res[r]*count)*faktor);
   end;
 
 var i: integer;
@@ -1145,22 +1146,17 @@ begin
   // Normale Flotte
   for i := 0 to ScanFileCounts[fleet_group]-1 do
     if (Scan.Bericht[fleet_group][i] > 0) then
-      AddToResult(fleet_resources[i], Scan.Bericht[fleet_group][i]);
+      AddToResult(fleet_resources[i], Scan.Bericht[fleet_group][i], TF_faktor_Fleet);
 
   // Verteidigung
-  if DefInTF then
+  if TF_faktor_Def > 0 then
     for i := 0 to ScanFileCounts[def_group]-1 do
     if not def_ignoreFight[i] then
       begin
         if (Scan.Bericht[def_group][i] > 0) then
-          AddToResult(def_resources[i], Scan.Bericht[def_group][i]);
+          AddToResult(def_resources[i], Scan.Bericht[def_group][i], TF_faktor_Def);
       end;
 
-  //Bis hier wurden nur einfach alle Resourcen zusammengezählt!
-  // -> jetzt kommt die Auswehrtung!
-
-  Result[0] := round(Result[0] * truemmerfeld_faktor);  //30% vom Metall
-  Result[1] := round(Result[1] * truemmerfeld_faktor);  //30% vom Kristall
   Result[2] := 0; //Deut kommt nicht ins TF!
 end;
 

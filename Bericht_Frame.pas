@@ -545,7 +545,7 @@ begin
       x := 5+TextWidth(s)+5;
       Font.Color := cl_text_color;
       try
-        TF := CalcTF(Bericht,ODataBase.DefInTF);
+        TF := CalcTF(Bericht);
         bint := (TF[0] + TF[1]);
         if bint > 0 then
         begin
@@ -939,7 +939,7 @@ begin
       begin
        s := s + ' (' + IntToStr(countShips(scan)) + ')';
        try
-         TF := CalcTF(scan,ODataBase.DefInTF);
+         TF := CalcTF(scan);
          bint := (TF[0] + TF[1]);
          if bint > 0 then
          begin

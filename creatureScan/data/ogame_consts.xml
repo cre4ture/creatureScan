@@ -27,7 +27,7 @@
       <uni name="uni$" symbol="$" index="21" to="24"/>
       <uni name="uni25" tfdeffactor="0.3"/>
       <uni name="uni$" symbol="$" index="26" to="49"/>
-      <uni name="uni50" galaxyCount="50"/>
+      <uni name="uni50" galaxyCount="50" solsyscount="100" gamespeedfactor="2.0"/>
       <uni name="uni$" symbol="$" index="51" to="59"/>
       <uni name="uni60" gamespeedfactor="2.0"/>
       <uni name="uni$" symbol="$" index="61" to="69"/>

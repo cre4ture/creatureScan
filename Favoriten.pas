@@ -937,7 +937,7 @@ begin
 //          v_Ress_div_Def := -1;
         end;
 
-        TF := CalcTF(report,ODataBase.DefInTF);
+        TF := CalcTF(report);
       end;
 
       if ODataBase.GetSystemCopyNR(Position) >= 0 then

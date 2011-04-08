@@ -123,7 +123,6 @@ type
     Statistic: TStatisticDB;
     Stats_own, FleetStats_own, AllyStats_own: Cardinal;
     FleetBoard: TFleetBoard;
-    DefInTF: Boolean;
     SpeedFactor: Single;
     OnAskMoon: TOGameDataBase_AskMoon;
     check_solsys_data_before_askMoon: boolean;
@@ -360,13 +359,13 @@ begin
     ini.WriteInteger('StartPosition', 'Pos' + inttostr(i),UserPosition.P[i]);
   ini.WriteString('UserOptions', 'UniDomain', UniDomain);
   ini.WriteString('UserOptions', 'UniCheckName', UniCheckName);
-  ini.WriteBool('UserOptions', 'DefInTF', DefInTF);
   ini.WriteFloat('UserOptions', 'SpeedFactor', SpeedFactor);
   ini.WriteString('UserOptions', 'PluginFile', LanguagePlugIn.PluginFilename);
   ini.WriteString('UserOptions', 'ogame_domain', game_domain);
   ini.WriteInteger('UserOptions', 'Galaxy_Count', max_Galaxy);
   ini.WriteInteger('UserOptions', 'System_Count', max_Systems);
-  ini.WriteFloat('UserOptions', 'tf_factor', truemmerfeld_faktor);
+  ini.WriteFloat('UserOptions', 'tf_factor_fleet', TF_faktor_Fleet);
+  ini.WriteFloat('UserOptions', 'tf_factor_def', TF_faktor_Def);
 
   ini.WriteBool('UserOptions', 'BetaUni', OGame_IsBetaUni);
 
@@ -385,16 +384,35 @@ begin
 end;
 
 function TOgameDataBase.LoadInitFiles: boolean;
-var i : integer;
-    ini : TMemIniFile;
+var i: integer;
+    ini: TMemIniFile;
     rh: TredHoursTypes;
+    f: single;
 begin
   //Laden der Daten
   ini := TMemIniFile.Create(PlayerInf);
   max_Galaxy := ini.ReadInteger('UserOptions','Galaxy_Count',0);
   max_Systems := ini.ReadInteger('UserOptions','System_Count',0);
 
-  truemmerfeld_faktor := ini.ReadFloat('UserOptions', 'tf_factor', truemmerfeld_faktor);
+  TF_faktor_Fleet := ini.ReadFloat('UserOptions', 'tf_factor_fleet', TF_faktor_Fleet);
+  TF_faktor_Def := ini.ReadFloat('UserOptions', 'tf_factor_def', TF_faktor_Def);
+
+  f := ini.ReadFloat('UserOptions', 'tf_factor', -1); // import old
+  if (f > 0) then
+  begin
+    TF_faktor_Fleet := f;
+    ini.DeleteKey('UserOptions', 'tf_factor');
+    ini.UpdateFile;
+  end;
+
+  i := ini.ReadInteger('UserOptions','DefInTF', -1); // import old
+  if (i = 1) then // wert für "true"
+  begin
+    TF_faktor_Def := TF_faktor_Fleet;
+    ini.DeleteKey('UserOptions','DefInTF');
+    ini.UpdateFile;
+  end;
+
 
   OGame_IsBetaUni := ini.ReadBool('UserOptions', 'BetaUni', OGame_IsBetaUni);
 
@@ -402,7 +420,7 @@ begin
     UserPosition.P[i] := ini.ReadInteger('StartPosition','Pos' + inttostr(i),0);
   UserPosition.Mond := false;
   Username := ini.ReadString('UserOptions','OwnName','');
-  
+
   UniDomain := ini.ReadString('UserOptions','UniDomain','');
   if UniDomain = '' then
     UniDomain := 'uni' + ini.ReadString('UserOptions','Uni',''); // import old settings
@@ -410,7 +428,6 @@ begin
   if UniCheckName = '' then
     UniCheckName := UniDomain;
 
-  DefInTF := ini.ReadBool('UserOptions','DefInTF',False);
   SpeedFactor := ini.ReadFloat('UserOptions','SpeedFactor', 1);
   game_domain := ini.ReadString('UserOptions','ogame_domain','--n/a--');
   if game_domain = '--n/a--' then  // for compatibility to old version
@@ -979,23 +996,22 @@ function TOgameDataBase.CheckUserOptions(ForceDialog: Boolean): boolean;
     spidaForm := TFRM_Spielerdaten.Create(Application, Self);
     spidaForm.IngameName := Username;
     spidaForm.UniverseName := UniDomain;
-    spidaForm.DefInTF := DefInTF;
     spidaForm.game_domain := game_domain;
     spidaForm.GalaCount := max_Galaxy;
     spidaForm.SysCount := max_Systems;
     spidaForm.HomePlanet := UserPosition;
     spidaForm.SpeedFaktor := SpeedFactor;
-    spidaForm.TF_factor := truemmerfeld_faktor;
+    spidaForm.TF_fact_fleet := TF_faktor_Fleet;
+    spidaForm.TF_fact_def := TF_faktor_def;
     spidaForm.redesign := OGame_IsBetaUni;
     spidaForm.urlName := UniCheckName;
     if ForceDialog then //im nachhinnein
     begin
       spidaForm.CB_OGame_Site.Enabled := False;
       spidaForm.CB_OGame_Universename.Enabled := False;
-      spidaForm.RB_GalaCount9.Enabled := False;
-      spidaForm.RB_GalaCount19.Enabled := False;
-      spidaForm.RB_GalaCount50.Enabled := False;
       spidaForm.btn_update.Enabled := false;
+      spidaForm.cb_gala_count.Enabled := false;
+      spidaForm.cb_solsys_count.Enabled := false;
     end;
     Result := spidaForm.Execute;
     if Result then
@@ -1003,12 +1019,12 @@ function TOgameDataBase.CheckUserOptions(ForceDialog: Boolean): boolean;
       max_Galaxy := spidaForm.GalaCount;
       max_Systems := spidaForm.SysCount;
       UniDomain := spidaForm.UniverseName;
-      DefInTF := spidaForm.DefInTF;
       Username := spidaForm.IngameName;
       UserPosition := spidaForm.HomePlanet;
       game_domain := spidaForm.game_domain;
       SpeedFactor := spidaForm.SpeedFaktor;
-      truemmerfeld_faktor := spidaForm.TF_factor;
+      TF_faktor_Fleet := spidaForm.TF_fact_fleet;
+      TF_faktor_Def := spidaForm.TF_fact_def;
       OGame_IsBetaUni := spidaForm.redesign;
       UniCheckName := spidaForm.urlName;
     end;
