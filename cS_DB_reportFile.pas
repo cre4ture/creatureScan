@@ -14,13 +14,23 @@ uses
 
 type
   TcSReportFileFormat =
-  (csr_none,           csr_25,           csr_36,           csr_37,
-   csr_38          , csr_40);
+  (csr_none,
+   csr_25,
+   csr_36,
+   csr_37,
+   csr_38,
+   csr_40,
+   csr_41);
 const
   cSRFFStarT_ = 'cscan_scan_'; // don't use for new versions
   cSReportFileFormatstr: array[TcSReportFileFormat] of shortstring =
-  ( 'error', cSRFFStarT_+'2.5', cSRFFStarT_+'3.6', cSRFFStarT_+'3.7',
-   cSRFFStarT_+'3.8', 'creatureScan_ScanDB_4.0');
+  ('error',
+   cSRFFStarT_+'2.5',
+   cSRFFStarT_+'3.6',
+   cSRFFStarT_+'3.7',
+   cSRFFStarT_+'3.8',
+   'creatureScan_ScanDB_4.0',
+   'creatureScan_ScanDB_4.1');
 
    new_file_ident = 'new_file';
 {
@@ -47,10 +57,18 @@ deswegen ist auch die einelseroutine kopiert und es hat sich auser der struktur 
 ***39 auf 40***
 einfacherer DateiHeader
 
+***40 auf 41***
+PlayerID, Ress -> int64
+
 }
 
 type
   EcSDBUnknownReportFileFormat = class(Exception);
+  EcSDBFFReportUniDiffers = class(Exception)
+  public
+    file_universe_name: string;
+    constructor Create(const Msg: string; const uniname: string);
+  end;
 
   TcSReportHeader_10 = record
     V: string[14];
@@ -83,6 +101,18 @@ type
     Creator: TPlayerName;
     Activity: Smallint;
   end;
+  TcSReportItem_41_Head = packed record
+    Planet: TPlanetName;
+    Position: packed array[0..2] of Word;
+    P_Mond: Boolean;
+    Time_u: Int64;
+    Spieler: TPlayerName;
+    SpielerId: Int64;
+    Spionageabwehr: Smallint;
+    Creator: TPlayerName;
+    Activity: Smallint;
+  end;
+
   TcSReportItem_25 = packed record
     Head: TcSReportItem_25_36_37_Head;
     g0_resources: packed array[1..4] of Integer;
@@ -110,6 +140,14 @@ type
   TcSReportItem_38 = packed record
     Head: TcSReportItem_38_Head;
     g0_resources: packed array[1..4] of Integer;
+    g1_fleets: packed array[1..14] of Integer;
+    g2_defence: packed array[1..10] of Integer;
+    g3_buildings: packed array[1..18] of Shortint;
+    g4_research: packed array[1..16] of Shortint;
+  end;
+  TcSReportItem_41 = packed record
+    Head: TcSReportItem_41_Head;
+    g0_resources: packed array[1..4] of Int64;
     g1_fleets: packed array[1..14] of Integer;
     g2_defence: packed array[1..10] of Integer;
     g3_buildings: packed array[1..18] of Shortint;
@@ -187,7 +225,7 @@ begin
     if (FFormat = csr_none) then
       raise EcSDBUnknownReportFileFormat.Create(
         'TcSReportDB.Create: Unknown file format (File: "' +
-        aFilename  + '", Format: "' + FHeader.filetype + '")');
+          aFilename  + '", Format: "' + FHeader.filetype + '")');
   end;
   InitFormat;
 
@@ -210,6 +248,7 @@ begin
     Position.Mond := Item.Head.P_Mond;
     Time_u := DateTimeToUnix(TimeStampToDateTime(Item.Head.Time));
     Spieler := Item.Head.Spieler;
+    SpielerId := -1;
     Spionageabwehr := Item.Head.Spionageabwehr;
     Creator := Item.Head.Creator;
     {geraidet := Item.Head.Raid;
@@ -254,6 +293,7 @@ begin
     Position.Mond := Item.Head.P_Mond;
     Time_u := DateTimeToUnix(TimeStampToDateTime(Item.Head.Time));
     Spieler := Item.Head.Spieler;
+    SpielerId := -1;
     Spionageabwehr := Item.Head.Spionageabwehr;
     Creator := Item.Head.Creator;
     Activity := Item.Head.Activity;
@@ -296,6 +336,7 @@ begin
     Position.Mond := Item.Head.P_Mond;
     Time_u := DateTimeToUnix(TimeStampToDateTime(Item.Head.Time));
     Spieler := Item.Head.Spieler;
+    SpielerId := -1;
     Spionageabwehr := Item.Head.Spionageabwehr;
     Creator := Item.Head.Creator;
     {geraidet := Item.Head.Raid;
@@ -453,6 +494,7 @@ begin
     Position.Mond := Item.Head.P_Mond;
     Time_u := DateTimeToUnix(TimeStampToDateTime(Item.Head.Time));
     Spieler := Item.Head.Spieler;
+    SpielerId := -1;
     Spionageabwehr := Item.Head.Spionageabwehr;
     Creator := Item.Head.Creator;
     {geraidet := Item.Head.Raid;
@@ -516,7 +558,82 @@ begin
   TcSReportItem_25(ItemBuf^) := Item;
 end;
 
+function cSReportItem_41_to_Scan(const ItemBuf: pointer): TScanBericht;
+var Item: TcSReportItem_41;
+    i: integer;
+    sg: TScanGroup;
+begin
+  Item := TcSReportItem_41(ItemBuf^);
 
+  with Result.Head do
+  begin
+    Planet := Item.Head.Planet;
+    Position.P[0] := Item.Head.Position[0];
+    Position.P[1] := Item.Head.Position[1];
+    Position.P[2] := Item.Head.Position[2];
+    Position.Mond := Item.Head.P_Mond;
+    Time_u := Item.Head.Time_u;
+    Spieler := Item.Head.Spieler;
+    SpielerId := Item.Head.SpielerId;
+    Spionageabwehr := Item.Head.Spionageabwehr;
+    Creator := Item.Head.Creator;
+    Activity := Item.Head.Activity;
+  end;
+
+  for sg := low(sg) to high(sg) do           //Clear, weil der Scan unabhängig von der Datei (Array-Längen) sein muss!
+  begin
+    SetLength(Result.Bericht[sg],ScanFileCounts[sg]);
+    for i := 0 to ScanFileCounts[sg]-1 do
+    begin
+      Result.Bericht[sg,i] := 0;
+    end;
+  end;
+
+  for i := 1 to length(Item.g0_resources) do
+    Result.Bericht[sg_Rohstoffe][i-1] := Item.g0_resources[i];
+  for i := 1 to length(Item.g1_fleets) do
+    Result.Bericht[sg_Flotten][i-1] := Item.g1_fleets[i];
+  for i := 1 to length(Item.g2_defence) do
+    Result.Bericht[sg_Verteidigung][i-1] := Item.g2_defence[i];
+  for i := 1 to length(Item.g3_buildings) do
+    Result.Bericht[sg_Gebaeude][i-1] := Item.g3_buildings[i];
+  for i := 1 to length(Item.g4_research) do
+    Result.Bericht[sg_Forschung][i-1] := Item.g4_research[i];
+end;
+
+procedure Scan_to_cSReportItem_41(const Scan: TScanBericht;
+  const ItemBuf: pointer);
+var Item: TcSReportItem_41;
+    i: integer;
+begin
+  with Item.Head do
+  begin
+    Planet := Scan.Head.Planet;
+    Position[0] := Scan.Head.Position.P[0];
+    Position[1] := Scan.Head.Position.P[1];
+    Position[2] := Scan.Head.Position.P[2];
+    P_Mond := Scan.Head.Position.Mond;
+    Time_u := Scan.Head.Time_u;
+    Spieler := Scan.Head.Spieler;
+    SpielerId := Scan.Head.SpielerId;
+    Spionageabwehr := Scan.Head.Spionageabwehr;
+    Creator := Scan.Head.Creator;
+    Activity := Scan.Head.Activity;
+  end;
+
+  for i := 1 to length(Item.g0_resources) do
+    Item.g0_resources[i] := Scan.Bericht[sg_Rohstoffe][i-1];
+  for i := 1 to length(Item.g1_fleets) do
+    Item.g1_fleets[i] := Scan.Bericht[sg_Flotten][i-1];
+  for i := 1 to length(Item.g2_defence) do
+    Item.g2_defence[i] := Scan.Bericht[sg_Verteidigung][i-1];
+  for i := 1 to length(Item.g3_buildings) do
+    Item.g3_buildings[i] := Scan.Bericht[sg_Gebaeude][i-1];
+  for i := 1 to length(Item.g4_research) do
+    Item.g4_research[i] := Scan.Bericht[sg_Forschung][i-1];
+
+  TcSReportItem_41(ItemBuf^) := Item;
+end;
 
 procedure TcSReportDBFile.DisposeItemPtr(const p: pointer);
 begin
@@ -579,6 +696,13 @@ begin
       FScanToItem := Scan_to_cSReportItem_38;
       FItemToScan := cSReportItem_38_to_Scan;
     end;
+    csr_41:
+    begin
+      // FHeaderSize := SizeOf(TcSReportHeader_20); -> default value
+      FItemSize := SizeOf(TcSReportItem_41);
+      FScanToItem := Scan_to_cSReportItem_41;
+      FItemToScan := cSReportItem_41_to_Scan;
+    end;
 
     else
       raise Exception.Create('TcSReportDBFile.InitFormat: Es soll eine Datei mit einem nicht definierten Format geöffnet werden!');
@@ -624,24 +748,12 @@ end;
 
 constructor TcSReportDB_for_File.Create(aFilename: string;
   UniDomain: string);
-var domain: string;
 begin
   inherited Create;
-  try
-    DBFile := TcSReportDBFile.Create(aFilename);
-  except
-    on E: EcSDBUnknownReportFileFormat do
-    begin
-      DBFile.Free;
-      ShowMessage(Format('The DBFile(%s) is in an unknown Format or broken' +
-                         'and will be deleted now!' + #13 + #10 +
-                         'If you want so save it, do this before you press OK!',
-                         [aFilename]));
-      DeleteFile(aFilename);
-      DBFile := TcSReportDBFile.Create(aFilename);
-    end;
-  end;
+  DBFile := TcSReportDBFile.Create(aFilename);
 
+  // wenn die datei gerade neu angelegt wurde,
+  // muss noch die domain gesetzt werden!
   if (DBFile.UniDomain = new_file_ident) then
   begin
     DBFile.UniDomain := UniDomain;
@@ -649,15 +761,8 @@ begin
 
   if (UniDomain <> DBFile.UniDomain) then
   begin
-    domain := DBFile.UniDomain;
-    DBFile.Free;
-    ShowMessage(Format('The DBFile(%s) belongs to an other universe(%s)' +
-                       'and will be deleted now!' + #13 + #10 +
-                       'If you want so save it, do this before you press OK!',
-                       [aFilename, domain]));
-    DeleteFile(aFilename);
-    DBFile := TcSReportDBFile.Create(aFilename);
-    DBFile.UniDomain := UniDomain;
+    raise EcSDBFFReportUniDiffers.Create('TcSReportDB_for_File.Create():' +
+      'the file is for an other universe!', DBFile.UniDomain);
   end;
 end;
 
@@ -691,6 +796,14 @@ procedure TcSReportDB_for_File.SetReport(nr: cardinal;
   Report: TScanBericht);
 begin
   DBFile.SetReport(nr,Report);
+end;
+
+{ EcSDBFFSysUniDiffers }
+
+constructor EcSDBFFReportUniDiffers.Create(const Msg, uniname: string);
+begin
+  inherited Create(Msg);
+  file_universe_name := uniname;
 end;
 
 end.

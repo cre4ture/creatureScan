@@ -6,11 +6,13 @@ uses classes, OGame_Types, Windows, SysUtils, MergeSocket, SDBFile, SplitSocket,
   cS_networking, LibXmlParser, LibXmlComps;
 
 const
-  StatFileV = 'creatureScan_StatisticBD_2.0';
+  StatFileV = 'creatureScan_StatisticBD_2.1';
 
   new_file_ident = 'new_file';
 
 type
+  EcSStatsWrongFormat = class(Exception);
+
   TStatFileInf_10 = Record
     V: String[13];
     Uni: Word;
@@ -33,6 +35,21 @@ type
     Time_u: Int64;
     Stats: packed array[0..99] of TStatFilePlayer_1;
   end;
+
+  TStatFilePlayer_11 = packed record
+    Name: string[25];
+    NameId: Int64;
+    Punkte: Cardinal;
+    case TStatType of
+    st_Player: (Ally: String[10]);
+    st_Ally: (Mitglieder: Word);
+  end;
+  TStatFileStat_11 = packed record
+    first: Word;
+    Time_u: Int64;
+    Stats: packed array[0..99] of TStatFilePlayer_11;
+  end;
+
   TStatisticDBFile = class(TSimpleDBCachedFile)
   protected
     FHeader: TStatFileInf_20;
@@ -148,12 +165,15 @@ begin
   try
     FStats := TStatisticDBFile.Create(AFile);
   except
-    DeleteFile(AFile);
-    FStats := TStatisticDBFile.Create(AFile);
+    on EcSStatsWrongFormat do // bei falschem oder altem Format
+    begin  // (convertierung lohnt sich nicht bei stats)
+      DeleteFile(AFile);  // -> löschen und neu erstellen!
+      FStats := TStatisticDBFile.Create(AFile);
+    end;
   end;
   
   if (FStats.UniDomain <> UniDomain) then
-  begin
+  begin  // bei falschem uni -> stats löschen
     FStats.UniDomain := UniDomain;
     FStats.Count := 0; //Clear!
   end;
@@ -329,14 +349,16 @@ end;
 constructor TStatisticDBFile.Create(aFilename: string);
 begin
   FHeaderSize := SizeOf(FHeader);
-  FItemSize := SizeOf(TStatFileStat_1);
+  FItemSize := SizeOf(TStatFileStat_11);
 
   inherited Create(aFilename);
   
   if GetHeader(FHeader) then
   begin
-    if FHeader.filetype <> StatFileV then raise Exception.Create(
-      'TStatisticDBFile.Create: Unknown, or old Fileformat! (' + aFilename + ')');
+    if FHeader.filetype <> StatFileV then
+      raise EcSStatsWrongFormat.Create(
+        'TStatisticDBFile.Create: Unknown, or old Fileformat! ('
+           + aFilename + ')');
   end
   else
   begin
@@ -366,13 +388,14 @@ end;
 procedure TStatisticDBFile.ItemToPtr(var Buf; const p: pointer);
 var i: integer;
 begin
-  with TStatFileStat_1(buf) do
+  with TStatFileStat_11(buf) do
   begin
     TStat(p^).first := first;
     TStat(p^).Time_u := Time_u;
     for i := 0 to length(Stats)-1 do
     begin
       TStat(p^).Stats[i].Name := Stats[i].Name;
+      TStat(p^).Stats[i].NameId := Stats[i].NameId;
       TStat(p^).Stats[i].Punkte := Stats[i].Punkte;
       TStat(p^).Stats[i].Ally := Stats[i].Ally;
       TStat(p^).Stats[i].Mitglieder := Stats[i].Mitglieder;
@@ -389,7 +412,7 @@ end;
 procedure TStatisticDBFile.PtrToItem(const p: pointer; var Buf);
 var i: integer;
 begin
-  with TStatFileStat_1(Buf) do
+  with TStatFileStat_11(Buf) do
   begin
     first := TStat(p^).first;
     Time_u := TStat(p^).Time_u;

@@ -58,7 +58,7 @@ Fileheader vereinfacht.
 
 30 auf 31:
 
-Neu: PlayerID
+Neu: PlayerID, Creator, Activity
 
 }
 
@@ -103,6 +103,7 @@ type
   TcSSolSysItem_31_Head = packed Record
     Time_u: Int64;
     SystemPos: packed array[0..1] of Word;
+    Creator: TPlayerName;
   end;
   TcSSolSysItem_31_Planet = packed record
     Player: TPlayerName;
@@ -114,6 +115,7 @@ type
     MondSize: Word;
     MondTemp: Smallint;
     TF: packed array[0..1] of Cardinal;  //0=Metall 1=Kristall
+    Activity: Integer;
   end;
   TcSSolSysItem_31 = packed record
     Head: TcSSolSysItem_31_Head;
@@ -231,6 +233,7 @@ begin
   Result.System.P[1] := Item.Head.SystemPos[1];
   Result.System.P[2] := 1;
   Result.System.Mond := False;
+  Result.Creator := '';
 
   for i := 1 to length(Result.Planeten) do           //Clear
   begin
@@ -251,6 +254,7 @@ begin
       MondTemp := Item.Planets[i].MondTemp;
       TF[0] := Item.Planets[i].TF[0];
       TF[1] := Item.Planets[i].TF[1];
+      Activity := -1;
     end;
   end;
 end;
@@ -301,6 +305,7 @@ begin
   Result.System.P[1] := Item.Head.SystemPos[1];
   Result.System.P[2] := 1;
   Result.System.Mond := False;
+  Result.Creator := Item.Head.Creator;
 
   for i := 1 to length(Result.Planeten) do           //Clear
   begin
@@ -321,6 +326,7 @@ begin
       MondTemp := Item.Planets[i].MondTemp;
       TF[0] := Item.Planets[i].TF[0];
       TF[1] := Item.Planets[i].TF[1];
+      Activity := Item.Planets[i].Activity;
     end;
   end;
 end;
@@ -335,6 +341,7 @@ begin
     Time_u := Sys.Time_u;
     SystemPos[0] := Sys.System.P[0];
     SystemPos[1] := Sys.System.P[1];
+    Creator := Sys.Creator;
   end;
 
   for i := 1 to length(Item.Planets) do           //Clear
@@ -356,6 +363,7 @@ begin
       MondTemp := Sys.Planeten[i].MondTemp;
       TF[0] := Sys.Planeten[i].TF[0];
       TF[1] := Sys.Planeten[i].TF[1];
+      Activity := Sys.Planeten[i].Activity;
     end;
   end;
 
@@ -451,7 +459,6 @@ end;
 
 constructor TcSSolSysDB_for_File.Create(aFilename: string;
   UniDomain: string);
-var domain: string;
 begin
   inherited Create;
   DBFile := TcSSolSysDBFile.Create(aFilename);
