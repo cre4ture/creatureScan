@@ -65,6 +65,8 @@ begin
     CellText := stats.stats[node^.Index].Ally;
   4: //Mitglieder
     CellText := IntToStr(stats.stats[node^.Index].Mitglieder);
+  5: // ID
+    CellText := IntToStr(stats.stats[node^.Index].NameId);
   end;
 end;
 

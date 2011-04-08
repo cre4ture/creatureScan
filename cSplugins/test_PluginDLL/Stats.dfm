@@ -1,7 +1,7 @@
 object FRM_Stats: TFRM_Stats
   Left = 524
   Top = 190
-  Width = 414
+  Width = 477
   Height = 688
   Caption = 'FRM_Stats'
   Color = clBtnFace
@@ -13,8 +13,8 @@ object FRM_Stats: TFRM_Stats
   OldCreateOrder = False
   OnCreate = FormCreate
   DesignSize = (
-    398
-    653)
+    469
+    661)
   PixelsPerInch = 96
   TextHeight = 13
   object Shape1: TShape
@@ -25,7 +25,7 @@ object FRM_Stats: TFRM_Stats
     Shape = stEllipse
   end
   object Label1: TLabel
-    Left = 216
+    Left = 279
     Top = 12
     Width = 17
     Height = 13
@@ -51,7 +51,7 @@ object FRM_Stats: TFRM_Stats
   object VST_Stats: TVirtualStringTree
     Left = 8
     Top = 36
-    Width = 381
+    Width = 444
     Height = 601
     Anchors = [akLeft, akTop, akRight, akBottom]
     Header.AutoSizeIndex = 0
@@ -90,10 +90,14 @@ object FRM_Stats: TFRM_Stats
         Position = 4
         Width = 75
         WideText = 'Mitglieder'
+      end
+      item
+        Position = 5
+        WideText = 'ID'
       end>
   end
   object ComboBox1: TComboBox
-    Left = 244
+    Left = 307
     Top = 8
     Width = 69
     Height = 21
@@ -107,7 +111,7 @@ object FRM_Stats: TFRM_Stats
       'ally')
   end
   object ComboBox2: TComboBox
-    Left = 316
+    Left = 379
     Top = 8
     Width = 73
     Height = 21

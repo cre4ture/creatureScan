@@ -53,6 +53,16 @@ implementation
 
 uses StrUtils;
 
+function extractPlayerIdFromSendMSGUrl(url: string): int64;
+var s: string;
+    p: integer;
+begin
+  s := url;
+  p := Pos('&amp;to=', s);
+  s := copy(s,p+8, PosEx('&', s, p+1)-8-p);
+  Result := StrToIntDef(s, -1);
+end;
+
 function ReadInt(s: string; p: integer; tsep: Boolean = True): integer;
 //Spezial for HTML!
 begin
@@ -90,37 +100,52 @@ end;
 
 function ThtmlStatRead_betauni.ReadStatType(root_div: THTMLElement;
   var typ: TStatTypeEx): Boolean;
-var s: string;
-    tag: THTMLElement;
+var form, tag: THTMLElement;
+    who_l: array[TStatNameType] of string[255];
+    typ_l: array[TStatPointType] of string[255];
+    sn: TStatNameType;
+    sp: TStatPointType;
 begin
   //Result ist immer False, da kein bestimmtes element gefunden werden soll!
   Result := False;
-  tag := HTMLFindRoutine_NameAttribute(root_div, 'input', 'id', 'who');
-  if tag = nil then
+  form := HTMLFindRoutine_NameAttribute(root_div, 'form', 'id', 'send');
+  if form = nil then
     Exit;
 
-  s := tag.AttributeValue['value'];
-  if s = 'player' then
-    typ.NameType := sntPlayer
-  else
-  if s = 'ally' then
-    typ.NameType := sntAlliance
-  else Exit;
+  typ.NameType := sntPlayer;
+  typ.PointType := sptPoints;
 
-  tag := HTMLFindRoutine_NameAttribute(root_div, 'input', 'id', 'type');
-  if tag = nil then
-    Exit;
+  who_l[sntPlayer] := 'player';
+  who_l[sntAlliance] := 'alliance';
+  typ_l[sptPoints] := 'points';
+  typ_l[sptFleet] := 'fleet';
+  typ_l[sptResearch] := 'research';
 
-  s := tag.AttributeValue['value'];
-  if (s = 'ressources')or(s = '') then  //default "" bei punkten
-    typ.PointType := sptPoints
-  else
-  if s = 'fleet' then
-    typ.PointType := sptFleet
-  else
-  if s = 'research' then
-    typ.PointType := sptResearch
-  else Exit;
+  for sn := sntPlayer to sntAlliance do
+  begin
+    tag := HTMLFindRoutine_NameAttribute(form, 'a', 'id', who_l[sn]);
+    if tag = nil then
+      Exit;
+
+    if pos('active', tag.AttributeValue['class']) > 0 then
+    begin
+      typ.NameType := sn;
+      break;
+    end;
+  end;
+
+  for sp := sptPoints to sptResearch do
+  begin
+    tag := HTMLFindRoutine_NameAttribute(form, 'a', 'id', typ_l[sp]);
+    if tag = nil then
+      Exit;
+
+    if pos('active', tag.AttributeValue['class']) > 0 then
+    begin
+      typ.PointType := sp;
+      break;
+    end;
+  end;
 
   Result := true;
 end;
@@ -419,10 +444,11 @@ var
   tag_, tag_b : THTMLElement;
 begin
   Result := False; //Nur durchlaufen!!
-  
+
   if CurElement.TagName = 'td' then
   begin
     row := Data;
+    row^.PlayerId := -1;
     attr_class := CurElement.AttributeValue['class'];
 
     if attr_class = 'position' then
@@ -525,6 +551,17 @@ begin
       else
         row^.Ally := '';
     end
+    //-------------------------------------------AKTIONEN-----------------------
+    else
+    if attr_class = 'action' then
+    begin
+      tag_ := CurElement.FindChildTagPath('a:0'); // nachricht schreiben
+      if tag_ <> nil then
+      begin
+        row^.PlayerId := extractPlayerIdFromSendMSGUrl(
+          tag_.AttributeValue['href']);
+      end;
+    end
 
   end;
 end;
@@ -617,13 +654,27 @@ end;
 
 function ThtmlStatRead_betauni.readStatEntry_ally(row_tag: THTMLElement; stattype: TStatTypeEx;
   var statentry: TStatPlayer): Boolean;
-var tag_cell: THTMLElement;
+var tag_cell, atag: THTMLElement;
+    s: string;
+    p: integer;
 begin
   Result := False;
+  statentry.NameId := -1;
 
   tag_cell := row_tag.FindChildTag('td',1);
   if tag_cell = nil then Exit;
   statentry.Name := trim(tag_cell.FullTagContent);
+
+  // --- extract allyid
+  atag := tag_cell.FindChildTag('a',0);
+  if atag <> nil then
+  begin
+    s := atag.AttributeValue['href'];
+    p := pos('?allyid=', s);
+    s := copy(s, p+8, 99999);
+    statentry.NameId := StrToIntDef(s, -1);
+  end;
+  // --- end
 
   tag_cell := row_tag.FindChildTag('td',3);
   if tag_cell = nil then Exit;
@@ -640,25 +691,26 @@ function ThtmlStatRead_betauni.readStatEntry_player(row_tag: THTMLElement; statt
   var statentry: TStatPlayer): Boolean;
 var i: integer;
     tag_cell, tag: THTMLElement;
-    s: string;
+    tag_class: string;
     b_name, b_score: Boolean;
 begin
   b_name := false;
   b_score := false;
+  statentry.NameId := -1;
 
   for i := 0 to row_tag.ChildCount - 1 do
     begin
       tag_cell := row_tag.ChildElements[i];
       if (tag_cell.TagName = 'td') then
       begin
-        s := tag_cell.AttributeValue['class'];
-        if s = 'position' then
+        tag_class := tag_cell.AttributeValue['class'];
+        if tag_class = 'position' then
         begin
            //Eine Ebene höher!
         end
         //Name -------------------------------------------------------------
         else
-        if s = 'name' then
+        if tag_class = 'name' then
         begin
           if stattype.NameType = sntPlayer then
           begin
@@ -689,10 +741,20 @@ begin
           b_name := true;
         end
         else
-        if s = 'score' then
+        if tag_class = 'score' then
         begin
           statentry.Punkte := ReadInt(Trim(tag_cell.FullTagContent),1);
           b_score := true;
+        end
+        else
+        if tag_class = 'sendmsg' then
+        begin  todo: functioniert nicht mit "spionagesonden vorhanden"
+          tag := tag_cell.FindChildTagPath('a:0'); // nachricht schreiben
+          if tag <> nil then
+          begin
+            statentry.NameId := extractPlayerIdFromSendMSGUrl(
+              tag.AttributeValue['href']);
+          end;
         end;
       end;
       
