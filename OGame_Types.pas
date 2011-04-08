@@ -122,12 +122,14 @@ type
     MondSize: Word;
     MondTemp: SmallInt;
     TF: array[0..1] of Cardinal;
+    Activity: Integer; {Time in Seconds (min*60) befor Time_u, -1 -> no info, 0 -> activity > 60 minutes}
   end;
   PSystemCopy = ^TSystemCopy; 
   TSystemCopy = record
     Time_u : Int64;  //Unix
     System : TPlanetPosition; //nur 0,1 wird dann verwendet!
     Planeten : Array[1..max_Planeten] of TSystemPlanet;
+    Creator: TPlayerName;
   end;
   TSystemPosition = Array[0..1] of Word;
   TSolSysPosition = TSystemPosition;
@@ -136,6 +138,7 @@ type
     Position: TPlanetPosition;
     Time_u: Int64;    //Unix
     Spieler: TPlayerName;
+    SpielerId: Int64;
     Spionageabwehr: integer;
     Creator: TPlayerName;
     {geraidet: Boolean;

@@ -597,37 +597,59 @@ function TOgameDataBase.initScanFile: boolean;
     Result := True;
   end;
 
-var Filename: String;
+var Filename, msg: String;
+    fileacc: TcSReportDBFile;
 begin
-  Result := False;
-  //öffnen der Scans-datei! + überprüfung auf neu und/oder falsches Universum!
+  Result := True; // Error are reported through exceptions
   Filename := SaveDir + 'reports.csscan';
 
   try
-    try
-      Berichte := TcSReportDB_for_File.Create(Filename, UniDomain);
-    except
-      Berichte.Free;
-      ShowMessage(STR_Scanberichtdatei_konnte_nicht_geoeffnetwerden_Prog_wird_beendet +
-                   #10 + #13 + STR_vllt_andere_Instanz);
-      Exit;
-    end;
-
-    with Berichte as TcSReportDB_for_File do
+    Berichte := TcSReportDB_for_File.Create(Filename, UniDomain);
+  except
+    on E: EcSDBFFReportUniDiffers do
     begin
-      if IsOldFormat then
-      begin
-        Berichte.Free;
-        RenameFile(Filename,Filename+'.old');
-        Berichte := TcSReportDB_for_File.Create(Filename, UniDomain);
-        if  __importold(Filename+'.old') then
-          DeleteFile(Filename+'.old');
+      Berichte.Free;
+      msg := 'The Report-DB file is tagged for an other universe: '
+        + E.file_universe_name + #10 + #13
+        + 'This may occour if you updated creatureScan or changed your profile.' + #10 + #13
+        + 'Shall we use this file despite the warning?' + #10 + #13
+        + 'If you press YES, the uni-tag of the file will be changed.' + #10 + #13
+        + 'If you press NO, the file will be deleted.' + #10 + #13
+        + 'If you press CANCEL, the application terminates and you can do with your file what you like' + #10 + #13;
+      case Application.MessageBox(PChar(msg), 'Warning', MB_YESNOCANCEL) of
+      IDYES:
+        begin
+          // change uni tag
+          fileacc := TcSReportDBFile.Create(Filename);
+          fileacc.UniDomain := UniDomain;
+          fileacc.Free;
+          // try to load DB again
+          Berichte := TcSReportDB_for_File.Create(Filename, UniDomain);
+        end;
+      IDNO:
+        begin
+          // delete file
+          DeleteFile(Filename);
+          // try to load DB again (create new one in this case!)
+          Berichte := TcSReportDB_for_File.Create(Filename, UniDomain);
+        end;
+      else
+        raise;
       end;
     end;
-  finally
-
   end;
-  Result := True;
+
+  with Berichte as TcSReportDB_for_File do
+  begin
+    if IsOldFormat then
+    begin
+      Berichte.Free;
+      RenameFile(Filename,Filename+'.old');
+      Berichte := TcSReportDB_for_File.Create(Filename, UniDomain);
+      if  __importold(Filename+'.old') then
+        DeleteFile(Filename+'.old');
+    end;
+  end;
 end;
 
 
@@ -907,7 +929,10 @@ var Sys: TSystemCopy;
 begin
   Result := LanguagePlugIn.ReadSystem(handle, Sys);
   if Result then
+  begin
+    Sys.Creator := Username; 
     UniTree.AddNewSolSys(sys);
+  end;
 end;
 
 function TOgameDataBase.SelectPlugIn(ForceDialog: boolean): Boolean;

@@ -202,6 +202,8 @@ begin
   except
     on EcSDBUnknownSysFileFormat do
       ShowMessage('Error: The format of the SolsysDB file is unknown or broken!');
+    on EcSDBUnknownReportFileFormat do
+      ShowMessage('Error: The format of the ReportDB file is unknown or broken!');
     on E: Exception do
       ShowMessage('Ein unbekannter Fehler ist bei der Initialisierung aufgetreten: ' + #10 + #13
         + E.ClassName + ': ' + E.Message); // + #10 + #13
