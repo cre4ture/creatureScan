@@ -6,9 +6,12 @@ uses
   Classes, OGame_Types, Windows, SysUtils, IniFiles, Dialogs, Languages;
 
 const
-  DLLVNumber = 26;
+  DLLVNumber = 27;
 
-{ V26: new CallFleetEx
+{
+  V27: stats & sys + playerID
+
+  V26: new CallFleetEx
 
   V25: new directCallFleet
 

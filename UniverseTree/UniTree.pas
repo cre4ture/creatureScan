@@ -11,6 +11,7 @@ type
   PPlayerInformation = ^TPlayerInformation;
   TPlayerInformation = record
     Name: TPlayerName;
+    PlayerId: int64;
     Research: array[0..fsc_4_Forschung-1] of Integer;
     ResearchTime_u: Int64;
     ResearchPlanet: TPlanetPosition;
@@ -19,13 +20,14 @@ type
   TPlayerDB = class
   private
     FPlayerList: TList;
-    function FFindPlayer(aName: TPlayerName): Integer;
-    function newPlayerInfo(name: string): PPlayerInformation;
+    function FFindPlayerId(aPlayerId: int64): Integer;
+    function FFindPlayerName(aName: TPlayerName; var aPlayerId: int64): Integer;
+    function newPlayerInfo(name: string; PlayerId: int64): PPlayerInformation;
   public
     constructor Create;
     destructor Destroy; override;
-    procedure ANewReport(Report: TScanBericht);
-    procedure setLPA_LPI(const player: TPlayerName; const lpa, lpi: integer);
+    procedure ANewReport(Report: TScanBericht; PlayerId: int64);
+    procedure setLPA_LPI(const player: TPlayerName; id: int64; const lpa, lpi: integer);
     { Returns a record with name == '' if nothing was found }
     function GetPlayerInfo(aName: TPlayerName): PPlayerInformation;
   end;
@@ -349,7 +351,14 @@ begin
     //</MarkacMoon>
   end;
 
-  Player.ANewReport(Scan);
+  j := UniSys(Scan.Head.Position.P[0], Scan.Head.Position.P[1]);
+  if (j >= 0) then
+  begin
+    Player.ANewReport(Scan,
+      SolSysDB[j].Planeten[Scan.Head.Position.P[2]].PlayerId);
+  end
+  else
+    Player.ANewReport(Scan, -1);
 end;
 
 procedure TUniverseTree.FUnInitReport(ScanNr: Integer);
@@ -596,16 +605,19 @@ end;
 
 
 
-procedure TPlayerDB.ANewReport(Report: TScanBericht);
+procedure TPlayerDB.ANewReport(Report: TScanBericht; PlayerId: int64);
 var i: integer;
     ppi: PPlayerInformation;
 begin
   if (Report.Head.Spieler <> '')and(Report.Bericht[sg_Forschung][0] >= 0) then
   begin
-    i := FFindPlayer(Report.Head.Spieler);
+    i := FFindPlayerId(PlayerId);
+    if (i = -1) then
+      i := FFindPlayerName(Report.Head.Spieler, PlayerId);
+      
     if (i = -1) then
     begin
-      ppi := newPlayerInfo(Report.Head.Spieler);
+      ppi := newPlayerInfo(Report.Head.Spieler, PlayerId);
     end
     else ppi := FPlayerList[i];
 
@@ -631,7 +643,25 @@ begin
   inherited;
 end;
 
-function TPlayerDB.FFindPlayer(aName: TPlayerName): Integer;
+function TPlayerDB.FFindPlayerId(aPlayerId: int64): Integer;
+var i: integer;
+begin
+  Result := -1;
+  if (aPlayerId < 0) then exit;
+  
+  for i := 0 to FPlayerList.Count-1 do
+  with TPlayerInformation(FPlayerList[i]^) do
+  begin
+    if (PlayerId >= 0) and (PlayerId = aPlayerId) then
+    begin
+      Result := i;
+      Break;
+    end;
+  end;
+end;
+
+function TPlayerDB.FFindPlayerName(aName: TPlayerName;
+  var aPlayerId: int64): Integer;
 var i: integer;
 begin
   Result := -1;
@@ -640,6 +670,15 @@ begin
   begin
     if (Name = aName) then
     begin
+      if (PlayerId < 0) then
+        PlayerId := aPlayerId
+      else
+      if (aPlayerId < 0) then
+        aPlayerId := PlayerId
+      else // playerID und aPlayerID > 0
+      if (PlayerId <> aPlayerId) then
+        continue; // wenn beide ids vorhanden aber nicht gleich -> weitersuchen
+
       Result := i;
       Break;
     end;
@@ -648,9 +687,10 @@ end;
 
 function TPlayerDB.GetPlayerInfo(aName: TPlayerName): PPlayerInformation;
 var i: integer;
+    id: int64;
 begin
   Result := nil;
-  i := FFindPlayer(aName);
+  i := FFindPlayerName(aName, id);
   if (i >= 0) then
   begin
     Result := PPlayerInformation(FPlayerList[i]);
@@ -1718,27 +1758,28 @@ begin
   end;
 end;
 
-function TPlayerDB.newPlayerInfo(name: string): PPlayerInformation;
+function TPlayerDB.newPlayerInfo(name: string; PlayerId: int64): PPlayerInformation;
 begin
   New(Result);
   Result^.ResearchTime_u := 0;
   Result^.Name := name;
+  Result^.PlayerId := PlayerId;
   Result^.lpa := -4;
   Result^.lpi := -4;
   FPlayerList.Add(Result);
 end;
 
-procedure TPlayerDB.setLPA_LPI(const player: TPlayerName; const lpa,
-  lpi: integer);
+procedure TPlayerDB.setLPA_LPI(const player: TPlayerName; id: int64;
+  const lpa, lpi: integer);
 var i: integer;
     ppi: PPlayerInformation;
 begin
   if (player <> '')and(lpa >= 0)and(lpi >= 0) then
   begin
-    i := FFindPlayer(player);
+    i := FFindPlayerName(player, id);
     if (i = -1) then
     begin
-      ppi := newPlayerInfo(player);
+      ppi := newPlayerInfo(player, id);
     end
     else ppi := FPlayerList[i];
 

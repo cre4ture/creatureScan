@@ -14,10 +14,12 @@ uses
 
 type
   TcSSolSysFileFormat =
-  (css_none, {        css_21 ,}            css_22,                    css_30);
+  (css_none, {        css_21 ,}            css_22,                    css_30,
+   css_31);
 const
   cSSolSysFileFormatstr: array[TcSSolSysFileFormat] of shortstring =
-  ( 'error', {'cscan_sys_2.1',} 'cscan_sys_2.2', 'creatureScan_SolSysDB_3.0');
+  ( 'error', {'cscan_sys_2.1',} 'cscan_sys_2.2', 'creatureScan_SolSysDB_3.0',
+    'creatureScan_SolSysDB_3.1');
 
   StatusItems_21_22 = 'igIuns';
 
@@ -50,14 +52,23 @@ neu:
 weil es das alte format aber schon lange nicht mehr gibt,
 lass ich es hier einfach weg!
 
-22 auf 40:
+22 auf 30:
 
 Fileheader vereinfacht.
+
+30 auf 31:
+
+Neu: PlayerID
 
 }
 
 type
-  EcSDBUnknownFileFormat = class(Exception);
+  EcSDBUnknownSysFileFormat = class(Exception);
+  EcSDBFFSysUniDiffers = class(Exception)
+  public
+    file_universe_name: string;
+    constructor Create(const Msg: string; const uniname: string);
+  end;
 
   TcSSolSysHeader_10 = record
     V: string[13];
@@ -87,6 +98,26 @@ type
   TcSSolSysItem_22 = packed record
     Head: TcSSolSysItem_22_Head;
     Planets: packed Array[1..15] of TcSSolSysItem_22_Planet;
+  end;
+
+  TcSSolSysItem_31_Head = packed Record
+    Time_u: Int64;
+    SystemPos: packed array[0..1] of Word;
+  end;
+  TcSSolSysItem_31_Planet = packed record
+    Player: TPlayerName;
+    PlayerId: int64;
+    PlanetName: TPlanetName;
+    Ally: TAllyName;
+    AllyId: int64;
+    Status: TStatusStr_10;
+    MondSize: Word;
+    MondTemp: Smallint;
+    TF: packed array[0..1] of Cardinal;  //0=Metall 1=Kristall
+  end;
+  TcSSolSysItem_31 = packed record
+    Head: TcSSolSysItem_31_Head;
+    Planets: packed Array[1..15] of TcSSolSysItem_31_Planet;
   end;
 
   TcSSolSysItemToSystemCopy = function(const ItemBuf: pointer): TSystemCopy;
@@ -180,7 +211,7 @@ begin
       end;
 
     if (FFormat = css_none) then
-      raise EcSDBUnknownFileFormat.Create(
+      raise EcSDBUnknownSysFileFormat.Create(
         'TcSSolSysDB.Create: Unknown file format (File: "' +
          aFilename  + '", Format: "' + FHeader.filetype + '")');
   end;
@@ -211,8 +242,10 @@ begin
     with Result.Planeten[i] do
     begin
       Player := Item.Planets[i].Player;
+      PlayerId := -1;
       PlanetName := Item.Planets[i].PlanetName;
       Ally := Item.Planets[i].Ally;
+      AllyId := -1;
       Status := StrToStatus_21_22(Item.Planets[i].Status);
       MondSize := Item.Planets[i].MondSize;
       MondTemp := Item.Planets[i].MondTemp;
@@ -257,6 +290,78 @@ begin
   TcSSolSysItem_22(ItemBuf^) := Item;
 end;
 
+function cSSolSysItem_31_to_Sys(const ItemBuf: pointer): TSystemCopy;
+var Item: TcSSolSysItem_31;
+    i: integer;
+begin
+  Item := TcSSolSysItem_31(ItemBuf^);
+
+  Result.Time_u := Item.Head.Time_u;
+  Result.System.P[0] := Item.Head.SystemPos[0];
+  Result.System.P[1] := Item.Head.SystemPos[1];
+  Result.System.P[2] := 1;
+  Result.System.Mond := False;
+
+  for i := 1 to length(Result.Planeten) do           //Clear
+  begin
+    FillChar(Result.Planeten[i],Sizeof(Result.Planeten[i]),0);
+  end;
+
+  for i := 1 to length(Item.Planets) do
+  begin
+    with Result.Planeten[i] do
+    begin
+      Player := Item.Planets[i].Player;
+      PlayerId := Item.Planets[i].PlayerId;
+      PlanetName := Item.Planets[i].PlanetName;
+      Ally := Item.Planets[i].Ally;
+      AllyId := Item.Planets[i].AllyId;
+      Status := StrToStatus_21_22(Item.Planets[i].Status);
+      MondSize := Item.Planets[i].MondSize;
+      MondTemp := Item.Planets[i].MondTemp;
+      TF[0] := Item.Planets[i].TF[0];
+      TF[1] := Item.Planets[i].TF[1];
+    end;
+  end;
+end;
+
+procedure Sys_to_cSSolSysItem_31(const Sys: TSystemCopy;
+  const ItemBuf: pointer);
+var Item: TcSSolSysItem_31;
+    i: integer;
+begin
+  with Item.Head do
+  begin
+    Time_u := Sys.Time_u;
+    SystemPos[0] := Sys.System.P[0];
+    SystemPos[1] := Sys.System.P[1];
+  end;
+
+  for i := 1 to length(Item.Planets) do           //Clear
+  begin
+    FillChar(Item.Planets[i],Sizeof(Item.Planets[i]),0);
+  end;
+
+  for i := 1 to length(Item.Planets) do
+  begin
+    with Item.Planets[i] do
+    begin
+      Player := Sys.Planeten[i].Player;
+      PlayerId := Sys.Planeten[i].PlayerId;
+      PlanetName := Sys.Planeten[i].PlanetName;
+      Ally := Sys.Planeten[i].Ally;
+      AllyId := Sys.Planeten[i].AllyId;
+      Status := StatusToStr_21_22(Sys.Planeten[i].Status);
+      MondSize := Sys.Planeten[i].MondSize;
+      MondTemp := Sys.Planeten[i].MondTemp;
+      TF[0] := Sys.Planeten[i].TF[0];
+      TF[1] := Sys.Planeten[i].TF[1];
+    end;
+  end;
+
+  TcSSolSysItem_31(ItemBuf^) := Item;
+end;
+
 procedure TcSSolSysDBFile.DisposeItemPtr(const p: pointer);
 begin
   Dispose(PSystemCopy(p));
@@ -293,6 +398,13 @@ begin
       FItemSize := SizeOf(TcSSolSysItem_22);
       FSysToItem := Sys_to_cSSolSysItem_22;
       FItemToSys := cSSolSysItem_22_to_Sys;
+    end;
+    css_31:
+    begin
+      // FHeaderSize := SizeOf(TcSSolSysHeader_20); -> default value
+      FItemSize := SizeOf(TcSSolSysItem_31);
+      FSysToItem := Sys_to_cSSolSysItem_31;
+      FItemToSys := cSSolSysItem_31_to_Sys;
     end; //Hier Neue Formate eintragen!
     else
       raise Exception.Create('TcSSolSysDBFile.InitFormat: Es soll eine Datei mit einem nicht definierten Format geöffnet werden!');
@@ -323,7 +435,8 @@ end;
 procedure TcSSolSysDBFile.SetUni(Uni: string);
 begin
   if FFormat < high(FFormat) then
-    raise Exception.Create('TcSSolSysDBFile.SetUni: can''t change old fileformat');
+    raise Exception.Create(
+      'TcSSolSysDBFile.SetUni: Old fileformat can be read only!');
 
   FHeader.domain := Uni;
   SetHeader(FHeader);
@@ -341,21 +454,10 @@ constructor TcSSolSysDB_for_File.Create(aFilename: string;
 var domain: string;
 begin
   inherited Create;
-  try
-    DBFile := TcSSolSysDBFile.Create(aFilename);
-  except
-    on E: EcSDBUnknownFileFormat do
-    begin
-      DBFile.Free;
-      ShowMessage(Format('The DBFile(%s) is in an unknown Format or broken' +
-                         'and will be deleted now!' + #13 + #10 +
-                         'If you want so save it, do this before you press OK!',
-                         [aFilename]));
-      DeleteFile(aFilename);
-      DBFile := TcSSolSysDBFile.Create(aFilename);
-    end;
-  end;
+  DBFile := TcSSolSysDBFile.Create(aFilename);
 
+  // wenn die datei gerade neu angelegt wurde,
+  // muss noch die domain gesetzt werden!
   if (DBFile.UniDomain = new_file_ident) then
   begin
     DBFile.UniDomain := UniDomain;
@@ -363,15 +465,8 @@ begin
 
   if (UniDomain <> DBFile.UniDomain) then
   begin
-    domain := DBFile.UniDomain;
-    DBFile.Free;
-    ShowMessage(Format('The DBFile(%s) belongs to an other universe(%d)' +
-                       'and will be deleted now!' + #13 + #10 +
-                       'If you want so save it, do this before you press OK!',
-                       [aFilename, domain]));
-    DeleteFile(aFilename);
-    DBFile := TcSSolSysDBFile.Create(aFilename);
-    DBFile.UniDomain := UniDomain;
+    raise EcSDBFFSysUniDiffers.Create('TcSSolSysDB_for_File.Create():' +
+      'the file is for an other universe!', DBFile.UniDomain);
   end;
 end;
 
@@ -405,6 +500,14 @@ procedure TcSSolSysDB_for_File.SetSolSys(nr: cardinal;
   SolSys: TSystemCopy);
 begin
   DBFile.SetSolSys(nr,SolSys);
+end;
+
+{ EcSDBFFSysUniDiffers }
+
+constructor EcSDBFFSysUniDiffers.Create(const Msg, uniname: string);
+begin
+  inherited Create(Msg);
+  file_universe_name := uniname;
 end;
 
 end.

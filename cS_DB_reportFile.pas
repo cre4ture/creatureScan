@@ -50,7 +50,7 @@ einfacherer DateiHeader
 }
 
 type
-  EcSDBUnknownFileFormat = class(Exception);
+  EcSDBUnknownReportFileFormat = class(Exception);
 
   TcSReportHeader_10 = record
     V: string[14];
@@ -185,7 +185,7 @@ begin
       end;
 
     if (FFormat = csr_none) then
-      raise EcSDBUnknownFileFormat.Create(
+      raise EcSDBUnknownReportFileFormat.Create(
         'TcSReportDB.Create: Unknown file format (File: "' +
         aFilename  + '", Format: "' + FHeader.filetype + '")');
   end;
@@ -630,7 +630,7 @@ begin
   try
     DBFile := TcSReportDBFile.Create(aFilename);
   except
-    on E: EcSDBUnknownFileFormat do
+    on E: EcSDBUnknownReportFileFormat do
     begin
       DBFile.Free;
       ShowMessage(Format('The DBFile(%s) is in an unknown Format or broken' +

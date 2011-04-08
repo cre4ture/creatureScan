@@ -88,13 +88,11 @@ type
     function InitStatFiles: Boolean;
   private
     xml_data_file: string;
-    Initialised: Boolean;
     function LoadInitFiles: boolean;
     function initSysFile: Boolean;
     function initScanFile: Boolean;
     procedure ImportSys(Filename: String);
     procedure ImportScans(Filename: string);
-    procedure SaveOptions;
     function GetStats: TStatPoints;
     function GetFleetStats: TStatPoints;
     function GetAllyStats: TStatPoints;
@@ -140,10 +138,9 @@ type
 
     function LeseFleets(handle: integer): Boolean;
     function GetPlayerAtPos(planet: TPlanetPosition; addstatus: boolean = true): string;
-    property InitialisedF: boolean read Initialised;
-    constructor Create(Init: Boolean; UserDir: string; ACLHost: TcSServer;
+    constructor Create(UserDir: string; ACLHost: TcSServer;
       xml_data_file: string);
-    function Initialise: Boolean;
+    function doInitialisation: Boolean;
     destructor Destroy; override;
     procedure ImportFile(Filename: String);
     procedure DeleteDeletedPlanets(Sys: integer);
@@ -315,7 +312,7 @@ begin
 end;
 
 
-constructor TOgameDataBase.Create(Init: Boolean; UserDir: string;
+constructor TOgameDataBase.Create(UserDir: string;
   ACLHost: TcSServer; xml_data_file: string);
 begin
   inherited Create;
@@ -324,8 +321,6 @@ begin
   cS_NetServ := ACLHost;
   self.xml_data_file := xml_data_file;
 
-  Application.OnIdle := ApplicationOnIdle;
-  
   {CThreadHost.AddNoThreadDataProc(pi_nTScans,CThreadHostNoThreadScan_R);
   CThreadHost.AddNoThreadDataProc(pi_nTSysteme,CThreadHostNoThreadSystem_R);
   CThreadHost.AddNoThreadDataProc(pi_ExTOrderSystem,CThreadHostAsyncOrderSystem_R);
@@ -336,19 +331,21 @@ begin
   if not DirectoryExists(SaveDir) then CreateDir(SaveDir);
 
   PlayerInf := SaveDir + 'options.inf';
-  if init then
-  begin
-    if Initialise then
-    begin
-      UniTree := TNetUniTree.Create(max_Galaxy, max_Systems, max_Planeten,
-                                  Systeme, Berichte, cS_NetServ);
-    end;
-  end;
+
+  if not doInitialisation then
+    raise Exception.Create('TOgameDataBase.Create: Init failed!');
+
+  UniTree := TNetUniTree.Create(max_Galaxy, max_Systems, max_Planeten,
+                              Systeme, Berichte, cS_NetServ);
+
+  // assign this event after initialisation:
+  Application.OnIdle := ApplicationOnIdle;
 end;
 
 procedure TOgameDataBase.SaveUserOptions;
 var i: integer;
     ini: TMemIniFile;
+    rh: TredHoursTypes;
 begin
   //Es gibt hier zwei Proceduren!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   //SaveOptions -> wird von Self.Destroy aufgerufen!
@@ -372,6 +369,16 @@ begin
   ini.WriteFloat('UserOptions', 'tf_factor', truemmerfeld_faktor);
 
   ini.WriteBool('UserOptions', 'BetaUni', OGame_IsBetaUni);
+
+  ini.WriteBool('UserOptions','AutoDeleteScans',DeleteScansWhenAddSys);
+  for rh := low(rh) to high(rh) do
+    ini.WriteInteger('UserOptions','redHours'+IntToStr(integer(rh)),redHours[rh]);
+  ini.WriteDateTime('UserOptions','MaxTimeToAdd',MaxTimeToAdd);
+
+  ini.WriteInteger('UserOptions','Punkte',Stats_own);
+  ini.WriteInteger('UserOptions','FleetPunkte',FleetStats_own);
+  ini.WriteInteger('UserOptions','AllyPunkte',AllyStats_own);
+
 
   ini.UpdateFile;
   ini.free;
@@ -458,7 +465,7 @@ begin
 end;
 
 
-function TOgameDataBase.Initialise: Boolean;
+function TOgameDataBase.doInitialisation: Boolean;
 begin
 
   try
@@ -472,14 +479,10 @@ begin
             initSysFile and
             InitStatFiles and
             initFleetBoard;
-  Initialised := Result;
 end;
 
 destructor TOgameDataBase.Destroy;
 begin
-  if Initialised then
-    SaveOptions;
-
   Statistic.Free;
 
   FleetBoard.Free;
@@ -516,35 +519,59 @@ function TOgameDataBase.initSysFile: Boolean;
     Result := True;
   end;
 
-var Filename: String;
+var Filename, msg: String;
+    fileacc: TcSSolSysDBFile;
 begin
-  Result := False;
+  Result := True;  // Errors are reported through excpetions
   Filename := SaveDir + 'solsys.cssys';
 
   try
-    try
-      Systeme := TcSSolSysDB_for_File.Create(Filename, UniDomain);
-    except
-      ShowMessage(STR_Sonnensystemdatei_konnte_nicht_geoeffnetwerden_Prog_wird_beendet +
-                  #10 + #13 + STR_vllt_andere_Instanz);
-      Exit;
-    end;
-
-    with Systeme as TcSSolSysDB_for_File do
+    Systeme := TcSSolSysDB_for_File.Create(Filename, UniDomain);
+  except
+    on E: EcSDBFFSysUniDiffers do
     begin
-      if IsOldFormat then
-      begin
-        Systeme.Free;
-        RenameFile(Filename,Filename+'.old');
-        Systeme := TcSSolSysDB_for_File.Create(Filename, UniDomain);
-        if  __importold(Filename+'.old') then
-          DeleteFile(Filename+'.old');
+      Systeme.Free;
+      msg := 'The SolSys-DB file is tagged for an other universe: '
+        + E.file_universe_name + #10 + #13
+        + 'This may occour if you updated creatureScan or changed your profile.' + #10 + #13
+        + 'Shall we use this file despite the warning?' + #10 + #13
+        + 'If you press YES, the uni-tag of the file will be changed.' + #10 + #13
+        + 'If you press NO, the file will be deleted.' + #10 + #13
+        + 'If you press CANCEL, the application terminates and you can do with your file what you like' + #10 + #13;
+      case Application.MessageBox(PChar(msg), 'Warning', MB_YESNOCANCEL) of
+      IDYES:
+        begin
+          // change uni tag
+          fileacc := TcSSolSysDBFile.Create(Filename);
+          fileacc.UniDomain := UniDomain;
+          fileacc.Free;
+          // try to load DB again
+          Systeme := TcSSolSysDB_for_File.Create(Filename, UniDomain);
+        end;
+      IDNO:
+        begin
+          // delete file
+          DeleteFile(Filename);
+          // try to load DB again (create new one in this case!)
+          Systeme := TcSSolSysDB_for_File.Create(Filename, UniDomain);
+        end;
+      else
+        raise;
       end;
     end;
-  finally
-
   end;
-  Result := True;
+
+  with Systeme as TcSSolSysDB_for_File do
+  begin
+    if IsOldFormat then
+    begin
+      Systeme.Free;
+      RenameFile(Filename,Filename+'.old');
+      Systeme := TcSSolSysDB_for_File.Create(Filename, UniDomain);
+      if  __importold(Filename+'.old') then
+        DeleteFile(Filename+'.old');
+    end;
+  end;
 end;
 
 function TOgameDataBase.initScanFile: boolean;
@@ -774,31 +801,6 @@ begin
     i := UniTree.UniReport(Pos);
   end;
 end;
-
-procedure TOgameDataBase.SaveOptions;
-var ini: TMemIniFile;
-    rh: TredHoursTypes;
-begin
-  //Es gibt hier zwei Proceduren!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  //SaveOptions -> wird von Self.Destroy aufgerufen!
-  //SaveUserOptions -> wird bei Änderung der Spieler daten über "Einstellungen" aufgerufen
-  //                   und direkt nach den reinladen, in LoadInitFiles!
-
-
-  ini := TMemIniFile.Create(PlayerInf);
-  ini.WriteBool('UserOptions','AutoDeleteScans',DeleteScansWhenAddSys);
-  for rh := low(rh) to high(rh) do
-    ini.WriteInteger('UserOptions','redHours'+IntToStr(integer(rh)),redHours[rh]);
-  ini.WriteDateTime('UserOptions','MaxTimeToAdd',MaxTimeToAdd);
-
-  ini.WriteInteger('UserOptions','Punkte',Stats_own);
-  ini.WriteInteger('UserOptions','FleetPunkte',FleetStats_own);
-  ini.WriteInteger('UserOptions','AllyPunkte',AllyStats_own);
-  
-  ini.UpdateFile;
-  ini.free;
-end;
-
 
 function CheckNewestVersion: string;
 var net: TIdHTTP;
@@ -1175,7 +1177,7 @@ procedure TOgameDataBase.ApplicationOnIdle(Sender: TObject;
 var Ready: Boolean;
 begin
   Done := True;
-  if Initialised then
+//  if Initialised then
   begin
     cS_NetServ.DoWork_idle(Ready);
     if not Ready then

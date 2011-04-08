@@ -114,8 +114,10 @@ type
   PSystemPlanet = ^TSystemPlanet;
   TSystemPlanet = record
     Player: TPlayerName;
+    PlayerId: Int64;
     PlanetName: TPlanetName;
     Ally: TAllyName;
+    AllyId: Int64;
     Status: TStatus;
     MondSize: Word;
     MondTemp: SmallInt;
@@ -159,6 +161,7 @@ type
   TStatType = (st_Player, st_Fleet, st_Ally);
   TStatPlayer = record
     Name: TPlayerName;
+    NameId: Int64;
     Punkte: Cardinal;
     case TStatType of
     st_Player: (Ally: TAllyName);    //nur für spielerstats! bei allystats wird der allyname in den Spielernamen geschrieben!
