@@ -1,6 +1,6 @@
 object FRM_Spielerdaten: TFRM_Spielerdaten
-  Left = 508
-  Top = 195
+  Left = 484
+  Top = 212
   BorderStyle = bsDialog
   Caption = 'Playerinfos'
   ClientHeight = 425
@@ -35,51 +35,80 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
     Left = 4
     Top = 36
     Width = 331
-    Height = 275
+    Height = 277
     Caption = ' OGame '
     TabOrder = 0
     object LBL_PlayerI2: TLabel
-      Left = 48
-      Top = 59
+      Left = 16
+      Top = 67
       Width = 109
       Height = 13
       Caption = 'Name des Universums:'
     end
     object LBL_PlayerI3: TLabel
-      Left = 48
-      Top = 102
+      Left = 16
+      Top = 110
       Width = 51
       Height = 13
       Caption = 'Parameter:'
     end
     object lbl_Speedfaktor: TLabel
-      Left = 48
-      Top = 145
+      Left = 16
+      Top = 129
       Width = 61
       Height = 13
       Hint = 'auch Bruchzahlen m'#246'glich'
       Alignment = taRightJustify
       Caption = 'Speedfaktor:'
     end
-    object Label1: TLabel
-      Left = 48
-      Top = 169
-      Width = 94
-      Height = 13
-      Hint = 'auch Bruchzahlen m'#246'glich'
-      Alignment = taRightJustify
-      Caption = 'TF Berechnung (%):'
-    end
     object Label2: TLabel
-      Left = 48
-      Top = 13
+      Left = 16
+      Top = 21
       Width = 201
       Height = 13
       Caption = 'OGame Domainname (ohne http://www. !)'
     end
-    object CB_OGame_Site: TComboBox
-      Left = 48
+    object Label3: TLabel
+      Left = 232
       Top = 32
+      Width = 81
+      Height = 49
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Dein Uni fehlt? Versuche ein Update:'
+      WordWrap = True
+    end
+    object Label8: TLabel
+      Left = 16
+      Top = 224
+      Width = 113
+      Height = 13
+      Caption = 'Anzahl Sonnensysteme:'
+    end
+    object Label9: TLabel
+      Left = 16
+      Top = 200
+      Width = 79
+      Height = 13
+      Caption = 'Anzahl Galaxien:'
+    end
+    object Label1: TLabel
+      Left = 16
+      Top = 176
+      Width = 134
+      Height = 13
+      Caption = '%-Anteil Verteidigung ins TF:'
+    end
+    object Label7: TLabel
+      Left = 16
+      Top = 152
+      Width = 101
+      Height = 13
+      Caption = '%-Anteil Flotte ins TF:'
+    end
+    object CB_OGame_Site: TComboBox
+      Left = 16
+      Top = 40
       Width = 201
       Height = 21
       Hint = 
@@ -99,54 +128,9 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
         'ogame.ru'
         'ogame.dk')
     end
-    object RB_GalaCount9: TRadioButton
-      Tag = 9
-      Left = 48
-      Top = 210
-      Width = 233
-      Height = 17
-      Caption = '9 Galaxien 499 Sonnensysteme'
-      Checked = True
-      TabOrder = 6
-      TabStop = True
-    end
-    object RB_GalaCount19: TRadioButton
-      Tag = 19
-      Left = 48
-      Top = 226
-      Width = 233
-      Height = 17
-      Caption = '19 Galaxien 499 Sonnensysteme'
-      TabOrder = 7
-    end
-    object RB_GalaCount50: TRadioButton
-      Tag = 50
-      Left = 48
-      Top = 242
-      Width = 233
-      Height = 17
-      Caption = '50 Galaxien 100 Sonnensysteme'
-      TabOrder = 8
-    end
-    object CH_DefInTF: TCheckBox
-      Left = 48
-      Top = 190
-      Width = 235
-      Height = 17
-      Caption = 'Verteidigung ins Tr'#252'mmerfeld'
-      TabOrder = 5
-    end
-    object txt_speedfaktor: TEdit
-      Left = 214
-      Top = 142
-      Width = 69
-      Height = 21
-      TabOrder = 3
-      Text = '1.0'
-    end
-    object cb_TF_calc: TComboBox
-      Left = 186
-      Top = 163
+    object cb_fleet_TF_calc: TComboBox
+      Left = 218
+      Top = 147
       Width = 97
       Height = 21
       Hint = 
@@ -156,20 +140,11 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
       TabOrder = 4
       Text = '30 (default)'
       Items.Strings = (
-        '30 (default)'
-        '70 (de - Uni70)')
-    end
-    object cb_redesign: TCheckBox
-      Left = 48
-      Top = 119
-      Width = 233
-      Height = 17
-      Caption = 'Redesign (Andromeda, Barym, ...)'
-      TabOrder = 2
+        '30 (normal)')
     end
     object CB_OGame_Universename: TComboBox
-      Left = 48
-      Top = 75
+      Left = 16
+      Top = 83
       Width = 201
       Height = 21
       ItemHeight = 13
@@ -177,13 +152,79 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
       OnChange = E_UniChange
     end
     object btn_update: TButton
-      Left = 256
-      Top = 40
-      Width = 49
-      Height = 49
+      Left = 240
+      Top = 80
+      Width = 65
+      Height = 25
       Caption = 'Update'
-      TabOrder = 9
+      TabOrder = 2
       OnClick = btn_updateClick
+    end
+    object cb_def_TF_calc: TComboBox
+      Left = 218
+      Top = 171
+      Width = 97
+      Height = 21
+      Hint = 
+        'Wieviel Prozent der Kosten einer Flotte kommen ins TF? (auch bel' +
+        'iebige Werte m'#246'glich)'
+      ItemHeight = 13
+      TabOrder = 5
+      Text = '0 (default)'
+      Items.Strings = (
+        '0 (normal)')
+    end
+    object cb_redesign: TCheckBox
+      Left = 16
+      Top = 247
+      Width = 297
+      Height = 17
+      Caption = 'Redesign vollst'#228'ndig aktiv'
+      TabOrder = 8
+    end
+    object cb_gala_count: TComboBox
+      Left = 218
+      Top = 195
+      Width = 97
+      Height = 21
+      Hint = 
+        'Wieviel Prozent der Kosten einer Flotte kommen ins TF? (auch bel' +
+        'iebige Werte m'#246'glich)'
+      ItemHeight = 13
+      TabOrder = 6
+      Text = '9 (normal)'
+      Items.Strings = (
+        '9 (normal)')
+    end
+    object cb_solsys_count: TComboBox
+      Left = 218
+      Top = 219
+      Width = 97
+      Height = 21
+      Hint = 
+        'Wieviel Prozent der Kosten einer Flotte kommen ins TF? (auch bel' +
+        'iebige Werte m'#246'glich)'
+      ItemHeight = 13
+      TabOrder = 7
+      Text = '499 (normal)'
+      Items.Strings = (
+        '499 (normal)')
+    end
+    object cb_speed: TComboBox
+      Left = 218
+      Top = 123
+      Width = 97
+      Height = 21
+      Hint = 
+        'Wieviel Prozent der Kosten einer Flotte kommen ins TF? (auch bel' +
+        'iebige Werte m'#246'glich)'
+      ItemHeight = 13
+      TabOrder = 3
+      Text = '1.0'
+      Items.Strings = (
+        '1.0'
+        '2.0'
+        '4.0')
     end
   end
   object BTN_OK: TButton

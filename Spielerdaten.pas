@@ -15,12 +15,7 @@ type
     BTN_OK: TButton;
     BTN_Abbrechen: TButton;
     LBL_PlayerI3: TLabel;
-    RB_GalaCount9: TRadioButton;
-    RB_GalaCount19: TRadioButton;
-    RB_GalaCount50: TRadioButton;
-    CH_DefInTF: TCheckBox;
     lbl_Speedfaktor: TLabel;
-    txt_speedfaktor: TEdit;
     GroupBox1: TGroupBox;
     LBL_PlayerI4: TLabel;
     LBL_PlayerI5: TLabel;
@@ -30,12 +25,20 @@ type
     E_Gala: TEdit;
     E_System: TEdit;
     E_Planet: TEdit;
-    Label1: TLabel;
-    cb_TF_calc: TComboBox;
+    cb_fleet_TF_calc: TComboBox;
     Label2: TLabel;
-    cb_redesign: TCheckBox;
     CB_OGame_Universename: TComboBox;
     btn_update: TButton;
+    Label3: TLabel;
+    cb_def_TF_calc: TComboBox;
+    cb_redesign: TCheckBox;
+    Label8: TLabel;
+    Label9: TLabel;
+    cb_gala_count: TComboBox;
+    cb_solsys_count: TComboBox;
+    Label1: TLabel;
+    Label7: TLabel;
+    cb_speed: TComboBox;
     procedure CB_OGame_SiteChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormPaint(Sender: TObject);
@@ -51,12 +54,12 @@ type
     game_domain: string;
     urlName: string;
     UniverseName: String;
-    DefInTF: Boolean;
     GalaCount, SysCount: Integer;
     IngameName: String;
     HomePlanet: TPlanetPosition;
     SpeedFaktor: Single;
-    TF_factor: Double;
+    TF_fact_fleet: Double;
+    TF_fact_def: Double;
     redesign: Boolean;
     function Execute: boolean;
     constructor Create(AOwner: TComponent; odb: TObject); reintroduce;
@@ -94,47 +97,43 @@ var i: integer;
 begin
   CB_OGame_Site.Text := game_domain;
   CB_OGame_Universename.Text := UniverseName;
-  CH_DefInTF.Checked := DefInTF;
-  txt_speedfaktor.Text := FloatToStr(SpeedFaktor);
-  RB_GalaCount9.Checked := True;
-  RB_GalaCount19.Checked := (GalaCount = 19);
-  RB_GalaCount50.Checked := (GalaCount = 50);
+  cb_speed.Text := FloatToStr(SpeedFaktor);
+  cb_gala_count.Text := IntToStr(GalaCount);
+  cb_solsys_count.Text := IntToStr(SysCount);
   E_Spielername.Text := IngameName;
   E_Gala.Text := IntToStr(homeplanet.P[0]);
   E_System.Text := IntToStr(homeplanet.P[1]);
   E_Planet.Text := IntToStr(homeplanet.P[2]);
   cb_redesign.Checked := redesign;
 
-  i := round(TF_factor*100);
+  i := round(TF_fact_fleet*100);
   if (i = 30)or(i = 0) then
-    cb_TF_calc.ItemIndex := 0
+    cb_fleet_TF_calc.ItemIndex := 0
   else
-  if (i = 70) then
-    cb_TF_calc.ItemIndex := 1
+    cb_fleet_TF_calc.Text := IntToStr(i);
+
+  i := round(TF_fact_def*100);
+  if (i = 0) then
+    cb_def_TF_calc.ItemIndex := 0
   else
-    cb_TF_calc.Text := IntToStr(i);
+    cb_def_TF_calc.Text := IntToStr(i);
 
   Result := (ShowModal = mrOk);
   if Result then
   begin
     game_domain := CB_OGame_Site.Text;
     UniverseName := CB_OGame_Universename.Text;
-    DefInTF := CH_DefInTF.Checked;
-    SpeedFaktor := StrToFloat(txt_speedfaktor.Text);
-    i := ReadInt(cb_TF_calc.Text,1,false);
-    TF_factor := i /100;
+    SpeedFaktor := StrToFloat(cb_speed.Text);
+    i := ReadInt(cb_fleet_TF_calc.Text,1,false);
+    TF_fact_fleet := i /100;
+    i := ReadInt(cb_def_TF_calc.Text,1,false);
+    TF_fact_def := i /100;
     IngameName := E_Spielername.Text;
-    
-    GalaCount := 9;
-    SysCount := 499;
-    if RB_GalaCount19.Checked then
-      GalaCount := 19; //und standart syscount = 499!
 
-    if RB_GalaCount50.Checked then
-    begin
-      SysCount := 100;
-      GalaCount := 50;
-    end;
+    i := ReadInt(cb_gala_count.Text,1,false);
+    GalaCount := i;
+    i := ReadInt(cb_solsys_count.Text,1,false);
+    SysCount := i;
 
     try
       HomePlanet.P[0] := StrToInt(E_Gala.Text);
@@ -170,15 +169,58 @@ end;
 
 procedure TFRM_Spielerdaten.BTN_OKClick(Sender: TObject);
 var i: integer;
+    f: single;
 begin
-  i := ReadInt(cb_TF_calc.Text, 1, false);
+  try
+    f := StrToFloat(cb_speed.Text); 
+    if (f <= 0) then
+      raise Exception.Create('');
+  except
+    ShowMessage('Fehlerhaftes Format bei ' + lbl_Speedfaktor.Caption);
+    exit;
+  end;
+
+  try
+    i := ReadInt(cb_fleet_TF_calc.Text, 1, false);
+    if (i < 0) or (i > 100) then
+      raise Exception.Create('');
+  except
+    ShowMessage('Fehlerhaftes Format bei ' + Label7.Caption);
+    exit;
+  end;
+
+  try
+    i := ReadInt(cb_def_TF_calc.Text, 1, false);
+    if (i < 0) or (i > 100) then
+      raise Exception.Create('');
+  except
+    ShowMessage('Fehlerhaftes Format bei ' + Label1.Caption);
+    exit;
+  end;
+
+  try
+    i := ReadInt(cb_gala_count.Text, 1, false);
+    if (i <= 0) then
+      raise Exception.Create('');
+  except
+    ShowMessage('Fehlerhaftes Format bei ' + Label9.Caption);
+    exit;
+  end;
+  try
+    i := ReadInt(cb_solsys_count.Text, 1, false);
+    if (i <= 0) then
+      raise Exception.Create('');
+  except
+    ShowMessage('Fehlerhaftes Format bei ' + Label8.Caption);
+    exit;
+  end;
+
   if (E_Spielername.Text <> '')and
      (E_Gala.Text <> '')and
      (E_System.Text <> '')and
      (E_Planet.Text <> '')and
      (CB_OGame_Universename.Text <> '')and
-     (StrToFloat(txt_speedfaktor.Text) > 0)and
-     (i > 0)and(i <= 100) then
+     (CB_OGame_Site.Text <> '') then
     ModalResult := mrOk;
 end;
 
@@ -195,14 +237,11 @@ begin
       universe := TOgameDataBase(ODB).
                     game_data.GameSites[site].UniverseList[uni];
       urlName := universe.urlName;
-      case universe.galaxyCount of
-        19: RB_GalaCount19.Checked := true;
-        50: RB_GalaCount50.Checked := true;
-        else RB_GalaCount9.Checked := true;
-      end;
-      txt_speedfaktor.Text := FloatToStr(universe.gameSpeedFactor);
-      cb_TF_calc.Text := IntToStr(round(universe.tfFleetFactor*100));
-      CH_DefInTF.Checked := (universe.tfDefFactor > 0);
+      cb_gala_count.Text := IntToStr(universe.galaxyCount);
+      cb_solsys_count.Text := IntToStr(universe.solsysCount);
+      cb_speed.Text := FloatToStr(universe.gameSpeedFactor);
+      cb_fleet_TF_calc.Text := IntToStr(round(universe.tfFleetFactor*100));
+      cb_def_TF_calc.Text := IntToStr(round(universe.tfDefFactor*100));
       cb_redesign.Checked := universe.redesign_rules;
     end
     else
