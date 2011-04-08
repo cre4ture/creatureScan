@@ -70,6 +70,7 @@ begin
     6: CellText := Ally;
     7: CellText := IntToStr(TF[0]);
     8: CellText := IntToStr(TF[1]);
+    9: CellText := IntToStr(PlayerId);
   end;
 end;
 

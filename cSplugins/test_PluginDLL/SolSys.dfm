@@ -13,8 +13,8 @@ object FRM_Solsys: TFRM_Solsys
   OldCreateOrder = False
   OnCreate = FormCreate
   DesignSize = (
-    772
-    372)
+    780
+    380)
   PixelsPerInch = 96
   TextHeight = 13
   object Shape1: TShape
@@ -76,6 +76,10 @@ object FRM_Solsys: TFRM_Solsys
       item
         Position = 8
         WideText = 'TF_Kristall'
+      end
+      item
+        Position = 9
+        WideText = 'playerID'
       end>
   end
   object Button1: TButton
