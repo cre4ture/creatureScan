@@ -158,7 +158,7 @@ object FRM_Suche: TFRM_Suche
             Top = 20
             Width = 161
             Height = 21
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 0
             Text = 'cb_koords'
             OnChange = cb_koordsChange

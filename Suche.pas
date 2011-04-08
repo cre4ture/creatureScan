@@ -23,6 +23,7 @@ type
     Datum: TDateTime;
     LastPointsActivity_days: integer;
     LastPointsIncrease_days: integer;
+    playerId: int64;
     TF: array[0..1] of Cardinal;
     scantime_u: Int64;
   end;
@@ -1092,7 +1093,8 @@ begin
   pdata^ := data;
 
   // save results for later usage
-  ODataBase.UniTree.Player.setLPA_LPI(data.Player,
+  data.playerId := -1;
+  ODataBase.UniTree.Player.setLPA_LPI(data.Player, data.playerId,
     data.LastPointsActivity_days,
     data.LastPointsIncrease_days);
 

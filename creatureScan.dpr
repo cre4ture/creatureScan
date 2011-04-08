@@ -160,6 +160,7 @@ begin
   if Result then LanguageFile(LangFile);
 end;
 
+var startup_success: boolean;
 begin
   Application.Initialize;
   Application.Title := 'creatureScan';
@@ -192,9 +193,24 @@ begin
   Protocol.OnIdentifySender := LogSenderToStr;
 
   cSServer := TcSServer.Create(Protocol, GetCurrentDir + '/' + userdatadir + LastUser + '/server.ini');
-  ODataBase := TOgameDataBase.Create(true,GetCurrentDir + '/' + userdatadir + LastUser + '/', cSServer, XML_InitFile);
 
-  if not ODataBase.InitialisedF then
+  startup_success := false;
+  try
+    ODataBase := TOgameDataBase.Create(GetCurrentDir + '/' + userdatadir + LastUser + '/',
+        cSServer, XML_InitFile);
+    startup_success := true;
+  except
+    on EcSDBUnknownSysFileFormat do
+      ShowMessage('Error: The format of the SolsysDB file is unknown or broken!');
+    on E: Exception do
+      ShowMessage('Ein unbekannter Fehler ist bei der Initialisierung aufgetreten: ' + #10 + #13
+        + E.ClassName + ': ' + E.Message); // + #10 + #13
+        //'Evlt. läuft noch eine andere Instanz von creatureScan im Hintergrund?');
+  else
+    ShowMessage('An unkown error occoured!');
+  end;
+
+  if not startup_success then
   begin
     ODataBase.free;
     Exit;
