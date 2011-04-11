@@ -1,9 +1,9 @@
 object FRM_ScanGen: TFRM_ScanGen
   Left = 449
   Top = 240
+  Width = 269
+  Height = 137
   Caption = 'FRM_ScanGen'
-  ClientHeight = 110
-  ClientWidth = 261
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

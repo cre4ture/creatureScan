@@ -218,7 +218,7 @@ function ThtmlPhalanxRead_betauni.readHtmlTag_ships(const tag: THTMLElement;
   const fce: ThtmlPhalanx_fligthclassEx; var fleet: TFleetEvent): boolean;
 var s: string;
     el: THTMLElement;
-    list: TInfoArray;
+    tmp_report: TScanBericht;
     c, i: integer;
 begin
   Result := False;
@@ -226,14 +226,19 @@ begin
   el := tag.FindChildTagPath('th:1/span:0/a:1');
   if el = nil then exit;
   s := el.AttributeValue['title'];
-  c := readreport._LeseTeilScanBericht(s, list, sg_Flotten, false);
-  Result := c > 0;
-  if Result then
-  begin
-    for i := 0 to length(fleet.ships)-1 do
+  tmp_report := TScanBericht.Create;
+  try
+    c := readreport._LeseTeilScanBericht(s, tmp_report, sg_Flotten, false);
+    Result := c > 0;
+    if Result then
     begin
-      fleet.ships[i] := list[i];
+      for i := 0 to length(fleet.ships)-1 do
+      begin
+        fleet.ships[i] := tmp_report.Bericht[sg_Flotten,i];
+      end;
     end;
+  finally
+    tmp_report.Free;
   end;
 end;
 
@@ -249,9 +254,8 @@ function ThtmlPhalanxRead_betauni.readHtmlTag_ress_fleet(const tag: THTMLElement
    var fleet: TFleetEvent): boolean;
 var s, s_ships: string;
     el: THTMLElement;
-    ress: TInfoArray;
-    ships: TInfoArray;
-    c: integer;
+    tmp_report: TScanBericht;
+    c, i: integer;
 begin
   Result := False;
 
@@ -263,23 +267,33 @@ begin
   //s := ReplaceStr(s,#10,' ');
   s_ships := ReplaceStr(s,':',' ');
 
+  tmp_report := TScanBericht.Create;
   try
-    c := readreport._LeseTeilScanBericht(s_ships, ships, sg_Flotten, False);
+    c := readreport._LeseTeilScanBericht(s_ships, tmp_report, sg_Flotten, False);
     Result := c > 0;
     if Result then
     begin
-      fleet.ships := ships;
+      SetLength(fleet.ships, tmp_report.Count(sg_Flotten));
+      for i := 0 to length(fleet.ships)-1 do
+      begin
+        fleet.ships[i] := tmp_report.Bericht[sg_Flotten,i];
+      end;
     end;
 
-    c := readreport._LeseTeilScanBericht(s, ress, sg_Rohstoffe, False);
+    c := readreport._LeseTeilScanBericht(s, tmp_report, sg_Rohstoffe, False);
     Result := c > 0;
     if Result then
     begin
-      fleet.ress := ress;
+      SetLength(fleet.ress, tmp_report.Count(sg_Rohstoffe));
+      for i := 0 to length(fleet.ress)-1 do
+      begin
+        fleet.ress[i] := tmp_report.Bericht[sg_Rohstoffe,i];
+      end;
     end;
   except
     Result := false;
   end;
+  tmp_report.Free;
 end;
 
 function ThtmlPhalanxRead_betauni.readHtmlTag_planetposition_and_fleettype(const tag: THTMLElement;

@@ -40,7 +40,7 @@ type
     procedure SetServerTime(time_u: int64);
     procedure SetHTMLSource(ahtml: String);
     procedure SetTextSource(atext: String);
-    constructor Create;
+    constructor Create; virtual;
     destructor Destroy; override;
     function GetHTMLRoot: THTMLElement;
     function GetText: String;
@@ -62,6 +62,7 @@ var
 constructor TReadSource.Create;
 begin
   inherited;
+  html_root := nil;
 end;
 
 destructor TReadSource.Destroy;
