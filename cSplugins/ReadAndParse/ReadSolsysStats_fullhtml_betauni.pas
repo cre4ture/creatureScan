@@ -555,9 +555,11 @@ begin
     else
     if attr_class = 'action' then
     begin
-      tag_ := CurElement.FindChildTagPath('a:0'); // nachricht schreiben
+      tag_ := HTMLFindRoutine_NameAttribute_Within(
+        CurElement, 'img', 'src', 'img/icons/mail.gif');
       if tag_ <> nil then
       begin
+        tag_ := tag_.ParentElement; // <a>nachricht schreiben</a>
         row^.PlayerId := extractPlayerIdFromSendMSGUrl(
           tag_.AttributeValue['href']);
       end;
@@ -748,7 +750,7 @@ begin
         end
         else
         if tag_class = 'sendmsg' then
-        begin  todo: functioniert nicht mit "spionagesonden vorhanden"
+        begin
           tag := tag_cell.FindChildTagPath('a:0'); // nachricht schreiben
           if tag <> nil then
           begin

@@ -12,11 +12,6 @@ const
 
 
 type
-  TReadReport = record
-    Report: TScanbericht;
-    AskMoon: Boolean;
-  end;
-  TReportList = array of TReadReport;
   TReadReport_Text = class
   private
   protected
@@ -31,7 +26,7 @@ type
     function _ScanToStrAsTable_v2(SB: TScanBericht): string;
     function _ReadScanHeader_RegEx(var s1: string; var Head: TScanHead): Boolean;
     function _ReadScanHeaders(var s1: string; var Head: TScanHead): Boolean;
-    function _LeseGanzenScanBericht(var _s: String; var Bericht: TScanBericht; var AskMond: Boolean): Boolean;
+    function _LeseGanzenScanBericht(var _s: String; Bericht: TScanBericht; var AskMond: Boolean): Boolean;
     function _ScanToStr(SB: TScanBericht): string;
     function _ScanHeadToStr(Head: TScanHead): string;
     function _ReadActivity(var Head: TScanHead; scan_body: string): Boolean;
@@ -39,11 +34,11 @@ type
   public
     constructor Create(ini: TIniFile);
     destructor Destroy; override;
-    function Read(text: String): TReportList;
+    function Read(text: String;  reportlist: TReadReportList): integer;
     function ReportToString(report: TScanBericht; table: Boolean): String;
 
     //for use in ReadPhalanxScan public:
-    function _LeseTeilScanBericht(var s: string; var INFAR: TInfoArray;
+    function _LeseTeilScanBericht(var s: string; report: TScanBericht;
       Sorte: TScanGroup; const ForceHeader: boolean = true): Integer;
   end;
 
@@ -82,18 +77,22 @@ begin
   inherited;
 end;
 
-function TReadReport_Text.Read(text: String): TReportList;
+function TReadReport_Text.Read(text: String; reportlist: TReadReportList): integer;
 var rr: TReadReport;
     i: integer;
 begin
-  SetLength(Result, 0);
   i := 0;
-  while _LeseGanzenScanBericht(text, rr.Report, rr.AskMoon) do
-  begin
-    SetLength(Result, i+1);
-    Result[i] := rr;
-    inc(i);
+  rr := TReadReport.Create;
+  try
+    while _LeseGanzenScanBericht(text, rr, rr.AskMoon) do
+    begin
+      reportlist.push_back(rr);
+      inc(i);
+    end;
+  finally
+    rr.Free;
   end;
+  Result := i;
 end;
 
 function TReadReport_Text.ReportToString(report: TScanBericht;
@@ -114,13 +113,13 @@ begin
   maxl1 := 0;
   maxl2 := 0;
   for sg := low(sg) to high(sg) do
-  if (length(SB.Bericht[sg]) > 0)and(SB.Bericht[sg][0] <> -1) then
+  if (SB.Bericht[sg,0] <> -1) then
   begin
     x := 0;
-    for j := 0 to length(SB.Bericht[sg])-1 do
-    if SB.Bericht[sg][j] <> 0 then
+    for j := 0 to SB.Count(sg)-1 do
+    if SB.Bericht[sg,j] <> 0 then
     begin
-      s := SB_Items[sg][j+1] + ' ' + IntToStrKP(SB.Bericht[sg][j],
+      s := SB_Items[sg][j+1] + ' ' + IntToStrKP(SB.Bericht[sg,j],
                                                 tsep);
       inc(x);
       if x > 1 then
@@ -137,7 +136,7 @@ begin
     end;
   end;
   for sg := low(sg) to high(sg) do
-  if (length(SB.Bericht[sg]) > 0)and(SB.Bericht[sg][0] <> -1) then
+  if (SB.Bericht[sg,0] <> -1) then
   begin
     if sg <> sg_Rohstoffe then  //keine extra headline für ressourcen!
     begin
@@ -148,24 +147,24 @@ begin
       //headlines zb.: Verteidigung
     end;
     x := 0;
-    for j := 0 to length(SB.Bericht[sg])-1 do
-    if SB.Bericht[sg][j] <> 0 then
+    for j := 0 to SB.Count(sg)-1 do
+    if SB.Bericht[sg,j] <> 0 then
     begin
       s := SB_Items[sg][j+1];
       inc(x);
       if x > 1 then
       begin
         x := 0;
-        while length(s + IntToStrKP(SB.Bericht[sg][j],tsep)) < maxl2 do
+        while length(s + IntToStrKP(SB.Bericht[sg,j],tsep)) < maxl2 do
           s := s + ' ';
-        s := s + IntToStrKP(SB.Bericht[sg][j],tsep);
+        s := s + IntToStrKP(SB.Bericht[sg,j],tsep);
         Result := Result + s + #13 + #10;
       end
       else
       begin
-        while length(s + IntToStrKP(SB.Bericht[sg][j],tsep)) < maxl1 do
+        while length(s + IntToStrKP(SB.Bericht[sg,j],tsep)) < maxl1 do
           s := s + ' ';
-        s := s + IntToStrKP(SB.Bericht[sg][j],tsep);
+        s := s + IntToStrKP(SB.Bericht[sg,j],tsep);
         Result := Result + s + ' ! ';
       end;
     end;
@@ -195,15 +194,15 @@ begin
             SB_KWords[3] + TimeToStr(UnixToDateTime(SB.Head.Time_u)) + #13 + #10;
   // .... [...] + um <uhrzeit>
   for sg := low(sg) to high(sg) do
-  if (length(SB.Bericht[sg]) > 0)and(SB.Bericht[sg][0] <> -1) then
+  if (SB.Bericht[sg,0] <> -1) then
   begin
     maxl1[sg] := 0;
     maxl2[sg] := 0;
     x := 0;
-    for j := 0 to length(SB.Bericht[sg])-1 do
-    if SB.Bericht[sg][j] <> 0 then
+    for j := 0 to SB.Count(sg)-1 do
+    if SB.Bericht[sg,j] <> 0 then
     begin
-      s := SB_Items[sg][j+1] + ' ' + inttostr(SB.Bericht[sg][j]);
+      s := SB_Items[sg][j+1] + ' ' + inttostr(SB.Bericht[sg,j]);
       inc(x);
       if x > 1 then
       begin
@@ -219,7 +218,7 @@ begin
     end;
   end;
   for sg := low(sg) to high(sg) do
-  if (length(SB.Bericht[sg]) > 0)and(SB.Bericht[sg][0] <> -1) then
+  if (SB.Bericht[sg,0] <> -1) then
   begin
     if sg <> sg_Rohstoffe then  //keine extra headline für ressourcen!
     begin
@@ -230,24 +229,24 @@ begin
       //headlines zb.: Verteidigung
     end;
     x := 0;
-    for j := 0 to length(SB.Bericht[sg])-1 do
-    if SB.Bericht[sg][j] <> 0 then
+    for j := 0 to SB.Count(sg)-1 do
+    if SB.Bericht[sg,j] <> 0 then
     begin
       s := SB_Items[sg][j+1];
       inc(x);
       if x > 1 then
       begin
         x := 0;
-        while length(s + inttostr(SB.Bericht[sg][j])) < maxl2[sg] do
+        while length(s + inttostr(SB.Bericht[sg,j])) < maxl2[sg] do
           s := s + ' ';
-        s := s + inttostr(SB.Bericht[sg][j]);
+        s := s + inttostr(SB.Bericht[sg,j]);
         Result := Result + s + #13 + #10;
       end
       else
       begin
-        while length(s + inttostr(SB.Bericht[sg][j])) < maxl1[sg] do
+        while length(s + inttostr(SB.Bericht[sg,j])) < maxl1[sg] do
           s := s + ' ';
-        s := s + inttostr(SB.Bericht[sg][j]);
+        s := s + inttostr(SB.Bericht[sg,j]);
         Result := Result + s + ' ! ';
       end;
     end;
@@ -279,7 +278,7 @@ begin
 end;
 
 function TReadReport_Text._LeseTeilScanBericht(var s: string;
-  var INFAR: TInfoArray; Sorte: TScanGroup; const ForceHeader: boolean = true): Integer;
+  report: TScanBericht; Sorte: TScanGroup; const ForceHeader: boolean = true): Integer;
 var p, i, max : integer;                       //Result = Anzahl eingelesener Arten / oder -1 wenn Bereich nicht vorhanden
     followingchar: char; //UHO 29.12.2008: "Flotten" soll erkannt werden "Flottenkontakt" nicht!!
 begin                                   //alles nur Beispiel Flotte:
@@ -292,7 +291,6 @@ begin                                   //alles nur Beispiel Flotte:
   until (p = 0) or
     (not (followingchar in ['a'..'z','A'..'Z']));
   
-  SetLength(INFAR,SB_Items[sorte].Count-1);    //Länge Setzten
   if (p <> 0) or (not ForceHeader) then
   begin
     result := 0;                          //wenn 'Flotten' (Kategorie) gefunden dann Result schonmal := 0;
@@ -303,7 +301,7 @@ begin                                   //alles nur Beispiel Flotte:
       if p <> 0 then
       begin
         p := p + length(SB_Items[sorte][i]);   //.....Schlachtschiff'[p]
-        INFAR[i-1] := ReadInt(s,p{+1}{,SB_tsep});   //hier nicht! plus 1 da es auch scans gibt, die keine Lehrzeichen dazwischen haben
+        report.Bericht[sorte,i-1] := ReadInt(s,p{+1}{,SB_tsep});   //hier nicht! plus 1 da es auch scans gibt, die keine Lehrzeichen dazwischen haben
         //UHO 20.09.08: damit die reihenfolge egal ist darf hier nicht alles gleich wieder gelöscht werden
         //delete(s,1,p);                    //aus ursprungsstring löschen!
         //statt delete: max -> ende des scanteils, dann später löschen!
@@ -311,7 +309,7 @@ begin                                   //alles nur Beispiel Flotte:
         inc(Result);                      //result um 1 erhöhen
       end
       else
-        INFAR[i-1] := 0;                  //Typ nicht aufgelistet -> Typ := 0;
+        report.Bericht[sorte,i-1] := 0;                  //Typ nicht aufgelistet -> Typ := 0;
     end;
 
     //gesammten bereich aus string löschen:
@@ -490,7 +488,7 @@ begin             //liest den kopf eines Scans
     Head.Activity := -1;
 end;
 
-function TReadReport_Text._LeseGanzenScanBericht(var _s: String; var Bericht: TScanBericht; var AskMond: Boolean): Boolean;
+function TReadReport_Text._LeseGanzenScanBericht(var _s: String; Bericht: TScanBericht; var AskMond: Boolean): Boolean;
 var j  : integer;
     sg: TScanGroup;
     s: string;
@@ -514,10 +512,10 @@ begin
     exit;
   for sg := low(sg) to high(sg) do
   begin
-    if _LeseTeilScanBericht(s,Bericht.Bericht[sg], sg) = -1 then   //wenn gesamter scanbereich nicht vorhanden
+    if _LeseTeilScanBericht(s, Bericht, sg) = -1 then   //wenn gesamter scanbereich nicht vorhanden
     begin
-      for j := 0 to length(Bericht.Bericht[sg])-1 do            //dann alle -1 setzten
-        Bericht.Bericht[sg][j] := -1;
+      for j := 0 to Bericht.Count(sg)-1 do            //dann alle -1 setzten
+        Bericht.Bericht[sg,j] := -1;
     end;
   end;
 
@@ -532,17 +530,17 @@ begin
   Result := _ScanHeadToStr(SB.Head);
   
   for sg := low(sg)to high(sg) do
-  if (length(SB.Bericht[sg]) > 0)and(SB.Bericht[sg][0] <> -1) then
+  if (SB.Bericht[sg,0] <> -1) then
   begin
     if sg <> sg_Rohstoffe then
     begin
       Result := Result + SB_Items[sg][0] + #13 + #10;
     end;
     x := 0;
-    for j := 0 to length(SB.Bericht[sg])-1 do
-    if (SB.Bericht[sg][j] <> 0)or(sg = sg_Rohstoffe){Ressourcen immer!} then
+    for j := 0 to SB.Count(sg)-1 do
+    if (SB.Bericht[sg,j] <> 0)or(sg = sg_Rohstoffe){Ressourcen immer!} then
     begin
-      Result := Result + SB_Items[sg][j+1] + #9 + IntToStrKP(SB.Bericht[sg][j],tsep);
+      Result := Result + SB_Items[sg][j+1] + #9 + IntToStrKP(SB.Bericht[sg,j],tsep);
       inc(x);
       if x > 1 then
       begin

@@ -86,29 +86,33 @@ var scan: TScanBericht;
     sg: TScanGroup;
     i: integer;
 begin
-  if (Node = nil) or (Node.Index >= length(fleets)) then Exit;
+  Scan := TScanBericht.Create;
+  try
+    if (Node = nil) or (Node.Index >= length(fleets)) then Exit;
 
-  with fleets[Node.Index] do
-  begin
-    FillChar(scan.Head,sizeof(scan.Head),0);
-    for sg := low(sg) to high(sg) do
+    with fleets[Node.Index] do
     begin
-      SetLength(scan.Bericht[sg], ScanFileCounts[sg]);
-      scan.Bericht[sg][0] := -1;
+      FillChar(scan.Head,sizeof(scan.Head),0);
+      for sg := low(sg) to high(sg) do
+      begin
+        scan.Bericht[sg,0] := -1;
+      end;
+
+      scan.Bericht[sg_Rohstoffe,0] := ress[0];
+      scan.Bericht[sg_Rohstoffe,1] := ress[1];
+      scan.Bericht[sg_Rohstoffe,2] := ress[2];
+      scan.Bericht[sg_Rohstoffe,3] := 0;
+
+      for i := 0 to ScanFileCounts[sg_Flotten]-1 do
+        scan.Bericht[sg_Flotten,i] := ships[i];
+      scan.Head.Position := head.target;
+      scan.Head.Spieler := head.player;
+
     end;
-
-    scan.Bericht[sg_Rohstoffe][0] := ress[0];
-    scan.Bericht[sg_Rohstoffe][1] := ress[1];
-    scan.Bericht[sg_Rohstoffe][2] := ress[2];
-    scan.Bericht[sg_Rohstoffe][3] := 0;
-
-    for i := 0 to ScanFileCounts[sg_Flotten]-1 do
-      scan.Bericht[sg_Flotten][i] := ships[i];
-    scan.Head.Position := head.target;
-    scan.Head.Spieler := head.player;
-
+    Frame_Bericht1.SetBericht(scan);
+  finally
+    scan.Free;
   end;
-  Frame_Bericht1.SetBericht(scan);
 end;
 
 procedure TFRM_Phalanx.FormCreate(Sender: TObject);

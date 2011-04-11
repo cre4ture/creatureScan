@@ -9,10 +9,9 @@ uses
   DateUtils;
 
 type
-  TScanTest = class
+  TScanTest = class(TReadReport)
   public
     filename: string;
-    Scan: TScanBericht;
     QuellText: String;
     last_check: string;
     function LoadTestScan(filename: string): Boolean;
@@ -49,8 +48,9 @@ type
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: WideString);
     procedure VST_testsDblClick(Sender: TObject);
     procedure Button6Click(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
-    Scans: array of TScanBericht;
+    Scans: TReadReportList;
     function GetNewScanFilename(Scan: TScanBericht): string;
     function CheckTestScan(st: TScanTest): Boolean;
   public
@@ -75,25 +75,31 @@ uses Sources, Math;
 
 function TFRM_Scan.ReadScans(): Integer;
 var s: string;
-    i, handle: integer;
-    Scan: TScanBericht;
-    moon_unknown: boolean;
+    i: integer;
+    Scan: TReadReport;
 begin
   s := FRM_Sources.M_Text.Text;
   i := 0;
   ListBox1.Clear;
+  Scans.clear;
   Result := plugin.ReadReports(FRM_Sources.plugin_handle);
 
-  while plugin.GetReport(FRM_Sources.plugin_handle, Scan, moon_unknown) do
-  begin
-    setlength(Scans,i+1);
-    Scans[i] := Scan;
-    ListBox1.Items.Add(IntToStr(i));
-    inc(i);
+  scan := TReadReport.Create;
+  try
+
+    while plugin.GetReport(FRM_Sources.plugin_handle, Scan, Scan.askMoon) do
+    begin
+      Scans.push_back(Scan); // copy
+      ListBox1.Items.Add(IntToStr(i));
+      inc(i);
+    end;
+    Frame_Bericht1.Refresh;
+    if Result <> i then
+      raise Exception.Create('Fehler im Plugin: Anzahl Scans stimmt mit Rückgabewert nicht überein!');
+
+  finally
+    Scan.Free;
   end;
-  Frame_Bericht1.Refresh;
-  if Result <> i then
-    raise Exception.Create('Fehler im Plugin: Anzahl Scans stimmt mit Rückgabewert nicht überein!');
 end;
 
 procedure TFRM_Scan.btn_readClick(Sender: TObject);
@@ -103,6 +109,8 @@ end;
 
 procedure TFRM_Scan.FormCreate(Sender: TObject);
 begin
+  Scans := TReadReportList.Create;
+
   Frame_Bericht1.DontShowRaids := True;
   Frame_Bericht1.plugin := plugin;
   Frame_Bericht2.DontShowRaids := True;
@@ -158,12 +166,13 @@ end;
 procedure TFRM_Scan.Button2Click(Sender: TObject);
 var st: TScanTest;
 begin
-  if Length(Scans) = 1 then
+  if Scans.Count = 1 then
   begin
     st := TScanTest.Create;
-    st.Scan := Scans[0];
+    st.copyFrom(Scans[0]);
+    st.AskMoon := Scans[0].AskMoon;
     st.QuellText := FRM_Sources.M_Text.Text;
-    st.SaveTestScan(GetNewScanFilename(st.Scan));
+    st.SaveTestScan(GetNewScanFilename(st));
     VST_tests.AddChild(nil,st);
   end
   else
@@ -203,10 +212,10 @@ function TFRM_Scan.TestVSTNode(node: PVirtualNode): Boolean;
 var st: TScanTest;
 begin
   st := TScanTest(VST_tests.GetNodeData(node)^);
-  Frame_Bericht2.setBericht(st.Scan);
+  Frame_Bericht2.setBericht(st);
 
   Result := CheckTestScan(st);
-  if length(scans) > 0 then
+  if scans.Count > 0 then
     Frame_Bericht1.setBericht(Scans[0]);
   if not Result then
   begin
@@ -217,7 +226,6 @@ end;
 
 function TFRM_Scan.CheckTestScan(st: TScanTest): Boolean;
 begin
-  Result := False;
   FRM_Sources.m_Text.Text := st.QuellText;
   FRM_Sources.m_Html.Clear;
   if ReadScans() = 1 then
@@ -226,10 +234,10 @@ begin
     //Weil dieser Test aber auch später in einem anderen Jahr auf die gleichen
     //Daten angewandt wird, wird diese Information gelöscht!
 
-    st.Scan.Head.Time_u := RemoveYear_u(st.Scan.Head.Time_u);
+    st.Head.Time_u := RemoveYear_u(st.Head.Time_u);
     Scans[0].Head.Time_u := RemoveYear_u(Scans[0].Head.Time_u);
 
-    st.last_check := CompareScans(st.Scan, Scans[0]);
+    st.last_check := CompareScans(st, Scans[0]);
   end
   else
     st.last_check := 'kein Scan eingelesen (oder zuviele)';
@@ -259,7 +267,7 @@ procedure TFRM_Scan.VST_testsGetText(Sender: TBaseVirtualTree;
 begin
   case Column of
     0: CellText := PositionToStrMond(
-              TScanTest(Sender.GetNodeData(node)^).Scan.Head.Position);
+              TScanTest(Sender.GetNodeData(node)^).Head.Position);
     1: CellText := TScanTest(Sender.GetNodeData(node)^).last_check;
   end;
 end;
@@ -321,7 +329,7 @@ begin
     parser.StartScan;
     if parser.Scan then
     begin
-      Result := parse_report(parser, Self.Scan);
+      Result := parse_report(parser, Self);
       if Result then
       begin
         self.filename := filename;
@@ -340,7 +348,7 @@ var sf: TStringList;
 begin
   sf := TStringList.Create;
   try
-    s := ScanToXML_(Self.Scan);
+    s := ScanToXML_(Self);
     sf.Add(s);
     sf.Add(Self.QuellText);
     sf.SaveToFile(filename);
@@ -357,6 +365,11 @@ begin
   dt := UnixToDateTime(time_u);
   DecodeDateTime(dt,Y,M,D,h,min,sec,ms);
   Result := DateTimeToUnix(EncodeDateTime(1970,M,D,h,min,sec,ms));
+end;
+
+procedure TFRM_Scan.FormDestroy(Sender: TObject);
+begin
+  Scans.Free;
 end;
 
 end.

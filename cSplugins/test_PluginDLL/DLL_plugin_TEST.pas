@@ -158,6 +158,8 @@ begin
   Edit1.Enabled := not plugin.ValidFile;
 
   FRM_Sources.OnPluginRefresh();
+
+  Result := true;
 end;
 
 procedure TFRM_MainTest.FormActivate(Sender: TObject);

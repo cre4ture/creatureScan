@@ -12,9 +12,10 @@ object FRM_Scan: TFRM_Scan
   Font.Style = []
   OldCreateOrder = False
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   DesignSize = (
-    913
-    434)
+    921
+    442)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel

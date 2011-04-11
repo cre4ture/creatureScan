@@ -72,24 +72,21 @@ begin
   Scan.Head.Position :=
     AbsPlanetNrToPlanetPosition(Random(PlanetPositionToAbsPlanetNr(p)));
 
-  for sg := low(sg) to high(sg) do
-    SetLength(Scan.Bericht[sg], ScanFileCounts[sg]);
-
   sg := sg_Rohstoffe;
   for i := 0 to ScanFileCounts[sg]-1 do
-    Scan.Bericht[sg][i] := Random({high(Integer)} 100000000);
+    Scan.Bericht[sg,i] := Random({high(Integer)} 100000000);
   sg := sg_Flotten;
   for i := 0 to ScanFileCounts[sg]-1 do
-    Scan.Bericht[sg][i] := Random({high(Integer)} 1000000);
+    Scan.Bericht[sg,i] := Random({high(Integer)} 1000000);
   sg := sg_Verteidigung;
   for i := 0 to ScanFileCounts[sg]-1 do
-    Scan.Bericht[sg][i] := Random({high(Integer)} 1000000);
+    Scan.Bericht[sg,i] := Random({high(Integer)} 1000000);
   sg := sg_Gebaeude;
   for i := 0 to ScanFileCounts[sg]-1 do
-    Scan.Bericht[sg][i] := Random({high(ShortInt)} 40);
+    Scan.Bericht[sg,i] := Random({high(ShortInt)} 40);
   sg := sg_Forschung;
   for i := 0 to ScanFileCounts[sg]-1 do
-    Scan.Bericht[sg][i] := Random({high(ShortInt)} 40);
+    Scan.Bericht[sg,i] := Random({high(ShortInt)} 40);
 end;
 
 procedure TFRM_ScanGen.Timer1Timer(Sender: TObject);
@@ -97,16 +94,21 @@ var Scan: TScanBericht;
     s: string;
     i: Integer;
 begin
-  s := '';
-  for i := 0 to SpinEdit2.Value-1 do
-  begin
-    GenRandomScan(Scan);
-    s := s + 'Scan #' + IntToStr(i) + ':' + plugin.ScanToStr(scan, false);
-  end;
+  Scan := TScanBericht.Create();
   try
-    Clipboard.AsText := s;
-  except
+    s := '';
+    for i := 0 to SpinEdit2.Value-1 do
+    begin
+      GenRandomScan(Scan);
+      s := s + 'Scan #' + IntToStr(i) + ':' + plugin.ScanToStr(scan, false);
+    end;
+    try
+      Clipboard.AsText := s;
+    except
 
+    end;
+  finally
+    Scan.Free;
   end;
 end;
 
