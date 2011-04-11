@@ -1,6 +1,6 @@
 object FRM_EditScan: TFRM_EditScan
   Left = 562
-  Top = 304
+  Top = 389
   Width = 403
   Height = 340
   HorzScrollBar.Visible = False
@@ -17,7 +17,7 @@ object FRM_EditScan: TFRM_EditScan
   OnShow = FormShow
   DesignSize = (
     395
-    306)
+    313)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel

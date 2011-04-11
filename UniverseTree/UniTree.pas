@@ -84,9 +84,9 @@ type
     OnReportChanged: TUniTreeEvPos;
     // without research!!! take next function if you like to have research!
     function genericReport(const pos: TPlanetPosition;
-      out report_out: TScanBericht): TScanGroup;
+      report_out: TScanBericht): TScanGroup;
     function genericReport_withResearch(const pos: TPlanetPosition;
-      out report_out: TScanBericht): TScanGroup;
+      report_out: TScanBericht): TScanGroup;
     constructor Create(GalaxyCount, SolSysCount, PlanetCount: Integer;
       aSolSysDB: TcSSolSysDB; aReportDB: TcSReportDB);
     function ValidPosition(Pos: TPlanetPosition): Boolean; overload;
@@ -412,24 +412,23 @@ begin
   //Player.ANewReport(Scan);
 end;
 
-
 function TUniverseTree.genericReport(const pos: TPlanetPosition;
-  out report_out: TScanBericht): TScanGroup;
+  report_out: TScanBericht): TScanGroup;
 var sl: TReportTimeList;
     sl_i, i: integer;
     sg: TScanGroup;
     scan: TScanBericht;
 begin
   Result := sg_Rohstoffe;
-  for sg := low(sg) to high(sg) do
+(*  for sg := low(sg) to high(sg) do
   begin
-    SetLength(report_out.Bericht[sg], ScanFileCounts[sg]);
     for i := 0 to ScanFileCounts[sg]-1 do
     begin
-      report_out.Bericht[sg][i] := -1;
+      report_out.Bericht[sg,i] := -1;
     end;
-  end;
-  FillChar(report_out.Head, sizeof(report_out.Head), 0);
+  end;*)
+  report_out.clear;
+//  FillChar(report_out.Head, sizeof(report_out.Head), 0);
   report_out.Head.Position := pos;
   report_out.Head.Time_u := -1;
 
@@ -441,7 +440,7 @@ begin
     scan := ReportDB[sl[0].ID];
     report_out.Head := scan.head;
     for sg := low(sg) to high(sg) do
-      if scan.Bericht[sg][0] <> -1 then
+      if scan.Bericht[sg,0] <> -1 then
       begin
         Result := sg;
       end;
@@ -453,12 +452,12 @@ begin
     for sg := low(sg) to sg_Gebaeude do  // nur bis Gebäude, da Forschung auch von anderen
                                          // Planeten kommen kann
     begin
-      if (report_out.Bericht[sg][0] = -1)and
-         (scan.Bericht[sg][0] <> -1) then
+      if (report_out.Bericht[sg,0] = -1)and
+         (scan.Bericht[sg,0] <> -1) then
       begin
         for i := 0 to ScanFileCounts[sg] - 1 do
         begin
-          report_out.Bericht[sg][i] := scan.Bericht[sg][i];
+          report_out.Bericht[sg,i] := scan.Bericht[sg,i];
         end;
       end;
     end;
@@ -609,7 +608,7 @@ procedure TPlayerDB.ANewReport(Report: TScanBericht; PlayerId: int64);
 var i: integer;
     ppi: PPlayerInformation;
 begin
-  if (Report.Head.Spieler <> '')and(Report.Bericht[sg_Forschung][0] >= 0) then
+  if (Report.Head.Spieler <> '')and(Report.Bericht[sg_Forschung,0] >= 0) then
   begin
     i := FFindPlayerId(PlayerId);
     if (i = -1) then
@@ -626,7 +625,7 @@ begin
       ppi^.ResearchTime_u := Report.Head.Time_u;
       ppi^.ResearchPlanet := Report.Head.Position;
       for i := 0 to ScanFileCounts[sg_Forschung]-1 do
-        ppi^.Research[i] := Report.Bericht[sg_Forschung][i];
+        ppi^.Research[i] := Report.Bericht[sg_Forschung,i];
     end;
   end;
 end;
@@ -1228,6 +1227,7 @@ var s: string;
     report: TScanBericht;
 begin
   parser := TXmlParser.Create;
+  report := TScanBericht.Create;
   try
     SetLength(s, Size);
     Move(Data^, PChar(s)^, Size);
@@ -1260,6 +1260,7 @@ begin
     end;
   finally
     parser.Free;
+    report.Free;
   end;
 end;
 
@@ -1745,7 +1746,7 @@ begin
 end;
 
 function TUniverseTree.genericReport_withResearch(
-  const pos: TPlanetPosition; out report_out: TScanBericht): TScanGroup;
+  const pos: TPlanetPosition; report_out: TScanBericht): TScanGroup;
 var gpi: PPlayerInformation;
     i: integer;
 begin
@@ -1754,7 +1755,7 @@ begin
   if (gpi <> nil)and(gpi^.ResearchTime_u <> 0) then
   begin
     for i := 0 to Length(gpi.Research)-1 do
-      report_out.Bericht[sg_Forschung][i] := gpi.Research[i];
+      report_out.Bericht[sg_Forschung,i] := gpi.Research[i];
   end;
 end;
 

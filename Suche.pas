@@ -164,7 +164,6 @@ type
     frm: TFRM_Suche;
     vst: TVirtualStringTree;
 
-    firstnode: PVirtualNode;
     node: PVirtualNode;
     data: TSearch_ND;
 

@@ -56,7 +56,6 @@ uses
   FavFilter in 'FavFilter.pas' {FRM_Filter},
   _test_POST in '_test_POST.pas' {FRM_POST_TEST},
   oFight in 'oFight.pas',
-  SDBFile in '..\..\lib\uli\TSDBFile\SDBFile.pas',
   cS_DB_reportFile in 'cS_DB_reportFile.pas',
   cS_DB in 'cS_DB.pas',
   cS_networking in 'cS_networking.pas',
@@ -79,7 +78,9 @@ uses
   quickupdate in 'quickupdate.pas' {frm_quickupdate},
   moon_or_not in 'moon_or_not.pas' {frm_report_basket},
   FetchStats in 'FetchStats.pas',
-  chelper_server in 'chelper_server.pas' {frm_cshelper_ctrl};
+  chelper_server in 'chelper_server.pas' {frm_cshelper_ctrl},
+  cS_memstream in 'cS_memstream.pas',
+  SDBFile in '..\lib\uli\SDBFile.pas';
 
 {$R *.RES}
 

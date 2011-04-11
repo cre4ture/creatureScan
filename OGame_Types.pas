@@ -4,11 +4,12 @@ interface
 
 uses
   Sysutils, {$IFNDEF TEST}Languages,{$ENDIF} Math, LibXmlParser, LibXmlComps,
-  Classes, Dialogs, clipbrd, windows, CoordinatesRanges;
+  Classes, Dialogs, clipbrd, windows, CoordinatesRanges, cS_memstream;
 
 type
   TRessType = (rtMetal, rtKristal, rtDeuterium, rtEnergy);
-  TSetRessources = array[TRessType] of Int64;
+  TcSResource = Int64;
+  TSetRessources = array[TRessType] of TcSResource;
   TLanguage = Word;
   TScanGroup = (sg_Rohstoffe, sg_Flotten, sg_Verteidigung, sg_Gebaeude,
                 sg_Forschung);
@@ -147,11 +148,52 @@ type
     Activity: Integer; {Time in Seconds (min*60) befor Time_u, -1 -> no info, 0 -> activity > 60 minutes}
   end;
   TInfoArray = array of integer;
-  PScanBericht = ^TScanBericht;
-  TScanBericht = record
-    Head: TScanHead;
-    Bericht: array[TScanGroup] of TInfoArray;
+  TScanBericht = class
+  private
+    fReadOnly: Boolean;
+    function getElement(sg: TScanGroup; index: integer): Int64;
+    procedure setElement(sg: TScanGroup; index: integer;
+      const Value: Int64);
+  public
+    Head     : TScanHead;
+    resources: array[0..fsc_0_Rohstoffe-1]    of TcSResource;
+    fleets   : array[0..fsc_1_Flotten-1]      of Integer;
+    defence  : array[0..fsc_2_Verteidigung-1] of Integer;
+    buildings: array[0..fsc_3_Gebaeude-1]     of ShortInt;
+    research : array[0..fsc_4_Forschung-1]    of ShortInt;
+
+    property Bericht[sg: TScanGroup; index: integer]: Int64 read getElement write setElement;
+    property isReadOnly: Boolean read fReadOnly;
+    procedure lock;
+    procedure unlock;
+    class function Count(sg: TScanGroup): Integer;
+    constructor Create;
+    destructor Destroy; override;
+    function copy(): TScanBericht;
+    procedure copyFrom(scan: TScanBericht);
+    procedure clear();
+    procedure serialize(stream: TAbstractFixedMemoryStream);
+    procedure deserialize(stream: TAbstractFixedMemoryStream);
+    function serialize_size(): cardinal;
   end;
+
+  TReadReport = class(TScanBericht)
+  public
+    AskMoon: Boolean;
+  end;
+  TReadReportList = class
+  private
+    flist: TList;
+    function getReport(index: integer): TReadReport;
+  public
+    property reports[index: integer]: TReadReport read getReport; default;
+    function push_back(scan: TReadReport): integer;
+    function Count: integer;
+    procedure clear;
+    constructor Create;
+    destructor Destroy; override;
+  end;
+
   TRaidAuftrag = record
     Start, Ziel: TPlanetPosition;
     Zeit: TDateTime;
@@ -312,8 +354,6 @@ var
 function FleetEventTypeToStrEx_(flt: TFleetEvent): string;
 function FleetEventTypeToStr_(fj: TFleetEventType): string;
 function FleetEventTypeToNameStr(fj: TFleetEventType): string;
-function ReadBufScan(Buffer: Pointer): TScanBericht;
-function WriteBufScan(Scan: TScanBericht; var Buf: pointer): integer;
 procedure DeleteEmptyChar(var s: string);
 function ReadPosOrTime(const s: string; p: Integer; var Position: TPlanetPosition): integer;
 function PositionToStr_(pos: TPlanetPosition): string;
@@ -352,18 +392,15 @@ function IntToStrKP(i: Int64; kpc: char = #0): String;
 function PosBigger(pos1, pos2: TPlanetPosition): boolean;
 function StrToPosition(S: string): TPlanetPosition;
 function SameFleetEvent(Fleet1, Fleet2: TFleetEvent): Boolean;
-function ScanSize: integer;
 function OGameRangeList: TCoordinatesRangeList;
 function AbsPlanetNrToPlanetPosition(nr: TAbsPlanetNr): TPlanetPosition;
 function PlanetPositionToAbsPlanetNr(pos: TPlanetPosition): TAbsPlanetNr;
 function checkMoonScan(var Report: TScanBericht): Boolean;
-function NewScanBericht(Source: TScanBericht): TScanBericht;
-procedure ClearScanBericht(var scan: TScanBericht);
 function BufFleetSize: Integer;
 function ReadBufFleet(Buffer: Pointer): TFleetEvent;
 procedure WriteBufFleet(const Fleet: TFleetEvent; Buffer: Pointer);
 function CalcScanRess_Now_(Scan: TScanBericht; const Mine: TRessType;
-  alter_h: single; production_per_h: integer): Integer;
+  alter_h: single; production_per_h: integer): TcSResource;
 function GetStorageSize(scan: TScanBericht; resstype: TRessType): integer;
 function GetScanGrpCount(Scan: TScanBericht): integer;
 function domainTolangindex(domain: string): integer;
@@ -384,33 +421,6 @@ function domainTolangindex(domain: string): integer;
       end;
     end;
   end;
-
-function NewScanBericht(Source: TScanBericht): TScanBericht;
-var j: integer;
-    sg: TScanGroup;
-begin
-  Result.Head := Source.Head;
-  for sg := low(sg) to high(sg) do
-  begin
-    SetLength(Result.Bericht[sg],ScanFileCounts[sg]);
-    for j := 0 to ScanFileCounts[sg]-1 do
-      Result.Bericht[sg,j] := Source.Bericht[sg,j];
-  end;
-end;
-
-procedure ClearScanBericht(var scan: TScanBericht);
-var j: integer;
-    sg: TScanGroup;
-begin
-  FillChar(scan.Head, sizeof(scan.Head), 0);
-
-  for sg := low(sg) to high(sg) do
-  begin
-    SetLength(scan.Bericht[sg],ScanFileCounts[sg]);
-    for j := 0 to ScanFileCounts[sg]-1 do
-      scan.Bericht[sg,j] := 0;
-  end;
-end;
 
 function checkMoonScan(var Report: TScanBericht): Boolean;
 begin
@@ -435,22 +445,13 @@ begin
     Result := True;      //Sicher ein Mond!
     Report.Head.Position.Mond := True;
   end
-  else if (Report.Bericht[sg_Verteidigung][sb_Abfangraketen] > 0) or
-          (Report.Bericht[sg_Verteidigung][sb_InterplanetarRaketen] > 0) then
+  else if (Report.Bericht[sg_Verteidigung,sb_Abfangraketen] > 0) or
+          (Report.Bericht[sg_Verteidigung,sb_InterplanetarRaketen] > 0) then
   begin
     Result := True;      //Sicher kein Mond!
     Report.Head.Position.Mond := false;
   end;
        
-end;
-
-
-function ScanSize: integer;
-var sg: TScanGroup;
-begin
-  Result := sizeof(TScanHead);
-  for sg := low(sg) to high(sg) do
-    Result := Result + (sizeof(Integer) * ScanFileCounts[sg]);
 end;
 
 function IntToStrKP(i: Int64; kpc: char = #0): String;
@@ -731,45 +732,6 @@ begin
   end;
 end;
 
-function ReadBufScan(Buffer: Pointer): TScanBericht;
-var z: pointer;
-    j: integer;
-    sg: TScanGroup;
-begin
-  z := Buffer;
-  Result.Head := TScanHead(z^);
-  z := pointer(integer(z)+sizeof(TScanHead));
-  for sg := low(sg) to high(sg) do
-  begin
-    SetLength(Result.Bericht[sg],ScanFileCounts[sg]);
-    for j := 0 to ScanFileCounts[sg]-1 do
-    begin
-      Result.Bericht[sg,j] := Integer(z^);
-      z := pointer(integer(z)+sizeof(Integer));
-    end;
-  end;                          
-end;
-
-function WriteBufScan(Scan: TScanBericht; var Buf: pointer): integer;
-var j: integer;
-    z: pointer;
-    sg: TScanGroup;
-begin
-  Result := 0;
-  z := buf;
-  TScanHead(z^) := Scan.Head;
-  z := pointer(integer(z)+sizeof(TScanHead));
-  for sg := low(sg) to high(sg) do
-  begin
-    if length(Scan.Bericht[sg]) = ScanFileCounts[sg] then
-    for j := 0 to ScanFileCounts[sg]-1 do
-    begin
-      Integer(z^) := Scan.Bericht[sg,j];
-      z := pointer(integer(z)+sizeof(Integer));
-    end;
-  end;
-end;
-
 procedure DeleteEmptyChar(var s: string);
 begin
   while (length(s) > 0)and(s[1] in [' ',#9,#13,#10]) do
@@ -944,7 +906,7 @@ begin
 end; 
 
 function CalcScanRess_Now_(Scan: TScanBericht; const Mine: TRessType;
-  alter_h: single; production_per_h: integer): Integer;
+  alter_h: single; production_per_h: integer): TcSResource;
 var max, ress: Integer;
 begin
   if (Mine > rtDeuterium) then
@@ -952,7 +914,7 @@ begin
 
   max := GetStorageSize(Scan, Mine);
 
-  ress := Scan.Bericht[sg_Rohstoffe][sb_Ress_array[mine]];
+  ress := Scan.Bericht[sg_Rohstoffe,sb_Ress_array[mine]];
 
   if ress > max then  //Wenn schon mehr als Speicherkapazitär erlaubt -> keine Produktion!
     Result := ress
@@ -1007,18 +969,18 @@ var enrgy_SolKW, enrgy_FusionKW, gesammt: integer;
 begin
   Result := -1;
 
-  gesammt := Scan.Bericht[sg_Rohstoffe][sb_Ress_array[rtEnergy]];
+  gesammt := Scan.Bericht[sg_Rohstoffe,sb_Ress_array[rtEnergy]];
   
-  stufe_SolKW := Scan.Bericht[sg_Gebaeude][sb_SolKW];
+  stufe_SolKW := Scan.Bericht[sg_Gebaeude,sb_SolKW];
   if stufe_SolKW < 0 then Exit;
   
-  stufe_FusionKW := Scan.Bericht[sg_Gebaeude][sb_FusionsKW];
+  stufe_FusionKW := Scan.Bericht[sg_Gebaeude,sb_FusionsKW];
   if stufe_FusionKW < 0 then Exit;
 
-  stufe_energytech := Scan.Bericht[sg_Forschung][sb_Energietechnik];
+  stufe_energytech := Scan.Bericht[sg_Forschung,sb_Energietechnik];
   if stufe_energytech < 0 then Exit;
 
-  anzahl_solsat := Scan.Bericht[sg_Flotten][sb_SolSat];
+  anzahl_solsat := Scan.Bericht[sg_Flotten,sb_SolSat];
   if anzahl_solsat <= 0 then Exit;
 
   enrgy_SolKW := trunc( 20*stufe_SolKW* IntPower(1.1,stufe_SolKW) );
@@ -1037,7 +999,7 @@ begin
       Result := 1
     else
     begin
-      Result := Scan.Bericht[sg_Rohstoffe][sb_Ress_array[rtEnergy]]
+      Result := Scan.Bericht[sg_Rohstoffe,sb_Ress_array[rtEnergy]]
                            / needed_energy;
 
       if Result > 1 then Result := 1;
@@ -1145,16 +1107,16 @@ begin
 
   // Normale Flotte
   for i := 0 to ScanFileCounts[fleet_group]-1 do
-    if (Scan.Bericht[fleet_group][i] > 0) then
-      AddToResult(fleet_resources[i], Scan.Bericht[fleet_group][i], TF_faktor_Fleet);
+    if (Scan.Bericht[fleet_group,i] > 0) then
+      AddToResult(fleet_resources[i], Scan.Bericht[fleet_group,i], TF_faktor_Fleet);
 
   // Verteidigung
   if TF_faktor_Def > 0 then
     for i := 0 to ScanFileCounts[def_group]-1 do
     if not def_ignoreFight[i] then
       begin
-        if (Scan.Bericht[def_group][i] > 0) then
-          AddToResult(def_resources[i], Scan.Bericht[def_group][i], TF_faktor_Def);
+        if (Scan.Bericht[def_group,i] > 0) then
+          AddToResult(def_resources[i], Scan.Bericht[def_group,i], TF_faktor_Def);
       end;
 
   Result[2] := 0; //Deut kommt nicht ins TF!
@@ -1242,10 +1204,10 @@ begin
   begin
     for j := 0 to ScanFileCounts[sg]-1 do
     begin
-      if Scan1.Bericht[sg][j] <> Scan2.Bericht[sg][j] then
+      if Scan1.Bericht[sg,j] <> Scan2.Bericht[sg,j] then
         Result := Result + ' [' + IntToStr(byte(sg)) + '][' + IntToStr(j+1) +
-                           '](' + IntToStr(Scan1.Bericht[sg][j]) +
-                           '/' + IntToStr(Scan2.Bericht[sg][j]) + ')';
+                           '](' + IntToStr(Scan1.Bericht[sg,j]) +
+                           '/' + IntToStr(Scan2.Bericht[sg,j]) + ')';
     end;
   end;
 end;
@@ -1336,7 +1298,7 @@ end;
 function GetStorageSize(scan: TScanBericht; resstype: TRessType): integer;
 var speicherstufe: integer;
 begin
-  speicherstufe := Scan.Bericht[sg_Gebaeude][sb_Speicher_array[resstype]];
+  speicherstufe := Scan.Bericht[sg_Gebaeude,sb_Speicher_array[resstype]];
   if speicherstufe < 0 then speicherstufe := 0;
 
   //Berechnung Speicherkapazität:
@@ -1357,9 +1319,186 @@ begin
   Result := 0;
   for g := low(g) to high(g) do
   begin
-    if (Scan.Bericht[g][0] >= 0) then
+    if (Scan.Bericht[g,0] >= 0) then
       inc(Result);
   end;
+end;
+
+{ TScanBericht }
+
+procedure TScanBericht.clear;
+begin
+  if fReadOnly then raise Exception.Create('TScanBericht.clear(): Report is read Only!');
+
+  FillChar(Head,      sizeof(Head),      0);
+  FillChar(resources, sizeof(resources), -1);
+  FillChar(fleets,    sizeof(fleets),    -1);
+  FillChar(defence,   sizeof(defence),   -1);
+  FillChar(buildings, sizeof(buildings), -1);
+  FillChar(research,  sizeof(research),  -1);
+end;
+
+function TScanBericht.copy: TScanBericht;
+begin
+  Result := TScanBericht.Create;
+  Result.copyFrom(Self);
+end;
+
+procedure TScanBericht.copyFrom(scan: TScanBericht);
+var j: integer;
+    sg: TScanGroup;
+begin
+  if fReadOnly then
+    raise Exception.Create('TScanBericht.copyFrom(): Report is read Only!');
+
+  Head := Scan.Head;
+  for sg := low(sg) to high(sg) do
+  begin
+    for j := 0 to ScanFileCounts[sg]-1 do
+      Bericht[sg,j] := Scan.Bericht[sg,j];
+  end;
+end;
+
+constructor TScanBericht.Create;
+begin
+  inherited;
+  Head.Time_u := 0;
+  fReadOnly := false;
+end;
+
+destructor TScanBericht.Destroy;
+begin
+  if fReadOnly then
+    raise Exception.Create('TScanBericht.deserialize(): Report is read Only!');
+    
+  inherited;
+end;
+
+function TScanBericht.getElement(sg: TScanGroup; index: integer): Int64;
+begin
+  // check boundings:
+  if (index >= ScanFileCounts[sg]) then
+    raise Exception.Create(
+      'TScanBericht.getElement(): Zugriff auf nicht existierendes Element!');
+
+  case sg of
+  sg_Rohstoffe:    Result := resources[index];
+  sg_Flotten:      Result := fleets   [index];
+  sg_Verteidigung: Result := defence  [index];
+  sg_Gebaeude:     Result := buildings[index];
+  sg_Forschung:    Result := research [index];
+  else
+    raise Exception.Create('TScanBericht.getElement(): unknown ScanGroup!');
+  end;
+end;
+
+procedure TScanBericht.setElement(sg: TScanGroup; index: integer;
+  const Value: Int64);
+begin
+  if fReadOnly then
+    raise Exception.Create('TScanBericht.setElement(): Report is read Only!');
+
+  // check boundings:
+  if (index >= ScanFileCounts[sg]) then
+    raise Exception.Create(
+      'TScanBericht.getElement(): Zugriff auf nicht existierendes Element!');
+
+  case sg of
+  sg_Rohstoffe:    resources[index] := Value;
+  sg_Flotten:      fleets   [index] := Value;
+  sg_Verteidigung: defence  [index] := Value;
+  sg_Gebaeude:     buildings[index] := Value;
+  sg_Forschung:    research [index] := Value;
+  else
+    raise Exception.Create('TScanBericht.getElement(): unknown ScanGroup!');
+  end;
+end;
+
+procedure TScanBericht.serialize(stream: TAbstractFixedMemoryStream);
+begin
+  stream.WriteBuffer(Head,      sizeof(Head));
+  stream.WriteBuffer(resources, sizeof(resources));
+  stream.WriteBuffer(fleets,    sizeof(fleets));
+  stream.WriteBuffer(defence,   sizeof(defence));
+  stream.WriteBuffer(buildings, sizeof(buildings));
+  stream.WriteBuffer(research,  sizeof(research));
+end;
+
+procedure TScanBericht.deserialize(stream: TAbstractFixedMemoryStream);
+begin
+  if fReadOnly then
+    raise Exception.Create('TScanBericht.deserialize(): Report is read Only!');
+
+  stream.ReadBuffer(Head,      sizeof(Head));
+  stream.ReadBuffer(resources, sizeof(resources));
+  stream.ReadBuffer(fleets,    sizeof(fleets));
+  stream.ReadBuffer(defence,   sizeof(defence));
+  stream.ReadBuffer(buildings, sizeof(buildings));
+  stream.ReadBuffer(research,  sizeof(research));
+end;
+
+function TScanBericht.serialize_size: cardinal;
+begin
+  Result := sizeof(Head) + sizeof(resources) + sizeof(fleets) +
+    sizeof(defence) + sizeof(buildings) + sizeof(research);
+end;
+
+class function TScanBericht.Count(sg: TScanGroup): Integer;
+begin
+  Result := ScanFileCounts[sg];
+end;
+
+procedure TScanBericht.lock;
+begin
+  fReadOnly := True;
+end;
+
+procedure TScanBericht.unlock;
+begin
+  fReadOnly := false;
+end;
+
+{ TReportList }
+
+procedure TReadReportList.clear;
+begin
+  while flist.Count > 0 do
+  begin
+    TScanBericht(flist[0]).Free;
+    flist.Delete(0);
+  end;
+end;
+
+function TReadReportList.Count: integer;
+begin
+  Result := flist.Count;
+end;
+
+constructor TReadReportList.Create;
+begin
+  inherited;
+  flist := TList.Create;
+end;
+
+destructor TReadReportList.Destroy;
+begin
+  clear;
+  flist.Free;
+  inherited;
+end;
+
+function TReadReportList.getReport(index: integer): TReadReport;
+begin
+  Result := TReadReport(flist[index]);
+end;
+
+function TReadReportList.push_back(scan: TReadReport): integer;
+var myscan: TReadReport;
+begin
+  myscan := TReadReport.Create;
+  myscan.copyFrom(scan);
+  myscan.AskMoon := scan.AskMoon;
+  result := flist.Add(myscan);
 end;
 
 initialization

@@ -13,6 +13,7 @@ object FRM_POST_TEST: TFRM_POST_TEST
   OldCreateOrder = False
   OnClose = FormClose
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
   object Label2: TLabel

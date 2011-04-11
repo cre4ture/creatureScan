@@ -133,9 +133,9 @@ var last,next: integer;
 begin
   with WBRec do
   begin
-    M := trunc(Scan.Bericht[sg_Rohstoffe][0] / IntPower(2,welle));
-    K := trunc(Scan.Bericht[sg_Rohstoffe][1] / IntPower(2,welle));
-    D := trunc(Scan.Bericht[sg_Rohstoffe][2] / IntPower(2,welle));
+    M := trunc(Scan.Bericht[sg_Rohstoffe,0] / IntPower(2,welle));
+    K := trunc(Scan.Bericht[sg_Rohstoffe,1] / IntPower(2,welle));
+    D := trunc(Scan.Bericht[sg_Rohstoffe,2] / IntPower(2,welle));
 
     {$IFDEF CalcDragoShips_Debug}
     icount := 0;
