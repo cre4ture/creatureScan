@@ -3,13 +3,14 @@ unit TIReadPlugin;
 interface
 
 uses
-  Classes, OGame_Types, Windows, SysUtils, IniFiles, Dialogs, Languages;
+  Classes, OGame_Types, Windows, SysUtils, IniFiles, Dialogs, Languages,
+  cS_memstream;
 
 const
   DLLVNumber = 27;
 
 {
-  V27: stats & sys + playerID
+  V27: stats & sys + playerID + scan_size
 
   V26: new CallFleetEx
 
@@ -31,7 +32,8 @@ type
     const AUserIniFile: PChar;
     const AUserIniFileSection: PChar): Boolean;
   TEndDllFunction = function: boolean;
-  TScanToStrFunction = function(SB: Pointer; AsTable: Boolean): THandle;
+  TScanToStrFunction = function(scan_buf: pointer; scan_size: cardinal;
+    AsTable: Boolean): THandle;
   TRunOptions = procedure();
   TStrToStatus = function(s: ShortString): TStatus;
   TStatusToStr = function(Status: TStatus): ShortString;
@@ -43,7 +45,8 @@ type
   TOpenSolSys = function(pos: TSolSysPosition): Boolean;
   //Scans
   TReadScansFunction = function(Handle: Integer): integer;
-  TGetScanFunction = function(Handle: integer; Scan: Pointer; var AskMoon: Boolean): Boolean;
+  TGetScanFunction = function(Handle: integer; Scan: Pointer; scan_size: cardinal;
+    var AskMoon: Boolean): Boolean;
   //Sonnensystem
   TReadSystemFunction = function(Handle: integer; var Sys_X: TSystemCopy): Boolean;
   //Statistiken
@@ -114,7 +117,7 @@ type
     function CallFleetEx(fleet: TFleetEvent): Boolean;
     function directCallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
     function OpenSolSys(pos: TSolSysPosition): Boolean;
-    function GetReport(handle: integer; var Bericht: TScanBericht;
+    function GetReport(handle: integer; Bericht: TScanBericht;
       out moon_unknown: Boolean): Boolean;
     function ReadReports(handle: integer): Integer;
     constructor Create;
@@ -340,21 +343,21 @@ begin
   else Result := False;
 end;
 
-function TLangPlugIn.GetReport(handle: integer; var Bericht: TScanBericht;
+function TLangPlugIn.GetReport(handle: integer; Bericht: TScanBericht;
   out moon_unknown: Boolean): Boolean;
-var buf: pointer;
+var stream: TFixedMemoryStream_out;
 begin
   //Speicher reservieren
-  GetMem(buf,ScanSize);
+  stream := TFixedMemoryStream_out.Create(Bericht.serialize_size());
   try
     //DLL aufrufen:
     if Assigned(PGetScan) then
-      Result := PGetScan(handle, buf, moon_unknown)
+      Result := PGetScan(handle, stream.p, stream.size, moon_unknown)
     else Result := False;
 
-    Bericht := ReadBufScan(buf);
+    Bericht.deserialize(stream);
   finally
-    FreeMem(buf);
+    stream.Free;
   end;
 end;
 
@@ -406,22 +409,22 @@ begin
 end;
 
 function TLangPlugIn.ScanToStr(SB: TScanBericht; AsTable: Boolean): String;
-var buf: pointer;
+var stream: TFixedMemoryStream_out;
     gh: THandle; //GlobalMemory
 begin
-  GetMem(buf,ScanSize);
-  WriteBufScan(SB,buf);
+  stream := TFixedMemoryStream_out.Create(SB.serialize_size());
+  SB.serialize(stream);
   try
     if Assigned(PScanToStr) then
     begin
-      gh := PScanToStr(buf, AsTable);
+      gh := PScanToStr(stream.p, stream.size, AsTable);
       Result := PChar(GlobalLock(gh));
       GlobalUnlock(gh);
       GlobalFree(gh);
     end
     else Result := '';
   finally
-    FreeMem(buf);
+    stream.Free;
   end;
 end;
 

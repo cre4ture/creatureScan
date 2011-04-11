@@ -102,6 +102,7 @@ type
     ProcessForm: TFRM_ImportProgress;
     ende: Boolean;
     constructor Create(AOwner: TComponent; AODB: TOgameDataBase); reintroduce;
+    destructor Destroy; override;
   end;
 
 //procedure ScanToXML(Scan: TScanBericht; XMLFile: TXMLDocument);
@@ -114,7 +115,7 @@ function parse_Sys(parser: TXmlParser): Boolean; overload;
 function parse_Sys(parser: TXmlParser; var solsys: TSystemCopy): Boolean; overload;
 procedure parse_error(parser: TXMLParser; msg: string);
 function parse_report(parser: TXMLParser): boolean; overload;
-function parse_report(parser: TXMLParser; var report: TScanBericht): boolean; overload;
+function parse_report(parser: TXMLParser; report: TScanBericht): boolean; overload;
 function ScanToXML_(Scan: TScanBericht): String;
 function parse_unknown(parser: TXMLParser; parse_known: Boolean): boolean;
 procedure ImportXMLODB_(Filename: String; ODB: TOgameDataBase);
@@ -130,7 +131,7 @@ function FleetToXML_(fleet: TFleetEvent): string;
 function FleetJobFlagsToString(eflags: TFleetEventFlags): string;
 function FleetJobToString(job: TFleetEventType): string;
 function PlanetPositionToXML_attr(pos: TPlanetPosition): string;
-function ScanPartToXML_(part: TInfoArray; partnr: TScanGroup): string;
+function ScanPartToXML_(scan: TScanBericht; partnr: TScanGroup): string;
 function parse_fleet(parser: TXMLParser; var fleet: TFleetEvent): Boolean;
 function StringToFleetJobFlags(s: string): TFleetEventFlags;
 function StringToFleetJob(s: String): TFleetEventType;
@@ -324,6 +325,7 @@ begin
   OnEmptyTag := ScannerEmptyTag;
   OnEndTag := ScannerTagReady;
   ODB := AODB;
+  Scan := TScanBericht.Create();
 end;
 
 PROCEDURE TcSXMLScanner.ScannerStartTag(Sender : TObject; TagName : STRING; Attributes : TAttrList);
@@ -456,8 +458,8 @@ begin
         begin
           s := Attributes.Value(xspio_idents[sg][j+1]);
           if s <> '' then
-            Scan.Bericht[sg][j] := StrToInt(s)
-          else Scan.Bericht[sg][j] := 0;
+            Scan.Bericht[sg,j] := StrToInt(s)
+          else Scan.Bericht[sg,j] := 0;
         end;
       except
         //Fehlerhafter Scan!
@@ -468,18 +470,10 @@ end;
 
 procedure TcSXMLScanner.process_xspio_starttag(Sender: TObject;
   TagName: STRING; Attributes: TAttrList; Empty: Boolean);
-var j: integer;
-    s: string;
-    sg: TScanGroup;
+var s: string;
 begin
   //Scan Leeren!
-  FillChar(Scan.Head,SizeOf(Scan.Head),0);
-  for sg := low(sg) to high(sg) do
-  begin
-    SetLength(Scan.Bericht[sg],ScanFileCounts[sg]);
-    for j := 0 to ScanFileCounts[sg]-1 do
-      Scan.Bericht[sg][j] := -1;
-  end;
+  Scan.clear;
 
   try
     Scan.Head.Position.P[0] := StrToInt(Attributes.Value(xpos_gala));
@@ -504,6 +498,7 @@ end;
 procedure TcSXMLScanner.process_xspio_endtag(Sender: TObject; TagName: STRING);
 begin
   ODB.UniTree.AddNewReport(Scan);
+  Scan := TScanBericht.Create(); // begin new scan
 end;
 
 procedure TcSXMLScanner.process_xsys_starttag(Sender: TObject;
@@ -674,13 +669,18 @@ end;
 function parse_report(parser: TXMLParser): boolean;
 var report: TScanBericht;
 begin
-  Result := parse_report(parser,report);
-  if Result then
-    ODataBase.UniTree.AddNewReport(report);
+  report := TScanBericht.Create;
+  try
+    Result := parse_report(parser, report);
+    if Result then
+      ODataBase.UniTree.AddNewReport(report);
+  finally
+    report.Free;
+  end;
 end;
 
 function parse_report_group(parser: TXMLParser; sg: TScanGroup;
-  var InfArr: TInfoArray): boolean;
+  scan: TScanBericht): boolean;
 var j: integer;
     s: string;
 begin
@@ -688,13 +688,43 @@ begin
   if Result then
   begin
     try
-      SetLength(InfArr,ScanFileCounts[sg]);
       for j := 0 to ScanFileCounts[sg]-1 do
       begin
         s := parser.CurAttr.Value(xspio_idents[sg][j+1]);
         if s <> '' then
-          InfArr[j] := StrToInt(s)
-        else InfArr[j] := 0;
+          scan.Bericht[sg,j] := StrToInt(s)
+        else scan.Bericht[sg,j] := 0;
+      end;
+    except
+      parse_error(parser,'parse_report_group: Error reading reportgroup: ' + xspio_idents[sg][0]);
+    end;
+
+    if parser.CurPartType <> ptEmptyTag then
+    while (parser.Scan)and(parser.CurPartType <> ptEndTag) do
+    begin
+      case parser.CurPartType of
+        ptStartTag, ptEmptyTag: parse_unknown(parser,False);
+      end;
+    end;
+
+  end;
+end;
+
+function parse_report_group_AI(parser: TXMLParser; sg: TScanGroup;
+  part: TInfoArray): boolean;
+var j: integer;
+    s: string;
+begin
+  Result := parser.CurName = xspio_idents[sg][0];
+  if Result then
+  begin
+    try
+      for j := 0 to ScanFileCounts[sg]-1 do
+      begin
+        s := parser.CurAttr.Value(xspio_idents[sg][j+1]);
+        if s <> '' then
+          part[j] := StrToInt(s)
+        else part[j] := 0;
       end;
     except
       parse_error(parser,'parse_report_group: Error reading reportgroup: ' + xspio_idents[sg][0]);
@@ -719,17 +749,15 @@ begin
   Result.Mond := parser.CurAttr.Value(xpos_moon) = 'true';
 end;
 
-function parse_report(parser: TXMLParser; var report: TScanBericht): boolean;
-var j: integer;
-    s: string;
-    sg: TScanGroup;
+function parse_report(parser: TXMLParser; report: TScanBericht): boolean;
+var s: string;
 
   function parse_xspio_idents: Boolean;
   var sg: TScanGroup;
   begin
     for sg := low(sg) to high(sg) do
     begin
-      Result := parse_report_group(parser,sg,report.Bericht[sg]);
+      Result := parse_report_group(parser,sg,report);
       if Result then
         break;
     end;
@@ -741,12 +769,7 @@ begin
   begin
     FillChar(report.Head,SizeOf(report.Head),0);
     
-    for sg := low(sg) to high(sg) do
-    begin
-      SetLength(report.Bericht[sg],ScanFileCounts[sg]);
-      for j := 0 to ScanFileCounts[sg]-1 do
-        report.Bericht[sg][j] := -1;
-    end;
+    report.clear;
 
     try
       report.Head.Position := XML_attrToPlanetPosition(parser);
@@ -783,21 +806,43 @@ begin
   end;
 end;
 
-function ScanPartToXML_(part: TInfoArray; partnr: TScanGroup): string;
+function ScanPartToXML_(scan: TScanBericht; partnr: TScanGroup): string;
 
   procedure attrAdd(attrName, attrValue: string);
   begin
     Result := Result + ' ' + attrName + '="' + attrValue + '"';
   end;
 
-var j: integer;
+var j, val: integer;
 begin
   Result := '<'+xspio_idents[partnr][0];
 
   for j := 0 to ScanFileCounts[partnr]-1 do
   begin
-    if part[j] <> 0 then
-      attrAdd(xspio_idents[partnr][j+1],IntToStr(part[j]));
+    val := scan.Bericht[partnr, j];
+    if val <> 0 then
+      attrAdd(xspio_idents[partnr][j+1],IntToStr(val));
+  end;
+
+  Result := Result+'/>';
+end;
+
+function ScanPartToXML_IA(part: TInfoArray; partnr: TScanGroup): string;
+
+  procedure attrAdd(attrName, attrValue: string);
+  begin
+    Result := Result + ' ' + attrName + '="' + attrValue + '"';
+  end;
+
+var j, val: integer;
+begin
+  Result := '<'+xspio_idents[partnr][0];
+
+  for j := 0 to ScanFileCounts[partnr]-1 do
+  begin
+    val := part[j];
+    if val <> 0 then
+      attrAdd(xspio_idents[partnr][j+1],IntToStr(val));
   end;
 
   Result := Result+'/>';
@@ -826,7 +871,7 @@ begin
   empty := true;
   for sg := low(sg) to high(sg) do
   begin
-    if Scan.Bericht[sg][0] <> -1 then
+    if Scan.Bericht[sg,0] <> -1 then
     begin
       if empty then //beim ersten Bereich, der hinzugefügt wird, report-tag schließen!
       begin
@@ -834,7 +879,7 @@ begin
         empty := False;
       end;
 
-      Result := Result + ScanPartToXML_(Scan.Bericht[sg],sg);
+      Result := Result + ScanPartToXML_(Scan,sg);
     end;
   end;
   if empty then Result := Result + '/>' else Result := Result + '</' + xspio_group + '>';
@@ -1113,9 +1158,9 @@ begin
   ress[2] := Fleet.ress[2];
   for i := 3 to high(ress) do
     ress[i] := 0;
-  Result := Result+ScanPartToXML_(ress,sg_Rohstoffe);
-  
-  Result := Result+ScanPartToXML_(fleet.ships,sg_Flotten);
+  Result := Result+ScanPartToXML_IA(ress,sg_Rohstoffe);
+
+  Result := Result+ScanPartToXML_IA(fleet.ships,sg_Flotten);
 
   Result := Result + '</'+xflt_group+'>';
 end;
@@ -1135,12 +1180,12 @@ function parse_fleet(parser: TXMLParser; var fleet: TFleetEvent): Boolean;
       Fleet.head.target := XML_attrToPlanetPosition(parser);
     end
     else
-    if (parse_report_group(parser,sg_Flotten,fleet.ships)) then
+    if (parse_report_group_AI(parser,sg_Flotten,fleet.ships)) then
     begin
       //weiter nichts zu tun!
     end
     else
-    if (parse_report_group(parser,sg_Rohstoffe,Fleet.ress)) then
+    if (parse_report_group_AI(parser,sg_Rohstoffe,Fleet.ress)) then
     begin
       //weiter nichts zu tun!
     end
@@ -1185,6 +1230,12 @@ begin
       end;
     end;
   end;
+end;
+
+destructor TcSXMLScanner.Destroy;
+begin
+  Scan.Free;
+  inherited;
 end;
 
 end.

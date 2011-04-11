@@ -1,6 +1,6 @@
 object FRM_Favoriten: TFRM_Favoriten
   Left = 218
-  Top = 163
+  Top = 268
   Width = 1043
   Height = 456
   Caption = 'Scanbericht '#220'bersicht'

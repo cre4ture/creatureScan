@@ -72,6 +72,7 @@ type
     procedure Button2Click(Sender: TObject);
     procedure Button7Click(Sender: TObject);
     procedure Button10Click(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     FServerUni: array of array of TTimeID;
     more: Boolean;
@@ -166,7 +167,7 @@ begin
   if (not SamePlanet(Scan.Head.Position,FRM_Main.Frame_Bericht1.Bericht.Head.Position))or
      (Scan.Head.Time_u <> FRM_Main.Frame_Bericht1.Bericht.Head.Time_u) then
   begin
-    Scan := FRM_Main.Frame_Bericht1.Bericht;
+    Scan.copyFrom(FRM_Main.Frame_Bericht1.Bericht);
     LBL_scan.Caption := PositionToStrMond(Scan.Head.Position);
     if CH_Auto.Checked then
     begin
@@ -523,7 +524,7 @@ var read, write: string;
         end;
       sit_send:
         begin  //senden! id bezieht sich auf die lokale db
-          scan := ODataBase.Berichte[id];
+          scan := ODataBase.Berichte[id]; // this assignment is ok!
 
           log('send report id(C' + IntToStr(id) + ') [' +
                PositionToStrMond(scan.Head.Position) + ']', 10);
@@ -752,6 +753,8 @@ end;
 
 procedure TFRM_POST_TEST.FormCreate(Sender: TObject);
 begin
+  Scan := TScanBericht.Create;
+
   Stop := False;
   more := True;
   Button2Click(self); //more := not more;
@@ -897,7 +900,7 @@ begin
 end;
 
 function GetPlanetReportList(Pos: TPlanetPosition; since_u: int64): TReportTimeList;
-var i,j: integer;
+var i: integer;
 begin
   Result := ODataBase.UniTree.GetPlanetReportList(Pos);
   i := 0;
@@ -914,6 +917,11 @@ begin
       break;
     end;
   end;
+end;
+
+procedure TFRM_POST_TEST.FormDestroy(Sender: TObject);
+begin
+  Scan.Free;
 end;
 
 end.

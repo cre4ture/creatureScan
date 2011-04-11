@@ -25,7 +25,7 @@ type
     Edits: array[TScanGroup] of array of TEdit;
     Labels: array[TScanGroup] of array of TLabel;
     procedure LoadScan(Scan: TScanBericht);
-    function GetScan: TScanbericht;
+    procedure GetScan(result: TScanbericht);
     { Public-Deklarationen }
   end;
 
@@ -85,7 +85,7 @@ begin
   end;
 end;
 
-function TFRM_EditScan.GetScan: TScanbericht;
+procedure TFRM_EditScan.GetScan(result: TScanbericht);
 var j: integer;
     sg: TScanGroup;
 begin
@@ -98,7 +98,6 @@ begin
   Result.Head.Time_u := DateTimeToUnix(now);
   for sg := low(sg) to high(sg) do
   begin
-    SetLength(Result.Bericht[sg],ScanFileCounts[sg]);
     for j := 0 to ScanFileCounts[sg]-1 do
     begin
       Result.Bericht[sg,j] := StrToInt(Edits[sg,j].Text);

@@ -116,6 +116,7 @@ type
     procedure ShowPlanetInfo(Pos: TPlanetPosition; info: TSystemPlanet);
     procedure Report_Refresh;
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure SaveOptions(ini: TIniFile);
     procedure LoadOptions(ini: TIniFile);
     procedure Clear;
@@ -131,7 +132,6 @@ uses Main, Languages, KB_List, cS_DB, Math;
 
 procedure TFrame_Bericht.Report_Refresh;
 var i: integer;
-    alter_h: single;
     m: TRessType;
 begin
   if ODataBase <> nil then
@@ -144,14 +144,14 @@ begin
   end;
 
   //copy original
-  Bericht_calc := NewScanBericht(Bericht_orig);
+  Bericht_calc.copyFrom(Bericht_orig);
 
   //Set Forschung:
   if f_use_player_info then
   begin
     for i := 0 to ScanFileCounts[sg_Forschung]-1 do
     begin
-      Bericht_calc.Bericht[sg_Forschung][i] := player_info.Research[i];
+      Bericht_calc.Bericht[sg_Forschung,i] := player_info.Research[i];
     end;
     dt_forschungsdate := UnixToDateTime(player_info.ResearchTime_u);
   end;
@@ -165,7 +165,7 @@ begin
       // overwrite ress_now:
       for m := rtMetal to rtDeuterium do
       begin
-        Bericht_calc.Bericht[sg_Rohstoffe][sb_Ress_array[m]] := v_Ress[m];
+        Bericht_calc.Bericht[sg_Rohstoffe,sb_Ress_array[m]] := v_Ress[m];
       end;
     end;
 
@@ -274,7 +274,7 @@ begin
    y := 1;
    x := 0;
    for sg := low(sg) to high(sg) do
-   if (length(Bericht.Bericht[sg]) > 0)and(Bericht.Bericht[sg][0] <> -1) then
+   if (Bericht.Bericht[sg,0] <> -1) then
    begin
      x := 0;
      if sg <> sg_Rohstoffe then
@@ -305,15 +305,15 @@ begin
        xml.Content := plugIn.SBItems[sg_Rohstoffe][0];}
        xml := THTMLElement.Create(xml_root, 'item');
        xml.AttributeValue['left'] := plugin.SBItems[sg_Rohstoffe][sb_Metall+1];
-       xml.AttributeValue['right'] := IntToStrKP(Bericht.Bericht[sg_Rohstoffe][sb_Metall]);
+       xml.AttributeValue['right'] := IntToStrKP(Bericht.Bericht[sg_Rohstoffe,sb_Metall]);
        xml.AttributeValue['color'] := IntToStr(a_color);
        xml := THTMLElement.Create(xml_root, 'item');
        xml.AttributeValue['left'] := plugIn.SBItems[sg_Rohstoffe][sb_Kristall+1];
-       xml.AttributeValue['right'] := IntToStrKP(Bericht.Bericht[sg_Rohstoffe][sb_Kristall]);
+       xml.AttributeValue['right'] := IntToStrKP(Bericht.Bericht[sg_Rohstoffe,sb_Kristall]);
        xml.AttributeValue['color'] := IntToStr(a_color);
        xml := THTMLElement.Create(xml_root, 'item');
        xml.AttributeValue['left'] := plugIn.SBItems[sg_Rohstoffe][sb_Deuterium+1];
-       xml.AttributeValue['right'] := IntToStrKP(Bericht.Bericht[sg_Rohstoffe][sb_Deuterium]);
+       xml.AttributeValue['right'] := IntToStrKP(Bericht.Bericht[sg_Rohstoffe,sb_Deuterium]);
        xml.AttributeValue['color'] := IntToStr(a_color);
 
        xml := getEnergyField();
@@ -351,7 +351,7 @@ begin
    Font.Color := textfarbe;
    Rectangle(Left,(line*Zeile),Right,(line*Zeile)+Zeile);
    s := PlugIn.SBItems[Part][0];
-   if (Part = sg_Flotten)and(Bericht.Bericht[part][0] >= 0) then
+   if (Part = sg_Flotten)and(Bericht.Bericht[part,0] >= 0) then
      s := s + ' (' + IntToStr(countShips(Bericht)) + ')';
    TextOut(Left+5,(line*Zeile)+ya, s);
    inc(line);
@@ -359,18 +359,18 @@ begin
    for i := 0 to ScanFileCounts[part]-1 do
    begin
      //Setze farbe
-     if (Bericht.Bericht[Part][i] = 0) and
+     if (Bericht.Bericht[Part,i] = 0) and
         (Part <= save_group) then
        Font.Color := cl_disabled_text_color
      else
-     if (Bericht.Bericht[Part][i] < 0) or
+     if (Bericht.Bericht[Part,i] < 0) or
         (Part > save_group) then
        Font.Color := cl_not_available_text_color
      else
        Font.Color := textfarbe;
 
-     if Bericht.Bericht[Part][i] >= 0 then
-       s := FloatToStrF(Bericht.Bericht[Part][i],ffNumber,60000000,0)
+     if Bericht.Bericht[Part,i] >= 0 then
+       s := FloatToStrF(Bericht.Bericht[Part,i],ffNumber,60000000,0)
      else s := STR_Not_Awailable;
 
        
@@ -384,18 +384,18 @@ procedure TFrame_Bericht._DrawItem_(Left,Top,Right: integer; scan: TScanBericht;
   grp: TScanGroup; item: integer; text_color: TColor);
 var s: string;
 begin
-  if (scan.Bericht[grp][item] = 0) and
+  if (scan.Bericht[grp,item] = 0) and
      (grp <= save_group) then
     PB_B.Canvas.Font.Color := cl_disabled_text_color
   else
-  if (scan.Bericht[grp][item] < 0) or
+  if (scan.Bericht[grp,item] < 0) or
      (grp > save_group) then
     PB_B.Canvas.Font.Color := cl_not_available_text_color
   else
     PB_B.Canvas.Font.Color := text_color;
 
-  if scan.Bericht[grp][item] >= 0 then
-    s := FloatToStrF(scan.Bericht[grp][item],ffNumber,60000000,0)
+  if scan.Bericht[grp,item] >= 0 then
+    s := FloatToStrF(scan.Bericht[grp,item],ffNumber,60000000,0)
   else
     s := STR_Not_Awailable;
 
@@ -449,30 +449,30 @@ var bint: Int64;
      begin
        xml := THTMLElement.Create(xml_root, 'item');
        xml.AttributeValue['left'] := plugIn.SBItems[sg_Rohstoffe][sb_Metall+1];
-       xml.AttributeValue['right'] := IntToStrKP(Bericht_calc.Bericht[sg_Rohstoffe][sb_Metall]);
+       xml.AttributeValue['right'] := IntToStrKP(Bericht_calc.Bericht[sg_Rohstoffe,sb_Metall]);
        xml.AttributeValue['color'] := IntToStr(cl_calc_ress_color);
        xml := THTMLElement.Create(xml_root, 'item');
        xml.AttributeValue['left'] := plugin.SBItems[sg_Rohstoffe][sb_Kristall+1];
-       xml.AttributeValue['right'] := IntToStrKP(Bericht_calc.Bericht[sg_Rohstoffe][sb_Kristall]);
+       xml.AttributeValue['right'] := IntToStrKP(Bericht_calc.Bericht[sg_Rohstoffe,sb_Kristall]);
        xml.AttributeValue['color'] := IntToStr(cl_calc_ress_color);
        xml := THTMLElement.Create(xml_root, 'item');
        xml.AttributeValue['left'] := plugin.SBItems[sg_Rohstoffe][sb_Deuterium+1];
-       xml.AttributeValue['right'] := IntToStrKP(Bericht_calc.Bericht[sg_Rohstoffe][sb_Deuterium]);
+       xml.AttributeValue['right'] := IntToStrKP(Bericht_calc.Bericht[sg_Rohstoffe,sb_Deuterium]);
        xml.AttributeValue['color'] := IntToStr(cl_calc_ress_color);
      end;
      // Normale Rohstoffe:
 
      xml := THTMLElement.Create(xml_root, 'item');
      xml.AttributeValue['left'] := plugin.SBItems[sg_Rohstoffe][sb_Metall+1];
-     xml.AttributeValue['right'] := IntToStrKP(Bericht_orig.Bericht[sg_Rohstoffe][sb_Metall]);
+     xml.AttributeValue['right'] := IntToStrKP(Bericht_orig.Bericht[sg_Rohstoffe,sb_Metall]);
      xml.AttributeValue['color'] := IntToStr(cl_text_color);
      xml := THTMLElement.Create(xml_root, 'item');
      xml.AttributeValue['left'] := plugin.SBItems[sg_Rohstoffe][sb_Kristall+1];
-     xml.AttributeValue['right'] := IntToStrKP(Bericht_orig.Bericht[sg_Rohstoffe][sb_Kristall]);
+     xml.AttributeValue['right'] := IntToStrKP(Bericht_orig.Bericht[sg_Rohstoffe,sb_Kristall]);
      xml.AttributeValue['color'] := IntToStr(cl_text_color);
      xml := THTMLElement.Create(xml_root, 'item');
      xml.AttributeValue['left'] := plugin.SBItems[sg_Rohstoffe][sb_Deuterium+1];
-     xml.AttributeValue['right'] := IntToStrKP(Bericht_orig.Bericht[sg_Rohstoffe][sb_Deuterium]);
+     xml.AttributeValue['right'] := IntToStrKP(Bericht_orig.Bericht[sg_Rohstoffe,sb_Deuterium]);
      xml.AttributeValue['color'] := IntToStr(cl_text_color);
 
      // Energie
@@ -690,8 +690,8 @@ begin
     Brush.Style := bsSolid;
     Brush.Color := c;
 
-    if Bericht.Bericht[Part][i] >= 0 then
-      s := FloatToStrF(Bericht.Bericht[Part][i],ffNumber,60000000,0)
+    if Bericht.Bericht[Part,i] >= 0 then
+      s := FloatToStrF(Bericht.Bericht[Part,i],ffNumber,60000000,0)
     else s := STR_Not_Awailable;
     s := '  ' + s;
     TextOut(Right - TextWidth(s)-5,(line*Zeile)+ya,s);
@@ -741,9 +741,9 @@ begin
       Rectangle(x,line*Zeile,x+xteil,line*zeile+zeile);
       for j := 0 to ScanFileCounts[sg]-1 do
       begin
-        if Bericht.Bericht[sg][j] > 0 then
+        if Bericht.Bericht[sg,j] > 0 then
           DrawLine(x,x+xteil,j,sg);
-        if Bericht.Bericht[sg][j] = -1 then
+        if Bericht.Bericht[sg,j] = -1 then
         begin
           DrawLine(x,x+xteil,j,sg);
           break;
@@ -822,6 +822,10 @@ end;
 constructor TFrame_Bericht.Create(AOwner: TComponent);
 begin
   inherited;
+  Bericht_orig := TScanBericht.Create;
+  Bericht_calc := TScanBericht.Create;
+  tst_rep := TScanBericht.Create;
+
   fshowplanetinfo := False;
   DontShowRaids := False;
   ShowProduction := True;
@@ -845,6 +849,7 @@ begin
 
   BTN_Last24.Left := ClientWidth - BTN_Last24.Width;
   LBL_Raid24_Info.Left := ClientWidth - BTN_Last24.Width - LBL_Raid24_Info.Width;
+
 end;
 
 procedure TFrame_Bericht.BTN_nextRaidClick(Sender: TObject);
@@ -970,10 +975,10 @@ begin
     //Gruppen-Items:
     Brush.Color := cl_bg_color;
     Font.Color := text_color;
-    for j := 0 to length(scan.Bericht[sg])-1 do
+    for j := 0 to scan.Count(sg)-1 do
     begin
       //Nur Items anzeigen deren Anzahl <> 0! (Ausnahme: Rohstoffe)
-      if (scan.Bericht[sg][j] <> 0)or(show_zero_items) then  //rohstoffe auch anzeigen wenn 0!
+      if (scan.Bericht[sg,j] <> 0)or(show_zero_items) then  //rohstoffe auch anzeigen wenn 0!
       begin
         {s := PlugIn.SBItems[sg][j+1];
         TextOut(x*colwidth+5,y*rowheight+ya,s);
@@ -988,7 +993,7 @@ begin
       end;
 
       //Neue Zeile, wenn Zeilenende erreicht:
-      if (scan.Bericht[sg][j] <> 0)or(show_zero_items) then
+      if (scan.Bericht[sg,j] <> 0)or(show_zero_items) then
       begin
         inc(x);
         if x >= cols then
@@ -1010,7 +1015,7 @@ begin
   self.save_group := save_groups;
   fshowplanetinfo := false;
   ResetValues;
-  Bericht_orig := aBericht;
+  Bericht_orig.copyFrom(aBericht);
   VertScrollBar.Position := 0;
   Report_Refresh;
   tim_next_fleetTimer(tim_next_fleet);
@@ -1030,11 +1035,11 @@ begin
   if energy_consumption < 0 then
     eleft := 'n.a.'
   else
-    eleft := IntToStrKP(Bericht.Bericht[sg_Rohstoffe][sb_Energie] -
+    eleft := IntToStrKP(Bericht.Bericht[sg_Rohstoffe,sb_Energie] -
                                                        energy_consumption);
 
   Result.AttributeValue['right'] := eleft + ' / ' +
-                      IntToStrKP(Bericht.Bericht[sg_Rohstoffe][sb_Energie]);
+                      IntToStrKP(Bericht.Bericht[sg_Rohstoffe,sb_Energie]);
 end;
 
 procedure TFrame_Bericht.Clear;
@@ -1082,8 +1087,8 @@ end;
 
 procedure TFrame_Bericht.ResetValues;
 begin
-  ClearScanBericht(Bericht_orig);
-  ClearScanBericht(Bericht_calc);
+  Bericht_orig.clear;
+  Bericht_calc.clear;
   f_use_player_info := false;
   dt_forschungsdate := 0;
   Bericht_orig.Head.Position.P[0] := 0;
@@ -1114,9 +1119,9 @@ function TFrame_Bericht.countShips(scan: TScanbericht): Integer;
 var i: integer;
 begin
   Result := 0;
-  for i := 0 to length(scan.Bericht[sg_Flotten])-1 do
+  for i := 0 to scan.Count(sg_Flotten)-1 do
   begin
-    Result := Result + scan.Bericht[sg_Flotten][i];
+    Result := Result + scan.Bericht[sg_Flotten,i];
   end;
 end;
 
@@ -1187,7 +1192,7 @@ begin
   with PB_B.Canvas do
   begin
    //Produktion / Stunde anzeigen:
-   if ShowProduction and (length(Bericht.Bericht[sg_Gebaeude]) > 0) then
+   if ShowProduction then
    begin
      inc(line);
      Brush.Color := clgreen;
@@ -1198,11 +1203,10 @@ begin
      //inc(y); //nächste zeile
 
      //Minenproduktion:
-     Setlength(tst_rep.Bericht[sg_Rohstoffe], ScanFileCounts[sg_Rohstoffe]);
-     tst_rep.Bericht[sg_Rohstoffe][0] := mineprod_h[rtMetal];
-     tst_rep.Bericht[sg_Rohstoffe][1] := mineprod_h[rtKristal];
-     tst_rep.Bericht[sg_Rohstoffe][2] := mineprod_h[rtDeuterium];
-     tst_rep.Bericht[sg_Rohstoffe][3] := 0;
+     tst_rep.Bericht[sg_Rohstoffe,0] := mineprod_h[rtMetal];
+     tst_rep.Bericht[sg_Rohstoffe,1] := mineprod_h[rtKristal];
+     tst_rep.Bericht[sg_Rohstoffe,2] := mineprod_h[rtDeuterium];
+     tst_rep.Bericht[sg_Rohstoffe,3] := 0;
      _DrawNormal_Group(sg_Rohstoffe, false, false, 2, line, Zeile, ya, tst_rep, cl_text_color);
 
      if produktionsfaktor = -1 then
@@ -1234,15 +1238,14 @@ begin
      TextOut(5,line*Zeile+ya, plugin.SBItems[sg_Rohstoffe][0] + '/(' + STR_Produktion + ')');
      Brush.Color := clblack;
 
-     Setlength(tst_rep.Bericht[sg_Rohstoffe], ScanFileCounts[sg_Rohstoffe]);
-     if tst_rep.Bericht[sg_Rohstoffe][0] <> 0 then
-       tst_rep.Bericht[sg_Rohstoffe][0] := trunc(Bericht_orig.Bericht[sg_Rohstoffe][0] / tst_rep.Bericht[sg_Rohstoffe][0]);
+     if tst_rep.Bericht[sg_Rohstoffe,0] <> 0 then
+       tst_rep.Bericht[sg_Rohstoffe,0] := trunc(Bericht_orig.Bericht[sg_Rohstoffe,0] / tst_rep.Bericht[sg_Rohstoffe,0]);
 
-     if tst_rep.Bericht[sg_Rohstoffe][1] <> 0 then
-       tst_rep.Bericht[sg_Rohstoffe][1] := trunc(Bericht_orig.Bericht[sg_Rohstoffe][1] / tst_rep.Bericht[sg_Rohstoffe][1]);
-     if tst_rep.Bericht[sg_Rohstoffe][2] <> 0 then
-       tst_rep.Bericht[sg_Rohstoffe][2] := trunc(Bericht_orig.Bericht[sg_Rohstoffe][2] / tst_rep.Bericht[sg_Rohstoffe][2]);
-     tst_rep.Bericht[sg_Rohstoffe][3] := 0;
+     if tst_rep.Bericht[sg_Rohstoffe,1] <> 0 then
+       tst_rep.Bericht[sg_Rohstoffe,1] := trunc(Bericht_orig.Bericht[sg_Rohstoffe,1] / tst_rep.Bericht[sg_Rohstoffe,1]);
+     if tst_rep.Bericht[sg_Rohstoffe,2] <> 0 then
+       tst_rep.Bericht[sg_Rohstoffe,2] := trunc(Bericht_orig.Bericht[sg_Rohstoffe,2] / tst_rep.Bericht[sg_Rohstoffe,2]);
+     tst_rep.Bericht[sg_Rohstoffe,3] := 0;
      _DrawNormal_Group(sg_Rohstoffe, false, false, 2, line, Zeile, ya, tst_rep, cl_text_color);
 
 
@@ -1266,7 +1269,7 @@ begin
 
 
    //Lagerkapazität:
-   if show_storage and (length(Bericht.Bericht[sg_Gebaeude]) > 0) then
+   if show_storage then
    begin
      Brush.Color := clgreen;
      Rectangle(0,line*Zeile,PB_B.Width,line*Zeile+Zeile);
@@ -1275,11 +1278,10 @@ begin
      //inc(y); //nächste zeile
 
      //Minenproduktion:
-     Setlength(tst_rep.Bericht[sg_Rohstoffe], ScanFileCounts[sg_Rohstoffe]);
-     tst_rep.Bericht[sg_Rohstoffe][0] := GetStorageSize(Bericht, rtMetal);
-     tst_rep.Bericht[sg_Rohstoffe][1] := GetStorageSize(Bericht, rtKristal);
-     tst_rep.Bericht[sg_Rohstoffe][2] := GetStorageSize(Bericht, rtDeuterium);
-     tst_rep.Bericht[sg_Rohstoffe][3] := 0;
+     tst_rep.Bericht[sg_Rohstoffe,0] := GetStorageSize(Bericht, rtMetal);
+     tst_rep.Bericht[sg_Rohstoffe,1] := GetStorageSize(Bericht, rtKristal);
+     tst_rep.Bericht[sg_Rohstoffe,2] := GetStorageSize(Bericht, rtDeuterium);
+     tst_rep.Bericht[sg_Rohstoffe,3] := 0;
      _DrawNormal_Group(sg_Rohstoffe, false, false, 2, line, Zeile, ya, tst_rep, cl_text_color);
    end;
   end;
@@ -1340,6 +1342,14 @@ end;
 procedure TFrame_Bericht._DrawXMLText(tag: THTMLElement; left, top: integer);
 begin
 
+end;
+
+destructor TFrame_Bericht.Destroy;
+begin
+  Bericht_orig.Free;
+  Bericht_calc.Free;
+  tst_rep.Free;
+  inherited;
 end;
 
 end.

@@ -154,7 +154,7 @@ type
     g4_research: packed array[1..16] of Shortint;
   end;
 
-  TcSReportItemToScan = function(const ItemBuf: pointer): TScanBericht;
+  TcSReportItemToScan = procedure(const ItemBuf: pointer; Result: TScanBericht);
   TScantocSReportItem = procedure(const Scan: TScanBericht; const ItemBuf: pointer);
   TcSReportDBFile = class(TSimpleDBCachedFile)
   private
@@ -232,12 +232,12 @@ begin
   LoadList;
 end;
 
-function cSReportItem_37_to_Scan(const ItemBuf: pointer): TScanBericht;
+procedure cSReportItem_37_to_Scan(const ItemBuf: pointer; Result: TScanBericht);
 var Item: TcSReportItem_37;
     i: integer;
-    sg: TScanGroup;
 begin
   Item := TcSReportItem_37(ItemBuf^);
+  Result.clear;
 
   with Result.Head do
   begin
@@ -256,33 +256,24 @@ begin
     Activity := -1;
   end;
 
-  for sg := low(sg) to high(sg) do           //Clear, weil der Scan unabhängig von der Datei (Array-Längen) sein muss!
-  begin
-    SetLength(Result.Bericht[sg],ScanFileCounts[sg]);
-    for i := 0 to ScanFileCounts[sg]-1 do
-    begin
-      Result.Bericht[sg,i] := 0;
-    end;
-  end;
-
   for i := 1 to length(Item.g0_resources) do
-    Result.Bericht[sg_Rohstoffe][i-1] := Item.g0_resources[i];
+    Result.Bericht[sg_Rohstoffe,i-1] := Item.g0_resources[i];
   for i := 1 to length(Item.g1_fleets) do
-    Result.Bericht[sg_Flotten][i-1] := Item.g1_fleets[i];
+    Result.Bericht[sg_Flotten,i-1] := Item.g1_fleets[i];
   for i := 1 to length(Item.g2_defence) do
-    Result.Bericht[sg_Verteidigung][i-1] := Item.g2_defence[i];
+    Result.Bericht[sg_Verteidigung,i-1] := Item.g2_defence[i];
   for i := 1 to length(Item.g3_buildings) do
-    Result.Bericht[sg_Gebaeude][i-1] := Item.g3_buildings[i];
+    Result.Bericht[sg_Gebaeude,i-1] := Item.g3_buildings[i];
   for i := 1 to length(Item.g4_research) do
-    Result.Bericht[sg_Forschung][i-1] := Item.g4_research[i];
+    Result.Bericht[sg_Forschung,i-1] := Item.g4_research[i];
 end;
 
-function cSReportItem_38_to_Scan(const ItemBuf: pointer): TScanBericht;
+procedure cSReportItem_38_to_Scan(const ItemBuf: pointer; Result: TScanBericht);
 var Item: TcSReportItem_38;
     i: integer;
-    sg: TScanGroup;
 begin
   Item := TcSReportItem_38(ItemBuf^);
+  Result.clear;
 
   with Result.Head do
   begin
@@ -299,34 +290,25 @@ begin
     Activity := Item.Head.Activity;
   end;
 
-  for sg := low(sg) to high(sg) do           //Clear, weil der Scan unabhängig von der Datei (Array-Längen) sein muss!
-  begin
-    SetLength(Result.Bericht[sg],ScanFileCounts[sg]);
-    for i := 0 to ScanFileCounts[sg]-1 do
-    begin
-      Result.Bericht[sg,i] := 0;
-    end;
-  end;
-
   for i := 1 to length(Item.g0_resources) do
-    Result.Bericht[sg_Rohstoffe][i-1] := Item.g0_resources[i];
+    Result.Bericht[sg_Rohstoffe,i-1] := Item.g0_resources[i];
   for i := 1 to length(Item.g1_fleets) do
-    Result.Bericht[sg_Flotten][i-1] := Item.g1_fleets[i];
+    Result.Bericht[sg_Flotten,i-1] := Item.g1_fleets[i];
   for i := 1 to length(Item.g2_defence) do
-    Result.Bericht[sg_Verteidigung][i-1] := Item.g2_defence[i];
+    Result.Bericht[sg_Verteidigung,i-1] := Item.g2_defence[i];
   for i := 1 to length(Item.g3_buildings) do
-    Result.Bericht[sg_Gebaeude][i-1] := Item.g3_buildings[i];
+    Result.Bericht[sg_Gebaeude,i-1] := Item.g3_buildings[i];
   for i := 1 to length(Item.g4_research) do
-    Result.Bericht[sg_Forschung][i-1] := Item.g4_research[i];
+    Result.Bericht[sg_Forschung,i-1] := Item.g4_research[i];
 end;
 
-function cSReportItem_36_to_Scan(const ItemBuf: pointer): TScanBericht;
+procedure cSReportItem_36_to_Scan(const ItemBuf: pointer; Result: TScanBericht);
 var Item: TcSReportItem_36;
     i: integer;
-    sg: TScanGroup;
 begin
   Item := TcSReportItem_36(ItemBuf^);
-
+  Result.clear;
+  
   with Result.Head do
   begin
     Planet := Item.Head.Planet;
@@ -344,28 +326,19 @@ begin
     Activity := -1;
   end;
 
-  for sg := low(sg) to high(sg) do           //Clear, weil der Scan unabhängig von der Datei (Array-Längen) sein muss!
-  begin
-    SetLength(Result.Bericht[sg],ScanFileCounts[sg]);
-    for i := 0 to ScanFileCounts[sg]-1 do
-    begin
-      Result.Bericht[sg,i] := 0;
-    end;
-  end;
-
   for i := 1 to length(Item.g0_resources) do
-    Result.Bericht[sg_Rohstoffe][i-1] := Item.g0_resources[i];
+    Result.Bericht[sg_Rohstoffe,i-1] := Item.g0_resources[i];
   for i := 1 to length(Item.g1_fleets) do
-    Result.Bericht[sg_Flotten][i-1] := Item.g1_fleets[i];
+    Result.Bericht[sg_Flotten,i-1] := Item.g1_fleets[i];
   for i := 1 to length(Item.g2_defence) do
-    Result.Bericht[sg_Verteidigung][i-1] := Item.g2_defence[i];
+    Result.Bericht[sg_Verteidigung,i-1] := Item.g2_defence[i];
   for i := 1 to length(Item.g3_buildings) do
-    Result.Bericht[sg_Gebaeude][i-1] := Item.g3_buildings[i];
+    Result.Bericht[sg_Gebaeude,i-1] := Item.g3_buildings[i];
   for i := 1 to length(Item.g4_research) do
   begin
     if (i-1 >= sb_Expeditionstechnik) then
-      Result.Bericht[sg_Forschung][i] := Item.g4_research[i]
-    else Result.Bericht[sg_Forschung][i-1] := Item.g4_research[i];
+      Result.Bericht[sg_Forschung,i] := Item.g4_research[i]
+    else Result.Bericht[sg_Forschung,i-1] := Item.g4_research[i];
   end;
 end;
 
@@ -392,15 +365,15 @@ begin
   end;
 
   for i := 1 to length(Item.g0_resources) do
-    Item.g0_resources[i] := Scan.Bericht[sg_Rohstoffe][i-1];
+    Item.g0_resources[i] := Scan.Bericht[sg_Rohstoffe,i-1];
   for i := 1 to length(Item.g1_fleets) do
-    Item.g1_fleets[i] := Scan.Bericht[sg_Flotten][i-1];
+    Item.g1_fleets[i] := Scan.Bericht[sg_Flotten,i-1];
   for i := 1 to length(Item.g2_defence) do
-    Item.g2_defence[i] := Scan.Bericht[sg_Verteidigung][i-1];
+    Item.g2_defence[i] := Scan.Bericht[sg_Verteidigung,i-1];
   for i := 1 to length(Item.g3_buildings) do
-    Item.g3_buildings[i] := Scan.Bericht[sg_Gebaeude][i-1];
+    Item.g3_buildings[i] := Scan.Bericht[sg_Gebaeude,i-1];
   for i := 1 to length(Item.g4_research) do
-    Item.g4_research[i] := Scan.Bericht[sg_Forschung][i-1];
+    Item.g4_research[i] := Scan.Bericht[sg_Forschung,i-1];
 
   TcSReportItem_37(ItemBuf^) := Item;
 end;
@@ -425,15 +398,15 @@ begin
   end;
 
   for i := 1 to length(Item.g0_resources) do
-    Item.g0_resources[i] := Scan.Bericht[sg_Rohstoffe][i-1];
+    Item.g0_resources[i] := Scan.Bericht[sg_Rohstoffe,i-1];
   for i := 1 to length(Item.g1_fleets) do
-    Item.g1_fleets[i] := Scan.Bericht[sg_Flotten][i-1];
+    Item.g1_fleets[i] := Scan.Bericht[sg_Flotten,i-1];
   for i := 1 to length(Item.g2_defence) do
-    Item.g2_defence[i] := Scan.Bericht[sg_Verteidigung][i-1];
+    Item.g2_defence[i] := Scan.Bericht[sg_Verteidigung,i-1];
   for i := 1 to length(Item.g3_buildings) do
-    Item.g3_buildings[i] := Scan.Bericht[sg_Gebaeude][i-1];
+    Item.g3_buildings[i] := Scan.Bericht[sg_Gebaeude,i-1];
   for i := 1 to length(Item.g4_research) do
-    Item.g4_research[i] := Scan.Bericht[sg_Forschung][i-1];
+    Item.g4_research[i] := Scan.Bericht[sg_Forschung,i-1];
 
   TcSReportItem_38(ItemBuf^) := Item;
 end;
@@ -460,30 +433,30 @@ begin
   end;
 
   for i := 1 to length(Item.g0_resources) do
-    Item.g0_resources[i] := Scan.Bericht[sg_Rohstoffe][i-1];
+    Item.g0_resources[i] := Scan.Bericht[sg_Rohstoffe,i-1];
   for i := 1 to length(Item.g1_fleets) do
-    Item.g1_fleets[i] := Scan.Bericht[sg_Flotten][i-1];
+    Item.g1_fleets[i] := Scan.Bericht[sg_Flotten,i-1];
   for i := 1 to length(Item.g2_defence) do
-    Item.g2_defence[i] := Scan.Bericht[sg_Verteidigung][i-1];
+    Item.g2_defence[i] := Scan.Bericht[sg_Verteidigung,i-1];
   for i := 1 to length(Item.g3_buildings) do
-    Item.g3_buildings[i] := Scan.Bericht[sg_Gebaeude][i-1];
+    Item.g3_buildings[i] := Scan.Bericht[sg_Gebaeude,i-1];
   for i := 1 to length(Item.g4_research) do
   begin
     if (i-1 >= sb_Expeditionstechnik) then
-      Item.g4_research[i] := Scan.Bericht[sg_Forschung][i]
-    else Item.g4_research[i] := Scan.Bericht[sg_Forschung][i-1];
+      Item.g4_research[i] := Scan.Bericht[sg_Forschung,i]
+    else Item.g4_research[i] := Scan.Bericht[sg_Forschung,i-1];
   end;
 
   TcSReportItem_36(ItemBuf^) := Item;
 end;
 
 
-function cSReportItem_25_to_Scan(const ItemBuf: pointer): TScanBericht;
+procedure cSReportItem_25_to_Scan(const ItemBuf: pointer; Result: TScanBericht);
 var Item: TcSReportItem_25;
     i: integer;
-    sg: TScanGroup;
 begin
   Item := TcSReportItem_25(ItemBuf^);
+  Result.clear;
 
   with Result.Head do
   begin
@@ -502,25 +475,16 @@ begin
     Activity := -1;
   end;
 
-  for sg := low(sg) to high(sg) do           //Clear, weil der Scan unabhängig von der Datei (Array-Längen) sein muss!
-  begin
-    SetLength(Result.Bericht[sg],ScanFileCounts[sg]);
-    for i := 0 to ScanFileCounts[sg]-1 do
-    begin
-      Result.Bericht[sg,i] := 0;
-    end;
-  end;
-
   for i := 1 to length(Item.g0_resources) do
-    Result.Bericht[sg_Rohstoffe][i-1] := Item.g0_resources[i];
+    Result.Bericht[sg_Rohstoffe,i-1] := Item.g0_resources[i];
   for i := 1 to length(Item.g1_fleets) do
-    Result.Bericht[sg_Flotten][i-1] := Item.g1_fleets[i];
+    Result.Bericht[sg_Flotten,i-1] := Item.g1_fleets[i];
   for i := 1 to length(Item.g2_defence) do
-    Result.Bericht[sg_Verteidigung][i-1] := Item.g2_defence[i];
+    Result.Bericht[sg_Verteidigung,i-1] := Item.g2_defence[i];
   for i := 1 to length(Item.g3_buildings) do
-    Result.Bericht[sg_Gebaeude][i-1] := Item.g3_buildings[i];
+    Result.Bericht[sg_Gebaeude,i-1] := Item.g3_buildings[i];
   for i := 1 to length(Item.g4_research) do
-    Result.Bericht[sg_Forschung][i-1] := Item.g4_research[i];
+    Result.Bericht[sg_Forschung,i-1] := Item.g4_research[i];
 end;
 
 procedure Scan_to_cSReportItem_25(const Scan: TScanBericht;
@@ -545,25 +509,25 @@ begin
   end;
 
   for i := 1 to length(Item.g0_resources) do
-    Item.g0_resources[i] := Scan.Bericht[sg_Rohstoffe][i-1];
+    Item.g0_resources[i] := Scan.Bericht[sg_Rohstoffe,i-1];
   for i := 1 to length(Item.g1_fleets) do
-    Item.g1_fleets[i] := Scan.Bericht[sg_Flotten][i-1];
+    Item.g1_fleets[i] := Scan.Bericht[sg_Flotten,i-1];
   for i := 1 to length(Item.g2_defence) do
-    Item.g2_defence[i] := Scan.Bericht[sg_Verteidigung][i-1];
+    Item.g2_defence[i] := Scan.Bericht[sg_Verteidigung,i-1];
   for i := 1 to length(Item.g3_buildings) do
-    Item.g3_buildings[i] := Scan.Bericht[sg_Gebaeude][i-1];
+    Item.g3_buildings[i] := Scan.Bericht[sg_Gebaeude,i-1];
   for i := 1 to length(Item.g4_research) do
-    Item.g4_research[i] := Scan.Bericht[sg_Forschung][i-1];
+    Item.g4_research[i] := Scan.Bericht[sg_Forschung,i-1];
 
   TcSReportItem_25(ItemBuf^) := Item;
 end;
 
-function cSReportItem_41_to_Scan(const ItemBuf: pointer): TScanBericht;
+procedure cSReportItem_41_to_Scan(const ItemBuf: pointer; Result: TScanBericht);
 var Item: TcSReportItem_41;
     i: integer;
-    sg: TScanGroup;
 begin
   Item := TcSReportItem_41(ItemBuf^);
+  Result.clear;
 
   with Result.Head do
   begin
@@ -580,25 +544,16 @@ begin
     Activity := Item.Head.Activity;
   end;
 
-  for sg := low(sg) to high(sg) do           //Clear, weil der Scan unabhängig von der Datei (Array-Längen) sein muss!
-  begin
-    SetLength(Result.Bericht[sg],ScanFileCounts[sg]);
-    for i := 0 to ScanFileCounts[sg]-1 do
-    begin
-      Result.Bericht[sg,i] := 0;
-    end;
-  end;
-
   for i := 1 to length(Item.g0_resources) do
-    Result.Bericht[sg_Rohstoffe][i-1] := Item.g0_resources[i];
+    Result.Bericht[sg_Rohstoffe,i-1] := Item.g0_resources[i];
   for i := 1 to length(Item.g1_fleets) do
-    Result.Bericht[sg_Flotten][i-1] := Item.g1_fleets[i];
+    Result.Bericht[sg_Flotten,i-1] := Item.g1_fleets[i];
   for i := 1 to length(Item.g2_defence) do
-    Result.Bericht[sg_Verteidigung][i-1] := Item.g2_defence[i];
+    Result.Bericht[sg_Verteidigung,i-1] := Item.g2_defence[i];
   for i := 1 to length(Item.g3_buildings) do
-    Result.Bericht[sg_Gebaeude][i-1] := Item.g3_buildings[i];
+    Result.Bericht[sg_Gebaeude,i-1] := Item.g3_buildings[i];
   for i := 1 to length(Item.g4_research) do
-    Result.Bericht[sg_Forschung][i-1] := Item.g4_research[i];
+    Result.Bericht[sg_Forschung,i-1] := Item.g4_research[i];
 end;
 
 procedure Scan_to_cSReportItem_41(const Scan: TScanBericht;
@@ -622,27 +577,28 @@ begin
   end;
 
   for i := 1 to length(Item.g0_resources) do
-    Item.g0_resources[i] := Scan.Bericht[sg_Rohstoffe][i-1];
+    Item.g0_resources[i] := Scan.Bericht[sg_Rohstoffe,i-1];
   for i := 1 to length(Item.g1_fleets) do
-    Item.g1_fleets[i] := Scan.Bericht[sg_Flotten][i-1];
+    Item.g1_fleets[i] := Scan.Bericht[sg_Flotten,i-1];
   for i := 1 to length(Item.g2_defence) do
-    Item.g2_defence[i] := Scan.Bericht[sg_Verteidigung][i-1];
+    Item.g2_defence[i] := Scan.Bericht[sg_Verteidigung,i-1];
   for i := 1 to length(Item.g3_buildings) do
-    Item.g3_buildings[i] := Scan.Bericht[sg_Gebaeude][i-1];
+    Item.g3_buildings[i] := Scan.Bericht[sg_Gebaeude,i-1];
   for i := 1 to length(Item.g4_research) do
-    Item.g4_research[i] := Scan.Bericht[sg_Forschung][i-1];
+    Item.g4_research[i] := Scan.Bericht[sg_Forschung,i-1];
 
   TcSReportItem_41(ItemBuf^) := Item;
 end;
 
 procedure TcSReportDBFile.DisposeItemPtr(const p: pointer);
 begin
-  Dispose(PScanBericht(p));
+  TScanBericht(p).unlock;
+  TScanBericht(p).Free;
 end;
 
 function TcSReportDBFile.GetReport(nr: Cardinal): TScanBericht;
 begin
-  Result := TScanBericht(GetCachedItem(nr)^);
+  Result := TScanBericht(GetCachedItem(nr));
 end;
 
 function TcSReportDBFile.GetUni: string;
@@ -711,23 +667,26 @@ end;
 
 procedure TcSReportDBFile.ItemToPtr(var Buf; const p: pointer);
 begin
-  TScanBericht(p^) := FItemToScan(@Buf);
+  TScanBericht(p).unlock;
+  FItemToScan(@Buf, TScanBericht(p));
+  TScanBericht(p).lock;
 end;
 
 function TcSReportDBFile.NewItemPtr: pointer;
 begin
-  New(PScanBericht(Result));
-  PScanBericht(Result).Head.Time_u := 0;
+  TScanBericht(Result) := TScanBericht.Create;
+  TScanBericht(Result).clear;
+  TScanBericht(Result).lock;
 end;
 
 procedure TcSReportDBFile.PtrToItem(const p: pointer; var Buf);
 begin
-  FScanToItem(TScanBericht(p^),@Buf);
+  FScanToItem(TScanBericht(p),@Buf);
 end;
 
 procedure TcSReportDBFile.SetReport(nr: Cardinal; Report: TScanBericht);
 begin
-  SetItem(nr,@Report);
+  SetItem(nr,Report);
 end;
 
 procedure TcSReportDBFile.SetUni(Uni: string);

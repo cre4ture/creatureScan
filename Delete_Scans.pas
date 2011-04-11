@@ -106,7 +106,7 @@ procedure TFRM_Delete_Scans.DelByPlanet(Pos: TPlanetPosition);
 procedure DelScan(NR: Integer);
 begin
   if (not CH_ScanBereiche.Checked)or
-     (ODataBase.Berichte[NR].Bericht[TScanGroup(CB_ScanBereiche.ItemIndex+1)][0] < 0) then
+     (ODataBase.Berichte[NR].Bericht[TScanGroup(CB_ScanBereiche.ItemIndex+1),0] < 0) then
     ODataBase.UniTree.DeleteReport(NR);
 end;
 

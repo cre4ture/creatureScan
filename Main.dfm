@@ -1,8 +1,8 @@
 object FRM_Main: TFRM_Main
   Left = 269
-  Top = 125
+  Top = 160
   Width = 549
-  Height = 463
+  Height = 479
   Caption = 'creatureScan'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -25,7 +25,7 @@ object FRM_Main: TFRM_Main
     Left = 0
     Top = 0
     Width = 541
-    Height = 398
+    Height = 414
     Align = alClient
     BevelOuter = bvNone
     Color = clBlack
@@ -34,7 +34,7 @@ object FRM_Main: TFRM_Main
     OnResize = P_ExplorerDockResize
     inline Frame_Bericht2: TFrame_Bericht
       Left = 0
-      Top = 269
+      Top = 285
       Width = 541
       Height = 129
       HorzScrollBar.Style = ssHotTrack
@@ -64,14 +64,14 @@ object FRM_Main: TFRM_Main
     Left = 0
     Top = 0
     Width = 541
-    Height = 398
+    Height = 414
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
     object Splitter1: TSplitter
       Left = 437
       Top = 0
-      Height = 398
+      Height = 414
       Align = alRight
       MinSize = 20
       ResizeStyle = rsLine
@@ -80,7 +80,7 @@ object FRM_Main: TFRM_Main
       Left = 0
       Top = 0
       Width = 437
-      Height = 398
+      Height = 414
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
@@ -88,7 +88,7 @@ object FRM_Main: TFRM_Main
         Left = 0
         Top = 0
         Width = 437
-        Height = 351
+        Height = 367
         HorzScrollBar.Style = ssHotTrack
         VertScrollBar.Style = ssHotTrack
         Align = alClient
@@ -127,7 +127,7 @@ object FRM_Main: TFRM_Main
       end
       object P_WF: TPanel
         Left = 0
-        Top = 351
+        Top = 367
         Width = 437
         Height = 47
         Align = alBottom
@@ -206,7 +206,7 @@ object FRM_Main: TFRM_Main
         Left = 0
         Top = 0
         Width = 437
-        Height = 351
+        Height = 367
         Align = alClient
         BevelOuter = bvNone
         Color = clBlack
@@ -222,7 +222,7 @@ object FRM_Main: TFRM_Main
           Left = 0
           Top = 0
           Width = 437
-          Height = 351
+          Height = 367
           Align = alClient
           Brush.Color = clBlack
           Pen.Style = psClear
@@ -232,7 +232,7 @@ object FRM_Main: TFRM_Main
           Left = 0
           Top = 0
           Width = 437
-          Height = 351
+          Height = 367
           Align = alClient
           AutoSize = False
           Transparent = False
@@ -664,18 +664,18 @@ object FRM_Main: TFRM_Main
       Left = 440
       Top = 0
       Width = 101
-      Height = 398
+      Height = 414
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
       DesignSize = (
         101
-        398)
+        414)
       object lst_others: TListView
         Left = 3
         Top = 84
         Width = 96
-        Height = 230
+        Height = 246
         Anchors = [akLeft, akTop, akRight, akBottom]
         Columns = <
           item
@@ -718,7 +718,7 @@ object FRM_Main: TFRM_Main
       end
       object BTN_Liste: TButton
         Left = 2
-        Top = 320
+        Top = 336
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
@@ -728,7 +728,7 @@ object FRM_Main: TFRM_Main
       end
       object BTN_Suche: TButton
         Left = 2
-        Top = 368
+        Top = 384
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
@@ -738,7 +738,7 @@ object FRM_Main: TFRM_Main
       end
       object BTN_Universum: TButton
         Left = 2
-        Top = 344
+        Top = 360
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
@@ -777,7 +777,7 @@ object FRM_Main: TFRM_Main
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 398
+    Top = 414
     Width = 541
     Height = 19
     Panels = <

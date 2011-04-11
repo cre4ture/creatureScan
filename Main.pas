@@ -421,28 +421,33 @@ begin
   Application.Title := 'cS [' + PositionToStrMond(Pos) + ']';
 
   // Zeigt Generic Scan:
-  ODataBase.UniTree.genericReport(Pos, scan_gen);
-  if scan_gen.Head.Time_u >= 0 then
-  begin
-    // Suche Liste
-    SearchList(-1,scan_gen.Head.Position);
-  end
-  else
-  begin
-    lst_others.Clear;    //Wenn nicht, zeige Sonnensystem-Informationen:
-    snr := ODataBase.UniTree.UniSys(Pos.P[0],Pos.P[1]);
-    if snr >= 0 then
+  scan_gen := TScanBericht.Create;
+  try
+    ODataBase.UniTree.genericReport(Pos, scan_gen);
+    if scan_gen.Head.Time_u >= 0 then
     begin
-      info := ODataBase.Systeme[snr].Planeten[Pos.P[2]];
-      Frame_Bericht1.ShowPlanetInfo(Pos,info);
-
-      p_startscreen.Visible := false;
-      ShowScanPanel();
+      // Suche Liste
+      SearchList(-1,scan_gen.Head.Position);
     end
     else
     begin
-      ShowScan(-1);   //Wenn keine Sonnensystem vorhanden, Zeige NIX!
+      lst_others.Clear;    //Wenn nicht, zeige Sonnensystem-Informationen:
+      snr := ODataBase.UniTree.UniSys(Pos.P[0],Pos.P[1]);
+      if snr >= 0 then
+      begin
+        info := ODataBase.Systeme[snr].Planeten[Pos.P[2]];
+        Frame_Bericht1.ShowPlanetInfo(Pos,info);
+
+        p_startscreen.Visible := false;
+        ShowScanPanel();
+      end
+      else
+      begin
+        ShowScan(-1);   //Wenn keine Sonnensystem vorhanden, Zeige NIX!
+      end;
     end;
+  finally
+    scan_gen.Free;
   end;
 end;
 
@@ -472,21 +477,26 @@ var Scan: TScanBericht;
     nr: integer;
     save: TScanGroup;
 begin
-  if Selected then
-  begin
-    nr := StrToInt(item.SubItems[0]);
-    if nr >= 0 then
+  scan := TScanBericht.Create();
+  try
+    if Selected then
     begin
-      Scan := ODataBase.Berichte[nr];
-      save := sg_Forschung;
-    end
-    else
-    begin
-      save := ODataBase.UniTree.genericReport(Frame_Bericht1.Bericht.Head.Position,
-                                              Scan);
+      nr := StrToInt(item.SubItems[0]);
+      if nr >= 0 then
+      begin
+        Scan.copyFrom(ODataBase.Berichte[nr]);
+        save := sg_Forschung;
+      end
+      else
+      begin
+        save := ODataBase.UniTree.genericReport(Frame_Bericht1.Bericht.Head.Position,
+                                                Scan);
+      end;
+
+      PaintScan(Scan, Save);
     end;
-       
-    PaintScan(Scan, Save);
+  finally
+    Scan.Free;
   end;
 end;
 
@@ -667,13 +677,10 @@ var i: integer;                //nr -> damit ich weis welchen zum selektieren
     item, gitem: TListItem;
     list: TReportTimeList;
     stime: TDateTime;
-    posscan: TScanBericht;
 begin
   lst_others.Items.BeginUpdate;
   // this is necessary couse we save our MainPosition in the FRAME!
-  posscan := Frame_Bericht1.Bericht;
-  posscan.Head.Position := pos;
-  Frame_Bericht1.SetBericht(posscan);
+  Frame_Bericht1.Bericht.Head.Position := pos;
 
   try
     lst_others.Items.Clear;
@@ -1151,7 +1158,7 @@ end;
 procedure TFRM_Main.PaintScan(scan: TScanBericht; save: TScanGroup = sg_Forschung);
 var gpi: PPlayerInformation;
 begin
-  Frame_Bericht1.SetBericht(NewScanBericht(Scan), save);
+  Frame_Bericht1.SetBericht(Scan, save);
 
   p_startscreen.Visible := False;
   if P_Scan.Visible = false then
@@ -1161,7 +1168,7 @@ begin
 
   //Suche Forschungen:
   with Frame_Bericht1.Bericht do
-  if (Bericht[sg_Forschung][0] = -1) then
+  if (Bericht[sg_Forschung,0] = -1) then
   begin
     gpi := ODataBase.UniTree.Player.GetPlayerInfo(Head.Spieler);
     if (gpi <> nil)and(gpi^.ResearchTime_u <> 0) then
@@ -1223,26 +1230,31 @@ var i: integer;
     gen_report: TScanBericht;
     save: TScanGroup;
 begin
-  i := ODataBase.UniTree.UniReport(P);
-  if (i >= 0) then
-  begin
-    P_ExplorerDockResize(self);
-    save := ODataBase.UniTree.genericReport(P, gen_report);
-    Frame_Bericht2.SetBericht(gen_report, save);
-    with Frame_Bericht2.Bericht do
-      if (Bericht[sg_Forschung][0] = -1) then
-      begin
-        gpi := ODataBase.UniTree.Player.GetPlayerInfo(Head.Spieler);
-        if (gpi <> nil) and (gpi^.ResearchTime_u <> 0) then
+  gen_report := TScanBericht.Create;
+  try
+    i := ODataBase.UniTree.UniReport(P);
+    if (i >= 0) then
+    begin
+      P_ExplorerDockResize(self);
+      save := ODataBase.UniTree.genericReport(P, gen_report);
+      Frame_Bericht2.SetBericht(gen_report, save);
+      with Frame_Bericht2.Bericht do
+        if (Bericht[sg_Forschung,0] = -1) then
         begin
-          Frame_Bericht2.Add_PlayerInfo(gpi^);
+          gpi := ODataBase.UniTree.Player.GetPlayerInfo(Head.Spieler);
+          if (gpi <> nil) and (gpi^.ResearchTime_u <> 0) then
+          begin
+            Frame_Bericht2.Add_PlayerInfo(gpi^);
+          end;
         end;
-      end;
-    Frame_Bericht2.Report_Refresh;
-  end
-  else
-  begin
-    Frame_Bericht2.Clear;
+      Frame_Bericht2.Report_Refresh;
+    end
+    else
+    begin
+      Frame_Bericht2.Clear;
+    end;
+  finally
+    gen_report.Free;
   end;
 end;
 
@@ -1275,9 +1287,9 @@ var Ress,TR_Transporter,TR_Schlachtschiff: integer;
     WBRec_Schl: TWBRec;
     WBRec_Trans: TWBRec;
 begin
-  Ress := Frame_Bericht1.Bericht.Bericht[sg_Rohstoffe][0]+
-          Frame_Bericht1.Bericht.Bericht[sg_Rohstoffe][1]+
-          Frame_Bericht1.Bericht.Bericht[sg_Rohstoffe][2];
+  Ress := Frame_Bericht1.Bericht.Bericht[sg_Rohstoffe,0]+
+          Frame_Bericht1.Bericht.Bericht[sg_Rohstoffe,1]+
+          Frame_Bericht1.Bericht.Bericht[sg_Rohstoffe,2];
   {$IFNDEF spacepioneers}
   if PlayerOptions.AngriffsLogig = al_Drago then
   begin
@@ -1531,11 +1543,11 @@ begin
   if g >= 0 then
   begin
     SB := ODataBase.Berichte[g];
-    if length(SB.Bericht[sg_Rohstoffe]) = 4 then
+//    if length(SB.Bericht[sg_Rohstoffe]) = 4 then
     begin
       SetLength(rd.ress,3);
       for i := 0 to 2 do
-        rd.ress[i] := SB.Bericht[sg_Rohstoffe][i] div 2;
+        rd.ress[i] := SB.Bericht[sg_Rohstoffe,i] div 2;
     end;
   end
   else
@@ -1693,7 +1705,6 @@ end;
 
 procedure TFRM_Main.Einlesen1Click(Sender: TObject);
 var dialog: TFRM_Stats_Einlesen;
-    tim_en: Boolean;
 begin
   dialog := TFRM_Stats_Einlesen.Create(Self);
   try
@@ -1826,13 +1837,20 @@ end;
 
 procedure TFRM_Main.NewScan1Click(Sender: TObject);
 var FRM: TFRM_EditScan;
+    scan: TScanBericht;
 begin
+  scan := TScanBericht.Create;
   FRM := TFRM_EditScan.Create(self);
-  If FRM.ShowModal = idOK then
-  begin
-    ODataBase.UniTree.AddNewReport(FRM.GetScan);
+  try
+    If FRM.ShowModal = idOK then
+    begin
+      FRM.GetScan(scan);
+      ODataBase.UniTree.AddNewReport(scan); // copy
+    end;
+  finally
+    FRM.Free;
+    scan.Free;
   end;
-  FRM.Release;
 end;
 
 procedure TFRM_Main.VergelicheSysDateimitDB1Click(Sender: TObject);
@@ -2375,24 +2393,24 @@ begin
 
   param('enemy_name', scan.Head.Planet);
   param('enemy_pos', PositionToStr_(scan.Head.Position)); // don't know if sim supports the [x:xxx:x M] extension
-  param('enemy_metal', scan.Bericht[sg_Rohstoffe][sb_Metall]);
-  param('enemy_crystal', scan.Bericht[sg_Rohstoffe][sb_Kristall]);
-  param('enemy_deut', scan.Bericht[sg_Rohstoffe][sb_Deuterium]);
+  param('enemy_metal', scan.Bericht[sg_Rohstoffe,sb_Metall]);
+  param('enemy_crystal', scan.Bericht[sg_Rohstoffe,sb_Kristall]);
+  param('enemy_deut', scan.Bericht[sg_Rohstoffe,sb_Deuterium]);
 
-  param('tech_d0_0', scan.Bericht[sg_Forschung][sb_Waffentechnik]);
-  param('tech_d0_1', scan.Bericht[sg_Forschung][sb_Schildtechnik]);
-  param('tech_d0_2', scan.Bericht[sg_Forschung][sb_Raumschiffpanzerung]);
+  param('tech_d0_0', scan.Bericht[sg_Forschung,sb_Waffentechnik]);
+  param('tech_d0_1', scan.Bericht[sg_Forschung,sb_Schildtechnik]);
+  param('tech_d0_2', scan.Bericht[sg_Forschung,sb_Raumschiffpanzerung]);
 
   for i := 0 to fsc_1_Flotten-1 do
   begin
     param('ship_d0_' + IntToStr(i) + '_b',
-      scan.Bericht[sg_Flotten][i]);
+      scan.Bericht[sg_Flotten,i]);
   end;
 
   for i := 0 to fsc_2_Verteidigung-1 do
   begin
     param('ship_d0_' + IntToStr(fsc_1_Flotten + i) + '_b',
-      scan.Bericht[sg_Verteidigung][i]);
+      scan.Bericht[sg_Verteidigung,i]);
   end;
 
   ShellExecute(Self.Handle,'open',PChar(url),'','',0);

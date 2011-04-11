@@ -491,6 +491,7 @@ var i: integer;
 begin
   //Suche nach vorhandenem Eintrag: TODO: suchbaum!?  (oder einfach ein array[1..9,1..499,1..15] of pointer)
   Result := -1;
+  item := nil;
   for i := 0 to ScanList.Count-1 do
   begin
     item := ScanList[i];
@@ -596,13 +597,13 @@ begin
       //Gesammt Resourcen:
       GRess := 0;
       for i := 0 to 2 do
-        GRess := GRess + Scan.Bericht[sg_Rohstoffe][i];
+        GRess := GRess + Scan.Bericht[sg_Rohstoffe,i];
       Result := Result and ((not Ress_Ges.Aktive)or(GRess > Ress_Ges.Value));
 
       //einzelne Resourcen:
       for i := 0 to 3 do
       begin
-        Result := Result and ((not MKDE[i].Aktive)or(Scan.Bericht[sg_Rohstoffe][i] > MKDE[i].Value));
+        Result := Result and ((not MKDE[i].Aktive)or(Scan.Bericht[sg_Rohstoffe,i] > MKDE[i].Value));
       end;
 
       //Flotten/Defence Punkte: Multi == 1 wenn größer, Multi = -1 wenn kleiner
@@ -626,14 +627,14 @@ function TFRM_Favoriten.FleetPoints(Scan: TScanbericht): integer;
 var j: integer;
 //27.12.08 UHO OK
 begin
-  if Scan.Bericht[sg_Flotten][0] < 0 then
+  if Scan.Bericht[sg_Flotten,0] < 0 then
     Result := -1
   else
   begin
     Result := 0;
     for j := 0 to ScanFileCounts[sg_Flotten]-1 do
     begin
-      Result := Result + (Scan.Bericht[sg_Flotten][j]*FleetDefValues[j]);
+      Result := Result + (Scan.Bericht[sg_Flotten,j]*FleetDefValues[j]);
     end;
   end;
 end;
@@ -642,14 +643,14 @@ function TFRM_Favoriten.DefPoints(Scan: TScanbericht): integer;
 var j: integer;
 //27.12.08 UHO OK
 begin
-  if Scan.Bericht[sg_Verteidigung][0] < 0 then
+  if Scan.Bericht[sg_Verteidigung,0] < 0 then
     Result := -1
   else
   begin
     Result := 0;
     for j := 0 to ScanFileCounts[sg_Verteidigung]-1 do
     begin
-      Result := Result + (Scan.Bericht[sg_Verteidigung][j]*
+      Result := Result + (Scan.Bericht[sg_Verteidigung,j]*
         FleetDefValues[ScanFileCounts[sg_Flotten]+j]);
     end;
   end;
@@ -728,7 +729,7 @@ procedure TFRM_Favoriten.VST_ScanListGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
   var CellText: WideString);
 var i: Integer;
-    scan: TScanBericht;
+//    scan: TScanBericht;
     fav: TFav;
 begin
   // WARNING: When adding here a new Column, don't forget adding it to
@@ -768,8 +769,8 @@ begin
     i := ODataBase.UniTree.UniReport(Position);
     if i >= 0 then
     begin
-      Scan := ODataBase.Berichte[i];
-      with Scan do
+//      Scan := ODataBase.Berichte[i];
+//      with Scan do
       case Column of
         5: CellText := ODataBase.Time_To_AgeStr(ScanTime);
         8..12: CellText := FloatToStrF(Ress[Column-8],ffNumber,60000000,0);
@@ -847,7 +848,6 @@ var fav: ^TFav;
     i, sb: integer;
     report: TScanBericht;
     m: TRessType;
-    alter_h: single;
     item: TPlanetItem;
     gpi: PPlayerInformation;
     p: TPlanetPosition;
@@ -892,52 +892,57 @@ begin
         // ScanGroupCount trotzdem vom letzten scan holen
         ScanGrpCount := GetScanGrpCount(report);
 
-        // UHO: 17.04.09 jetzt verwenden wir den generic Scan
-        // UHO: 28.10.2010: added research for solsysEnergy!
-        ODataBase.UniTree.genericReport_withResearch(Position, report);
-
-        ScanTime := UnixToDateTime(report.Head.Time_u);
-        Fleet := FleetPoints(report);
-        Def := DefPoints(report);
-
-        for i := 0 to 3 do
-          Ress[i] := report.Bericht[sg_Rohstoffe,i];
-        Ress[4] := report.Bericht[sg_Rohstoffe,0]+
-                   report.Bericht[sg_Rohstoffe,1]+
-                   report.Bericht[sg_Rohstoffe,2]; // m+k+d!
-
-        // calc estimated ressources
+        report := TScanBericht.Create;
         try
-          ODataBase.calcScanRess_NowScan(report, MProduction,
-            prod_faktor, needed_energy, solsatEnergy, calcMaxTemp, v_Ress);
-        except
-          ShowMessage('Error on Update: ' + PositionToStrMond(Position));
+          // UHO: 17.04.09 jetzt verwenden wir den generic Scan
+          // UHO: 28.10.2010: added research for solsysEnergy!
+          ODataBase.UniTree.genericReport_withResearch(Position, report);
+
+          ScanTime := UnixToDateTime(report.Head.Time_u);
+          Fleet := FleetPoints(report);
+          Def := DefPoints(report);
+
+          for i := 0 to 3 do
+            Ress[i] := report.Bericht[sg_Rohstoffe,i];
+          Ress[4] := report.Bericht[sg_Rohstoffe,0]+
+                     report.Bericht[sg_Rohstoffe,1]+
+                     report.Bericht[sg_Rohstoffe,2]; // m+k+d!
+
+          // calc estimated ressources
+          try
+            ODataBase.calcScanRess_NowScan(report, MProduction,
+              prod_faktor, needed_energy, solsatEnergy, calcMaxTemp, v_Ress);
+          except
+            ShowMessage('Error on Update: ' + PositionToStrMond(Position));
+          end;
+
+          // sum all produktion
+          MProductionAll := 0;
+          for m := low(m) to high(m) do
+            MProductionAll := MProductionAll + MProduction[m];
+
+          // sum estimated resources
+          v_Ress_all := 0;
+          for m := rtMetal to rtDeuterium do
+            v_Ress_all := v_Ress_all + v_Ress[m];
+
+          if Def >= 0 then
+          begin
+            Ress_div_Def := trunc(Ress[4]/(1+(Def/1000)));
+            v_Ress_div_Def := trunc(v_Ress_all/(1+(Def/1000)));
+          end
+          else
+          begin
+            Ress_div_Def := trunc(Ress[4]/(1));
+            v_Ress_div_Def := trunc(v_Ress_all/(1));
+  //          Ress_div_Def := -1;
+  //          v_Ress_div_Def := -1;
+          end;
+
+          TF := CalcTF(report);
+        finally
+          report.Free;
         end;
-
-        // sum all produktion
-        MProductionAll := 0;
-        for m := low(m) to high(m) do
-          MProductionAll := MProductionAll + MProduction[m];
-
-        // sum estimated resources
-        v_Ress_all := 0;
-        for m := rtMetal to rtDeuterium do
-          v_Ress_all := v_Ress_all + v_Ress[m];
-
-        if Def >= 0 then
-        begin
-          Ress_div_Def := trunc(Ress[4]/(1+(Def/1000)));
-          v_Ress_div_Def := trunc(v_Ress_all/(1+(Def/1000)));
-        end
-        else
-        begin
-          Ress_div_Def := trunc(Ress[4]/(1));
-          v_Ress_div_Def := trunc(v_Ress_all/(1));
-//          Ress_div_Def := -1;
-//          v_Ress_div_Def := -1;
-        end;
-
-        TF := CalcTF(report);
       end;
 
       if ODataBase.GetSystemCopyNR(Position) >= 0 then
@@ -1753,6 +1758,7 @@ begin
     fShownNode := fVSTList.AddChild(nil, Self)
   else
     TFav(fVSTList.GetNodeData(fShownNode)^).LastUpdate := -1; //update erzwingen
+  Result := fShownNode;
 end;
 
 end.
