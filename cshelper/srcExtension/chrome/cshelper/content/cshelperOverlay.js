@@ -222,22 +222,22 @@ function cshelper_pageLoad(event_pageload) {
 	var inhalt_ajax_handler_stats = function (event) 
 				{
 					if (event.target.className == "content")
-					{	
-						if (cshelper.BrowserOverlay.sendTCPIP) {
+					{
+						//cshelper_myTestLog(document, 'COPY START');
+						if (cshelper.BrowserOverlay.doWeUseTCP(document)) {
 							cshelper.BrowserOverlay.sendHTML_To_cS_TCPIP(document.body.innerHTML, event_pageload, document);
 						} else {
-							copyToClipboard2(document.body.innerHTML, event_pageload, document);
+							copyToClipboard(document.body.innerHTML, event_pageload, document);
 						}
-						//cshelper_myTestLog(document, 'COPY SUCCESS');			
+						//cshelper_myTestLog(document, 'COPY SUCCESS');
 					}
-				
 				};
 
 	var inhalt_ajax_handler_msgs = function (event) 
 				{
 					if (event.target.tagName == "FORM")
-					{	
-						if (cshelper.BrowserOverlay.sendTCPIP) {
+					{
+						if (cshelper.BrowserOverlay.doWeUseTCP(document)) {
 							cshelper.BrowserOverlay.sendHTML_To_cS_TCPIP(document.body.innerHTML, event_pageload, document);
 						} else {
 							copyToClipboard(document.body.innerHTML, event_pageload, document);
