@@ -20,6 +20,7 @@ type
     procedure Timer1Timer(Sender: TObject);
     procedure CheckBox1Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private-Deklarationen }
   public
@@ -29,7 +30,7 @@ type
 var
   FRM_ScanGen: TFRM_ScanGen;
 
-procedure GenRandomScan(var Scan: TScanBericht);
+procedure GenRandomScan(Scan: TScanBericht);
 
 implementation
 
@@ -45,7 +46,7 @@ begin
   end;
 end;
 
-procedure GenRandomScan(var Scan: TScanBericht);
+procedure GenRandomScan(Scan: TScanBericht);
 var i: integer;
     sg: TScanGroup;
     p: TPlanetPosition;
@@ -55,7 +56,7 @@ begin
     Scan.Head.Planet := Scan.Head.Planet + ' (Mond)';
 
   Scan.Head.Time_u := DateTimeToUnix(Now) - Random(3600);
-  Scan.Head.Spieler := IntToStr(random(10000));
+  Scan.Head.Spieler := 'alex_' + IntToStr(random(30));
   Scan.Head.Spionageabwehr := Random(101);
   {Scan.Head.Creator := '';
   Scan.Head.von := ''; 14.04.2008: abgeschafft, neu: Activity}
@@ -102,6 +103,10 @@ begin
       GenRandomScan(Scan);
       s := s + 'Scan #' + IntToStr(i) + ':' + plugin.ScanToStr(scan, false);
     end;
+
+    //for i := 1 to 1024*512 do
+    //  s := s + 'abcd12'#13#10;
+
     try
       Clipboard.AsText := s;
     except
@@ -120,6 +125,11 @@ end;
 procedure TFRM_ScanGen.Button1Click(Sender: TObject);
 begin
   Timer1Timer(Self);
+end;
+
+procedure TFRM_ScanGen.FormCreate(Sender: TObject);
+begin
+  Randomize;
 end;
 
 end.

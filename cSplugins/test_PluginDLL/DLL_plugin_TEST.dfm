@@ -143,6 +143,15 @@ object FRM_MainTest: TFRM_MainTest
     TabOrder = 5
     Text = 'electra.ogame.de'
   end
+  object Button10: TButton
+    Left = 408
+    Top = 64
+    Width = 75
+    Height = 25
+    Caption = 'Button10'
+    TabOrder = 6
+    OnClick = Button10Click
+  end
   object OpenDialog1: TOpenDialog
     Left = 8
   end
