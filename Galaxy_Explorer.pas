@@ -160,7 +160,7 @@ procedure explorer_load(ini: TIniFile);
 
 implementation
 
-uses Main, Notizen, Favoriten, Suche, Languages, Types;
+uses Main, Notizen, Favoriten, Suche, Languages, Types, StrUtils;
 
 const
   lineheigth = 20;
@@ -179,6 +179,7 @@ const
   col_Fleetplatz = 10;
   col_Allypunkte = 11;
   col_Allyplatz = 12;
+  col_PlayerID = 13;
 
 
 {$R *.DFM}
@@ -570,6 +571,7 @@ begin
     col_Fleetplatz: CellText := IntToStr(ODataBase.FleetStats.StatPlace(System.Planeten[i].Player));
     col_Allypunkte: CellText := IntToStrKP(ODataBase.AllyStats.StatPoints(System.Planeten[i].Ally));
     col_Allyplatz: CellText := IntToStr(ODataBase.AllyStats.StatPlace(System.Planeten[i].Ally));
+    col_PlayerID: CellText := IfThen(System.Planeten[i].PlayerId >= 0, IntToStr(System.Planeten[i].PlayerId));
   end;
   case Column of
     col_TF,col_Punkte..col_Allyplatz: if CellText = '0' then CellText := '';
@@ -719,15 +721,16 @@ begin
   col_Planet, col_Mond: FRM_Main.ShowScan(Position); //FRM_Main.ShowScan(ODataBase.UniTree.UniReport(Position));
   col_Player:
     if haveSystem then
-    with ODataBase do
     begin
-      FRM_Main.ShowSearchPlayer(Systeme[Uni[Position.P[0],Position.P[1]].systemcopy].Planeten[Position.P[2]].Player);
+      if System.Planeten[Position.P[2]].PlayerId >= 0 then
+        FRM_Main.ShowSearchPlayerID(System.Planeten[Position.P[2]].PlayerId)
+      else
+        FRM_Main.ShowSearchPlayer(System.Planeten[Position.P[2]].Player);
     end;
   col_Ally:
     if haveSystem then
-    with ODataBase do
     begin
-      FRM_Main.ShowSearchAlly(Systeme[Uni[Position.P[0],Position.P[1]].systemcopy].Planeten[Position.P[2]].Ally);
+      FRM_Main.ShowSearchAlly(System.Planeten[Position.P[2]].Ally);
     end;
   end;
 end;

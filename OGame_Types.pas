@@ -227,7 +227,7 @@ type
   end;
   TredHoursTypes = (rh_Scans, rh_Systems, rh_Stats, rh_Points);
   TredHours = array[TredHoursTypes] of Integer;
-  TResources = array[0..2] of Int64;
+  TResources = array[0..2] of TcSResource;
   TReadDataXMLScanner = class(TXmlScanner)
   private
     group: Integer;
@@ -377,9 +377,9 @@ function GetMineProduction_(const Scan: TScanBericht;
   const SpeedFactor: Single;
   const Mine: TRessType;
   const prod_faktor: single;
-  const calcMaxTemp: single (* set NaN for no use*)): integer;
+  const calcMaxTemp: single (* set NaN for no use*)): TcSResource;
 function MineProduction(Stufe: Integer; Mine: TRessType;
-  prod_faktor: single; planetTempMax: single): Integer;
+  prod_faktor: single; planetTempMax: single): TcSResource;
 procedure Initialise(XML_Data_File: string);
 function CalcTF(Scan: TScanBericht): Tresources;
 function FusionsKWDeut(stufe: integer): integer;
@@ -400,8 +400,8 @@ function BufFleetSize: Integer;
 function ReadBufFleet(Buffer: Pointer): TFleetEvent;
 procedure WriteBufFleet(const Fleet: TFleetEvent; Buffer: Pointer);
 function CalcScanRess_Now_(Scan: TScanBericht; const Mine: TRessType;
-  alter_h: single; production_per_h: integer): TcSResource;
-function GetStorageSize(scan: TScanBericht; resstype: TRessType): integer;
+  alter_h: single; production_per_h: TcSResource): TcSResource;
+function GetStorageSize(scan: TScanBericht; resstype: TRessType): TcSResource;
 function GetScanGrpCount(Scan: TScanBericht): integer;
 function domainTolangindex(domain: string): integer;
 
@@ -906,8 +906,8 @@ begin
 end; 
 
 function CalcScanRess_Now_(Scan: TScanBericht; const Mine: TRessType;
-  alter_h: single; production_per_h: integer): TcSResource;
-var max, ress: Integer;
+  alter_h: single; production_per_h: TcSResource): TcSResource;
+var max, ress: TcSResource;
 begin
   if (Mine > rtDeuterium) then
     raise Exception.Create('function CalcScanProductionRess: wrong Mine parameter!');
@@ -1013,7 +1013,7 @@ function GetMineProduction_(const Scan: TScanBericht;
   const SpeedFactor: Single;
   const Mine: TRessType;
   const prod_faktor: single;
-  const calcMaxTemp: single): Integer;
+  const calcMaxTemp: single): TcSResource;
 var maxTemp: single;
 begin
   if Scan.Head.Position.Mond then  //UHO: 26.08.08 Monde haben keine Produktion!!
@@ -1057,6 +1057,7 @@ begin
                                   prod_faktor,
                                   maxTemp);
         Result := Result - FusionsKWDeut(Scan.Bericht[sg_Gebaeude,sb_FusionsKW]);
+        if (Result < 0) then Result := 0;
       end;
     rtEnergy: Result := 0; {Es gibt keine Mine für Energie ^^}
     else
@@ -1068,7 +1069,7 @@ begin
 end;
 
 function MineProduction(Stufe: Integer; Mine: TRessType;
-  prod_faktor: single; planetTempMax: single): integer;
+  prod_faktor: single; planetTempMax: single): TcSResource;
 begin
   if Stufe <= 0 then
     Result := 0
@@ -1295,7 +1296,7 @@ begin
     inc(Result);
 end;
 
-function GetStorageSize(scan: TScanBericht; resstype: TRessType): integer;
+function GetStorageSize(scan: TScanBericht; resstype: TRessType): TcSResource;
 var speicherstufe: integer;
 begin
   speicherstufe := Scan.Bericht[sg_Gebaeude,sb_Speicher_array[resstype]];

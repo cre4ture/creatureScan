@@ -341,6 +341,7 @@ type
     procedure ClipbrdReadScan;
     procedure ClipbrdReadSys;
     procedure ShowSearchPlayer(name: string);
+    procedure ShowSearchPlayerID(id: Int64);
     procedure ShowSearchAlly(ally: string);
     procedure Show;
     { Public-Deklarationen }
@@ -2269,6 +2270,14 @@ var FRM: TFRM_Suche;
 begin
   FRM := FRM_Main.NewSearch;
   FRM.TXT_Player.Text := name;
+  FRM.BTN_SucheClick(self);
+end;
+
+procedure TFRM_Main.ShowSearchPlayerID(id: Int64);
+var FRM: TFRM_Suche;
+begin
+  FRM := FRM_Main.NewSearch;
+  FRM.txt_playerID.Text := IntToStr(id);
   FRM.BTN_SucheClick(self);
 end;
 

@@ -85,7 +85,7 @@ type
     procedure ResetValues;
     procedure SetShowStorage(const B: Boolean);
     function GetShowStorage: Boolean;
-    function countShips(scan: TScanbericht): Integer;
+    function countShips(scan: TScanbericht): Int64;
     procedure DrawPlanetInfo;
     procedure LastActivity_Out(var x: integer; y: integer);
     procedure _DrawProduktion_(var line: integer; Zeile, ya: integer);
@@ -352,7 +352,7 @@ begin
    Rectangle(Left,(line*Zeile),Right,(line*Zeile)+Zeile);
    s := PlugIn.SBItems[Part][0];
    if (Part = sg_Flotten)and(Bericht.Bericht[part,0] >= 0) then
-     s := s + ' (' + IntToStr(countShips(Bericht)) + ')';
+     s := s + ' (' + IntToStrKP(countShips(Bericht)) + ')';
    TextOut(Left+5,(line*Zeile)+ya, s);
    inc(line);
    Brush.Color := cl_bg_color;
@@ -942,7 +942,7 @@ begin
       //Trümmerfeld:
       if (sg = sg_Flotten)and(ODataBase <> nil) then
       begin
-       s := s + ' (' + IntToStr(countShips(scan)) + ')';
+       s := s + ' (' + IntToStrKP(countShips(scan)) + ')';
        try
          TF := CalcTF(scan);
          bint := (TF[0] + TF[1]);
@@ -1115,7 +1115,7 @@ begin
   Result := ZeigeSpeicherkapazitt1.Checked;
 end;
 
-function TFrame_Bericht.countShips(scan: TScanbericht): Integer;
+function TFrame_Bericht.countShips(scan: TScanbericht): Int64;
 var i: integer;
 begin
   Result := 0;
@@ -1248,23 +1248,6 @@ begin
      tst_rep.Bericht[sg_Rohstoffe,3] := 0;
      _DrawNormal_Group(sg_Rohstoffe, false, false, 2, line, Zeile, ya, tst_rep, cl_text_color);
 
-
-
-     {s := STR_Metall;
-     TextOut(x*w+5,y*Zeile+ya,s);
-     s := FloatToStrF(,ffNumber,60000000,0);
-     TextOut(x*w-5 + (w-TextWidth(s)),y*Zeile+ya,s);
-     x := 1; //zweite spalte
-     s := STR_Kristall;
-     TextOut(x*w+5,y*Zeile+ya,s);
-     s := FloatToStrF(GetMineProduction(Bericht, speedfactor, omKristal),ffNumber,60000000,0);
-     TextOut(x*w-5 + (w-TextWidth(s)),y*Zeile+ya,s);
-     x := 0; //erste spalte
-     inc(y); //nächste zeile
-     s := STR_Deuterium;
-     TextOut(x*w+5,y*Zeile+ya,s);
-     s := FloatToStrF(GetMineProduction(Bericht, speedfactor, omDeuterium),ffNumber,60000000,0);
-     TextOut(x*w-5 + (w-TextWidth(s)),y*Zeile+ya,s); }
    end;
 
 

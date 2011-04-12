@@ -277,9 +277,10 @@ end;
 
 procedure TFRM_Uebersicht.PB_UniMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
-var p : Tpoint;
-    zoomrect : Tpoint;
-    pixelsize : single;
+var p: Tpoint;
+    zoomrect: Tpoint;
+    pixelsize_x: single;
+    pixelsize_y: single;
 const
   zoom = 4;
 begin
@@ -343,9 +344,10 @@ begin
   with PB_Lupe do
   begin
     Canvas.Pen.Mode := pmNot;
-    pixelsize := PB_Lupe.Width / zoomrect.x;
-    p.x := trunc((x - p.x + 0.5)*pixelsize);
-    p.y := trunc((y - p.y + 0.5)*pixelsize);
+    pixelsize_x := PB_Lupe.Width / zoomrect.x;
+    pixelsize_y := PB_Lupe.Height / zoomrect.y;
+    p.x := round((x - p.x + 0.5)*pixelsize_x);
+    p.y := round((y - p.y + 0.5)*pixelsize_y);
     Canvas.MoveTo(0,p.y);
     Canvas.LineTo(Width,p.y);
     Canvas.MoveTo(p.x,0);
@@ -371,7 +373,7 @@ begin                     //Achtung! diese Procedure wird auch nach ändern der s
   case AnzeigeTyp of
   at_ogame:
     begin
-      dy := 20;
+      dy := 19;
       dx := 1;
       PB_Uni.Height := max_Galaxy * dy;
       PB_Uni.Width := max_Systems * dx;
