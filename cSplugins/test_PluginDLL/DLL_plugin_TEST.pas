@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Prog_Unit, Spin, OGame_Types, clipbrdfunctions,
-  TIReadPlugin, Inifiles;
+  TIReadPlugin, Inifiles, cS_DB_reportFile;
 
 type
   TFRM_MainTest = class(TForm)
@@ -25,6 +25,7 @@ type
     Button8: TButton;
     Button9: TButton;
     txt_serverURL: TEdit;
+    Button10: TButton;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -37,6 +38,7 @@ type
     procedure Button8Click(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure Button9Click(Sender: TObject);
+    procedure Button10Click(Sender: TObject);
   private
     { Private-Deklarationen }
   public
@@ -186,6 +188,46 @@ end;
 procedure TFRM_MainTest.ejectPlugin;
 begin
   loadPlugin('n/a');
+end;
+
+procedure TFRM_MainTest.Button10Click(Sender: TObject);
+var testDB: TcSReportDBFile;
+    report: TScanBericht;
+    i, j, nr: integer;
+    dbfilename: string;
+begin
+  dbfilename := 'TESTDB.ScanDB';
+  for j := 0 to 0 do
+  begin
+    if FileExists(dbfilename) then
+      DeleteFile(dbfilename);
+    testDB := TcSReportDBFile.Create(dbfilename);
+    report := TScanBericht.Create;
+    try
+      for i := 0 to 2000 do
+      begin
+        GenRandomScan(report);
+
+        nr := testDB.Count;
+        testDB.Count := nr+1;
+        testDB.SetReport(nr, report);
+      end;
+    finally
+      testDB.Free;
+      report.Free;
+    end;
+    testDB := TcSReportDBFile.Create(dbfilename);
+    report := TScanBericht.Create;
+    try
+      for i := 0 to 2000 do
+      begin
+        report.copyFrom(testDB.GetReport(i));
+      end;
+    finally
+      testDB.Free;
+      report.Free;
+    end;
+  end;
 end;
 
 end.

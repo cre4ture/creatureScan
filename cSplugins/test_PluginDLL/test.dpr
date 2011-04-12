@@ -24,7 +24,8 @@ uses
   UniTree in '..\..\UniverseTree\UniTree.pas',
   TIReadPlugin in '..\..\ReadPlugins\TIReadPlugin.pas',
   Bericht_Frame in '..\..\Bericht_Frame.pas' {Frame_Bericht: TFrame},
-  Notizen in '..\..\Notizen.pas' {FRM_Notizen};
+  Notizen in '..\..\Notizen.pas' {FRM_Notizen},
+  cS_DB_reportFile in '..\..\cS_DB_reportFile.pas';
 
 {$R *.res}
 
