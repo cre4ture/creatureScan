@@ -176,6 +176,7 @@ type
     property Reports[nr: Cardinal]: TScanBericht read GetReport write SetReport;
     property UniDomain: string read GetUni write SetUni;
     constructor Create(aFilename: string);
+    destructor Destroy; override;
   end;
 
   TcSReportDB_for_File = class(TcSReportDB)
@@ -588,6 +589,11 @@ begin
     Item.g4_research[i] := Scan.Bericht[sg_Forschung,i-1];
 
   TcSReportItem_41(ItemBuf^) := Item;
+end;
+
+destructor TcSReportDBFile.Destroy;
+begin
+  inherited;
 end;
 
 procedure TcSReportDBFile.DisposeItemPtr(const p: pointer);

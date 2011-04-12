@@ -25,13 +25,13 @@ object FRM_Uebersicht: TFRM_Uebersicht
     Left = 640
     Top = 81
     Width = 225
-    Height = 184
+    Height = 187
     Align = alRight
   end
   object Splitter1: TSplitter
     Left = 637
     Top = 81
-    Height = 184
+    Height = 187
     Align = alRight
   end
   object Panel1: TPanel
@@ -129,7 +129,7 @@ object FRM_Uebersicht: TFRM_Uebersicht
     Left = 0
     Top = 81
     Width = 516
-    Height = 184
+    Height = 187
     Align = alClient
     BorderStyle = bsNone
     TabOrder = 1
@@ -152,7 +152,7 @@ object FRM_Uebersicht: TFRM_Uebersicht
     Left = 516
     Top = 81
     Width = 121
-    Height = 184
+    Height = 187
     Align = alRight
     ItemHeight = 13
     PopupMenu = PopupMenu2

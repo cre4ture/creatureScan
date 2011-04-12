@@ -79,6 +79,8 @@ type
     ts_specials: TTabSheet;
     cb_lpa: TCheckBox;
     cb_status_neg: TCheckBox;
+    txt_playerID: TEdit;
+    Label6: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BTN_SucheClick(Sender: TObject);
     procedure BTN_SchliesenClick(Sender: TObject);
@@ -310,12 +312,14 @@ var s_punkte, s_flotte: Integer;
       flags: TStatus;
       statsplace, statpoints, fleetplace, fleetpoints: Integer;
       areaf: boolean;
+      playerID: Int64;
   begin
     Result := 0;
     TF := StrToInt(TXT_TF.Text);
     flags := ODataBase.LanguagePlugIn.StrToStatus(TXT_Status.Text);
     s_punkte := StrToInt(txt_punkte.Text);
     s_flotte := StrToInt(txt_flotte.Text);
+    playerID := StrToInt64Def(txt_playerID.Text, -1);
 
     with ODataBase.Systeme[Sys] do
      with ODataBase do
@@ -336,6 +340,7 @@ var s_punkte, s_flotte: Integer;
           (((TXT_Player.Text = '')or(pos(UpperCase(TXT_Player.Text),UpperCase(Planeten[P.P[2]].Player)) > 0))and
            ((TXT_ally.Text = '')or(pos(UpperCase(TXT_ally.Text),UpperCase(Planeten[P.P[2]].Ally)) > 0))and
            ((TXT_Planet.Text = '')or(p.Mond and (UpperCase(TXT_Planet.Text) = UpperCase(STR_Mond)))or(pos(UpperCase(TXT_Planet.Text),UpperCase(Planeten[P.P[2]].PlanetName)) > 0)))and
+           ((playerID = -1)or(playerID = Planeten[Planet].PlayerId))and
            filterStatus(Planeten[Planet].Status, flags) and
            (Planeten[Planet].TF[0] + Planeten[Planet].TF[1] >= TF)  then
         begin
@@ -350,6 +355,7 @@ var s_punkte, s_flotte: Integer;
              ItemData := VST_Result.GetNodeData(VST_Result.AddChild(nil));
              inc(Result);
              ItemData^.Player := Planeten[Planet].Player;
+             ItemData^.playerId := Planeten[Planet].PlayerId;
              ItemData^.Status := Planeten[Planet].Status;
              ItemData^.Koord := P;
              ItemData^.Allianz := Planeten[Planet].Ally;
@@ -422,6 +428,7 @@ begin
      (TXT_ally.Text <> '')or
      (TXT_Status.Text <> '')or
      (TXT_TF.Text <> '0')or
+     (txt_playerID.Text <> '')or
      (cb_punkte_gk.ItemIndex > 0)or
      (cb_flotte_gk.ItemIndex > 0) then
   begin
@@ -490,8 +497,8 @@ begin
   ts_specials.TabVisible := FRM_Main.Dir.Visible;
   if not ts_specials.Visible then
   begin
+    VST_Result.Header.Columns.Delete(16);
     VST_Result.Header.Columns.Delete(15);
-    VST_Result.Header.Columns.Delete(14);
   end;
 end;
 
@@ -529,8 +536,9 @@ begin
      11: CellText := IntToStrKP(TF[0]+TF[1]);
      12: CellText := ODataBase.LanguagePlugIn.StatusToStr(Status);
      13: CellText := ODataBase.Time_To_AgeStr(Datum);
-     14: CellText := IntToStr(LastPointsActivity_days);
-     15: CellText := IntToStr(LastPointsIncrease_days);
+     14: CellText := IntToStr(playerId);
+     15: CellText := IntToStr(LastPointsActivity_days);
+     16: CellText := IntToStr(LastPointsIncrease_days);
     end;
   end;
 end;

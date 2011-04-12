@@ -318,11 +318,18 @@ object FRM_Favoriten: TFRM_Favoriten
         WideText = 'Raids gesammt'
       end
       item
+        Alignment = taRightJustify
         Position = 32
+        WideText = 'PlayerID'
+      end
+      item
+        Alignment = taRightJustify
+        Position = 33
         WideText = 'lpa'
       end
       item
-        Position = 33
+        Alignment = taRightJustify
+        Position = 34
         WideText = 'lpi'
       end>
   end

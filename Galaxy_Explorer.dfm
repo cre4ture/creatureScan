@@ -20,7 +20,7 @@ object Explorer: TExplorer
   object LBL_SysHead: TLabel
     Left = 0
     Top = 47
-    Width = 466
+    Width = 474
     Height = 13
     Align = alTop
     Alignment = taCenter
@@ -29,7 +29,7 @@ object Explorer: TExplorer
   object PaintBox1: TPaintBox
     Left = 0
     Top = 29
-    Width = 466
+    Width = 474
     Height = 18
     Align = alTop
     OnClick = PaintBox1DblClick
@@ -39,8 +39,8 @@ object Explorer: TExplorer
   object VST_System: TVirtualStringTree
     Left = 0
     Top = 60
-    Width = 466
-    Height = 349
+    Width = 474
+    Height = 357
     Align = alClient
     BorderStyle = bsNone
     Color = clBlack
@@ -117,7 +117,7 @@ object Explorer: TExplorer
       end
       item
         Position = 6
-        Width = 29
+        Width = 37
         WideText = 'Notizen'
       end
       item
@@ -155,12 +155,17 @@ object Explorer: TExplorer
         Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark]
         Position = 12
         WideText = 'Allyplatz'
+      end
+      item
+        Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coAllowFocus]
+        Position = 13
+        WideText = 'PlayerID'
       end>
   end
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 466
+    Width = 474
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -253,8 +258,8 @@ object Explorer: TExplorer
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 409
-    Width = 466
+    Top = 417
+    Width = 474
     Height = 19
     Panels = <
       item

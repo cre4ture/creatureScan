@@ -239,9 +239,9 @@ begin
         j := UniTree.UniReport(fleet.head.target);
         if j >= 0 then
         begin
-          fleet.ress[0] := Berichte[j].Bericht[sg_Rohstoffe][0] div 2;
-          fleet.ress[1] := Berichte[j].Bericht[sg_Rohstoffe][1] div 2;
-          fleet.ress[2] := Berichte[j].Bericht[sg_Rohstoffe][2] div 2;
+          fleet.ress[0] := Berichte[j].Bericht[sg_Rohstoffe,0] div 2;
+          fleet.ress[1] := Berichte[j].Bericht[sg_Rohstoffe,1] div 2;
+          fleet.ress[2] := Berichte[j].Bericht[sg_Rohstoffe,2] div 2;
         end;
 
         fleet.head.player := Username;
@@ -914,24 +914,29 @@ begin
   Result := 0;
   c := LanguagePlugIn.ReadReports(handle);
 
-  while LanguagePlugIn.GetReport(handle, Scan, moon_unknown) do
-  begin
-    Scan.Head.Creator := Username;
-
-    if moon_unknown then
+  Scan := TScanBericht.Create;
+  try
+    while LanguagePlugIn.GetReport(handle, Scan, moon_unknown) do
     begin
-      phandled := false;
-      langplugin_onaskmoonprocedure(Self, Scan,
-                                    Scan.Head.Position.Mond,
-                                    phandled);
-      if phandled then
+      Scan.Head.Creator := Username;
+
+      if moon_unknown then
+      begin
+        phandled := false;
+        langplugin_onaskmoonprocedure(Self, Scan,
+                                      Scan.Head.Position.Mond,
+                                      phandled);
+        if phandled then
+          UniTree.AddNewReport(Scan);
+        // else: throw away! (maybee the onaskmoonporcedure saved the scan somewhere in order to add it later
+      end
+      else
         UniTree.AddNewReport(Scan);
-      // else: throw away! (maybee the onaskmoonporcedure saved the scan somewhere in order to add it later
-    end
-    else
-      UniTree.AddNewReport(Scan);
-      
-    inc(Result);
+
+      inc(Result);
+    end;
+  finally
+    Scan.Free;
   end;
 
   if c <> Result then
@@ -1349,7 +1354,7 @@ begin
   end;
 
   alter_h := (FleetBoard.GameTime.UnixTime - report.head.Time_u)/(60*60);
-  ress_now[rtEnergy] := report.Bericht[sg_Rohstoffe][sb_Energie];
+  ress_now[rtEnergy] := report.Bericht[sg_Rohstoffe,sb_Energie];
   for m := rtMetal to rtDeuterium do
   begin
     ress_now[m] := CalcScanRess_Now_(report, m, alter_h, mine_production[m]);

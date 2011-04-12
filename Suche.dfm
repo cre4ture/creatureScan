@@ -91,7 +91,7 @@ object FRM_Suche: TFRM_Suche
       Top = 0
       Width = 771
       Height = 101
-      ActivePage = ts_specials
+      ActivePage = Search_Normal
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
       object Search_Normal: TTabSheet
@@ -121,10 +121,18 @@ object FRM_Suche: TFRM_Suche
           Height = 13
           Caption = 'Allianz:'
         end
+        object Label6: TLabel
+          Left = 348
+          Top = 4
+          Width = 43
+          Height = 13
+          Anchors = [akTop, akRight]
+          Caption = 'PlayerID:'
+        end
         object TXT_Player: TEdit
           Left = 68
           Top = 4
-          Width = 501
+          Width = 269
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 0
@@ -158,7 +166,7 @@ object FRM_Suche: TFRM_Suche
             Top = 20
             Width = 161
             Height = 21
-            ItemHeight = 0
+            ItemHeight = 13
             TabOrder = 0
             Text = 'cb_koords'
             OnChange = cb_koordsChange
@@ -172,6 +180,14 @@ object FRM_Suche: TFRM_Suche
             Caption = 'negativ'
             TabOrder = 1
           end
+        end
+        object txt_playerID: TEdit
+          Left = 404
+          Top = 4
+          Width = 165
+          Height = 21
+          Anchors = [akTop, akRight]
+          TabOrder = 4
         end
       end
       object Search_Status: TTabSheet
@@ -478,11 +494,18 @@ object FRM_Suche: TFRM_Suche
         WideText = 'Datum'
       end
       item
+        Alignment = taRightJustify
         Position = 14
+        WideText = 'PlayerID'
+      end
+      item
+        Alignment = taRightJustify
+        Position = 15
         WideText = 'LPA'
       end
       item
-        Position = 15
+        Alignment = taRightJustify
+        Position = 16
         WideText = 'LPI'
       end>
   end

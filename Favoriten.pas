@@ -23,24 +23,25 @@ type
     Last24h: Integer;
     RaidCount: Integer;
     ScanTime: TDateTime;
-    Fleet, Def: integer;
+    Fleet, Def: Int64;
     Stars: Integer;
     Platz, FleetPlatz, Allyplatz: word;
     PlayerPunkte, FleetPunkte, Allypunkte: Cardinal;
-    Ress: Array[0..4] of Integer;
-    Ress_div_Def: integer;
+    Ress: Array[0..4] of TcSResource;
+    Ress_div_Def: TcSResource;
     MProduction: TSetRessources;
     v_Ress: TSetRessources;
-    v_Ress_all: Integer;
-    v_Ress_div_Def: integer;
+    v_Ress_all: TcSResource;
+    v_Ress_div_Def: TcSResource;
     needed_energy: Integer;
     prod_faktor: single;
-    MProductionAll: Integer;
+    MProductionAll: TcSResource;
     TF: TResources;
     notes: TNotizArray;
     calcMaxTemp: Single;
     solsatEnergy: Integer;
     lpa, lpi: integer;
+    thePlayerID: Int64;
   end;
   TPlanetItem = class
   private
@@ -181,14 +182,14 @@ type
     procedure LoadOptions;
     procedure SaveOptions;
     function Filter(Scan: TScanbericht): Boolean;
-    function FleetPoints(Scan: TScanbericht): integer;
-    function DefPoints(Scan: TScanbericht): integer;
+    function FleetPoints(Scan: TScanbericht): Int64;
+    function DefPoints(Scan: TScanbericht): Int64;
     procedure updateNode(nd: PVirtualNode);
     procedure SavePosition_Count(const i: Integer); overload;
     procedure SavePosition_Count(const item: TPlanetItem); overload;
     function getfilterinfo: string;
     procedure Set_CB_Koords(cb_k: TComboBox = nil);
-    function getIntValColumn(Column: TColumnIndex; fav: TFav): Integer;
+    function getIntValColumn(Column: TColumnIndex; fav: TFav): Int64;
     procedure InitFavListFile(filename: string);
     procedure FreeFavListFile;
     function scanfile_getentrypos(index: integer): Int64;
@@ -309,8 +310,8 @@ begin
 
   if not FRM_Main.Dir.Visible then
   begin
+    VST_ScanList.Header.Columns.Delete(34);
     VST_ScanList.Header.Columns.Delete(33);
-    VST_ScanList.Header.Columns.Delete(32);
   end;
 end;
 
@@ -623,7 +624,7 @@ begin
     end;
 end;
 
-function TFRM_Favoriten.FleetPoints(Scan: TScanbericht): integer;
+function TFRM_Favoriten.FleetPoints(Scan: TScanbericht): Int64;
 var j: integer;
 //27.12.08 UHO OK
 begin
@@ -639,7 +640,7 @@ begin
   end;
 end;
 
-function TFRM_Favoriten.DefPoints(Scan: TScanbericht): integer;
+function TFRM_Favoriten.DefPoints(Scan: TScanbericht): Int64;
 var j: integer;
 //27.12.08 UHO OK
 begin
@@ -782,7 +783,7 @@ begin
         //TF (Flotte)
         24: CellText := IntToStrKP(tf[0] + tf[1] + tf[2]);
         //Berechnete Rohstoffe (Produktion mit einberechnet!)
-        25..29,31,32,33: CellText := IntToStrKP(getIntValColumn(Column, fav));
+        25..29,31,32,33,34: CellText := IntToStrKP(getIntValColumn(Column, fav));
       end;
     end;
   end;
@@ -832,7 +833,7 @@ begin
       Fav1.TF[0]+Fav1.TF[1]+Fav1.TF[2] > Fav2.TF[0]+Fav2.TF[1]+Fav2.TF[2],
       1,-1);
     //Berechnete Rohstoffe (Produktion mit einberechnet!)
-    25..29,31,32,33: if getIntValColumn(Column, Fav1) > getIntValColumn(Column, Fav2) then
+    25..29,31,32,33,34: if getIntValColumn(Column, Fav1) > getIntValColumn(Column, Fav2) then
               Result := 1 else Result := -1;
 //    30: if Fav1.notes then, ka wie des genau mit den notizen klappen soll (nach welcher regel?)
         
@@ -948,6 +949,8 @@ begin
       if ODataBase.GetSystemCopyNR(Position) >= 0 then
       with ODataBase.Systeme[ODataBase.GetSystemCopyNR(Position)], Planeten[Position.P[2]] do
       begin
+        thePlayerID := PlayerId;
+
         with ODataBase.Stats do
         begin
           if Statistik[Platz].Name <> Player then  // zur rechenersparnis! (weil platz ändert sich ja eher selten, sodass sich das nicht alle paar sekunden ändert!)
@@ -1057,7 +1060,10 @@ begin
         if VST_ScanList.FocusedNode <> nil then
         with TFav(VST_ScanList.GetNodeData(VST_ScanList.FocusedNode)^) do
         begin
-          FRM_Main.ShowSearchPlayer(ODataBase.GetPlayerAtPos(Position, false));
+          if thePlayerID >= 0 then
+            FRM_Main.ShowSearchPlayerID(thePlayerID)
+          else
+            FRM_Main.ShowSearchPlayer(ODataBase.GetPlayerAtPos(Position, false));
         end;
       end;
     4: //Ally
@@ -1345,7 +1351,7 @@ begin
 end;
 
 function TFRM_Favoriten.getIntValColumn(Column: TColumnIndex;
-  fav: TFav): Integer;
+  fav: TFav): Int64;
   //30.09.08 UHO OK
   // Diese Funktion wurde extra für Integer-Spalten in der VST-Liste gedacht, so
   // können diese Spalten Automatisch auch mit dieser Funktion sortiert werden. 
@@ -1359,8 +1365,9 @@ begin
       28: Result := v_Ress_all;
       29: Result := v_Ress_div_Def;
       31: Result := RaidCount;
-      32: Result := lpa;
-      33: Result := lpi;
+      32: Result := thePlayerID;
+      33: Result := lpa;
+      34: Result := lpi;
     else
       Result := -1;
     end;
