@@ -1,20 +1,23 @@
 -- phpMyAdmin SQL Dump
--- version 2.9.1.1
+-- version 3.3.9
 -- http://www.phpmyadmin.net
--- 
+--
 -- Host: localhost
--- Erstellungszeit: 01. November 2009 um 18:37
--- Server Version: 4.1.10
--- PHP-Version: 5.0.3
--- 
--- Datenbank: `cS_engine`
--- 
+-- Generation Time: May 01, 2011 at 06:59 PM
+-- Server version: 5.0.67
+-- PHP Version: 5.2.14
+
+SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+
+--
+-- Database: `cS_engine`
+--
 
 -- --------------------------------------------------------
 
--- 
--- Tabellenstruktur für Tabelle `buildings`
--- 
+--
+-- Table structure for table `buildings`
+--
 
 CREATE TABLE `buildings` (
   `reportID` bigint(20) unsigned NOT NULL default '0',
@@ -42,9 +45,9 @@ CREATE TABLE `buildings` (
 
 -- --------------------------------------------------------
 
--- 
--- Tabellenstruktur für Tabelle `defence`
--- 
+--
+-- Table structure for table `defence`
+--
 
 CREATE TABLE `defence` (
   `reportID` bigint(20) unsigned NOT NULL default '0',
@@ -64,9 +67,9 @@ CREATE TABLE `defence` (
 
 -- --------------------------------------------------------
 
--- 
--- Tabellenstruktur für Tabelle `fleets`
--- 
+--
+-- Table structure for table `fleets`
+--
 
 CREATE TABLE `fleets` (
   `reportID` bigint(20) unsigned NOT NULL default '0',
@@ -90,19 +93,21 @@ CREATE TABLE `fleets` (
 
 -- --------------------------------------------------------
 
--- 
--- Tabellenstruktur für Tabelle `planet`
--- 
+--
+-- Table structure for table `planet`
+--
 
 CREATE TABLE `planet` (
   `pos` smallint(5) unsigned NOT NULL default '0',
   `moon` smallint(5) unsigned default NULL,
   `mtemp` float default NULL,
-  `tfmet` int(10) unsigned default NULL,
-  `tfcrys` int(10) unsigned default NULL,
+  `tfmet` bigint(20) unsigned default NULL,
+  `tfcrys` bigint(20) unsigned default NULL,
   `name` varchar(25) default NULL,
   `player` varchar(25) default NULL,
+  `playerid` bigint(20) unsigned default NULL,
   `alliance` varchar(10) default NULL,
+  `allianceid` bigint(20) unsigned default NULL,
   `flags` smallint(5) unsigned default NULL,
   `solsysID` bigint(20) unsigned NOT NULL default '0',
   PRIMARY KEY  (`pos`,`solsysID`),
@@ -111,9 +116,9 @@ CREATE TABLE `planet` (
 
 -- --------------------------------------------------------
 
--- 
--- Tabellenstruktur für Tabelle `report`
--- 
+--
+-- Table structure for table `report`
+--
 
 CREATE TABLE `report` (
   `ID` bigint(20) unsigned NOT NULL auto_increment,
@@ -124,6 +129,7 @@ CREATE TABLE `report` (
   `time` bigint(20) unsigned NOT NULL default '0',
   `planet` varchar(25) NOT NULL default '',
   `player` varchar(25) default NULL,
+  `playerid` bigint(20) unsigned default NULL,
   `activ` int(11) NOT NULL default '0',
   `cspio` tinyint(4) NOT NULL default '0',
   `creator` varchar(25) default NULL,
@@ -131,13 +137,13 @@ CREATE TABLE `report` (
   `uploader` varchar(25) NOT NULL default '',
   PRIMARY KEY  (`ID`),
   UNIQUE KEY `gala` (`gala`,`sys`,`pos`,`moon`,`time`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
--- 
--- Tabellenstruktur für Tabelle `research`
--- 
+--
+-- Table structure for table `research`
+--
 
 CREATE TABLE `research` (
   `reportID` bigint(20) unsigned NOT NULL default '0',
@@ -163,25 +169,25 @@ CREATE TABLE `research` (
 
 -- --------------------------------------------------------
 
--- 
--- Tabellenstruktur für Tabelle `resources`
--- 
+--
+-- Table structure for table `resources`
+--
 
 CREATE TABLE `resources` (
   `reportID` bigint(20) unsigned NOT NULL default '0',
   `resources` tinyint(1) unsigned NOT NULL default '0',
-  `met` int(10) unsigned default '0',
-  `crys` int(10) unsigned default '0',
-  `deut` int(10) unsigned default '0',
+  `met` bigint(20) unsigned default '0',
+  `crys` bigint(20) unsigned default '0',
+  `deut` bigint(20) unsigned default '0',
   `energ` int(10) unsigned default '0',
   PRIMARY KEY  (`reportID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
--- 
--- Tabellenstruktur für Tabelle `solsys`
--- 
+--
+-- Table structure for table `solsys`
+--
 
 CREATE TABLE `solsys` (
   `ID` bigint(20) unsigned NOT NULL auto_increment,
@@ -192,13 +198,13 @@ CREATE TABLE `solsys` (
   `timestamp` bigint(20) unsigned NOT NULL default '0',
   `uploader` varchar(25) NOT NULL default '',
   PRIMARY KEY  (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
--- 
--- Tabellenstruktur für Tabelle `users`
--- 
+--
+-- Table structure for table `users`
+--
 
 CREATE TABLE `users` (
   `username` varchar(25) NOT NULL default '',
