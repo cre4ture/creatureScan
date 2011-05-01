@@ -136,7 +136,7 @@ function ibot_private_read_handler_serverinfo($tag)
   
   echo '<serverinfo universe="'.$universe.'"'.
          ' time="'.time().'"'.
-         ' csvers="0.6" galacount="'.$pos_count[0].'"'.
+         ' csvers="0.7" galacount="'.$pos_count[0].'"'.
          ' syscount="'.$pos_count[1].'"'.
          ' planetcount="'.$pos_count[2].'"/>';
 }
