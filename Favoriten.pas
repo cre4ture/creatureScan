@@ -42,6 +42,7 @@ type
     solsatEnergy: Integer;
     lpa, lpi: integer;
     thePlayerID: Int64;
+    theAllyID: Int64;
   end;
   TPlanetItem = class
   private
@@ -950,25 +951,26 @@ begin
       with ODataBase.Systeme[ODataBase.GetSystemCopyNR(Position)], Planeten[Position.P[2]] do
       begin
         thePlayerID := PlayerId;
+        theAllyID := AllyId;
 
         with ODataBase.Stats do
         begin
           if Statistik[Platz].Name <> Player then  // zur rechenersparnis! (weil platz ändert sich ja eher selten, sodass sich das nicht alle paar sekunden ändert!)
-            Platz := StatPlace(Player);
+            Platz := StatPlace(Player,thePlayerID);
           PlayerPunkte := Statistik[Platz].Punkte;
         end;
 
         with ODataBase.FleetStats do
         begin
           if Statistik[FleetPlatz].Name <> Player then
-            FleetPlatz := StatPlace(Player);
+            FleetPlatz := StatPlace(Player,thePlayerID);
           FleetPunkte := Statistik[FleetPlatz].Punkte;
         end;
 
         with ODataBase.AllyStats do
         begin
           if Statistik[AllyPlatz].Name <> Ally then
-            AllyPlatz := StatPlace(Ally);
+            AllyPlatz := StatPlace(Ally,theAllyID);
           AllyPunkte := Statistik[Allyplatz].Punkte;
         end;
 

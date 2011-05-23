@@ -181,6 +181,8 @@ type
     Button1: TButton;
     Spionage2: TMenuItem;
     Expedition1: TMenuItem;
+    stresstestforaddsolsys1: TMenuItem;
+    closeFreeAudioFiles1: TMenuItem;
     procedure btn_lastClick(Sender: TObject);
     procedure btn_nextClick(Sender: TObject);
     procedure LblWikiLinkClick(Sender: TObject);
@@ -269,6 +271,8 @@ type
     procedure Spionage2Click(Sender: TObject);
     procedure Expedition1Click(Sender: TObject);
     procedure frmevents1Click(Sender: TObject);
+    procedure stresstestforaddsolsys1Click(Sender: TObject);
+    procedure closeFreeAudioFiles1Click(Sender: TObject);
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
@@ -380,6 +384,8 @@ procedure TFRM_Main.FormDestroy(Sender: TObject);
 begin
   mLatestPlanetListSource := nil; // remove free notification
   ODataBase.OnAskMoon := nil;
+
+  frm_cshelper_ctrl.Free;
 
   SaveOptions;
   Stopp; // Clipboard Viewer
@@ -507,6 +513,9 @@ begin
   fLatestPlanetListSource := nil; // initialise
   mLatestPlanetListSource := nil; // set buttons enabled
   frm_quickupdate := Tfrm_quickupdate.Create(Self, ODataBase, true);
+
+  frm_cshelper_ctrl := Tfrm_cshelper_ctrl.Create(Self);
+  frm_cshelper_ctrl.OnTriggerRead := intelligentReadData;
   
   lbl_title.Caption := lbl_title.Caption + VNumber;
 
@@ -1302,56 +1311,56 @@ begin
     WBRec_Trans.Ship := PlayerOptions.Transporter;
 
     Ress := Ress div 2;
-    LBL_WF_1.Caption := FloatToStrF(Ress,ffNumber,60000000,0) + #10 + #13 +
-                        IntToStr(CalcDragoShips(WBRec_Schl,1)) + #10 + #13 +
-                        IntToStr(CalcDragoShips(WBRec_Trans,1));
+    LBL_WF_1.Caption := IntToStrKP(Ress) + #10 + #13 +
+                        IntToStrKP(CalcDragoShips(WBRec_Schl,1)) + #10 + #13 +
+                        IntToStrKP(CalcDragoShips(WBRec_Trans,1));
     Ress := Ress div 2;
-    LBL_WF_2.Caption := FloatToStrF(Ress,ffNumber,60000000,0) + #10 + #13 +
-                        IntToStr(CalcDragoShips(WBRec_Schl,2)) + #10 + #13 +
-                        IntToStr(CalcDragoShips(WBRec_Trans,2));
+    LBL_WF_2.Caption := IntToStrKP(Ress) + #10 + #13 +
+                        IntToStrKP(CalcDragoShips(WBRec_Schl,2)) + #10 + #13 +
+                        IntToStrKP(CalcDragoShips(WBRec_Trans,2));
     Ress := Ress div 2;
-    LBL_WF_3.Caption := FloatToStrF(Ress,ffNumber,60000000,0) + #10 + #13 +
-                        IntToStr(CalcDragoShips(WBRec_Schl,3)) + #10 + #13 +
-                        IntToStr(CalcDragoShips(WBRec_Trans,3));
+    LBL_WF_3.Caption := IntToStrKP(Ress) + #10 + #13 +
+                        IntToStrKP(CalcDragoShips(WBRec_Schl,3)) + #10 + #13 +
+                        IntToStrKP(CalcDragoShips(WBRec_Trans,3));
   end
   else
   begin
     Ress := Ress div 2;
     TR_Transporter := 0;
     TR_Schlachtschiff := 0;
-    LBL_WF_1.Caption := FloatToStrF(Ress,ffNumber,60000000,0) + #10 + #13 +
-                        IntToStr(ceil(Ress / (PlayerOptions.Schlachtschiff.space-TR_Schlachtschiff))) + #10 + #13 +
-                        IntToStr(ceil(Ress / (PlayerOptions.Transporter.space-TR_Transporter)));
+    LBL_WF_1.Caption := IntToStrKP(Ress) + #10 + #13 +
+                        IntToStrKP(ceil(Ress / (PlayerOptions.Schlachtschiff.space-TR_Schlachtschiff))) + #10 + #13 +
+                        IntToStrKP(ceil(Ress / (PlayerOptions.Transporter.space-TR_Transporter)));
     Ress := Ress div 2;
-    LBL_WF_2.Caption := FloatToStrF(Ress,ffNumber,60000000,0) + #10 + #13 +
-                        IntToStr(ceil(Ress / (PlayerOptions.Schlachtschiff.space-TR_Schlachtschiff))) + #10 + #13 +
-                        IntToStr(ceil(Ress / (PlayerOptions.Transporter.space-TR_Transporter)));
+    LBL_WF_2.Caption := IntToStrKP(Ress) + #10 + #13 +
+                        IntToStrKP(ceil(Ress / (PlayerOptions.Schlachtschiff.space-TR_Schlachtschiff))) + #10 + #13 +
+                        IntToStrKP(ceil(Ress / (PlayerOptions.Transporter.space-TR_Transporter)));
     Ress := Ress div 2;
-    LBL_WF_3.Caption := FloatToStrF(Ress,ffNumber,60000000,0) + #10 + #13 +
-                        IntToStr(ceil(Ress / (PlayerOptions.Schlachtschiff.space-TR_Schlachtschiff))) + #10 + #13 +
-                        IntToStr(ceil(Ress / (PlayerOptions.Transporter.space-TR_Transporter)));
+    LBL_WF_3.Caption := IntToStrKP(Ress) + #10 + #13 +
+                        IntToStrKP(ceil(Ress / (PlayerOptions.Schlachtschiff.space-TR_Schlachtschiff))) + #10 + #13 +
+                        IntToStrKP(ceil(Ress / (PlayerOptions.Transporter.space-TR_Transporter)));
   end;
   {$ELSE}
   Ress2 := Ress;
   Ress := Ress div 2;
 
   LBL_WF_1.Caption := IntToStrKP(Ress) + ' / ' + IntToStrKP(trunc(Ress2*0.6)) + #10 + #13 +
-                      IntToStr(ceil(Ress / (PlayerOptions.Schlachtschiff.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Schlachtschiff.space))) + #10 + #13 +
-                      IntToStr(ceil(Ress / (PlayerOptions.Transporter.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Transporter.space)));
+                      IntToStrKP(ceil(Ress / (PlayerOptions.Schlachtschiff.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Schlachtschiff.space))) + #10 + #13 +
+                      IntToStrKP(ceil(Ress / (PlayerOptions.Transporter.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Transporter.space)));
 
   Ress2 := Ress2 - trunc(Ress2 * 0.6);
   Ress := Ress div 2;
 
   LBL_WF_2.Caption := IntToStrKP(Ress) + ' / ' + IntToStrKP(trunc(Ress2*0.6)) + #10 + #13 +
-                      IntToStr(ceil(Ress / (PlayerOptions.Schlachtschiff.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Schlachtschiff.space))) + #10 + #13 +
-                      IntToStr(ceil(Ress / (PlayerOptions.Transporter.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Transporter.space)));
+                      IntToStrKP(ceil(Ress / (PlayerOptions.Schlachtschiff.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Schlachtschiff.space))) + #10 + #13 +
+                      IntToStrKP(ceil(Ress / (PlayerOptions.Transporter.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Transporter.space)));
 
   Ress2 := Ress2 - trunc(Ress2 * 0.6);
   Ress := Ress div 2;
 
   LBL_WF_3.Caption := IntToStrKP(Ress) + ' / ' + IntToStrKP(trunc(Ress2*0.6)) + #10 + #13 +
-                      IntToStr(ceil(Ress / (PlayerOptions.Schlachtschiff.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Schlachtschiff.space))) + #10 + #13 +
-                      IntToStr(ceil(Ress / (PlayerOptions.Transporter.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Transporter.space)));
+                      IntToStrKP(ceil(Ress / (PlayerOptions.Schlachtschiff.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Schlachtschiff.space))) + #10 + #13 +
+                      IntToStrKP(ceil(Ress / (PlayerOptions.Transporter.space))) + ' / ' + IntToStr(ceil((Ress2*0.6) / (PlayerOptions.Transporter.space)));
   {$ENDIF}
 end;
 
@@ -2205,7 +2214,8 @@ procedure TFRM_Main.Play_Alert_Sound(filename: string);
 begin
   if FileExists(filename) then
   begin
-    FRM_Main.SoundModul.PlayFile(filename);
+    SoundModul.CloseFreeFiles; // collect old playbacks and close them!
+    SoundModul.PlayFile(filename);
   end
   else
   begin
@@ -2457,6 +2467,56 @@ end;
 procedure TFRM_Main.frmevents1Click(Sender: TObject);
 begin
   frm_cshelper_ctrl.show();
+end;
+
+procedure TFRM_Main.stresstestforaddsolsys1Click(Sender: TObject);
+var i, j: integer;
+    newsys: TSystemCopy;
+const names: array[0..69-1] of shortstring =
+   ('dave', 'dieter', 'albert', 'chris', 'hans', 'herbert',
+  'Manu', 'Martin', 'Frederik', 'Wolfgang', 'FighterXYZ', 'Fleeterking',
+  'GamerSau', 'ZockerTimm', 'MaxMonster',
+  '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+   '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+    '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
+  planets: array[0..7-1] of shortstring =
+    ('A', 'B', 'C', 'Kolonie', 'Heimatplanet', 'Bunker', 'Sauhaufen');
+begin
+  for i := 0 to 10000 do
+  begin
+    newsys.Time_u := DateTimeToUnix(Now);
+    newsys.System.P[0] := RandomRange(1,max_Galaxy+1);
+    newsys.System.P[1] := RandomRange(1,max_Systems+1);
+    newsys.System.P[2] := RandomRange(1,max_Planeten+1);
+    newsys.Creator := 'testuser';
+    for j := 1 to max_Planeten do
+    begin
+      newsys.Planeten[j].Player := names[RandomRange(0, length(names))];
+      newsys.Planeten[j].PlayerId := -1;
+      if (newsys.Planeten[j].Player <> '') then
+        newsys.Planeten[j].PlanetName := planets[RandomRange(0, length(planets))]
+      else
+        newsys.Planeten[j].PlanetName := '';
+
+      newsys.Planeten[j].Ally := '';
+      newsys.Planeten[j].AllyId := -1;
+      newsys.Planeten[j].Status := [];
+      newsys.Planeten[j].MondSize := 0;
+      newsys.Planeten[j].MondTemp := 0;
+      newsys.Planeten[j].TF[0] := 0;
+      newsys.Planeten[j].TF[1] := 0;
+      newsys.Planeten[j].Activity := 0;
+    end;
+
+    ODataBase.UniTree.AddNewSolSys(newsys);
+    Application.ProcessMessages;
+    sleep(1);
+  end;
+end;
+
+procedure TFRM_Main.closeFreeAudioFiles1Click(Sender: TObject);
+begin
+  SoundModul.CloseFreeFiles;
 end;
 
 end.

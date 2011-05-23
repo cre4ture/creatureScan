@@ -219,7 +219,7 @@ begin
           if sys.Planeten[p].Player <> '' then
           begin
             sts := ODataBase.Statistic.StatisticPoints[sntPlayer,sptPoints,
-                    sys.Planeten[p].Player];
+                    sys.Planeten[p].Player,sys.Planeten[p].PlayerId];
             if sts > 0 then
             begin
               Pixels[x+s,y + dy*(g-1) + 2 + p] :=

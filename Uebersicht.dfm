@@ -1,7 +1,7 @@
 object FRM_Uebersicht: TFRM_Uebersicht
-  Left = 262
+  Left = 0
   Top = 222
-  Width = 873
+  Width = 800
   Height = 295
   HorzScrollBar.Size = 8
   VertScrollBar.Size = 8
@@ -22,14 +22,14 @@ object FRM_Uebersicht: TFRM_Uebersicht
   PixelsPerInch = 96
   TextHeight = 13
   object PB_Lupe: TPaintBox
-    Left = 640
+    Left = 567
     Top = 81
     Width = 225
     Height = 187
     Align = alRight
   end
   object Splitter1: TSplitter
-    Left = 637
+    Left = 564
     Top = 81
     Height = 187
     Align = alRight
@@ -37,7 +37,7 @@ object FRM_Uebersicht: TFRM_Uebersicht
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 865
+    Width = 792
     Height = 81
     Align = alTop
     BevelOuter = bvNone
@@ -128,7 +128,7 @@ object FRM_Uebersicht: TFRM_Uebersicht
   object ScrollBox1: TScrollBox
     Left = 0
     Top = 81
-    Width = 516
+    Width = 443
     Height = 187
     Align = alClient
     BorderStyle = bsNone
@@ -149,7 +149,7 @@ object FRM_Uebersicht: TFRM_Uebersicht
     end
   end
   object lb_ranges: TListBox
-    Left = 516
+    Left = 443
     Top = 81
     Width = 121
     Height = 187

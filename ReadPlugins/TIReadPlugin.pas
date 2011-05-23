@@ -124,7 +124,8 @@ type
     function LoadPluginFile(const IniFile: String;
       const ServerURL: String; const ASaveInf: String): boolean;
     function ScanToStr(SB: TScanBericht; AsTable: Boolean): String;
-    function ReadSystem(handle: integer; var Sys: TSystemCopy): Boolean;
+    function ReadSystem(handle: integer;
+      var Sys: TSystemCopy; creator: string): Boolean;
     destructor Destroy; override;
     function ReadRaidAuftrag(s: string; var Auftrag: TRaidAuftrag): Boolean;
     function ReadStats(handle: integer;
@@ -393,11 +394,13 @@ begin
   else Result := False;
 end;
 
-function TLangPlugIn.ReadSystem(handle: integer; var Sys: TSystemCopy): Boolean;
+function TLangPlugIn.ReadSystem(handle: integer;
+  var Sys: TSystemCopy; creator: string): Boolean;
 begin
   if Assigned(PReadSystem) then
   begin
     Result := PReadSystem(handle, Sys);
+    Sys.Creator := creator;
   end
   else Result := False;
 end;

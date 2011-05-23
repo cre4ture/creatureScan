@@ -80,7 +80,8 @@ uses
   FetchStats in 'FetchStats.pas',
   chelper_server in 'chelper_server.pas' {frm_cshelper_ctrl},
   cS_memstream in 'cS_memstream.pas',
-  SDBFile in '..\lib\uli\SDBFile.pas';
+  SDBFile in '..\lib\uli\SDBFile.pas',
+  fast_xml_writer in 'fast_xml_writer.pas';
 
 {$R *.RES}
 
@@ -239,7 +240,6 @@ begin
   Application.CreateForm(Tfrm_sync_cS_db_engine, frm_sync_cS_db_engine);
   Application.CreateForm(Tfrm_postErrorReport, frm_postErrorReport);
   Application.CreateForm(Tfrm_report_basket, frm_report_basket);
-  Application.CreateForm(Tfrm_cshelper_ctrl, frm_cshelper_ctrl);
   Application.Run;
 
   FRM_Chat.Free;

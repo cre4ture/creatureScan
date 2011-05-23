@@ -1,7 +1,7 @@
 object FRM_POST_TEST: TFRM_POST_TEST
   Left = 275
   Top = 0
-  Width = 610
+  Width = 825
   Height = 772
   Caption = 'FRM_POST'
   Color = clBtnFace
@@ -165,7 +165,7 @@ object FRM_POST_TEST: TFRM_POST_TEST
       Height = 13
       Caption = 'LBL_scan'
     end
-    object Memo1: TMemo
+    object mem_send: TMemo
       Left = 20
       Top = 132
       Width = 533
@@ -193,7 +193,7 @@ object FRM_POST_TEST: TFRM_POST_TEST
       TabOrder = 2
       OnClick = BTN_POST_Click
     end
-    object Memo2: TMemo
+    object mem_recv: TMemo
       Left = 20
       Top = 288
       Width = 533
@@ -285,11 +285,20 @@ object FRM_POST_TEST: TFRM_POST_TEST
     object Button7: TButton
       Left = 300
       Top = 92
-      Width = 75
+      Width = 93
       Height = 21
-      Caption = 'generate stats'
+      Caption = 'generate ally stats'
       TabOrder = 13
       OnClick = Button7Click
+    end
+    object Button11: TButton
+      Left = 396
+      Top = 92
+      Width = 93
+      Height = 21
+      Caption = 'generate player stats'
+      TabOrder = 14
+      OnClick = Button11Click
     end
   end
   object mem_log: TMemo

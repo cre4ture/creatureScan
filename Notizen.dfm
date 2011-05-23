@@ -1,6 +1,6 @@
 object FRM_Notizen: TFRM_Notizen
-  Left = 424
-  Top = 317
+  Left = 269
+  Top = 273
   Width = 531
   Height = 297
   Caption = 'Notizen'
@@ -17,14 +17,14 @@ object FRM_Notizen: TFRM_Notizen
   TextHeight = 13
   object Panel2: TPanel
     Left = 0
-    Top = 209
-    Width = 515
+    Top = 217
+    Width = 523
     Height = 53
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      515
+      523
       53)
     object Label1: TLabel
       Left = 282
@@ -76,8 +76,8 @@ object FRM_Notizen: TFRM_Notizen
   object VST_Notizen: TVirtualStringTree
     Left = 0
     Top = 0
-    Width = 515
-    Height = 209
+    Width = 523
+    Height = 217
     Align = alClient
     Header.AutoSizeIndex = 2
     Header.DefaultHeight = 17
@@ -111,7 +111,7 @@ object FRM_Notizen: TFRM_Notizen
       end
       item
         Position = 2
-        Width = 211
+        Width = 219
         WideText = 'Notiz'
       end
       item

@@ -1168,14 +1168,17 @@ begin
 
   for i := 1 to max_planeten do
   begin
-    if Sys1.Planeten[i].Player     <> Sys2.Planeten[i].Player     then s := s + IntToStr(i) + ' Player!';
-    if Sys1.Planeten[i].PlanetName <> Sys2.Planeten[i].PlanetName then s := s + IntToStr(i) + ' PlanetName!';
-    if Sys1.Planeten[i].Ally       <> Sys2.Planeten[i].Ally       then s := s + IntToStr(i) + ' Ally!';
-    if Sys1.Planeten[i].Status     <> Sys2.Planeten[i].Status     then s := s + IntToStr(i) + ' Status!';
-    if Sys1.Planeten[i].MondSize   <> Sys2.Planeten[i].MondSize   then s := s + IntToStr(i) + ' MondSize!';
-    if Sys1.Planeten[i].MondTemp   <> Sys2.Planeten[i].MondTemp   then s := s + IntToStr(i) + ' MondTemp!';
-    if Sys1.Planeten[i].TF[0]      <> Sys2.Planeten[i].TF[0]      then s := s + IntToStr(i) + ' TF[0]!';
-    if Sys1.Planeten[i].TF[1]      <> Sys2.Planeten[i].TF[1]      then s := s + IntToStr(i) + ' TF[1]!';
+    if Sys1.Planeten[i].Player     <> Sys2.Planeten[i].Player     then s := s + IntToStr(i) + Format(' Player(%s|%s)!'    , [Sys1.Planeten[i].Player,     Sys2.Planeten[i].Player]);;
+    if Sys1.Planeten[i].PlayerId   <> Sys2.Planeten[i].PlayerId   then s := s + IntToStr(i) + Format(' PlayerID(%d|%d)!'  , [Sys1.Planeten[i].PlayerId,   Sys2.Planeten[i].PlayerId]);;
+    if Sys1.Planeten[i].PlanetName <> Sys2.Planeten[i].PlanetName then s := s + IntToStr(i) + Format(' PlanetName(%s|%s)!', [Sys1.Planeten[i].PlanetName, Sys2.Planeten[i].PlanetName]);
+    if Sys1.Planeten[i].Ally       <> Sys2.Planeten[i].Ally       then s := s + IntToStr(i) + Format(' Ally(%s|%s)!'      , [Sys1.Planeten[i].Ally,       Sys2.Planeten[i].Ally]);
+    if Sys1.Planeten[i].AllyId     <> Sys2.Planeten[i].AllyId     then s := s + IntToStr(i) + Format(' AllyID(%d|%d)!'    , [Sys1.Planeten[i].AllyId,     Sys2.Planeten[i].AllyId]);
+    if Sys1.Planeten[i].Status     <> Sys2.Planeten[i].Status     then s := s + IntToStr(i) + Format(' Status(%d|%d)!'    , [WORD(Sys1.Planeten[i].Status), WORD(Sys2.Planeten[i].Status)]);
+    if Sys1.Planeten[i].MondSize   <> Sys2.Planeten[i].MondSize   then s := s + IntToStr(i) + Format(' MondSize(%d|%d)!'  , [Sys1.Planeten[i].MondSize,   Sys2.Planeten[i].MondSize]);
+    if Sys1.Planeten[i].MondTemp   <> Sys2.Planeten[i].MondTemp   then s := s + IntToStr(i) + Format(' MondTemp(%d|%d)!'  , [Sys1.Planeten[i].MondTemp,   Sys2.Planeten[i].MondTemp]);
+    if Sys1.Planeten[i].TF[0]      <> Sys2.Planeten[i].TF[0]      then s := s + IntToStr(i) + Format(' TF[0](%d|%d)!'     , [Sys1.Planeten[i].TF[0],      Sys2.Planeten[i].TF[0]]);
+    if Sys1.Planeten[i].TF[1]      <> Sys2.Planeten[i].TF[1]      then s := s + IntToStr(i) + Format(' TF[1](%d|%d)!'     , [Sys1.Planeten[i].TF[1],      Sys2.Planeten[i].TF[1]]);
+    if Sys1.Planeten[i].Activity   <> Sys2.Planeten[i].Activity   then s := s + IntToStr(i) + Format(' Activity(%d|%d)!'  , [Sys1.Planeten[i].Activity,   Sys2.Planeten[i].Activity]);
   end;
   Result := '';
   if s <> '' then
@@ -1187,19 +1190,17 @@ var j: integer;
     sg: TScanGroup;
 begin
   Result := '';
-  if Scan1.Head.Planet <> Scan2.Head.Planet then Result := Result + ' Planetenname!';
+  if Scan1.Head.Planet         <> Scan2.Head.Planet          then Result := Result + ' Planetenname!';
   if not SamePlanet(Scan1.Head.Position,Scan2.Head.Position) then Result := Result + ' Position!';
-  if Scan1.Head.Time_u <> Scan2.Head.Time_u then Result := Result + ' Time!';
+  if Scan1.Head.Time_u         <> Scan2.Head.Time_u          then Result := Result + ' Time!';
 
-  if Scan1.Head.Spieler <> Scan2.Head.Spieler then Result := Result + ' Spieler!';  //-> bei XML nicht dabei!
+  if Scan1.Head.Spieler        <> Scan2.Head.Spieler         then Result := Result + ' Spieler!';  //-> bei XML nicht dabei!
+  if Scan1.Head.SpielerId      <> Scan2.Head.SpielerId       then Result := Result + ' SpielerID!';  //-> bei XML nicht dabei!
 
-  if Scan1.Head.Spionageabwehr <> Scan2.Head.Spionageabwehr then Result := Result + ' Spionageabwehr!';
-  if Scan1.Head.Creator <> Scan2.Head.Creator then Result := Result + ' Creator!';
+  if Scan1.Head.Spionageabwehr <> Scan2.Head.Spionageabwehr  then Result := Result + ' Spionageabwehr!';
+  if Scan1.Head.Creator        <> Scan2.Head.Creator         then Result := Result + ' Creator!';
 
-  {if Scan1.Head.geraidet <> Scan2.Head.geraidet then Result := Result + ' geraidet!';
-  if Scan1.Head.von <> Scan2.Head.von then Result := Result + ' von!'; } //-> ist auch in xml nicht vorhanden!
-
-  if Scan1.Head.Activity <> Scan2.Head.Activity then Result := Result + ' Activity!';
+  if Scan1.Head.Activity       <> Scan2.Head.Activity        then Result := Result + ' Activity!';
 
   for sg := low(sg) to high(sg) do
   begin
@@ -1332,6 +1333,7 @@ begin
   if fReadOnly then raise Exception.Create('TScanBericht.clear(): Report is read Only!');
 
   FillChar(Head,      sizeof(Head),      0);
+  Head.SpielerId := -1;
   FillChar(resources, sizeof(resources), -1);
   FillChar(fleets,    sizeof(fleets),    -1);
   FillChar(defence,   sizeof(defence),   -1);
@@ -1370,7 +1372,7 @@ end;
 destructor TScanBericht.Destroy;
 begin
   if fReadOnly then
-    raise Exception.Create('TScanBericht.deserialize(): Report is read Only!');
+    raise Exception.Create('TScanBericht.Destroy(): Report is read Only!');
     
   inherited;
 end;

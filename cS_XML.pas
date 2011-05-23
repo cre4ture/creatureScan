@@ -4,7 +4,7 @@ interface
 
 uses
   Ogame_Types, inifiles, Classes, SysUtils, XMLDoc, XMLIntf, DateUtils, Prog_Unit, dialogs,
-  ImportProgress, LibXmlParser, LibXmlComps, languages, forms;
+  ImportProgress, LibXmlParser, LibXmlComps, languages, forms, fast_xml_writer;
 
 const
   //Position_XML_idents:
@@ -23,13 +23,16 @@ const
   xsys_planet_tfcrys               = 'tfcrys';
   xsys_planet_name                 = 'name';
   xsys_planet_player               = 'player';
+  xsys_planet_player_id            = 'playerid';
   xsys_planet_alliance             = 'alliance';
+  xsys_planet_alliance_id          = 'allianceid';
   xsys_planet_flags                = 'flags';
   //Scan_XML_idents:
   xspio_group                      = 'report';
   xspio_group_time                 = 'time';
   xspio_group_planet               = 'planet';
   xspio_group_player               = 'player';
+  xspio_group_player_id            = 'playerid';
   xpsio_group_activity             = 'activ';
   xspio_group_cspio                = 'cspio';     //counterespionage , Spionageabwehr
   xspio_group_creator              = 'creator';
@@ -48,6 +51,7 @@ const
   xstat_rank                       = 'rank';
   xstat_rank_position              = 'pos';
   xstat_rank_name                  = 'name';
+  xstat_rank_name_id               = 'nameid';
   xstat_rank_points                = 'points';
   xstat_rank_alliance              = 'alliance';
   xstat_rank_members               = 'members';
@@ -110,13 +114,15 @@ type
 procedure ImportXMLODB_1_slow(Filename: String; ODB: TOgameDataBase);
 function XMLToSys(node: IXMLNode): TSystemCopy;
 procedure ImportXMLODB_wrong(Filename: String; ODB: TOgameDataBase);
-function SysToXML_(sys: TSystemCopy): string;
+function SysToXML_(sys: TSystemCopy; csvers: string): string;
+procedure SysToXML_fxml(fxml: TFastXmlWriter; sys: TSystemCopy; csvers: string);
 function parse_Sys(parser: TXmlParser): Boolean; overload;
 function parse_Sys(parser: TXmlParser; var solsys: TSystemCopy): Boolean; overload;
 procedure parse_error(parser: TXMLParser; msg: string);
 function parse_report(parser: TXMLParser): boolean; overload;
 function parse_report(parser: TXMLParser; report: TScanBericht): boolean; overload;
-function ScanToXML_(Scan: TScanBericht): String;
+function ScanToXML_(Scan: TScanBericht; csvers: string): String;
+procedure ScanToXML_fxml(fxml: TFastXmlWriter; Scan: TScanBericht; csvers: string);
 function parse_unknown(parser: TXMLParser; parse_known: Boolean): boolean;
 procedure ImportXMLODB_(Filename: String; ODB: TOgameDataBase);
 function StatToXML_(Stat: TStat; StatType: TStatTypeEx): String;
@@ -131,7 +137,9 @@ function FleetToXML_(fleet: TFleetEvent): string;
 function FleetJobFlagsToString(eflags: TFleetEventFlags): string;
 function FleetJobToString(job: TFleetEventType): string;
 function PlanetPositionToXML_attr(pos: TPlanetPosition): string;
+procedure PlanetPositionToXML_attr_fxml(fxml: TFastXmlWriter; pos: TPlanetPosition);
 function ScanPartToXML_(scan: TScanBericht; partnr: TScanGroup): string;
+procedure ScanPartToXML_fxml(fxml: TFastXmlWriter; scan: TScanBericht; partnr: TScanGroup);
 function parse_fleet(parser: TXMLParser; var fleet: TFleetEvent): Boolean;
 function StringToFleetJobFlags(s: string): TFleetEventFlags;
 function StringToFleetJob(s: String): TFleetEventType;
@@ -148,6 +156,15 @@ begin
             ' '+xpos_pos+ '="'+IntToStr(pos.P[2])+'"';
   if pos.Mond then
     Result := Result+' '+xpos_moon+'="true"';
+end;
+
+procedure PlanetPositionToXML_attr_fxml(fxml: TFastXmlWriter; pos: TPlanetPosition);
+begin
+  fxml.addAttribute(xpos_gala,pos.P[0]);
+  fxml.addAttribute(xpos_sys, pos.P[1]);
+  fxml.addAttribute(xpos_pos, pos.P[2]);
+  if pos.Mond then
+    fxml.addAttribute(xpos_moon, 'true');
 end;
 
 {procedure ScanToXML(Scan: TScanBericht; XMLFile: TXMLDocument);
@@ -522,52 +539,61 @@ begin
   ODB.UniTree.AddNewSolSys(sys);
 end;
 
-function SysToXML_(sys: TSystemCopy): string;
-
-procedure attrAdd(var xml: string; attrName, attrValue: string);
+function SysToXML_(sys: TSystemCopy; csvers: string): string;
+var fxml: TFastXmlWriter; 
 begin
-  xml := xml + ' ' + attrName + '="' + attrValue + '"';
+  fxml := TFastXmlWriter.Create('');
+  try
+    SysToXML_fxml(fxml, sys, csvers);
+    Result := fxml.getXML();
+  finally
+    fxml.Free;
+  end;
 end;
 
+procedure SysToXML_fxml(fxml: TFastXmlWriter; sys: TSystemCopy; csvers: string);
 var i: integer;
-    empty: Boolean;
 begin
-  Result := '<' + xsys_group + ' ' + xpos_gala + '="' + IntToStr(sys.System.P[0]) + '" '
-                                   + xpos_sys +  '="' + IntToStr(sys.System.P[1]) + '" '
-                             + xsys_group_time + '="' + IntToStr(sys.Time_u) + '"';
-  empty := True;
+  fxml.beginTag(xsys_group);
+  fxml.addAttribute(xpos_gala,       sys.System.P[0]);
+  fxml.addAttribute(xpos_sys,        sys.System.P[1]);
+  fxml.addAttribute(xsys_group_time, sys.Time_u);
+
   for i := 1 to max_Planeten do
     if (sys.Planeten[i].Player <> '')or
        (sys.Planeten[i].PlanetName <> '')or  // Zerstörter Planet...
        (Sys.Planeten[i].TF[0] + Sys.Planeten[i].TF[1] > 0) then
       with Sys.Planeten[i] do
       begin
-        if empty then //beim ersten planeten, der hinzugefügt wird, solsys-tag schließen!
-        begin
-          Result := Result + '>';
-          empty := False;
-        end;
-        
-        Result := Result + '<' + xsys_planet + ' ' + xsys_planet_pos + '="' + IntToStr(i) + '"';
+        fxml.beginTag(xsys_planet);
+        fxml.addAttribute(xsys_planet_pos, i);
 
-        if PlanetName <> '' then attrAdd(Result, xsys_planet_name, PlanetName);
-        if Player <> '' then attrAdd(Result, xsys_planet_player, Player);
-        if Ally <> '' then attrAdd(Result, xsys_planet_alliance, Ally);
-        if Status <> [] then attrAdd(Result, xsys_planet_flags, IntToStr(WORD(Status)));
+        if PlanetName <> '' then fxml.addAttribute(xsys_planet_name, PlanetName);
+        if Player     <> '' then fxml.addAttribute(xsys_planet_player, Player);
+        
+        if ( csvers >= '0.7' ) and
+           ( PlayerId >= 0 ) then fxml.addAttribute(xsys_planet_player_id, PlayerId);
+
+        if Ally <> '' then fxml.addAttribute(xsys_planet_alliance, Ally);
+
+        if ( csvers >= '0.7' ) and
+           ( AllyId >= 0 ) then fxml.addAttribute(xsys_planet_alliance_id, AllyId);
+           
+        if Status <> [] then fxml.addAttribute(xsys_planet_flags, WORD(Status));
 
         if (MondSize > 0) then
         begin
-          attrAdd(Result, xsys_planet_moon, IntToStr(MondSize));
-          attrAdd(Result, xsys_planet_mtemp, FloatToStr(MondTemp));
+          fxml.addAttribute(xsys_planet_moon, MondSize);
+          fxml.addAttribute(xsys_planet_mtemp, MondTemp);
         end;
 
-        if TF[0] > 0 then attrAdd(Result, xsys_planet_tfmet, IntToStr(TF[0]));
-        if TF[1] > 0 then attrAdd(Result, xsys_planet_tfcrys, IntToStr(TF[1]));
+        if TF[0] > 0 then fxml.addAttribute(xsys_planet_tfmet, TF[0]);
+        if TF[1] > 0 then fxml.addAttribute(xsys_planet_tfcrys, TF[1]);
 
-        Result := Result + '/>';
+        fxml.endTag(xsys_planet);
       end;
-
-  if empty then Result := Result + '/>' else Result := Result + '</' + xsys_group + '>';
+      
+  fxml.endTag(xsys_group);
 end;
 
 function parse_Sys(parser: TXmlParser): Boolean;
@@ -595,6 +621,11 @@ function parse_Sys(parser: TXmlParser; var solsys: TSystemCopy): Boolean;
           PlanetName := parser.CurAttr.Value(xsys_planet_name);
           Player := parser.CurAttr.Value(xsys_planet_player);
           Ally := parser.CurAttr.Value(xsys_planet_alliance);
+
+          s := parser.CurAttr.Value(xsys_planet_player_id);
+          PlayerId := StrToInt64Def(s, -1);
+          s := parser.CurAttr.Value(xsys_planet_alliance_id);
+          AllyId := StrToInt64Def(s, -1);
 
           s := parser.CurAttr.Value(xsys_planet_flags);
           if s <> '' then Status := TStatus(word(StrToInt(s)));
@@ -630,6 +661,7 @@ function parse_Sys(parser: TXmlParser; var solsys: TSystemCopy): Boolean;
     end;
   end;
 
+var i: integer;
 begin
   Result := (parser.CurName = xsys_group);
   if Result then
@@ -645,6 +677,12 @@ begin
       parse_error(parser,Format('Solsys %d:%d is broken! Can''t use it!',
         [solsys.System.P[0], solsys.System.P[1]]));
       FillChar(solsys.System,SizeOf(solsys.System),0);
+    end;
+
+    for i := 1 to max_Planeten do
+    begin
+      solsys.Planeten[i].PlayerId := -1;
+      solsys.Planeten[i].AllyId := -1;
     end;
 
     if parser.CurPartType <> ptEmptyTag then
@@ -767,8 +805,6 @@ begin
   Result := (parser.CurName = xspio_group);
   if Result then
   begin
-    FillChar(report.Head,SizeOf(report.Head),0);
-    
     report.clear;
 
     try
@@ -777,6 +813,9 @@ begin
       report.Head.Time_u := StrToInt64(parser.CurAttr.Value(xspio_group_time)); //Unix
       report.Head.Planet := parser.CurAttr.Value(xspio_group_planet);
       report.Head.Spieler := parser.CurAttr.Value(xspio_group_player);
+
+      s := parser.CurAttr.Value(xspio_group_player_id);
+      if s <> '' then report.Head.SpielerId := StrToInt64(s);
 
       s := parser.CurAttr.Value(xpsio_group_activity);
       if s <> '' then report.Head.Activity := StrToInt(s);
@@ -807,24 +846,30 @@ begin
 end;
 
 function ScanPartToXML_(scan: TScanBericht; partnr: TScanGroup): string;
-
-  procedure attrAdd(attrName, attrValue: string);
-  begin
-    Result := Result + ' ' + attrName + '="' + attrValue + '"';
+var fxml: TFastXmlWriter;
+begin
+  fxml := TFastXmlWriter.Create('');
+  try
+    ScanPartToXML_fxml(fxml, scan, partnr);
+    Result := fxml.getXML();
+  finally
+    fxml.Free;
   end;
+end;
 
+procedure ScanPartToXML_fxml(fxml: TFastXmlWriter; scan: TScanBericht; partnr: TScanGroup);
 var j, val: integer;
 begin
-  Result := '<'+xspio_idents[partnr][0];
+  fxml.beginTag(xspio_idents[partnr][0]);
 
   for j := 0 to ScanFileCounts[partnr]-1 do
   begin
     val := scan.Bericht[partnr, j];
     if val <> 0 then
-      attrAdd(xspio_idents[partnr][j+1],IntToStr(val));
+      fxml.addAttribute(xspio_idents[partnr][j+1],val);
   end;
 
-  Result := Result+'/>';
+  fxml.endTag(xspio_idents[partnr][0]);
 end;
 
 function ScanPartToXML_IA(part: TInfoArray; partnr: TScanGroup): string;
@@ -848,41 +893,44 @@ begin
   Result := Result+'/>';
 end;
 
-function ScanToXML_(Scan: TScanBericht): String;
-
-  procedure attrAdd(attrName, attrValue: string);
-  begin
-    Result := Result + ' ' + attrName + '="' + attrValue + '"';
-  end;
-
-var empty: Boolean;
-    sg: TScanGroup;
+function ScanToXML_(Scan: TScanBericht; csvers: string): String;
+var fxml: TFastXmlWriter;
 begin
-  Result := '<'+xspio_group+
-            PlanetPositionToXML_attr(Scan.Head.Position);
+  fxml := TFastXmlWriter.Create('');
+  try
+    ScanToXML_fxml(fxml, Scan, csvers);
+    Result := fxml.getXML;
+  finally
+    fxml.Free;
+  end;
+end;
 
-  attrAdd(xspio_group_time,IntToStr(Scan.Head.Time_u)); //Unix
-  attrAdd(xspio_group_planet,Scan.Head.Planet);
-  attrAdd(xspio_group_player,Scan.Head.Spieler);
-  attrAdd(xpsio_group_activity,IntToStr(Scan.Head.Activity));
-  attrAdd(xspio_group_cspio,IntToStr(Scan.Head.Spionageabwehr));
-  attrAdd(xspio_group_creator,Scan.Head.Creator);
+procedure ScanToXML_fxml(fxml: TFastXmlWriter; Scan: TScanBericht; csvers: string);
+var sg: TScanGroup;
+begin
+  fxml.beginTag(xspio_group);
+  PlanetPositionToXML_attr_fxml(fxml, Scan.Head.Position);
 
-  empty := true;
+  fxml.addAttribute(xspio_group_time,Scan.Head.Time_u);
+  fxml.addAttribute(xspio_group_planet,Scan.Head.Planet);
+  fxml.addAttribute(xspio_group_player,Scan.Head.Spieler);
+
+  if (csvers >= '0.7') and
+     (Scan.Head.SpielerId >= 0) then
+    fxml.addAttribute(xspio_group_player_id,Scan.Head.SpielerId);
+    
+  fxml.addAttribute(xpsio_group_activity,Scan.Head.Activity);
+  fxml.addAttribute(xspio_group_cspio,Scan.Head.Spionageabwehr);
+  fxml.addAttribute(xspio_group_creator,Scan.Head.Creator);
+
   for sg := low(sg) to high(sg) do
   begin
     if Scan.Bericht[sg,0] <> -1 then
     begin
-      if empty then //beim ersten Bereich, der hinzugefügt wird, report-tag schließen!
-      begin
-        Result := Result + '>';
-        empty := False;
-      end;
-
-      Result := Result + ScanPartToXML_(Scan,sg);
+      ScanPartToXML_fxml(fxml, Scan, sg);
     end;
   end;
-  if empty then Result := Result + '/>' else Result := Result + '</' + xspio_group + '>';
+  fxml.endTag(xspio_group);
 end;
 
 function parse_unknown(parser: TXMLParser; parse_known: Boolean): boolean;
@@ -973,17 +1021,20 @@ begin
         Result := Result + '>';
       end;
 
-      Result := Result + '<' + xstat_rank + ' ' + xstat_rank_position + '="' +
-        IntToStr(Stat.first+i) + '" ' + xstat_rank_name + '="' +
-        Stat.Stats[i].Name + '" ' + xstat_rank_points + '="' +
-        IntToStr(Stat.Stats[i].Punkte) + '"';
+      Result := Result + '<' + xstat_rank + ' ' +
+        xstat_rank_position + '="' + IntToStr(Stat.first+i) + '" ' +
+        xstat_rank_name + '="' + Stat.Stats[i].Name + '" ' +
+        xstat_rank_points + '="' + IntToStr(Stat.Stats[i].Punkte) + '"';
+
+      if (Stat.Stats[i].NameId >= 0) then
+        attrAdd(Result, xstat_rank_name_id, IntToStr(Stat.Stats[i].NameId));
 
       case StatType.NameType of
-      sntPlayer:
-        if Stat.Stats[i].Ally <> '' then
-          attrAdd(Result, xstat_rank_alliance, Stat.Stats[i].Ally);
-      sntAlliance:
-        attrAdd(Result,xstat_rank_members,IntToStr(Stat.Stats[i].Mitglieder));
+        sntPlayer:
+          if Stat.Stats[i].Ally <> '' then
+            attrAdd(Result, xstat_rank_alliance, Stat.Stats[i].Ally);
+        sntAlliance:
+          attrAdd(Result,xstat_rank_members,IntToStr(Stat.Stats[i].Mitglieder));
       end;
       Result := Result + '/>';
     end;

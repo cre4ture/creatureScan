@@ -33,10 +33,10 @@ type
     LBL_sys: TLabel;
     Label4: TLabel;
     LBL_scan: TLabel;
-    Memo1: TMemo;
+    mem_send: TMemo;
     BTN_genSys: TButton;
     BTN_POST_: TButton;
-    Memo2: TMemo;
+    mem_recv: TMemo;
     Button3: TButton;
     CH_Auto: TCheckBox;
     CH_Pause: TCheckBox;
@@ -54,6 +54,7 @@ type
     se_max_days_age: TSpinEdit;
     Label6: TLabel;
     cb_filter_no_planet: TCheckBox;
+    Button11: TButton;
     procedure BTN_genSysClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
@@ -73,6 +74,7 @@ type
     procedure Button7Click(Sender: TObject);
     procedure Button10Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure Button11Click(Sender: TObject);
   private
     FServerUni: array of array of TTimeID;
     more: Boolean;
@@ -86,14 +88,13 @@ type
     Scan: TScanbericht;
     Stop: Boolean;
     main_pc_start, main_pc_end: integer;
-    procedure sync_solsys_gala(gala: integer);
     procedure log(msg: string; priority: integer);
     procedure SetProgress(pc: integer);
     procedure SetMainProgress(pc_start, pc_end: integer);
     property ServerUni[p1,p2 : word]: TTimeID read ReadServerUni write WriteServerUni;
     function do_login(user, pass: string): Boolean;
-    function SysToXMLString(sys: TSystemCopy): string;
-    function ScanToXMLString(Scan: TScanBericht): string;
+    function SysToXMLString(sys: TSystemCopy; csvers: string): string;
+    function ScanToXMLString(Scan: TScanBericht; csvers: string): string;
     function entflines(s: string): String;
     procedure SetServerUniSize(gala: integer; solsys: integer);
     function ParseAnswer(xml: string): boolean;
@@ -117,20 +118,20 @@ uses main, Math, RTLConsts;
 
 procedure TFRM_POST_TEST.BTN_genSysClick(Sender: TObject);
 begin
-  Memo1.Clear;
-  Memo1.Lines.Add('<write>' + entflines(SysToXMLString(System)) + '</write>');
+  mem_send.Clear;
+  mem_send.Lines.Add('<write>' + entflines(SysToXMLString(System, '9.9')) + '</write>');
 end;
 
-function TFRM_POST_TEST.SysToXMLString(sys: TSystemCopy): string;
+function TFRM_POST_TEST.SysToXMLString(sys: TSystemCopy; csvers: string): string;
 begin
-  Result := AnsiToUtf8(SysToXML_(sys));
-  Result := StringReplace(Result,'&','', [rfReplaceAll]);
+  Result := {AnsiToUtf8}(SysToXML_(sys, csvers));
+//  Result := StringReplace(Result,'&','', [rfReplaceAll]);
 end;
 
-function TFRM_POST_TEST.ScanToXMLString(Scan: TScanBericht): string;
+function TFRM_POST_TEST.ScanToXMLString(Scan: TScanBericht; csvers: string): string;
 begin
-  Result := AnsiToUtf8(ScanToXML_(Scan));
-  Result := StringReplace(Result,'&','', [rfReplaceAll]);
+  Result := {AnsiToUtf8}(ScanToXML_(Scan, csvers));
+//  Result := StringReplace(Result,'&','', [rfReplaceAll]);
 end;
 
 function TFRM_POST_TEST.entflines(s: string): String;
@@ -147,7 +148,7 @@ end;
 
 procedure TFRM_POST_TEST.Button3Click(Sender: TObject);
 begin
-  Memo2.Lines.SaveToFile('Response.html');
+  mem_recv.Lines.SaveToFile('Response.html');
   ShellExecute(Handle,'Open','Response.html','','',0)
 end;
 
@@ -212,16 +213,21 @@ var parser: TXmlParser;
     read, write: string;
     start: Tdatetime;
     tid: TTimeID;
+
+    gotServerInfo: Boolean;
+    csvers: string;
 begin
+  csvers := '0.6';
   start := now;
+  gotServerInfo := false;
 
   log('sync solar systems...',10);
 
-  Memo1.Clear;
-  Memo1.Lines.Add('<read><serverinfo/><solsystimes_timestamp/></read>');
+  mem_send.Clear;
+  mem_send.Lines.Add('<read><serverinfo/><solsystimes_timestamp/></read>');
 
   POST;
-  DocSize := length(Memo2.Lines.Text);
+  DocSize := length(mem_recv.Lines.Text);
 
   log('got times, parse...',10);
 
@@ -229,7 +235,7 @@ begin
 
   parser := TXmlParser.Create;
   try
-    parser.LoadFromBuffer(PChar(Memo2.Lines.Text));
+    parser.LoadFromBuffer(PChar(mem_recv.Lines.Text));
     parser.StartScan;
     while parser.Scan and (not stop) do
     begin
@@ -247,6 +253,7 @@ begin
             if parser.CurName = 'serverinfo' then
             begin
 //              snow := StrToInt64(parser.CurAttr.Value('time'));
+              csvers := parser.CurAttr.Value('csvers');
               pos[0] := StrToInt(parser.CurAttr.Value('galacount'));
               pos[1] := StrToInt(parser.CurAttr.Value('syscount'));
               pos[2] := StrToInt(parser.CurAttr.Value('planetcount'));
@@ -254,7 +261,7 @@ begin
                 raise Exception.Create('Server pos_count definitions are not compatible!')
               else SetServerUniSize(max_Galaxy, max_Systems);
 
-              // TODO: wenn dieser Tag nicht gefunden wurde, bleibt ServerUni uninitialisiert, -> Zugriffsverletzung...
+              gotServerInfo := true;
             end;
 
             if parser.CurName = 'solsystime' then
@@ -274,6 +281,11 @@ begin
     end;
   finally
     parser.Free;
+  end;
+
+  if not gotServerInfo then
+  begin
+    raise Exception.Create('SyncSystems: Error: Expected "ServerInfo" tag!');
   end;
 
   if stop then exit;
@@ -300,7 +312,8 @@ begin
       begin
         if (ODataBase.Uni[p1,p2].SystemCopy >= 0) then
         begin
-          write := write + SysToXMLString(ODataBase.Systeme[ODataBase.Uni[p1,p2].SystemCopy]);
+          write := write + SysToXMLString(
+            ODataBase.Systeme[ODataBase.Uni[p1,p2].SystemCopy], csvers);
           log(Format('send solsys [%d:%d]',[p1, p2]),10);
         end;
       end;
@@ -428,7 +441,7 @@ begin
     s := s + 'PRIMARY KEY ( `'+xspio_group+'ID` )' + n +
              ') TYPE = MYISAM;' + n + n;
   end;
-  Memo1.Lines.Text := s;
+  mem_send.Lines.Text := s;
 end;
 
 function TFRM_POST_TEST.ParseAnswer(xml: string): boolean;
@@ -470,20 +483,20 @@ end;
 
 procedure TFRM_POST_TEST.Button6Click(Sender: TObject);
 begin
-  ParseAnswer(Memo2.Lines.Text);
+  ParseAnswer(mem_recv.Lines.Text);
 end;
 
 procedure TFRM_POST_TEST.BTN_genScanClick(Sender: TObject);
 begin
-  Memo1.Clear;
-  Memo1.Lines.Add('<write>' + entflines(ScanToXMLString(Scan)) + '</write>');
+  mem_send.Clear;
+  mem_send.Lines.Add('<write>' + entflines(ScanToXMLString(Scan, '9.9')) + '</write>');
 end;
 
 procedure TFRM_POST_TEST.Button8Click(Sender: TObject);
 var parser: TXmlParser;
 begin
   parser := TXmlParser.Create;
-  parser.LoadFromBuffer(PChar(Memo2.Text));
+  parser.LoadFromBuffer(PChar(mem_recv.Text));
   parser.StartScan;
   while parser.Scan do
     case parser.CurPartType of
@@ -497,6 +510,7 @@ var read, write: string;
     p_count: Integer;
     pos: TPlanetPosition;
     since_u: int64;
+    csvers: string;
 
   procedure SetPositionProgress(sys: integer);
   var next: integer;
@@ -529,7 +543,7 @@ var read, write: string;
           log('send report id(C' + IntToStr(id) + ') [' +
                PositionToStrMond(scan.Head.Position) + ']', 10);
 
-          write := write + ScanToXMLString(scan);
+          write := write + ScanToXMLString(scan, csvers);
         end;
     end;
     if typ <> sit_none then inc(p_count);
@@ -575,9 +589,12 @@ var root, sinfo, times, planet, rtime: THTMLElement;
     time_u: Int64;
     ScanList: TReportTimeList;
     solsys: TSystemCopy;
+    solsysindex: integer;
     s: string;
 begin
+  csvers := '0.6';
   ScanList := nil; // suppress warning
+  solsysindex := -1; // suppress warning
 
   solsys.System.P[1] := 0; // mark invalid!
   
@@ -592,43 +609,52 @@ begin
   start := now;
   since_u := DateTimeToUnix(now - se_max_days_age.Value);
 
-  Memo1.Clear;
+  mem_send.Clear;
   s := '<read><serverinfo/><reporttimes_gala' +
        ' gala="' + inttostr(gala) + '"' +
        ' since="' + inttostr(since_u) + '"' +
        '/></read>';
 
-  Memo1.Lines.Add(s);
+  mem_send.Lines.Add(s);
   log('send request: ' + s,0);
   POST;
   log('request ready, start sync...',0);
 
   root := THTMLElement.Create(nil, 'root');
   try
-    root.ParseHTMLCode(Memo2.Lines.Text);
+    root.ParseHTMLCode(mem_recv.Lines.Text);
 
     sinfo := root.FindChildTagPath_e('read/serverinfo');
+    if sinfo = nil then
+      raise Exception.Create('Sync_Reports(): answer to serverinfo is missing!');
+      
 //    snow := StrToInt64(sinfo.AttributeValue['time']);
     Uni_pos[0] := StrToInt(sinfo.AttributeValue['galacount']);
     Uni_pos[1] := StrToInt(sinfo.AttributeValue['syscount']);
     Uni_pos[2] := StrToInt(sinfo.AttributeValue['planetcount']);
 
+    csvers := sinfo.AttributeValue['csvers'];
+
     if (Uni_pos[0] <> max_Galaxy)or
        (Uni_pos[1] <> max_Systems)or
        (Uni_pos[2] <> max_Planeten) then
-      raise Exception.Create('Server pos_count definitions are not compatible!');
+      raise Exception.Create('Sync_Reports(): Server definitions for universe dimension sizes are not compatible!');
 
     log('check serverinfo completed',0);
 
     times := root.FindChildTagPath_e('read/reporttimes');
+    if times = nil then
+      raise Exception.Create('Sync_Reports(): answer to reporttimes is missing!');
 
     if times.AttributeValue['gala'] <> inttostr(gala) then
-      raise Exception.Create('Falsche Galaxie in Response!');
+      raise Exception.Create('Sync_Reports(): Error: wrong galaxy in response!');
 
     pos.P[0] := gala;
     pos.P[1] := 1;
     pos.P[2] := 1;
     pos.Mond := false;
+
+    // Start Sync:
 
     abspos := PlanetPositionToAbsPlanetNr(pos);
 
@@ -647,10 +673,20 @@ begin
       if (solsys.System.P[0] <> pos.P[0])or // hole neues sonnensystem nur wenn nötig
          (solsys.System.P[1] <> pos.P[1]) then
       begin
-        solsys := ODataBase.UniTree.UniSystem(pos.p[0], pos.P[1]);
+        solsysindex := ODataBase.UniTree.UniSys(pos.p[0], pos.P[1]);
+        if (solsysindex >= 0) then
+        begin
+          solsys := ODataBase.Systeme[solsysindex];
+        end
+        else
+        begin
+          solsys.System.P[0] := pos.P[0];
+          solsys.System.P[1] := pos.P[1];
+        end;
       end;
 
       if (not cb_filter_no_planet.Checked)or // wenn nicht filter aktiv
+         (solsysindex < 0)or // oder solsys nicht vorhanden
          (solsys.Planeten[pos.P[2]].Player <> '') then  // oder filter greift nicht, dann sync!
       begin
       
@@ -725,21 +761,17 @@ begin
   TXT_ges.Text := TimeToStr(Now-start);
 end;
 
-procedure TFRM_POST_TEST.sync_solsys_gala(gala: integer);
-begin
-end;
-
 procedure TFRM_POST_TEST.PostAndParseAnswer(read, write: string);
 begin
-  Memo1.Clear;
-  memo1.Lines.Add('<maintag><read>' + read + '</read><write>' + write + '</write></maintag>');
+  mem_send.Clear;
+  mem_send.Lines.Add('<maintag><read>' + read + '</read><write>' + write + '</write></maintag>');
   Application.ProcessMessages;
   while CH_Pause.Checked do Application.ProcessMessages;
   CH_Pause.Checked := CheckBox1.Checked;
   if (read <> '')or(write <> '') then
   begin
     POST; //POST!
-    ParseAnswer(Utf8ToAnsi(Memo2.Text));
+    ParseAnswer(Utf8ToAnsi(mem_recv.Text));
   end;
 end;
 
@@ -778,12 +810,12 @@ begin
 
   url := txt_url.Text + param;
 
-  s := Memo1.Text;
+  s := mem_send.Text;
   buf := TMemoryStream.Create;
   try
     buf.Write(PChar(s)^, length(s));
     startpost := now;
-    Memo2.Text := IdHTTP1.Post(url,buf);
+    mem_recv.Text := IdHTTP1.Post(url,buf);
     startpost := Now - startpost;
     TXT_post.Text := FloatToStrF(startpost*24*60*60,ffNumber,80,4) + ' s';
   finally
@@ -827,18 +859,18 @@ begin
   param:=param+'username='+TIdURI.ParamsEncode(user)+'&';
   param:=param+'password='+TIdURI.ParamsEncode(pass)+'&';
 
-  Memo1.Clear;
-  Memo1.Lines.Add('<read><serverinfo/></read>');
+  mem_send.Clear;
+  mem_send.Lines.Add('<read><serverinfo/></read>');
 
   POST(param);
 
-  if not ParseAnswer(Memo2.Lines.Text) then
+  if not ParseAnswer(mem_recv.Lines.Text) then
     exit; // error on login!
 
   res := THTMLElement.Create(nil, 'root');
   try
 
-    res.ParseHTMLCode(Memo2.Lines.Text);
+    res.ParseHTMLCode(mem_recv.Lines.Text);
 
 //    tag := res.FindChildTagPath_e('acknowledge');
     //ShowMessage(tag.FullTagContent);
@@ -893,10 +925,13 @@ end;
 procedure TFRM_POST_TEST.Button7Click(Sender: TObject);
 var st: TStatTypeEx;
 begin
-  Memo1.Clear;
+  mem_send.Clear;
   st.NameType := sntAlliance;
   st.PointType := sptPoints;
-  Memo1.Lines.Add('<write>' + entflines(StatToXML_(ODataBase.Statistic.StatisticType[sntPlayer,sptPoints].Stats[0],st)) + '</write>');
+  mem_send.Lines.Add('<write>' +
+    entflines(StatToXML_(
+      ODataBase.Statistic.StatisticType[st.NameType,st.PointType].Stats[0],st))
+      + '</write>');
 end;
 
 function GetPlanetReportList(Pos: TPlanetPosition; since_u: int64): TReportTimeList;
@@ -922,6 +957,18 @@ end;
 procedure TFRM_POST_TEST.FormDestroy(Sender: TObject);
 begin
   Scan.Free;
+end;
+
+procedure TFRM_POST_TEST.Button11Click(Sender: TObject);
+var st: TStatTypeEx;
+begin
+  mem_send.Clear;
+  st.NameType := sntPlayer;
+  st.PointType := sptPoints;
+  mem_send.Lines.Add('<write>' +
+    entflines(StatToXML_(
+      ODataBase.Statistic.StatisticType[st.NameType,st.PointType].Stats[0],st))
+      + '</write>');
 end;
 
 end.

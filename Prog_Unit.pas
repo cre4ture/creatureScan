@@ -949,10 +949,9 @@ end;
 function TOgameDataBase.LeseSystem(handle: integer): Boolean;
 var Sys: TSystemCopy;
 begin
-  Result := LanguagePlugIn.ReadSystem(handle, Sys);
+  Result := LanguagePlugIn.ReadSystem(handle, Sys, Username);
   if Result then
   begin
-    Sys.Creator := Username; 
     UniTree.AddNewSolSys(sys);
   end;
 end;
@@ -1178,8 +1177,9 @@ var st: TStat;
     st_typ: TStatTypeEx;
     i: integer;
 begin
-  Result := Self.LanguagePlugIn.ReadStats(handle, st,st_typ)
-    and Self.Statistic.AddStats(st_typ.NameType,st_typ.PointType,st);
+  Result := Self.LanguagePlugIn.ReadStats(handle, st,st_typ);
+  if Result then
+    Result := Self.Statistic.AddStats(st_typ.NameType,st_typ.PointType,st);
 
   if Result then
   begin

@@ -189,7 +189,7 @@ begin
       begin
         for i := 0 to ODataBase.Systeme.Count-1 do
         begin
-          text := AnsiToUtf8(SysToXML_(ODataBase.Systeme[i]));
+          text := AnsiToUtf8(SysToXML_(ODataBase.Systeme[i], '9.9'));
           FileStream.WriteBuffer(PChar(text)^,length(text));
         end;
       end;
@@ -230,7 +230,7 @@ begin
     cSeSysScanFile: SysFile.AddSolSys(ODataBase.Systeme[ODataBase.Uni[Position[0],Position[1]].SystemCopy]);
     cSeXML:
       begin
-        s := AnsiToUtf8(SysToXML_(ODataBase.Systeme[ODataBase.Uni[Position[0],Position[1]].SystemCopy]));
+        s := AnsiToUtf8(SysToXML_(ODataBase.Systeme[ODataBase.Uni[Position[0],Position[1]].SystemCopy], '9.9'));
         FileStream.WriteBuffer(PChar(s)^,length(s));
       end;
     cSe_1_0:
@@ -276,7 +276,7 @@ begin
       begin
         for i := 0 to ODataBase.Berichte.Count-1 do
         begin
-          text := AnsiToUtf8(ScanToXML_(ODataBase.Berichte[i]));
+          text := AnsiToUtf8(ScanToXML_(ODataBase.Berichte[i], '9.9'));
           FileStream.WriteBuffer(PChar(text)^,length(text));
         end;
       end;
@@ -306,7 +306,7 @@ begin
        cSeSysScanFile: ScanFile.AddReport(ODataBase.Berichte[ODataBase.Uni[Position[0],Position[1]].Planeten[Position[2],M].ScanBericht]);
        cSeXML:
          begin
-           s := AnsiToUtf8(ScanToXML_(ODataBase.Berichte[ODataBase.Uni[Position[0],Position[1]].Planeten[Position[2],M].ScanBericht]));
+           s := AnsiToUtf8(ScanToXML_(ODataBase.Berichte[ODataBase.Uni[Position[0],Position[1]].Planeten[Position[2],M].ScanBericht], '9.9'));
            FileStream.WriteBuffer(PChar(s)^,length(s));
          end;
        cSe_1_0: Raise Exception.Create('Gibs nochnet!');
@@ -327,7 +327,7 @@ begin
         cSeSysScanFile: ScanFile.AddReport(ODataBase.Berichte[i]);
         cSeXML:
           begin
-            s := AnsiToUtf8(ScanToXML_(ODataBase.Berichte[i]));
+            s := AnsiToUtf8(ScanToXML_(ODataBase.Berichte[i], '9.9'));
             FileStream.WriteBuffer(PChar(s)^,length(s));
           end;
         cSe_1_0: Raise Exception.Create('Gibs nochnet!');

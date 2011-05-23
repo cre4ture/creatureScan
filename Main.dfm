@@ -1,6 +1,6 @@
 object FRM_Main: TFRM_Main
-  Left = 269
-  Top = 160
+  Left = 496
+  Top = 282
   Width = 549
   Height = 479
   Caption = 'creatureScan'
@@ -25,7 +25,7 @@ object FRM_Main: TFRM_Main
     Left = 0
     Top = 0
     Width = 541
-    Height = 414
+    Height = 416
     Align = alClient
     BevelOuter = bvNone
     Color = clBlack
@@ -34,7 +34,7 @@ object FRM_Main: TFRM_Main
     OnResize = P_ExplorerDockResize
     inline Frame_Bericht2: TFrame_Bericht
       Left = 0
-      Top = 285
+      Top = 287
       Width = 541
       Height = 129
       HorzScrollBar.Style = ssHotTrack
@@ -64,14 +64,14 @@ object FRM_Main: TFRM_Main
     Left = 0
     Top = 0
     Width = 541
-    Height = 414
+    Height = 416
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
     object Splitter1: TSplitter
       Left = 437
       Top = 0
-      Height = 414
+      Height = 416
       Align = alRight
       MinSize = 20
       ResizeStyle = rsLine
@@ -80,7 +80,7 @@ object FRM_Main: TFRM_Main
       Left = 0
       Top = 0
       Width = 437
-      Height = 414
+      Height = 416
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
@@ -88,7 +88,7 @@ object FRM_Main: TFRM_Main
         Left = 0
         Top = 0
         Width = 437
-        Height = 367
+        Height = 369
         HorzScrollBar.Style = ssHotTrack
         VertScrollBar.Style = ssHotTrack
         Align = alClient
@@ -127,7 +127,7 @@ object FRM_Main: TFRM_Main
       end
       object P_WF: TPanel
         Left = 0
-        Top = 367
+        Top = 369
         Width = 437
         Height = 47
         Align = alBottom
@@ -206,7 +206,7 @@ object FRM_Main: TFRM_Main
         Left = 0
         Top = 0
         Width = 437
-        Height = 367
+        Height = 369
         Align = alClient
         BevelOuter = bvNone
         Color = clBlack
@@ -222,7 +222,7 @@ object FRM_Main: TFRM_Main
           Left = 0
           Top = 0
           Width = 437
-          Height = 367
+          Height = 369
           Align = alClient
           Brush.Color = clBlack
           Pen.Style = psClear
@@ -232,7 +232,7 @@ object FRM_Main: TFRM_Main
           Left = 0
           Top = 0
           Width = 437
-          Height = 367
+          Height = 369
           Align = alClient
           AutoSize = False
           Transparent = False
@@ -664,13 +664,13 @@ object FRM_Main: TFRM_Main
       Left = 440
       Top = 0
       Width = 101
-      Height = 414
+      Height = 416
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
       DesignSize = (
         101
-        414)
+        416)
       object lst_others: TListView
         Left = 3
         Top = 84
@@ -777,7 +777,7 @@ object FRM_Main: TFRM_Main
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 414
+    Top = 416
     Width = 541
     Height = 19
     Panels = <
@@ -1011,6 +1011,10 @@ object FRM_Main: TFRM_Main
       object selectkoordranges1: TMenuItem
         Caption = 'selectkoordranges#'
       end
+      object stresstestforaddsolsys1: TMenuItem
+        Caption = 'stress test for add solsys'
+        OnClick = stresstestforaddsolsys1Click
+      end
       object ScansDatumLschen1: TMenuItem
         Caption = 'Scans eines Datums L'#246'schen'
         OnClick = ScansDatumLschen1Click
@@ -1019,8 +1023,12 @@ object FRM_Main: TFRM_Main
         Caption = '-'
       end
       object frmevents1: TMenuItem
-        Caption = 'frm_events'
+        Caption = 'cshelper_ctrl'
         OnClick = frmevents1Click
+      end
+      object closeFreeAudioFiles1: TMenuItem
+        Caption = 'closeFreeAudioFiles'
+        OnClick = closeFreeAudioFiles1Click
       end
     end
   end

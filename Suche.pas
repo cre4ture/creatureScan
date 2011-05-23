@@ -344,10 +344,12 @@ var s_punkte, s_flotte: Integer;
            filterStatus(Planeten[Planet].Status, flags) and
            (Planeten[Planet].TF[0] + Planeten[Planet].TF[1] >= TF)  then
         begin
-          statsplace := ODataBase.Stats.StatPlace(Planeten[Planet].Player);
+          statsplace := ODataBase.Stats.StatPlace(Planeten[Planet].Player,
+            Planeten[Planet].PlayerId);
           statpoints := ODataBase.Stats.Statistik[statsplace].Punkte;
 
-          fleetplace := ODataBase.FleetStats.StatPlace(Planeten[Planet].Player);
+          fleetplace := ODataBase.FleetStats.StatPlace(Planeten[Planet].Player,
+            Planeten[Planet].PlayerId);
           fleetpoints := ODataBase.FleetStats.Statistik[fleetplace].Punkte;
 
           if FilterStats(Planeten[Planet].Player, statsplace, statpoints, fleetplace, fleetpoints) then
@@ -360,10 +362,11 @@ var s_punkte, s_flotte: Integer;
              ItemData^.Koord := P;
              ItemData^.Allianz := Planeten[Planet].Ally;
              ItemData^.Platz := statsplace;
-             ItemData^.FleetPlatz := ODataBase.FleetStats.StatPlace(Planeten[Planet].Player);
-             ItemData^.AllyPlatz := ODataBase.AllyStats.StatPlace(Planeten[Planet].Ally);
+             ItemData^.FleetPlatz := fleetplace;
+             ItemData^.AllyPlatz := ODataBase.AllyStats.StatPlace(Planeten[Planet].Ally,
+               Planeten[Planet].AllyId);
              ItemData^.Punkte := statpoints;
-             ItemData^.FleetPunkte := ODataBase.FleetStats.Statistik[ItemData^.FleetPlatz].Punkte;
+             ItemData^.FleetPunkte := fleetpoints;
              ItemData^.AllyPunkte := ODataBase.AllyStats.Statistik[ItemData^.AllyPlatz].Punkte;
              ItemData^.TF[0] := Planeten[Planet].TF[0];
              ItemData^.TF[1] := Planeten[Planet].TF[1];
