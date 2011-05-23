@@ -1,5 +1,5 @@
 object FRM_Favoriten: TFRM_Favoriten
-  Left = 218
+  Left = 237
   Top = 268
   Width = 1043
   Height = 456

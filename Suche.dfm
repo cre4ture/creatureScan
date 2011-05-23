@@ -1,7 +1,7 @@
 object FRM_Suche: TFRM_Suche
-  Left = 251
-  Top = 277
-  Width = 879
+  Left = 0
+  Top = 184
+  Width = 800
   Height = 386
   Caption = 'Suche in dem Universumsabbild nach...'
   Color = clBtnFace
@@ -20,7 +20,7 @@ object FRM_Suche: TFRM_Suche
   object StatusBar1: TStatusBar
     Left = 0
     Top = 340
-    Width = 871
+    Width = 792
     Height = 19
     Panels = <
       item
@@ -40,17 +40,17 @@ object FRM_Suche: TFRM_Suche
   object P_Top: TPanel
     Left = 0
     Top = 0
-    Width = 871
+    Width = 792
     Height = 101
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      871
+      792
       101)
     object BTN_Suche: TButton
-      Left = 778
+      Left = 699
       Top = 20
       Width = 83
       Height = 25
@@ -61,7 +61,7 @@ object FRM_Suche: TFRM_Suche
       OnClick = BTN_SucheClick
     end
     object CH_Del_Result: TCheckBox
-      Left = 778
+      Left = 699
       Top = 48
       Width = 77
       Height = 17
@@ -77,7 +77,7 @@ object FRM_Suche: TFRM_Suche
       TabOrder = 2
     end
     object BTN_Schliesen: TButton
-      Left = 778
+      Left = 699
       Top = 68
       Width = 83
       Height = 25
@@ -89,7 +89,7 @@ object FRM_Suche: TFRM_Suche
     object PageControl1: TPageControl
       Left = 0
       Top = 0
-      Width = 771
+      Width = 692
       Height = 101
       ActivePage = Search_Normal
       Anchors = [akLeft, akTop, akRight]
@@ -98,7 +98,7 @@ object FRM_Suche: TFRM_Suche
         Caption = 'Player / Planet / Ally'
         OnShow = Search_NormalShow
         DesignSize = (
-          763
+          684
           73)
         object Label1: TLabel
           Left = 4
@@ -122,7 +122,7 @@ object FRM_Suche: TFRM_Suche
           Caption = 'Allianz:'
         end
         object Label6: TLabel
-          Left = 348
+          Left = 269
           Top = 4
           Width = 43
           Height = 13
@@ -132,7 +132,7 @@ object FRM_Suche: TFRM_Suche
         object TXT_Player: TEdit
           Left = 68
           Top = 4
-          Width = 269
+          Width = 190
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 0
@@ -140,7 +140,7 @@ object FRM_Suche: TFRM_Suche
         object TXT_Planet: TEdit
           Left = 68
           Top = 26
-          Width = 501
+          Width = 422
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 1
@@ -148,13 +148,13 @@ object FRM_Suche: TFRM_Suche
         object TXT_ally: TEdit
           Left = 68
           Top = 48
-          Width = 501
+          Width = 422
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 2
         end
         object GroupBox4: TGroupBox
-          Left = 576
+          Left = 497
           Top = 0
           Width = 185
           Height = 73
@@ -182,7 +182,7 @@ object FRM_Suche: TFRM_Suche
           end
         end
         object txt_playerID: TEdit
-          Left = 404
+          Left = 325
           Top = 4
           Width = 165
           Height = 21
@@ -194,7 +194,7 @@ object FRM_Suche: TFRM_Suche
         Caption = 'Status / TFs / Statistiken'
         ImageIndex = 1
         DesignSize = (
-          763
+          684
           73)
         object GroupBox1: TGroupBox
           Left = 0
@@ -271,13 +271,13 @@ object FRM_Suche: TFRM_Suche
         object GroupBox3: TGroupBox
           Left = 360
           Top = 0
-          Width = 401
+          Width = 322
           Height = 73
           Anchors = [akLeft, akTop, akRight]
           Caption = ' Statistiken '
           TabOrder = 2
           DesignSize = (
-            401
+            322
             73)
           object Label4: TLabel
             Left = 12
@@ -352,7 +352,7 @@ object FRM_Suche: TFRM_Suche
           object txt_punkte: TEdit
             Left = 172
             Top = 16
-            Width = 217
+            Width = 138
             Height = 21
             Anchors = [akLeft, akTop, akRight]
             TabOrder = 2
@@ -361,7 +361,7 @@ object FRM_Suche: TFRM_Suche
           object txt_flotte: TEdit
             Left = 172
             Top = 44
-            Width = 217
+            Width = 138
             Height = 21
             Anchors = [akLeft, akTop, akRight]
             TabOrder = 5
@@ -386,7 +386,7 @@ object FRM_Suche: TFRM_Suche
   object VST_Result: TVirtualStringTree
     Left = 0
     Top = 101
-    Width = 871
+    Width = 792
     Height = 239
     Align = alClient
     ClipboardFormats.Strings = (

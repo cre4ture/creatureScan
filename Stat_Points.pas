@@ -87,9 +87,9 @@ type
     property Datum[Platz: Word]: TDateTime read GetDateAtPos;
     property Stats[nr: Integer]: TStat read GetStat;
     destructor Destroy; override;
-    function StatPoints(AName: TPlayername): Cardinal;
-    function StatPlace(AName: TPLayername): Cardinal;
-    function StatAll(AName: TPLayername): TStatPlayer;
+    function StatPoints(AName: TPLayername; APlayerID: Int64): Cardinal;
+    function StatPlace(AName: TPLayername; APlayerID: Int64): Cardinal;
+    function StatAll(AName: TPLayername; APlayerID: Int64): TStatPlayer;
     property Count: Integer read GetCount write SetCount;
     procedure DoWork_Idle(out Ready: Boolean); virtual;
   end;
@@ -124,9 +124,9 @@ type
     FStats: array[TStatNameType,TStatPointType] of TStatPoints;
     
     function StatPoints(nt: TStatNameType; pt: TStatPointType;
-      AName: TPlayerName): Cardinal;
+      AName: TPlayerName; APlayerID: Int64): Cardinal;
     function StatRank(nt: TStatNameType; pt: TStatPointType;
-      AName: TPlayername): Cardinal;
+      AName: TPlayername; APlayerID: Int64): Cardinal;
     function StatInfo(nt: TStatNameType; pt: TStatPointType;
       Rank: Cardinal): TStatPlayer;
     function StatType(nt: TStatNameType; pt: TStatPointType): TStatPoints;
@@ -136,9 +136,9 @@ type
     property Statistic[nt: TStatNameType; pt: TStatPointType;
       rank: Cardinal]: TStatPlayer read StatInfo; default;
     property StatisticPoints[nt: TStatNameType; pt: TStatPointType;
-      AName: TPlayerName]: Cardinal read StatPoints;
+      AName: TPlayerName; APlayerID: Int64]: Cardinal read StatPoints;
     property StatisticRank[nt: TStatNameType; pt: TStatPointType;
-      AName: TPlayerName]: Cardinal read StatRank;
+      AName: TPlayerName; APlayerID: Int64]: Cardinal read StatRank;
     constructor Create(filenameMask: string; UniDomain: String);
     destructor Destroy; override;
     function AddStats(nt: TStatNameType; pt: TStatPointType;
@@ -221,25 +221,33 @@ begin
   inherited;
 end;
 
-function TStatPoints.StatPoints(AName: TPlayername): LongWord;
+function TStatPoints.StatPoints(AName: TPLayername; APlayerID: Int64): Cardinal;
 begin
-  Result := StatAll(AName).Punkte;
+  Result := StatAll(AName,APlayerID).Punkte;
 end;
 
-function TStatPoints.StatPlace(AName: TPLayername): Cardinal;
+function TStatPoints.StatPlace(AName: TPLayername; APlayerID: Int64): Cardinal;
 var i, j: Integer;
     Found: Boolean;
+    block: TStat;
 begin
+  if (AName = '') and (APlayerID < 0) then
+  begin
+    Result := 0;
+    Exit;
+  end;
+
   i := 0;
   j := 0;
   Found := False;
   while (not Found)and(i <= Count-1) do
-  with FStats[i] do
   begin
+    block := FStats[i];
     j := 0;
     while (not Found)and(j <= 99) do
     begin
-      Found := Stats[j].Name = AName;
+      Found := ((APlayerID < 0)and(block.Stats[j].Name = AName))or
+               ((APlayerID >= 0)and(block.Stats[j].NameId = APlayerID));
       inc(j);
     end;
     inc(i);
@@ -249,21 +257,21 @@ begin
   else Result := 0;
 end;
 
-function TStatPoints.StatAll(AName: TPLayername): TStatPlayer;
+function TStatPoints.StatAll(AName: TPLayername; APlayerID: Int64): TStatPlayer;
 begin
-  Result := Statistik[StatPlace(AName)];
+  Result := Statistik[StatPlace(AName, APlayerID)];
 end;
 
 function TStatisticDB.StatPoints(nt: TStatNameType; pt: TStatPointType;
-  AName: TPlayerName): Cardinal;
+  AName: TPlayerName; APlayerID: Int64): Cardinal;
 begin
-  Result := FStats[nt,pt].StatPoints(AName);
+  Result := FStats[nt,pt].StatPoints(AName, APlayerID);
 end;
 
 function TStatisticDB.StatRank(nt: TStatNameType; pt: TStatPointType;
-  AName: TPlayername): Cardinal;
+  AName: TPlayername; APlayerID: Int64): Cardinal;
 begin
-  Result := FStats[nt,pt].StatPlace(AName);
+  Result := FStats[nt,pt].StatPlace(AName, APlayerID);
 end;
 
 function TStatisticDB.StatInfo(nt: TStatNameType; pt: TStatPointType;
@@ -419,6 +427,7 @@ begin
     for i := 0 to length(Stats)-1 do
     begin
       Stats[i].Name := TStat(p^).Stats[i].Name;
+      Stats[i].NameId := TStat(p^).Stats[i].NameId;
       Stats[i].Punkte := TStat(p^).Stats[i].Punkte;
       Stats[i].Ally := TStat(p^).Stats[i].Ally;
       Stats[i].Mitglieder := TStat(p^).Stats[i].Mitglieder;

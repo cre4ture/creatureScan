@@ -1,6 +1,6 @@
 object Explorer: TExplorer
   Left = 313
-  Top = 186
+  Top = 107
   Width = 482
   Height = 463
   Caption = 'Galaxie-Explorer'

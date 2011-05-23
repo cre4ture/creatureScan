@@ -125,6 +125,13 @@ type
     function GetSystem: TsystemCopy;
     procedure ShowMoonHint(Pos: TPlanetPosition);
     procedure SetPosition(pos: TPlanetPosition);
+
+    function getPlayerStatPoints(planet: integer): Integer;
+    function getPlayerStatPlace(planet: integer): Integer;
+    function getPlayerFleetStatPoints(planet: integer): Integer;
+    function getPlayerFleetStatPlace(planet: integer): Integer;
+    function getAllyStatPoints(planet: integer): Integer;
+    function getAllyStatPlace(planet: integer): Integer;
     { Private-Deklarationen }
   public
     Typ: Integer;
@@ -160,7 +167,8 @@ procedure explorer_load(ini: TIniFile);
 
 implementation
 
-uses Main, Notizen, Favoriten, Suche, Languages, Types, StrUtils;
+uses Main, Notizen, Favoriten, Suche, Languages, Types, StrUtils,
+  Stat_Points;
 
 const
   lineheigth = 20;
@@ -565,12 +573,12 @@ begin
                 else CellText := System.Planeten[i].Player;
     col_Ally: CellText := System.Planeten[i].Ally;
     col_Notizen: CellText := '';
-    col_Punkte: CellText := IntToStrKP(ODataBase.Stats.StatPoints(System.Planeten[i].Player));
-    col_Platz: CellText := IntToStr(ODataBase.Stats.StatPlace(System.Planeten[i].Player));
-    col_Fleetpunkte: CellText := IntToStrKP(ODataBase.FleetStats.StatPoints(System.Planeten[i].Player));
-    col_Fleetplatz: CellText := IntToStr(ODataBase.FleetStats.StatPlace(System.Planeten[i].Player));
-    col_Allypunkte: CellText := IntToStrKP(ODataBase.AllyStats.StatPoints(System.Planeten[i].Ally));
-    col_Allyplatz: CellText := IntToStr(ODataBase.AllyStats.StatPlace(System.Planeten[i].Ally));
+    col_Punkte: CellText := IntToStrKP(getPlayerStatPoints(i));
+    col_Platz: CellText := IntToStr(getPlayerStatPlace(i));
+    col_Fleetpunkte: CellText := IntToStrKP(getPlayerFleetStatPoints(i));
+    col_Fleetplatz: CellText := IntToStr(getPlayerFleetStatPlace(i));
+    col_Allypunkte: CellText := IntToStrKP(getAllyStatPoints(i));
+    col_Allyplatz: CellText := IntToStr(getAllyStatPlace(i));
     col_PlayerID: CellText := IfThen(System.Planeten[i].PlayerId >= 0, IntToStr(System.Planeten[i].PlayerId));
   end;
   case Column of
@@ -600,7 +608,7 @@ begin
   if Column = col_Player then
   begin
     i := Node^.Index+1;
-    points := ODataBase.Stats.StatPoints(system.planeten[i].Player);
+    points := getPlayerStatPoints(i);
     if (points > 0) and (ODataBase.Stats_own > 0) then
       TargetCanvas.Font.Color := dPunkteToColor(points-ODataBase.Stats_own,ODataBase.RedHours[rh_Points])
     else TargetCanvas.Font.Color := VST_System.Font.Color;
@@ -689,11 +697,11 @@ begin
   
   if haveSystem and (System.Planeten[Position.P[2]].Player <> '') then
   begin
-    i := ODataBase.Stats.StatPlace(System.Planeten[Position.P[2]].Player);
-    j := ODataBase.FleetStats.StatPlace(System.Planeten[Position.P[2]].Player);
+    i := getPlayerStatPlace(Position.P[2]);
+    j := getPlayerFleetStatPlace(Position.P[2]);
     StatusBar1.Panels[1].Text := STR_Punkte + FloatToStrF(ODataBase.Stats.Statistik[i].Punkte,ffNumber,60000000,0) + ' (' + IntToStr(i) + ')'
                                  + STR_Fleet + FloatToStrF(ODataBase.FleetStats.Statistik[j].Punkte,ffNumber,60000000,0) + ' (' + IntToStr(j) + ')';
-    i := ODataBase.AllyStats.StatPlace(System.Planeten[Position.P[2]].Ally);
+    i := getAllyStatPlace(Position.P[2]);
     StatusBar1.Panels[1].Text := StatusBar1.Panels[1].Text + STR_Ally + FloatToStrF(ODataBase.AllyStats.Statistik[i].Punkte,ffNumber,60000000,0) + ' (' + IntToStr(i) + ')';
   end;
   
@@ -1064,6 +1072,42 @@ begin
   pos[0] := Position.P[0];
   pos[1] := Position.P[1];
   ODataBase.LanguagePlugIn.OpenSolSys(pos);
+end;
+
+function TExplorer.getAllyStatPlace(planet: integer): Integer;
+begin
+  Result := ODataBase.AllyStats.StatPlace(System.Planeten[planet].Ally,
+    System.Planeten[planet].AllyId);
+end;
+
+function TExplorer.getAllyStatPoints(planet: integer): Integer;
+begin
+  Result := ODataBase.AllyStats.StatPoints(System.Planeten[planet].Ally,
+    System.Planeten[planet].AllyId);
+end;
+
+function TExplorer.getPlayerFleetStatPlace(planet: integer): Integer;
+begin
+  Result := ODataBase.FleetStats.StatPlace(System.Planeten[planet].Player,
+    System.Planeten[planet].PlayerId);
+end;
+
+function TExplorer.getPlayerFleetStatPoints(planet: integer): Integer;
+begin
+  Result := ODataBase.FleetStats.StatPoints(System.Planeten[planet].Player,
+    System.Planeten[planet].PlayerId);
+end;
+
+function TExplorer.getPlayerStatPlace(planet: integer): Integer;
+begin
+  Result := ODataBase.Stats.StatPlace(System.Planeten[planet].Player,
+    System.Planeten[planet].PlayerId);
+end;
+
+function TExplorer.getPlayerStatPoints(planet: integer): Integer;
+begin
+  Result := ODataBase.Stats.StatPoints(System.Planeten[planet].Player,
+    System.Planeten[planet].PlayerId);
 end;
 
 end.

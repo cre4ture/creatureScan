@@ -486,30 +486,37 @@ end;
 
 function TUniverseTree.AddNewSolSys(Sys: TSystemCopy): Integer;
 var i : integer;
-    b : Boolean;
+    addSys : Boolean;
 begin
   if not ValidPosition(Sys.System) then
     raise Exception.Create('TUniverseTree.AddNewSolSys: Position out of range');
 
+  // force this unused fields to be initialised!
   Sys.System.P[2] := 1;
   Sys.System.Mond := False;
 
-
+  // search for already existing system for this position
   i := PTreeSys(Sys.System.P[0],Sys.System.P[1])^.SolSys;
-  b := (i = -1);
-  if b then
+  addSys := (i = -1);
+  if addSys then
   begin
+    // if no sys exist, then simply add:
     i := SolSysDB.AddSolSys(Sys);
     PTreeSys(Sys.System.P[0],Sys.System.P[1])^.SolSys := i;
   end
   else
   begin
-    b := (SolSysDB[i].Time_u < sys.Time_u);
-    if b then
+    // if sys exist, check if the new one has a newer timestamp
+    addSys := (SolSysDB[i].Time_u < sys.Time_u);
+    if addSys then
+    begin
+      // if new sys is newer (timestamp) -> replace
       SolSysDB[i] := sys;
+    end;
   end;
 
-  if b then
+  // if system was successfull added, refresh stuff
+  if addSys then
   begin
     Result := i;
     FDeleteScansOfEmptyPlanetsInNewSys(Sys);
@@ -1172,7 +1179,7 @@ procedure TNetUniTree.FSendSolSysToSocket(Sys: TSystemCopy;
   Socket: TSplitSocket);
 var s: string;
 begin
-  s := AnsiToUtf8(SysToXML_(Sys)) + #0;
+  s := AnsiToUtf8(SysToXML_(Sys, '9.9')) + #0;
   Socket.SendPacket(PChar(s)^,length(s)+1);
 
   with Socket.HostSocket as TSocketMultiplex,
@@ -1374,7 +1381,7 @@ procedure TNetUniTree.FSendReportToSocket(report: TScanbericht;
   Socket: TSplitSocket);
 var s: string;
 begin
-  s := AnsiToUtf8(ScanToXML_(report)) + #0;
+  s := AnsiToUtf8(ScanToXML_(report, '9.9')) + #0;
   Socket.SendPacket(PChar(s)^,length(s));
 
   with Socket.HostSocket as TSocketMultiplex,
@@ -1742,6 +1749,10 @@ function TUniverseTree.UniSystem(Gala, SolSys: Integer): TSystemCopy;
 var i: integer;
 begin
   i := UniSys(Gala, SolSys);
+  if (i < 0) then
+    raise Exception.Create(
+      'TUniverseTree.UniSystem(): Sonnensystem nicht vorhanden: ' +
+        IntToStr(Gala) + ':' + IntToStr(SolSys));
   Result := SolSysDB[i];
 end;
 
