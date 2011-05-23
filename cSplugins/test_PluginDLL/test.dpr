@@ -25,13 +25,15 @@ uses
   TIReadPlugin in '..\..\ReadPlugins\TIReadPlugin.pas',
   Bericht_Frame in '..\..\Bericht_Frame.pas' {Frame_Bericht: TFrame},
   Notizen in '..\..\Notizen.pas' {FRM_Notizen},
-  cS_DB_reportFile in '..\..\cS_DB_reportFile.pas';
+  cS_DB_reportFile in '..\..\cS_DB_reportFile.pas',
+  chelper_server in '..\..\chelper_server.pas' {frm_cshelper_ctrl};
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.CreateForm(TFRM_MainTest, FRM_MainTest);
+  Application.CreateForm(Tfrm_cshelper_ctrl, frm_cshelper_ctrl);
   Application.CreateForm(TFRM_Sources, FRM_Sources);
   Application.CreateForm(TFRM_Solsys, FRM_Solsys);
   Application.CreateForm(TFRM_Scan, FRM_Scan);

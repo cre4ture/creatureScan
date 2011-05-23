@@ -37,6 +37,7 @@ type
     procedure m_HtmlChange(Sender: TObject);
   private
     clpCopy: TClipbrdCopy;
+    procedure cshelper_trigger(const text, html: string);
     { Private-Deklarationen }
   public
     plugin_handle: Integer;
@@ -52,6 +53,8 @@ var
   FRM_Sources: TFRM_Sources;
 
 implementation
+
+uses chelper_server;
 
 {$R *.dfm}
 
@@ -99,6 +102,8 @@ begin
   plugin_handle := -1;
 
   CB_ClipboardClick(CB_Clipboard);
+
+  frm_cshelper_ctrl.OnTriggerRead := cshelper_trigger;
 end;
 
 procedure TFRM_Sources.ClipbrdChanged(Sender: TObject);
@@ -234,6 +239,12 @@ begin
   Label2.Top := (m_Text.Top + m_Text.Height + 4);
   Button4.Top := Label2.Top;
   Button5.Top := Button4.Top;
+end;
+
+procedure TFRM_Sources.cshelper_trigger(const text, html: string);
+begin
+  m_Text.Text := text;
+  m_Html.Text := html;
 end;
 
 end.

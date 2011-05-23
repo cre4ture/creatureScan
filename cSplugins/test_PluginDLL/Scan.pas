@@ -348,7 +348,7 @@ var sf: TStringList;
 begin
   sf := TStringList.Create;
   try
-    s := ScanToXML_(Self);
+    s := ScanToXML_(Self, '9.99');
     sf.Add(s);
     sf.Add(Self.QuellText);
     sf.SaveToFile(filename);

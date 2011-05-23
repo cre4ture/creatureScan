@@ -134,6 +134,15 @@ object FRM_MainTest: TFRM_MainTest
       TabOrder = 1
       OnClick = Button9Click
     end
+    object Button11: TButton
+      Left = 88
+      Top = 16
+      Width = 75
+      Height = 25
+      Caption = 'cshelper_server'
+      TabOrder = 2
+      OnClick = Button11Click
+    end
   end
   object txt_serverURL: TEdit
     Left = 8

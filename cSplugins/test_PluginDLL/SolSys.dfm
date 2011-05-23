@@ -1,7 +1,7 @@
 object FRM_Solsys: TFRM_Solsys
   Left = 285
   Top = 147
-  Width = 788
+  Width = 856
   Height = 407
   Caption = 'FRM_Solsys'
   Color = clBtnFace
@@ -13,8 +13,8 @@ object FRM_Solsys: TFRM_Solsys
   OldCreateOrder = False
   OnCreate = FormCreate
   DesignSize = (
-    780
-    380)
+    848
+    382)
   PixelsPerInch = 96
   TextHeight = 13
   object Shape1: TShape
@@ -27,7 +27,7 @@ object FRM_Solsys: TFRM_Solsys
   object VST_Gala: TVirtualStringTree
     Left = 8
     Top = 32
-    Width = 549
+    Width = 617
     Height = 325
     Anchors = [akLeft, akTop, akRight, akBottom]
     Header.AutoSizeIndex = 0
@@ -80,6 +80,14 @@ object FRM_Solsys: TFRM_Solsys
       item
         Position = 9
         WideText = 'playerID'
+      end
+      item
+        Position = 10
+        WideText = 'allyID'
+      end
+      item
+        Position = 11
+        WideText = 'aktivit'#228't'
       end>
   end
   object Button1: TButton
@@ -92,10 +100,11 @@ object FRM_Solsys: TFRM_Solsys
     OnClick = Button1Click
   end
   object VST_Tests: TVirtualStringTree
-    Left = 564
+    Left = 630
     Top = 32
     Width = 185
     Height = 325
+    Anchors = [akTop, akRight]
     Header.AutoSizeIndex = 0
     Header.DefaultHeight = 17
     Header.Font.Charset = DEFAULT_CHARSET
@@ -118,19 +127,21 @@ object FRM_Solsys: TFRM_Solsys
       end>
   end
   object Button2: TButton
-    Left = 564
+    Left = 630
     Top = 4
     Width = 75
     Height = 25
+    Anchors = [akTop, akRight]
     Caption = 'Add'
     TabOrder = 3
     OnClick = Button2Click
   end
   object Button3: TButton
-    Left = 676
+    Left = 742
     Top = 4
     Width = 75
     Height = 25
+    Anchors = [akTop, akRight]
     Caption = 'Delete'
     TabOrder = 4
   end
