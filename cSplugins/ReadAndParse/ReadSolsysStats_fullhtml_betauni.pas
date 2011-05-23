@@ -3,7 +3,8 @@ unit ReadSolsysStats_fullhtml_betauni;
 interface
 
 uses
-  Inifiles, OGame_Types, html, parser, DateUtils, SysUtils, readsource{, Dialogs{};
+  Inifiles, OGame_Types, html, cpp_dll_interface,
+  DateUtils, SysUtils, readsource{, Dialogs{};
 
 const
    HTMLTrimChars = [' ',#$D, #$A, #9];
@@ -370,6 +371,10 @@ begin
           r_nr := ReadInt(trim(tag.FullTagContent),1);
           if r_nr = row_nr then
           begin
+            // clear
+            solsys.Planeten[row_nr].PlayerId := -1;
+            solsys.Planeten[row_nr].AllyId := -1;
+
             //Lese Zeile Ein:
             tag_row.FindTagRoutine(ReadRow_PlanetInfo, @solsys.Planeten[row_nr]);
 
@@ -448,7 +453,6 @@ begin
   if CurElement.TagName = 'td' then
   begin
     row := Data;
-    row^.PlayerId := -1;
     attr_class := CurElement.AttributeValue['class'];
 
     if attr_class = 'position' then
@@ -466,14 +470,14 @@ begin
         s := copy(s,1,p-1);
       row^.PlanetName := trim(s);
       //------------------AKTIVITÄT--------------------------
-      {tag_ := CurElement.FindChildTag('span');
+      tag_ := CurElement.FindChildTag('span');
       if tag_ <> nil then
       begin
         if tag_.AttributeValue['class'] = 'undermark' then
         begin
-          //Letzte Aktivität = IntToStr(tag_.Content);
+          row^.Activity := StrToIntDef(tag_.FullTagContent, 0)*60; // seconds!
         end;
-      end;}
+      end;
     end
     //-------------------------------------------MOND---------------------------
     else
@@ -512,9 +516,20 @@ begin
     else
     if copy(attr_class,1,10) = 'playername' then
     begin
+      // remove status
       tag_ := HTMLFindRoutine_NameAttribute(CurElement,'span','class','status');
       if tag_ <> nil then
         tag_.ClearChilds;
+
+      // remove antigame rank 1.27
+      tag_ := HTMLFindRoutine_NameAttribute(CurElement,'a','class','anti_rank');
+      if tag_ <> nil then
+        tag_.ClearChilds;
+      // remove antigame rank 1.28
+      tag_ := HTMLFindRoutine_NameAttribute(CurElement,'span','class','anti_rank');
+      if tag_ <> nil then
+        tag_.ClearChilds;
+
       tag_ := HTMLFindRoutine_NameAttribute(CurElement,'div','id','TTWrapper');
       if tag_ <> nil then
       begin
@@ -543,10 +558,16 @@ begin
     else
     if attr_class = 'allytag' then
     begin
+      // name
       tag_ := CurElement.FindChildTagPath('span:0/><:0');
       if tag_ <> nil then
       begin
         row^.Ally := trim(tag_.Content);
+
+        // id
+        tag_ := tag_.ParentElement;
+        row^.AllyId := ReadInt(tag_.AttributeValue['rel'], 10);
+
       end
       else
         row^.Ally := '';

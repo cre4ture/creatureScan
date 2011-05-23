@@ -71,13 +71,15 @@ begin
     7: CellText := IntToStr(TF[0]);
     8: CellText := IntToStr(TF[1]);
     9: CellText := IntToStr(PlayerId);
+   10: CellText := IntToStr(AllyId);
+   11: CellText := IntToStr(Activity);
   end;
 end;
 
 procedure TFRM_Solsys.Button1Click(Sender: TObject);
 begin
   FillChar(TestSys,SizeOf(TestSys),0);
-  if plugin.ReadSystem(FRM_Sources.plugin_handle, TestSys) then
+  if plugin.ReadSystem(FRM_Sources.plugin_handle, TestSys, 'ich') then
     Shape1.Brush.Color := cllime
   else Shape1.Brush.Color := clRed;
   Caption := PositionToStrMond(TestSys.System);
