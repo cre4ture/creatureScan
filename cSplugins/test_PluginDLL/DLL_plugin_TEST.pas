@@ -70,7 +70,8 @@ begin
   else
   begin
     OpenDialog1.InitialDir := lastplugin;
-    OpenDialog1.FileName := lastplugin;
+    if FileExists(lastplugin) then
+      OpenDialog1.FileName := lastplugin;
     if OpenDialog1.Execute then
     begin
       loadPlugin(OpenDialog1.FileName);
@@ -83,7 +84,6 @@ begin
   plugin := TLangPlugIn.Create;
 
   Initialise('D:\devel\creatureScan\creatureScan\data\ogame_consts.xml');
-
 end;
 
 procedure TFRM_MainTest.FormDestroy(Sender: TObject);
