@@ -191,7 +191,8 @@ begin
         sys := ODataBase.Systeme[scn];
 
       if ShowSystems and (scn >= 0) then
-        c := AlterToColor_dt(((Now - UnixToDateTime(sys.Time_u))*zf),
+        c := AlterToColor_dt(
+          ((ODataBase.FleetBoard.GameTime.Time - UnixToDateTime(sys.Time_u))*zf),
                           ODataBase.redHours[rh_systems])
       else
         c := clBlack;

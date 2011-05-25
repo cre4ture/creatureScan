@@ -527,9 +527,9 @@ begin
   explorer_Zeitformat := TExplorerZeitFormat(ini.ReadInteger(Section,'TimeFormat',Integer(ezf_Datum)));
   explorer_mouseover := ini.ReadBool(Section,'MouseOver',true);
   explorer_TF_Size := ini.ReadInteger(Section,'TF_Size',20000);
-  explorer_bgcolor_vaction := ini.ReadInteger(Section, 'bgcolor_vacation', Integer(clNavy));
-  explorer_bgcolor_noob := ini.ReadInteger(Section, 'bgcolor_noob', Integer(rgb(0,45,0)));
-  explorer_bgcolor_inactive := ini.ReadInteger(Section, 'bgcolor_inactive', Integer(clMaroon));
+  explorer_bgcolor_vaction := ini.ReadInteger(Section, 'bgcolor_vacation', 4194304);
+  explorer_bgcolor_noob := ini.ReadInteger(Section, 'bgcolor_noob', 11520);
+  explorer_bgcolor_inactive := ini.ReadInteger(Section, 'bgcolor_inactive', 64);
 
   explorer_links := TStringList.Create;
   ini.ReadSection('explorer_links',explorer_links);
