@@ -245,6 +245,8 @@ procedure TFRM_Sources.cshelper_trigger(const text, html: string);
 begin
   m_Text.Text := text;
   m_Html.Text := html;
+  // force update of text even is not changed:
+  m_TextChange(Self);
 end;
 
 end.

@@ -351,6 +351,19 @@ begin
     solsys.System.Mond := false;   }
 
 
+    // try to find the "cshelper"-tag:
+    if (table.ParentElement <> nil) then
+    begin
+      tag := table.ParentElement.FindChildTag('cshelper');
+      if (tag <> nil) then
+      begin
+        solsys.System.P[0] := StrToIntDef(tag.AttributeValue['galaxy'], 0);
+        solsys.System.P[1] := StrToIntDef(tag.AttributeValue['system'], 0);
+        solsys.System.P[2] := 1;
+        solsys.System.Mond := false;
+        got_koords := ValidPosition(solsys.System); // when this position is valid -> success!
+      end;
+    end;
 
     if tbody <> nil then
       tbody.ChildsMove(table);
