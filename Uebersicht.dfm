@@ -1,6 +1,6 @@
 object FRM_Uebersicht: TFRM_Uebersicht
-  Left = 0
-  Top = 222
+  Left = 351
+  Top = 596
   Width = 800
   Height = 295
   HorzScrollBar.Size = 8
@@ -25,13 +25,13 @@ object FRM_Uebersicht: TFRM_Uebersicht
     Left = 567
     Top = 81
     Width = 225
-    Height = 187
+    Height = 189
     Align = alRight
   end
   object Splitter1: TSplitter
     Left = 564
     Top = 81
-    Height = 187
+    Height = 189
     Align = alRight
   end
   object Panel1: TPanel
@@ -129,7 +129,7 @@ object FRM_Uebersicht: TFRM_Uebersicht
     Left = 0
     Top = 81
     Width = 443
-    Height = 187
+    Height = 189
     Align = alClient
     BorderStyle = bsNone
     TabOrder = 1
@@ -152,7 +152,7 @@ object FRM_Uebersicht: TFRM_Uebersicht
     Left = 443
     Top = 81
     Width = 121
-    Height = 187
+    Height = 189
     Align = alRight
     ItemHeight = 13
     PopupMenu = PopupMenu2
