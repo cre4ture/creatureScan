@@ -190,9 +190,6 @@ function cshelper_pageLoad(event_pageload) {
 	var href = document.location.href;
 	var window = document.defaultView;
 	
-	// inject some script functions to reliable access galaview-coordinates: <cshelper galaxy="X" system="XXX"/>
-	window.location.href = "javascript:var code = loadContent.toString().split(\"$.post(url, params, displayContent);\");var newcode = code[0] + \"var jobj = $.post(url, params, displayContent); jobj.req_params = params;\" + code[1];eval(newcode);var code = displayContent.toString().split(\"displayContent(data) {\");var newcode = code[0] + \"displayContent(data, status, jobj) { data = '<cshelper galaxy=' + jobj.req_params.galaxy + ' system=' + jobj.req_params.system + '/>' + data;\" + code[1];eval(newcode);"
-	
 	// is this a ogame site ?
 	if (document.location.href.search("/game/index.php") <= -1) {
 		return; // exit if no ogame site
@@ -267,6 +264,9 @@ function cshelper_pageLoad(event_pageload) {
 	
 	else if ((document.location.href.search("page=galaxy") > -1))
 	{
+		// inject some script functions to reliable access galaview-coordinates: <cshelper galaxy="X" system="XXX"/>
+		window.location.href = "javascript:var code = loadContent.toString().split(\"$.post(url, params, displayContent);\");var newcode = code[0] + \"var jobj = $.post(url, params, displayContent); jobj.req_params = params;\" + code[1];eval(newcode);var code = displayContent.toString().split(\"displayContent(data) {\");var newcode = code[0] + \"displayContent(data, status, jobj) { data = '<cshelper galaxy=' + jobj.req_params.galaxy + ' system=' + jobj.req_params.system + '/>' + data;\" + code[1];eval(newcode);"
+		
 		var inhalt = document.getElementById('inhalt'); 
 		inhalt.addEventListener("DOMNodeInserted", inhalt_ajax_handler_galaxy, true);
 		cshelper_myTestLog(document, 'Galaxy detected!');
