@@ -82,7 +82,7 @@ function cSsql_get_report_by_id($id)
   
   $query = "SELECT *
             FROM `".$sqlconf['report_table']."`
-            WHERE (report.ID = '$id')";
+            WHERE (`ID` = '$id')";
   
   $sql = mysql_query($query);
   if (!$sql) exit("SQL: ".mysql_error());
@@ -345,6 +345,172 @@ function cSsql_get_solsys_times_timestamp($from, $to)
   }
   
   return $result;
+}
+
+function cSsql_get_stats_times_type($ntype, $ptype)
+{
+  global $sqlconf;
+  
+  $ntype = mysql_escape_string($ntype);
+  $ptype = mysql_escape_string($ptype);
+  
+  $query = "SELECT `partnr`, max(`time`) time 
+            FROM `".$sqlconf['stats_table']."` 
+            WHERE ( `ntype` = '".$ntype."'
+            		AND `ptype` = '".$ptype."' )
+	          GROUP BY `partnr`, `ntype`, `ptype`
+						ORDER BY `partnr` ASC";
+            
+  //echo $query;
+  
+  $sql = mysql_query($query);
+  $result = false;
+  if (!cSsql_write_error($sql))
+  {
+    $result = Array();
+    while ($stat = mysql_fetch_array($sql, MYSQL_ASSOC))  
+    {
+      $result[$stat['partnr']] = $stat['time'];
+    }
+  }
+  
+  return $result;
+}
+
+function cSsql_add_new_stats(&$stats)
+{
+  global $sqlconf;
+
+  $head = &$stats['head'];
+  $ranks = &$stats['ranks'];
+  
+  $firstpos = $head['first'];
+  if (($firstpos % 100) != 1) {
+  	return_error('stats', '1', 'stat-parts with startpos other than x01 not supported!!');
+		return false;
+	}
+	unset($head['first']);
+	$head['partnr'] = floor($firstpos / 100);
+
+  $head['timestamp'] = time();
+  $head['uploader'] = $_SESSION['username'];
+  
+  $partnr = mysql_escape_string($head['partnr']);
+  $ntype = mysql_escape_string($head['ntype']);
+  $ptype = mysql_escape_string($head['ptype']);
+  $time = mysql_escape_string($head['time']);
+  
+  $sql = mysql_query("SELECT `ID` 
+                      FROM `".$sqlconf['stats_table']."` 
+                      WHERE `partnr` = '$partnr' 
+											AND `ntype` = '$ntype' 
+											AND `ptype` = '$ptype' 
+											AND `time` >= '$time'
+                      LIMIT 0, 1");
+	
+  if ((!cSsql_write_error($sql))and  // kein fehler
+      (!($ret = mysql_fetch_assoc($sql)))) // noch nicht vorhanden
+  {
+    // insert stats-header
+    $query = array_to_insertquery($sqlconf['stats_table'], $head);
+		$sql = mysql_query($query);
+		if (!cSsql_write_error($sql))
+    {
+      // insert ranks
+      $head['id'] = mysql_insert_id();
+      foreach ($ranks as $key => $value)
+      {
+        $value['pos'] = $key;
+        $value['statsID'] = $head['id'];
+        $query = array_to_insertquery($sqlconf['stats_rank_table'], $value);
+				$sql = mysql_query($query);
+				if (cSsql_write_error($sql))
+        {
+          // error -> delete incomplete solsys
+          cSsql_delete_stats_id($head['id']);
+          return false;
+        }
+      }     
+    } else return false;        
+  } else return false;
+  
+  return true;  
+}
+
+function cSsql_delete_stats_id($id) 
+{
+  global $sqlconf;
+  
+  $id = mysql_escape_string($id);
+  $query = "DELETE FROM `".$sqlconf['stats_table']."` WHERE (`ID` = '$id');
+            DELETE FROM `".$sqlconf['stats_rank_table']."` WHERE (`statsID` = '$id');";
+            
+  $sl = explode(';',$query);
+  foreach ($sl as $key => $line)
+  { 
+    if ($line != '')
+    {  
+      $sql = mysql_query($line);
+      cSsql_write_error($sql);
+    }
+  }
+}
+
+function cSsql_private_get_stats_from_query($query)
+{
+  global $sqlconf;
+
+  $sql = mysql_query($query);
+  if (!cSsql_write_error($sql))
+  {
+    $row = mysql_fetch_assoc($sql);
+		if ($row) 
+		{
+	    $stats = Array();
+	    $row['first'] = ($row['partnr']*100) + 1;
+	    unset($row['partnr']);
+	    $stats['head'] = $row;
+	    $stats['ranks'] = Array();
+	    
+	    $query = "SELECT * 
+	              FROM `".$sqlconf['stats_rank_table']."` 
+	              WHERE `statsID`='".$stats['head']['ID']."' 
+	              ORDER BY `pos` ASC ";
+	    
+	    $sql = mysql_query($query);
+	    if (!cSsql_write_error($sql))
+	    {
+	      $count = 0;
+	      while ($rank = mysql_fetch_assoc($sql)) 
+	      {
+	        $stats['ranks'][$rank['pos']] = $rank;
+	        $count++;
+	      }
+	      $stats['head']['count'] = $count;
+	    }
+	    return $stats;
+	  }
+  }
+	return false;
+}
+
+function cSsql_get_stats_by_type($ntype, $ptype, $partnr)
+{
+  global $sqlconf;
+  
+  $ntype = mysql_escape_string($ntype);
+  $ptype = mysql_escape_string($ptype);
+  $partnr = mysql_escape_string($partnr);
+  
+  $query = "SELECT *
+            FROM `".$sqlconf['stats_table']."`
+            WHERE (`partnr` = '$partnr'
+								AND `ntype` = '$ntype'
+								AND `ptype` = '$ptype')
+						ORDER BY `time` DESC
+						LIMIT 0, 1";
+  
+  return cSsql_private_get_stats_from_query($query);
 }
 
 // ------------ OPTIONAL -------------------------------------------------------

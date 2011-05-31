@@ -98,6 +98,25 @@ function cSxml_sxml_to_solsys($xml)
   return $solsys;
 }
 
+/* converts a simplexmldom-structure to a stats-part */
+function cSxml_sxml_to_stats($xml)
+{
+  if ($xml['name'] != 'stats')
+    return false;
+    
+  $stats = Array();
+  $stats['head'] = $xml['attrs'];
+  $stats['ranks'] = Array();
+
+  if (isset($xml['children']))
+    foreach ($xml['children'] as $index => $childtag)
+    {
+      $stats['ranks'][$childtag['attrs']['pos']] = $childtag['attrs'];
+    }
+  
+  return $stats;
+}
+
 /* converts a solsys to a simplexmldom-structure */
 function cSxml_solsys_to_sxml($solsys)
 {
@@ -116,6 +135,34 @@ function cSxml_solsys_to_sxml($solsys)
     $child = Array();
     $child['name'] = 'planet';
     $child['attrs'] = cSxml_private_remove_zero($planet);
+    $child['parent'] = &$xml;
+    
+    $xml['children'][] = $child;
+  }
+  
+  return $xml;
+}
+
+/* converts a stats-part to a simplexmldom-structure */
+function cSxml_stats_to_sxml($stats)
+{
+  $xml['name'] = 'stats';
+  $xml['attrs'] = cSxml_private_remove_zero($stats['head']);
+  $xml['children'] = Array();
+  
+  foreach ($stats['ranks'] as $pos => $rank)
+  {
+    if (!isset($rank['pos']))
+      $rank['pos'] = $pos;
+    else
+      if ($rank['pos'] != $pos)
+        exit("<error>inconsistent data found (cSxml_stats_to_sxml)</error>");
+        
+    unset($rank['statsID']);
+  
+    $child = Array();
+    $child['name'] = 'rank';
+    $child['attrs'] = cSxml_private_remove_zero($rank);
     $child['parent'] = &$xml;
     
     $xml['children'][] = $child;

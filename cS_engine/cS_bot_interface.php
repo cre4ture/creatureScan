@@ -79,6 +79,7 @@ function ibot_private_read_write_handler($root)
 $ibot_taghandler['write'] = Array();
 $ibot_taghandler['write']['report'] = 'ibot_private_write_handler_report';
 $ibot_taghandler['write']['solsys'] = 'ibot_private_write_handler_solsys';
+$ibot_taghandler['write']['stats']  = 'ibot_private_write_handler_stats';
 
 $ibot_taghandler['read'] = Array();
 $ibot_taghandler['read']['report_id'] = 'ibot_private_read_handler_report_id';
@@ -86,9 +87,8 @@ $ibot_taghandler['read']['serverinfo'] = 'ibot_private_read_handler_serverinfo';
 $ibot_taghandler['read']['reporttimes_gala'] = 'ibot_private_read_handler_reporttimes_gala';
 $ibot_taghandler['read']['solsystimes_timestamp'] = 'ibot_private_read_handler_solsystimes_timestamp';
 $ibot_taghandler['read']['solsys_pos'] = 'ibot_private_read_handler_solsys_pos';
-
-
-
+$ibot_taghandler['read']['stats_type'] = 'ibot_private_read_handler_stats_type';
+$ibot_taghandler['read']['statstimes_type'] = 'ibot_private_read_handler_statstimes_type';
 
 function ibot_private_write_handler_report($tag)
 {
@@ -114,6 +114,19 @@ function ibot_private_write_handler_solsys($tag)
     }
   }
   else echo "<error type=\"xml\">failed reading solsys</error>";
+}
+
+function ibot_private_write_handler_stats($tag)
+{
+  $stats = cSxml_sxml_to_stats($tag);
+  if ($stats)
+  {
+    if (!cSsql_add_new_stats($stats))
+    {
+      echo "<error type=\"sql\">failed adding stats</error>";
+    }
+  }
+  else echo "<error type=\"xml\">failed reading stats</error>";
 }
 
 function ibot_private_read_handler_report_id($tag)
@@ -214,6 +227,25 @@ function ibot_private_read_handler_solsystimes_timestamp($tag)
   else echo "<error type=\"sql\">failed get solsystimes list</error>";
 }
 
+function ibot_private_read_handler_statstimes_type($tag)
+{
+  $ntype = ign_udef_index($tag['attrs'],'ntype');
+  $ptype = ign_udef_index($tag['attrs'],'ptype');
+  
+  $times = cSsql_get_stats_times_type($ntype, $ptype);
+  
+  if (is_array($times))
+  {
+    echo '<statstimes_type ntype="'.$ntype.'" ptype="'.$ptype.'">';
+    foreach($times as $partnr => $time)
+    {
+      echo '<statstime partnr="'.$partnr.'" time="'.$time.'"/>';
+    }
+    echo "</statstimes_type>";
+  }
+  else echo "<error type=\"sql\">failed get statstimes list</error>";
+}
+
 function ibot_private_read_handler_solsys_pos($tag)
 {
   $gala = $tag['attrs']['gala'];
@@ -225,6 +257,20 @@ function ibot_private_read_handler_solsys_pos($tag)
     echo xmldom_public_generate_xml(cSxml_solsys_to_sxml($solsys));
   }
   else echo "<error type=\"sql\">failed get solsys at [$gala:$sys]</error>";
+}
+
+function ibot_private_read_handler_stats_type($tag)
+{
+  $ntype = $tag['attrs']['ntype'];
+  $ptype = $tag['attrs']['ptype'];
+  $partnr = $tag['attrs']['partnr'];
+  
+  $stats = cSsql_get_stats_by_type($ntype, $ptype, $partnr);
+  if ($stats)
+  {
+    echo xmldom_public_generate_xml(cSxml_stats_to_sxml($stats));
+  }
+  else echo "<error type=\"sql\">failed get stats at ntype:$ntype ptype=$ptype partnr:$partnr</error>";
 }
 
 ?>
