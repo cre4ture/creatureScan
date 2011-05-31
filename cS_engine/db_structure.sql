@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: May 01, 2011 at 06:59 PM
+-- Generation Time: May 31, 2011 at 11:00 AM
 -- Server version: 5.0.67
 -- PHP Version: 5.2.14
 
@@ -117,6 +117,23 @@ CREATE TABLE `planet` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `rank`
+--
+
+CREATE TABLE `rank` (
+  `statsID` bigint(20) NOT NULL,
+  `pos` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `points` bigint(20) NOT NULL,
+  `nameid` bigint(20) NOT NULL,
+  `alliance` varchar(255) default NULL,
+  `members` int(11) default NULL,
+  PRIMARY KEY  (`statsID`,`pos`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `report`
 --
 
@@ -197,6 +214,24 @@ CREATE TABLE `solsys` (
   `author` varchar(25) NOT NULL default '',
   `timestamp` bigint(20) unsigned NOT NULL default '0',
   `uploader` varchar(25) NOT NULL default '',
+  PRIMARY KEY  (`ID`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `stats`
+--
+
+CREATE TABLE `stats` (
+  `ID` bigint(20) unsigned NOT NULL auto_increment,
+  `partnr` int(10) unsigned NOT NULL,
+  `count` int(11) NOT NULL,
+  `ntype` varchar(255) NOT NULL,
+  `ptype` varchar(255) NOT NULL,
+  `time` bigint(20) NOT NULL,
+  `timestamp` bigint(20) NOT NULL,
+  `uploader` varchar(255) NOT NULL,
   PRIMARY KEY  (`ID`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
