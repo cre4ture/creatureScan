@@ -6,6 +6,9 @@
   $pos_count[1] = 499;
   $pos_count[2] = 15;
 
+  $sqlconf['stats_table'] = 'stats';
+  $sqlconf['stats_rank_table'] = 'rank';
+
   $sqlconf['solsys_table'] = 'solsys';
   $sqlconf['solsys_planet_table'] = 'planet';
   
