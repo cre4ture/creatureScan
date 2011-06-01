@@ -7,9 +7,13 @@ uses
   ExtCtrls, ComCtrls, Grids, VirtualTrees, OGame_Types, Prog_Unit, StdCtrls,
   Menus, Add_KB, TThreadSocketSplitter, syncobjs, MergeSocket, cS_networking,
   SplitSocket, RaidBoard, cS_DB, notifywindow, notify_fleet_arrival,
-  ImgList, zeit_sync;
+  ImgList, zeit_sync, StatusThread;
 
 type
+  TSyncResultData = record
+    delta: TDateTime;
+    success: boolean;
+  end;
   TFRM_KB_List = class(TForm)
     PageControl1: TPageControl;
     TS_KB_laufend: TTabSheet;
@@ -41,7 +45,6 @@ type
     N2: TMenuItem;
     tim_take_focus_again: TTimer;
     procedure tim_time_sync_autoTimer(Sender: TObject);
-    procedure btn_time_syncClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure VST_RAIDGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType;
@@ -80,14 +83,19 @@ type
       HitInfo: TVTHeaderHitInfo);
     procedure ScanZiel1Click(Sender: TObject);
     procedure tim_take_focus_againTimer(Sender: TObject);
+    procedure btn_time_syncClick(Sender: TObject);
   private
     { Private-Deklarationen }
     SortDirection_Raids: TSortDirection;
     SortColumn_Raids: Integer;
     notify_grp: TNotify_frm_grp;
+    sync_thread: TSimpleThread;
     function Node_Find(rd: Integer; VST: TVirtualStringTree): PVirtualNode;
     function findFleet_notify_window(fleet: TFleetEvent): Tfrm_fleet_arrival;
     procedure RefreshNotifyWindows(Sender: TObject);
+    procedure runTimeSync_Thread(Sender: TSimpleThread);
+    function setProgressBar(Sender: TObject; Data: pointer): Integer;
+    function setTimeSyncResult(Sender: TObject; Data: pointer): Integer;
   public
     function gameNow_u: int64;
     function gameNow: TDateTime;
@@ -109,6 +117,8 @@ uses Main, Languages, Connections, Math, DateUtils, OtherTime, IdException;
 
 procedure TFRM_KB_List.FormCreate(Sender: TObject);
 begin
+  sync_thread := nil;
+
   notify_grp := TNotify_frm_grp.Create(Application);
 
   VST_RAID.NodeDataSize := SizeOf(Integer);
@@ -216,76 +226,6 @@ begin
   VST_HISTORY.SortTree(SortColumn_Raids,SortDirection_Raids);
 
   RefreshNotifyWindows(Sender);
-end;
-
-procedure TFRM_KB_List.btn_time_syncClick(Sender: TObject);
-var server_time: TDateTime;
-    url: string;
-    i: integer;
-    last_delta_1, last_delta_2, last_delta_3, delta: TDateTime;
-begin
-  btn_time_sync.Enabled := false;
-
-
-  url := 'http://' + ODataBase.UniCheckName +
-                          '.' + ODataBase.game_domain +
-                          '/robots.txt';
-
-  ProgressBar1.Position := 0;
-  ProgressBar1.Max := 10;
-  ProgressBar1.Visible := true;
-  try
-    i := 0;
-    last_delta_1 := 100;
-    last_delta_2 := 100;
-    last_delta_3 := 100;
-    delta := 50;
-    while (abs(last_delta_1 - delta) > 1/24/60/60) or
-          (abs(last_delta_2 - delta) > 1/24/60/60) or
-          (abs(last_delta_3 - delta) > 1/24/60/60) do
-    begin
-      try
-        if not get_server_time_http(url, server_time) then
-          raise Exception.Create('error getting time from server');
-        ODataBase.FleetBoard.GameTime.setTime(server_time);
-
-        last_delta_3 := last_delta_2;
-        last_delta_2 := last_delta_1;
-        last_delta_1 := delta;
-        delta := ODataBase.FleetBoard.GameTime.TimeDelta;
-
-      except
-        on EIdConnectTimeout do
-        begin
-          sleep(1000); // ignore, and try again
-        end;
-      end;
-
-      inc(i);
-      ProgressBar1.Position := i;
-      if i > 10 then
-        raise Exception.Create('unable to sync!');
-
-      sleep(200);
-    end;
-
-    ODataBase.FleetBoard.GameTime.TimeDelta := (delta + last_delta_1 + last_delta_2 + last_delta_3) / 4;
-
-    sh_servertime.Brush.Color := clLime;
-  except
-    sh_servertime.Brush.Color := clRed;
-  end;
-
-  ProgressBar1.Visible := False;
-  delta := ODataBase.FleetBoard.GameTime.TimeDelta;
-  if delta > 0 then
-    lbl_servertime_.Hint := '+ ' + TimeToStr(delta)
-  else
-    lbl_servertime_.Hint := '- ' + TimeToStr(delta);
-
-  lbl_servertime_.ShowHint := True;
-
-  btn_time_sync.Enabled := true;
 end;
 
 procedure TFRM_KB_List.entf1Click(Sender: TObject);
@@ -663,6 +603,7 @@ begin
 end;
 
 procedure TFRM_KB_List.tim_time_sync_autoTimer(Sender: TObject);
+var thread: TSimpleThread;
 begin
   tim_time_sync_auto.Enabled := False;
   btn_time_syncClick(Sender);
@@ -795,6 +736,115 @@ begin
   tim_take_focus_again.Enabled := false;
   Application.BringToFront;
   Self.SetFocus;
+end;
+
+procedure TFRM_KB_List.runTimeSync_Thread(Sender: TSimpleThread);
+var server_time: TDateTime;
+    url: string;
+    i, pc: integer;
+    last_delta_1, last_delta_2, last_delta_3, delta: TDateTime;
+    myGameTime: TDeltaSystemTime;
+    result: TSyncResultData;
+begin
+  url := 'http://' +
+    ODataBase.UniCheckName + '.' +
+    ODataBase.game_domain + '/robots.txt';
+
+  Sender.FreeOnTerminate := true; // auto free at end!
+                          
+  myGameTime := TDeltaSystemTime.Create();
+  try
+    pc := 0;
+    Sender.SynchroniseNotifyDataFunction(setProgressBar, Sender, @pc);
+    try
+      i := 0;
+      last_delta_1 := 100;
+      last_delta_2 := 100;
+      last_delta_3 := 100;
+      delta := 50;
+      while (abs(last_delta_1 - delta) > 1/24/60/60) or
+            (abs(last_delta_2 - delta) > 1/24/60/60) or
+            (abs(last_delta_3 - delta) > 1/24/60/60) do
+      begin
+        try
+          if not get_server_time_http(url, server_time) then
+            raise Exception.Create('error getting time from server');
+
+          myGameTime.setTime(server_time);
+          last_delta_3 := last_delta_2;
+          last_delta_2 := last_delta_1;
+          last_delta_1 := delta;
+          delta := myGameTime.TimeDelta;
+
+        except
+          on EIdConnectTimeout do
+          begin
+            sleep(1000); // ignore, and try again
+          end;
+        end;
+
+        inc(i);
+        pc := i*10;
+        Sender.SynchroniseNotifyDataFunction(setProgressBar, Sender, @pc);
+        if i > 10 then
+          raise Exception.Create('unable to sync!');
+
+        sleep(200);
+      end;
+
+      myGameTime.TimeDelta := (delta + last_delta_1 + last_delta_2 + last_delta_3) / 4;
+
+      result.success := true;
+    except
+      result.success := false;
+    end;
+
+    result.delta := myGameTime.TimeDelta;
+    Sender.SynchroniseNotifyDataFunction(setTimeSyncResult, Sender, @result);
+  finally
+    myGameTime.Free;
+  end;
+end;
+
+function TFRM_KB_List.setProgressBar(Sender: TObject;
+  Data: pointer): Integer;
+begin
+  ProgressBar1.Position := integer(Data^);
+end;
+
+function TFRM_KB_List.setTimeSyncResult(Sender: TObject;
+  Data: pointer): Integer;
+var syncData: TSyncResultData;
+begin
+  ProgressBar1.Visible := false;
+  btn_time_sync.Enabled := true;
+
+  syncData := TSyncResultData(Data^);
+  if syncData.success then
+    sh_servertime.Brush.Color := clLime
+  else
+    sh_servertime.Brush.Color := clRed;
+
+  if syncData.delta > 0 then
+    lbl_servertime_.Hint := '+ ' + TimeToStr(syncData.delta)
+  else
+    lbl_servertime_.Hint := '- ' + TimeToStr(syncData.delta);
+
+  lbl_servertime_.ShowHint := True;
+
+  ODataBase.FleetBoard.GameTime.TimeDelta := syncData.delta;
+
+  sync_thread := nil; // thread will free itself!
+end;
+
+procedure TFRM_KB_List.btn_time_syncClick(Sender: TObject);
+begin
+  if (sync_thread = nil) then
+  begin
+    ProgressBar1.Visible := true;
+    btn_time_sync.Enabled := false;
+    sync_thread := TSimpleThread.Create(runTimeSync_Thread);
+  end;
 end;
 
 end.
