@@ -1,6 +1,6 @@
 object FRM_KB_List: TFRM_KB_List
-  Left = 236
-  Top = 404
+  Left = 224
+  Top = 380
   Width = 802
   Height = 340
   Caption = 'Raid Liste'
