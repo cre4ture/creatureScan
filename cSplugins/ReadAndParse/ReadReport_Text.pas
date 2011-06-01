@@ -3,7 +3,8 @@ unit ReadReport_Text;
 interface
 
 uses
-  Inifiles, OGame_Types, SysUtils, DateUtils, Classes, regexpname;
+  Inifiles, OGame_Types, SysUtils, DateUtils, Classes, regexpname,
+  html;
 
 const
   SB_KeyWord_Count = 12;
@@ -31,10 +32,13 @@ type
     function _ScanHeadToStr(Head: TScanHead): string;
     function _ReadActivity(var Head: TScanHead; scan_body: string): Boolean;
     function _SetTime(month, day, h, m, s: integer): Int64;
+    procedure analyseAndPrepareHTML(html: THTMLElement);
+    function checkTagAnalyseRoutine(CurElement: THTMLElement; Data: pointer): Boolean;
   public
     constructor Create(ini: TIniFile);
     destructor Destroy; override;
     function Read(text: String;  reportlist: TReadReportList): integer;
+    function ReadHTML(html: THTMLElement;  reportlist: TReadReportList): integer;
     function ReportToString(report: TScanBericht; table: Boolean): String;
 
     //for use in ReadPhalanxScan public:
@@ -338,7 +342,8 @@ begin
       Head.Position.P[0] := StrToInt(regex.getsubexpr('p0'));
       Head.Position.P[1] := StrToInt(regex.getsubexpr('p1'));
       Head.Position.P[2] := StrToInt(regex.getsubexpr('p2'));
-      Head.Position.Mond := (regex.getsubexpr('moon') <> '');
+      Head.Position.Mond := (regex.getsubexpr('moon') <> '') or
+                            (regex.getsubexpr('kmoon') <> '');
 
       M := StrToInt(regex.getsubexpr('m'));
       D := StrToInt(regex.getsubexpr('d'));
@@ -573,6 +578,66 @@ begin
   DecodeDate(UnixToDateTime(Head.Time_u),y,m,d);
   result := Result + SB_KWords[8]{am } + inttostr(m) + '-' + inttostr(d) +
             SB_KWords[3]{ } + TimeToStr(UnixToDateTime(Head.Time_u)) + #13 + #10;
+end;
+
+function TReadReport_Text.ReadHTML(html: THTMLElement;
+  reportlist: TReadReportList): integer;
+var text: string;
+begin
+  analyseAndPrepareHTML(html);
+  text := HTMLGenerateHumanReadableText(html);
+  Result := Read(text, reportlist);
+end;
+
+procedure TReadReport_Text.analyseAndPrepareHTML(html: THTMLElement);
+begin
+  html.DeleteTagRoutine(checkTagAnalyseRoutine, nil);
+end;
+
+function TReadReport_Text.checkTagAnalyseRoutine(CurElement: THTMLElement;
+  Data: pointer): Boolean;
+var btn_tag, koords_tag, text_tag: THTMLElement;
+    href, ismond: string;
+    regexp: Tregexpn;
+    pos_header, pos_btn: TPlanetPosition;
+const regexp_for_href = 'galaxy=(?<galaxy>[0-9]+)&amp;system=(?<system>[0-9]+)&amp;position=(?<position>[0-9]+)&amp;type=(?<type>[0-9]+)&amp;mission=(?<mission>[0-9]+)';
+begin
+  Result := false;
+  try
+    if (CurElement.TagName = 'div') and
+       (CurElement.AttributeValue['id'] = 'showSpyReportsNow') then
+    begin
+      koords_tag := CurElement.FindChildTagPath_e('table:0/tbody:0/tr:0/th:0/a:0/><:0');
+      pos_header := StrToPositionEx(trim(koords_tag.Content));
+
+      btn_tag := CurElement.FindChildTagPath_e('table:6/tbody:0/tr:1/td:x/a:0');
+      if (btn_tag.AttributeValue['class'] = 'buttonSave') then
+      begin
+        href := btn_tag.AttributeValue['href'];
+        regexp := Tregexpn.Create;
+        try
+          regexp.setexpression(regexp_for_href);
+          if (regexp.match(href)) then // be sure its the same report!
+          begin
+            pos_btn.P[0] := StrToInt(regexp.getsubexpr('galaxy'));
+            pos_btn.P[1] := StrToInt(regexp.getsubexpr('system'));
+            pos_btn.P[2] := StrToInt(regexp.getsubexpr('position'));
+            pos_btn.Mond := false;
+
+            if SamePlanet(pos_header, pos_btn) then
+            begin
+              pos_btn.Mond := (regexp.getsubexpr('type') = '3');
+              koords_tag.Content := '[' + PositionToStrMond(pos_btn) + ']';
+            end;
+          end;
+        finally
+          regexp.Free;
+        end;
+      end;
+    end;
+  except
+    // nothing!
+  end;
 end;
 
 end.

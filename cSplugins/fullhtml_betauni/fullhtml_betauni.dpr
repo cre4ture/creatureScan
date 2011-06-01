@@ -39,7 +39,7 @@ type
 
 
 const
-  iopluginVersion = 27;
+  iopluginVersion = 28;
 
   RA_KeyWord_Count = 5;
   ST_KeyWord_Count = 2;
@@ -234,11 +234,11 @@ begin
   Result := -1;
   if not _get_RS(Handle, rs) then Exit;
 
-  // workaround cause csHelper only copies HTML Code
-  rs.generateTextIfMissing;
-
   rs.readscanlist.clear;
-  Result := ReportRead.Read(rs.GetText(), rs.readscanlist);
+  if (rs.GetHTMLString <> '') then
+    Result := ReportRead.ReadHTML(rs.GetHTMLRoot, rs.readscanlist)
+  else
+    Result := ReportRead.Read(rs.GetText(), rs.readscanlist);
   rs.rsl_index := 0;
 end;
 

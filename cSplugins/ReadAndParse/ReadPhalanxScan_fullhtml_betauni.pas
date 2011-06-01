@@ -203,12 +203,11 @@ end;
 function ThtmlPhalanxRead_betauni.checkTags(CurElement: THTMLElement;
   Data: pointer): Boolean;
 begin
-  Result := false;
-  if (CurElement.TagName = 'div') then
+  Result := false; // never delete!
+  if (CurElement.TagName = 'tr') then
   begin
     if (Copy(CurElement.AttributeValue['id'],1,8) = 'eventRow') then
     begin
-      Result := True;
       readHtmlTag(CurElement);
     end;
   end;
@@ -246,7 +245,8 @@ function ThtmlPhalanxRead_betauni.ReadHTML_Elements(
   doc_html: THTMLElement): integer;
 begin
   //Find and read FleetEvents:
-  Result := doc_html.DeleteTagRoutine(checkTags, nil);
+  doc_html.DeleteTagRoutine(checkTags, nil);
+  Result := fleets.Count;
 end;
 
 // read antigame fleetinfo
@@ -259,8 +259,14 @@ var s, s_ships: string;
 begin
   Result := False;
 
-  el := tag.FindChildTag('li',tag.ChildNameCount('li')-1);
+  el := tag.ParentElement;
   if el = nil then Exit;
+
+  el := el.FindChildTag(tag.TagName, tag.TagNameNr+1); // get next tr-tag in table!
+  if el = nil then Exit;
+
+  // check tag-class:
+  if copy(el.AttributeValue['class'], 1, 19) <> 'antigame_evtDetails' then Exit;
 
   s := el.FullTagContent + (tag.TagPath);
   //s := ReplaceStr(s,#13,' ');
@@ -387,7 +393,7 @@ begin
 end;
 
 function ThtmlPhalanxRead_betauni.readHtmlTag(tag: THTMLElement): boolean;
-var el, tag_ul: THTMLElement;
+var el, tag_ul, tag_x: THTMLElement;
     fleet: TFleetEvent;
     i, sec: integer;
     timepos, tmppos: TPlanetPosition;
@@ -409,7 +415,9 @@ begin
   fleet.head.unique_id := ReadInt(s,p+1);
 
 
-  tag_ul := tag.FindChildTag('ul');
+  //tag_ul := tag.FindChildTag('ul');
+  //if (tag_ul = nil) then exit;+
+  tag_ul := tag;
   for i := 0 to tag_ul.ChildCount - 1 do
   begin
     el := tag_ul.ChildElements[i];
@@ -417,27 +425,30 @@ begin
 
     if s = 'missionFleet' then
     begin
-      s := el.FullTagContent;
-
-      for fet := low(fet) to high(fet) do
+      tag_x := el.FindChildTag('img');
+      if (tag_x <> nil) then
       begin
-        if PosEx(html_fleetevent[fet], s, 1) > 0 then
+        s := tag_x.AttributeValue['title'];
+
+        for fet := low(fet) to high(fet) do
         begin
-          fleet.head.eventtype := fet;
-          break;
+          if PosEx(html_fleetevent[fet], s, 1) > 0 then
+          begin
+            fleet.head.eventtype := fet;
+            break;
+          end;
+        end;
+
+        if pos('(R)', s) > 0 then
+        begin
+          include(fleet.head.eventflags, fef_return);
+
+          // tausche positionen, if positions was first read
+          tmppos := fleet.head.origin;
+          fleet.head.origin := fleet.head.target;
+          fleet.head.target := tmppos;
         end;
       end;
-
-      if pos('(R)', s) > 0 then
-      begin
-        include(fleet.head.eventflags, fef_return);
-
-        // tausche positionen, if positions was first read 
-        tmppos := fleet.head.origin;
-        fleet.head.origin := fleet.head.target;
-        fleet.head.target := tmppos;
-      end;
-
     end
     else
     if s = 'coordsOrigin' then
@@ -473,7 +484,7 @@ begin
       timepos.P[2] := StrToInt(arrival_regexp.getsubexpr('sec'));
     end
     else
-    if s = 'countDown' then
+    if copy(s,1,9) = 'countDown' then
     begin
       sec := 0;
       s := el.FullTagContent;
