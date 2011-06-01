@@ -4,7 +4,7 @@ interface
 
 uses
   Inifiles, OGame_Types, html, cpp_dll_interface,
-  DateUtils, SysUtils, readsource{, Dialogs{};
+  DateUtils, SysUtils, readsource, parser_types;
 
 const
    HTMLTrimChars = [' ',#$D, #$A, #9];
@@ -663,6 +663,7 @@ begin
 
     first := ReadInt(table.Cells[1,0].FullTagContent,1);
     stats.first := first;
+    stats.count := 0;
     for i := 0 to 99 do
     begin
       try
@@ -677,7 +678,7 @@ begin
             sntAlliance: if not readStatEntry_ally(table.Rows[i+1],Typ,stats.Stats[i]) then
                             Exit;
           end;
-
+          inc(stats.count);
         end;
       except
         break;
@@ -699,7 +700,8 @@ begin
 
   tag_cell := row_tag.FindChildTag('td',1);
   if tag_cell = nil then Exit;
-  statentry.Name := trim(tag_cell.FullTagContent);
+  s := tag_cell.FullTagContent;
+  statentry.Name := trim(s);
 
   // --- extract allyid
   atag := tag_cell.FindChildTag('a',0);
