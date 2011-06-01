@@ -1,8 +1,8 @@
 object frm_report_basket: Tfrm_report_basket
   Left = 151
   Top = 234
-  Width = 608
-  Height = 418
+  Width = 612
+  Height = 407
   Caption = 'Mond?Scans Zwischenablage'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,8 +15,8 @@ object frm_report_basket: Tfrm_report_basket
   OnCreate = FormCreate
   OnShow = FormShow
   DesignSize = (
-    592
-    383)
+    604
+    382)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -30,7 +30,7 @@ object frm_report_basket: Tfrm_report_basket
     Left = 8
     Top = 32
     Width = 217
-    Height = 316
+    Height = 311
     Anchors = [akLeft, akTop, akBottom]
     Header.AutoSizeIndex = 0
     Header.DefaultHeight = 17
@@ -62,7 +62,7 @@ object frm_report_basket: Tfrm_report_basket
   end
   object Button1: TButton
     Left = 8
-    Top = 353
+    Top = 350
     Width = 113
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -72,7 +72,7 @@ object frm_report_basket: Tfrm_report_basket
   end
   object Button2: TButton
     Left = 128
-    Top = 353
+    Top = 350
     Width = 121
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -83,8 +83,8 @@ object frm_report_basket: Tfrm_report_basket
   inline Frame_Bericht1: TFrame_Bericht
     Left = 232
     Top = 32
-    Width = 350
-    Height = 316
+    Width = 354
+    Height = 311
     HorzScrollBar.Style = ssHotTrack
     VertScrollBar.Style = ssHotTrack
     Anchors = [akLeft, akTop, akRight, akBottom]
@@ -95,25 +95,25 @@ object frm_report_basket: Tfrm_report_basket
     TabOrder = 3
     TabStop = True
     inherited PB_B: TPaintBox
-      Width = 350
+      Width = 354
     end
     inherited Panel1: TPanel
-      Width = 350
+      Width = 354
       inherited LBL_Raid24_Info: TLabel
-        Left = 233
+        Left = 237
       end
       inherited BTN_Last24: TSpeedButton
-        Left = 317
+        Left = 321
       end
     end
   end
   object cb_only_planets: TCheckBox
-    Left = 272
-    Top = 358
+    Left = 275
+    Top = 356
     Width = 297
     Height = 17
     Hint = 'n'#252'tzlich zb. in einem sehr jungen Universum'
-    Anchors = [akLeft, akTop, akRight]
+    Anchors = []
     Caption = 'nicht mehr Fragen (alles keine Mondscans)'
     TabOrder = 4
     OnClick = cb_only_planetsClick

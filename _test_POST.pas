@@ -7,9 +7,24 @@ uses
   Dialogs, OGame_Types, StdCtrls, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdHTTP, IdURI, DateUtils, cS_XML, XMLDoc, xmldom,
   XMLIntf, msxmldom, shellapi, ExtCtrls, clientlogin, IdAuthentication,
-  ComCtrls, LibXmlParser, LibXmlComps, Prog_unit, Spin, Inifiles, html;
+  ComCtrls, LibXmlParser, LibXmlComps, Prog_unit, Spin, Inifiles, html, Stat_Points;
 
 type
+  TStatsPartTime = class
+  public
+    time: Int64;
+  end;
+  TStatsPartTimes = class
+  private
+    fTimes: TList;
+    function getTimes(i: integer): Int64;
+    procedure setTimes(i: integer; const Value: Int64);
+  public
+    property times[i: integer]: Int64 read getTimes write setTimes; default;
+    function Count: integer;
+    constructor Create;
+    destructor Destroy; override;
+  end;
   TTimeID = record
     time: int64;
     id: int64;
@@ -55,6 +70,7 @@ type
     Label6: TLabel;
     cb_filter_no_planet: TCheckBox;
     Button11: TButton;
+    Button12: TButton;
     procedure BTN_genSysClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
@@ -75,6 +91,7 @@ type
     procedure Button10Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Button11Click(Sender: TObject);
+    procedure Button12Click(Sender: TObject);
   private
     FServerUni: array of array of TTimeID;
     more: Boolean;
@@ -101,8 +118,7 @@ type
     procedure Sync_Report(gala: Integer);
     procedure Sync_Systems(Sender: TObject);
     procedure POST(param: string = '');
-    { Public-Deklarationen }
-  published
+    procedure Sync_Stats(typ: TStatTypeEx);
   end;
 
 var
@@ -290,7 +306,7 @@ begin
 
   if stop then exit;
 
-  SetMainProgress(10,50);
+  SetMainProgress(10,40);
 
   log('do sync...',10);
 
@@ -340,6 +356,166 @@ begin
   log('solar systems ready!',10);
 
   TXT_ges.Text := TimeToStr(Now-start);
+end;
+
+procedure TFRM_POST_TEST.Sync_Stats(typ: TStatTypeEx);
+var parser: TXmlParser;
+    DocSize: Integer;
+    partnr, partcount, i, mpc_start: integer;
+    read, write: string;
+    start: Tdatetime;
+    pos: array[0..2] of integer;
+
+    gotServerInfo: Boolean;
+    csvers: string;
+
+    servertimes: TStatsPartTimes;
+    clienttimes: TStatPoints;
+    clientpart_time: Int64;
+begin
+  clienttimes := ODataBase.Statistic.StatisticType[typ.NameType, typ.PointType];
+  log('sync statistics: ' + xstat_group_nametype_idents[typ.NameType] + '/' +
+    xstat_group_pointtype_idents[typ.PointType],10);
+  csvers := '0.6';
+  start := now;
+  gotServerInfo := false;
+  servertimes := TStatsPartTimes.Create;
+  try
+    mem_send.Clear;
+    mem_send.Lines.Add('<read><serverinfo/><statstimes_type ntype="' +
+      xstat_group_nametype_idents[typ.NameType] + '" ptype="' +
+      xstat_group_pointtype_idents[typ.PointType] + '"/></read>');
+
+    POST;
+    DocSize := length(mem_recv.Lines.Text);
+
+    log('got times, parse...',10);
+
+    case typ.NameType of
+    sntPlayer: mpc_start := 80;
+    sntAlliance: mpc_start := 90;
+    end;
+
+    case typ.PointType of
+    sptPoints: SetMainProgress(mpc_start,mpc_start+3);
+    sptFleet: SetMainProgress(mpc_start+3,mpc_start+7);
+    sptResearch: SetMainProgress(mpc_start+7,mpc_start+10);
+    end;
+
+    SetProgress(0);
+
+    parser := TXmlParser.Create;
+    try
+      parser.LoadFromBuffer(PChar(mem_recv.Lines.Text));
+      parser.StartScan;
+      while parser.Scan and (not stop) do
+      begin
+        case parser.CurPartType of
+          ptStartTag, ptEmptyTag:
+            begin
+
+              if parser.CurName = 'serverinfo' then
+              begin
+                csvers := parser.CurAttr.Value('csvers');
+                pos[0] := StrToInt(parser.CurAttr.Value('galacount'));
+                pos[1] := StrToInt(parser.CurAttr.Value('syscount'));
+                pos[2] := StrToInt(parser.CurAttr.Value('planetcount'));
+                if (pos[0] <> max_Galaxy)or(pos[1] <> max_Systems)or(pos[2] <> max_Planeten) then
+                  raise Exception.Create('Server pos_count definitions are not compatible!')
+                else SetServerUniSize(max_Galaxy, max_Systems);
+
+                gotServerInfo := true;
+              end;
+
+              if parser.CurName = 'statstimes_type' then
+              begin
+                if (parser.CurAttr.Value('ntype') <> xstat_group_nametype_idents[typ.NameType]) or
+                   (parser.CurAttr.Value('ntype') <> xstat_group_nametype_idents[typ.NameType]) then
+                  raise Exception.Create('SyncStats: protokoll error, answer types doesn''t match!');
+              end;
+
+              if parser.CurName = 'statstime' then
+              begin
+                partnr := StrToInt(parser.CurAttr.Value('partnr'));
+                servertimes[partnr] := StrToInt(parser.CurAttr.Value('time'));
+              end;
+
+            end;
+        end;
+      end;
+    finally
+      parser.Free;
+    end;
+
+    if not gotServerInfo then
+    begin
+      raise Exception.Create('SyncStats: Error: Expected "ServerInfo" tag!');
+    end;
+
+    if csvers < '0.7' then
+    begin
+      log('statistics not supported by server!', 10);
+      exit;
+    end;
+
+    if stop then exit;
+
+    log('do sync...',10);
+
+    read := '';
+    write := '';
+    partcount := servertimes.Count;
+    if partcount < clienttimes.Count then
+      partcount := clienttimes.Count;
+
+    pb_pos.Max := 100;
+    i := 0;
+    for partnr := 0 to partcount-1 do
+    begin
+      clientpart_time := clienttimes.PartTime_u(partnr);
+      if servertimes[partnr] > clientpart_time then
+      begin
+        read := read + Format('<stats_type partnr="%d" ntype="%s" ptype="%s"/>',
+           [partnr,
+           xstat_group_nametype_idents[typ.NameType],
+           xstat_group_pointtype_idents[typ.PointType]]);
+        log(Format('get stats [%d,%s,%s]',[partnr,
+           xstat_group_nametype_idents[typ.NameType],
+           xstat_group_pointtype_idents[typ.PointType]]),10);
+      end else
+      if servertimes[partnr] < clientpart_time then
+      begin
+        if (clientpart_time > 0) then
+        begin
+          write := write + StatToXML_(clienttimes.Stats[partnr], typ);
+          log(Format('send stats [%d,%s,%s]',[partnr,
+             xstat_group_nametype_idents[typ.NameType],
+             xstat_group_pointtype_idents[typ.PointType]]),10);
+        end;
+      end;
+
+      inc(i);
+      if (i > 2)or // genug gesammelt?
+         (partnr = partcount-1) then // oder ende erreicht?
+      begin
+        PostAndParseAnswer(read,write);
+
+        i := 0;
+        read := '';
+        write := '';
+      end;
+
+      SetProgress(trunc(((partnr+1)/(partcount))*100));
+
+      if stop then break;
+    end;
+
+    log('stats sync ready!',10);
+
+    TXT_ges.Text := TimeToStr(Now-start);
+  finally
+    servertimes.Free;
+  end;
 end;
 
 function TFRM_POST_TEST.ReadServerUni(p1, p2: word): TTimeID;
@@ -603,8 +779,9 @@ begin
   read := '';
   write := '';
 
-  SetMainProgress(50 + (((gala-1) * 50) div max_Galaxy),
-                  50 + ((gala * 50) div max_Galaxy));
+  SetMainProgress(40 + (((gala-1) * 40) div max_Galaxy),
+                  40 + ((gala * 40) div max_Galaxy));
+  SetProgress(0);
 
   start := now;
   since_u := DateTimeToUnix(now - se_max_days_age.Value);
@@ -969,6 +1146,82 @@ begin
     entflines(StatToXML_(
       ODataBase.Statistic.StatisticType[st.NameType,st.PointType].Stats[0],st))
       + '</write>');
+end;
+
+{ TStatsPartTimes }
+
+function TStatsPartTimes.Count: integer;
+begin
+  Result := fTimes.Count;
+end;
+
+constructor TStatsPartTimes.Create;
+begin
+  inherited Create;
+  fTimes := TList.Create;
+end;
+
+destructor TStatsPartTimes.Destroy;
+var time: TStatsPartTime;
+begin
+  while fTimes.Count > 0 do
+  begin
+    time := fTimes[0];
+    if (time <> nil) then
+      time.Free;
+      
+    fTimes.Delete(0);
+  end;
+  fTimes.Free;
+  inherited;
+end;
+
+function TStatsPartTimes.getTimes(i: integer): Int64;
+var time: TStatsPartTime;
+begin
+  Result := 0;
+  if (i < fTimes.Count) then
+  begin
+    time := fTimes[i];
+    if (time <> nil) then
+    begin
+      Result := time.time;
+    end;
+  end;
+end;
+
+procedure TStatsPartTimes.setTimes(i: integer; const Value: Int64);
+begin
+  if fTimes.Count <= i then
+  begin
+    fTimes.Count := i+10;
+  end;
+
+  if (fTimes[i] = nil) then
+  begin
+    fTimes[i] := TStatsPartTime.Create;
+  end;
+
+  TStatsPartTime(fTimes[i]).time := Value;
+end;
+
+procedure TFRM_POST_TEST.Button12Click(Sender: TObject);
+var typ: TStatTypeEx;
+    ntyp: TStatNameType;
+    ptyp: TStatPointType;
+begin
+  Stop := false;
+  for ntyp := low(ntyp) to high(ntyp) do
+  begin
+    for ptyp := low(ptyp) to high(ptyp) do
+    begin
+      typ.NameType := ntyp;
+      typ.PointType := ptyp;
+      Sync_Stats(typ);
+      if (Stop) then
+        Exit;
+    end;
+  end;
 end;
 
 end.

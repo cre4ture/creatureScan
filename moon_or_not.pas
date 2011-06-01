@@ -10,7 +10,7 @@ uses
 type
   PReportRec = ^TReportRec;
   TReportRec = record
-    report: ^TScanBericht;
+    report: TScanBericht;
     addtime: TDateTime;
   end;
   Tfrm_report_basket = class(TForm)
@@ -65,8 +65,8 @@ procedure Tfrm_report_basket.addReport(scan: TScanBericht);
 begin
   with TReportRec(vst_reports.GetNodeData(vst_reports.AddChild(nil))^) do
   begin
-    New(report);
-    report^ := scan;
+    report := TScanBericht.Create;
+    report.copyFrom(scan);
     addtime := now;
   end;
   Show;   
@@ -84,8 +84,8 @@ begin
     if not delete then
       with TReportRec(vst_reports.GetNodeData(sel)^) do
       begin
-        report^.Head.Position.Mond := moon;
-        ODataBase.UniTree.AddNewReport(report^);
+        report.Head.Position.Mond := moon;
+        ODataBase.UniTree.AddNewReport(report);
       end;
     sel := vst_reports.GetNextSelected(sel);
   end;
@@ -114,8 +114,8 @@ begin
   begin
     with TReportRec(vst_reports.GetNodeData(node)^) do
     begin
-      Frame_Bericht1.SetBericht(report^);
-      frm_main.ShowScan(report^.Head.Position);
+      Frame_Bericht1.SetBericht(report);
+      frm_main.ShowScan(report.Head.Position);
     end;
   end;
 end;
@@ -137,7 +137,7 @@ procedure Tfrm_report_basket.vst_reportsFreeNode(Sender: TBaseVirtualTree;
 var data: PReportRec;
 begin
   data := vst_reports.GetNodeData(Node);
-  Dispose(data.report);
+  data.report.Free;
 end;
 
 procedure Tfrm_report_basket.Button1Click(Sender: TObject);

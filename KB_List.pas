@@ -631,6 +631,7 @@ begin
         if frm = nil then
         begin
           frm := Tfrm_fleet_arrival(notify_grp.NewNotifyWindow(Tfrm_fleet_arrival));
+          frm.close_when_arrived := FRM_Main.PlayerOptions.Fleet_close_msg_window_when_arrived;
           frm.info_fleet := fleet;
           frm.Visible := True;
 

@@ -222,6 +222,7 @@ type
   PStat = ^TStat;
   TStat = record
     first: Word;
+    count: byte; 
     Stats: array[0..99] of TStatPlayer;
     Time_u: Int64;
   end;
@@ -391,6 +392,7 @@ function SamePlanet(const Pos1, Pos2: TPlanetPosition): Boolean;
 function IntToStrKP(i: Int64; kpc: char = #0): String;
 function PosBigger(pos1, pos2: TPlanetPosition): boolean;
 function StrToPosition(S: string): TPlanetPosition;
+function StrToPositionEx(S: string): TPlanetPosition;
 function SameFleetEvent(Fleet1, Fleet2: TFleetEvent): Boolean;
 function OGameRangeList: TCoordinatesRangeList;
 function AbsPlanetNrToPlanetPosition(nr: TAbsPlanetNr): TPlanetPosition;
@@ -748,6 +750,7 @@ begin
             ((pos1.P[0] = Pos2.P[0])and(pos1.P[1] = Pos2.P[1])and(pos1.P[2] = Pos2.P[2])and(pos1.Mond > pos2.Mond));
 end;
 
+// returns 0 when failed to extract koords!
 function ReadPosOrTime(const s: string; p: Integer; var Position: TPlanetPosition): integer;
 var val : string;
     pos, i, l : integer;
@@ -1154,7 +1157,21 @@ function StrToPosition(S: string): TPlanetPosition;
 begin
   FillChar(result,sizeof(Result),0);
   s := s + '    abs  ';
-  Result.Mond := (s[ReadPosOrTime(s,1,Result)+1] = STR_M_Mond); 
+  Result.Mond := (s[ReadPosOrTime(s,1,Result)+1] = STR_M_Mond);
+end;
+
+function StrToPositionEx(S: string): TPlanetPosition;
+var p: integer;
+begin
+  if s[1] = '[' then
+    s := copy(s, 2, 999); // remove first'['
+  FillChar(result,sizeof(Result),0);
+  s := s + '    abs'; // be sure string does not end exactly after coords
+  p := ReadPosOrTime(s,1,Result)+1;
+  if (p <= 0) or (p >= length(s)) then
+    raise Exception.Create('StrToPositionM(): failed to read coordinates!');
+  while (s[p] = ' ') do inc(p); // skip spaces
+  Result.Mond := (s[p] = STR_M_Mond);
 end;
 
 function CompareSys(Sys1, Sys2: TSystemCopy;

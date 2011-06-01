@@ -1,6 +1,6 @@
 object FRM_Suche: TFRM_Suche
-  Left = 0
-  Top = 184
+  Left = 224
+  Top = 150
   Width = 800
   Height = 386
   Caption = 'Suche in dem Universumsabbild nach...'
@@ -19,7 +19,7 @@ object FRM_Suche: TFRM_Suche
   TextHeight = 13
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 340
+    Top = 342
     Width = 792
     Height = 19
     Panels = <
@@ -122,7 +122,7 @@ object FRM_Suche: TFRM_Suche
           Caption = 'Allianz:'
         end
         object Label6: TLabel
-          Left = 269
+          Left = 333
           Top = 4
           Width = 43
           Height = 13
@@ -132,7 +132,7 @@ object FRM_Suche: TFRM_Suche
         object TXT_Player: TEdit
           Left = 68
           Top = 4
-          Width = 190
+          Width = 253
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 0
@@ -182,9 +182,9 @@ object FRM_Suche: TFRM_Suche
           end
         end
         object txt_playerID: TEdit
-          Left = 325
+          Left = 384
           Top = 4
-          Width = 165
+          Width = 106
           Height = 21
           Anchors = [akTop, akRight]
           TabOrder = 4
@@ -387,7 +387,7 @@ object FRM_Suche: TFRM_Suche
     Left = 0
     Top = 101
     Width = 792
-    Height = 239
+    Height = 241
     Align = alClient
     ClipboardFormats.Strings = (
       'CSV'

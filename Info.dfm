@@ -204,7 +204,7 @@ object FRM_Info: TFRM_Info
     Width = 325
     Height = 13
     AutoSize = False
-    Caption = #169' 2010 Ulrich Hornung aka creature'
+    Caption = #169' 2011 Ulrich Hornung aka creature'
     Transparent = True
     WordWrap = True
     OnClick = FormClick

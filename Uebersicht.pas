@@ -16,7 +16,6 @@ type
   TATyp = (at_ogame,at_spacepioneers);
   TFRM_Uebersicht = class(TForm)
     Timer1: TTimer;
-    PB_Lupe: TPaintBox;
     PopupMenu1: TPopupMenu;
     Zeitfaktor1: TMenuItem;
     N11: TMenuItem;
@@ -44,6 +43,7 @@ type
     new1: TMenuItem;
     editr1: TMenuItem;
     cb_point_stats: TCheckBox;
+    PB_Lupe: TPaintBox;
     procedure PB_ogame_UniPaint(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure PB_UniMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -344,6 +344,7 @@ begin
   if Anzeigetyp = at_ogame then
   with PB_Lupe do
   begin
+    Canvas.Pen.Width := 2;
     Canvas.Pen.Mode := pmNot;
     pixelsize_x := PB_Lupe.Width / zoomrect.x;
     pixelsize_y := PB_Lupe.Height / zoomrect.y;

@@ -23,6 +23,7 @@ type
   public
     time_to_live: integer;
     gameTime: TCustomTime;
+    close_when_arrived: boolean;
     { Public-Deklarationen }
     property info_fleet: TFleetEvent read finfo_fleet write SetInfoFleet;
   end;
@@ -56,7 +57,11 @@ begin
   priority := zeit;
   dec(time_to_live);
   if time_to_live < 0 then
-    Release;
+  begin
+    if (close_when_arrived) then
+      Release;
+    Color := not Color;
+  end;
 end;
 
 procedure Tfrm_fleet_arrival.FormShow(Sender: TObject);
@@ -70,13 +75,21 @@ begin
   inherited;
   time_to_live := 1;  //Damit das der erste timeraufruf bei OnShow überlebt!
   gameTime := ODataBase.FleetBoard.GameTime;
+  close_when_arrived := true;
 end;
 
 procedure Tfrm_fleet_arrival.FormClick(Sender: TObject);
 begin
   inherited;
-  FRM_Main.ShowScan(info_fleet.head.target);
-  FRM_Main.Show;
+  if time_to_live > 0 then
+  begin
+    FRM_Main.ShowScan(info_fleet.head.target);
+    FRM_Main.Show;
+  end
+  else
+  begin
+    Release; // remove window!
+  end;
 end;
 
 function CountDownStr(sec: int64): string;

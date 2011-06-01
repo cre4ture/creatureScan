@@ -34,7 +34,7 @@ object FRM_Einstellungen: TFRM_Einstellungen
     Top = 0
     Width = 531
     Height = 200
-    ActivePage = TabSheet1
+    ActivePage = ts_Flotten
     Anchors = [akLeft, akTop, akRight, akBottom]
     MultiLine = True
     ParentShowHint = False
@@ -1259,6 +1259,15 @@ object FRM_Einstellungen: TFRM_Einstellungen
           Caption = 'Automatisch beim Start mit Server synchronisieren'
           TabOrder = 0
         end
+      end
+      object cb_fleet_msg_auto_close: TCheckBox
+        Left = 20
+        Top = 72
+        Width = 377
+        Height = 17
+        Hint = 'das blinkt nach Ankunft und man kann es per Klick schlie'#223'en-'
+        Caption = 'Nach Ankunft schlie'#223'en'
+        TabOrder = 7
       end
     end
   end

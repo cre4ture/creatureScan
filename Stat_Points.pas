@@ -85,6 +85,7 @@ type
     function AddStat(Stats: TStat): boolean; virtual;
     property Statistik[Platz: Word]: TStatPlayer read GetPlayerAtPlace;
     property Datum[Platz: Word]: TDateTime read GetDateAtPos;
+    function PartTime_u(partnr: integer): Int64;
     property Stats[nr: Integer]: TStat read GetStat;
     destructor Destroy; override;
     function StatPoints(AName: TPLayername; APlayerID: Int64): Cardinal;
@@ -230,6 +231,7 @@ function TStatPoints.StatPlace(AName: TPLayername; APlayerID: Int64): Cardinal;
 var i, j: Integer;
     Found: Boolean;
     block: TStat;
+    actPlayerID: Int64;
 begin
   if (AName = '') and (APlayerID < 0) then
   begin
@@ -246,8 +248,12 @@ begin
     j := 0;
     while (not Found)and(j <= 99) do
     begin
-      Found := ((APlayerID < 0)and(block.Stats[j].Name = AName))or
-               ((APlayerID >= 0)and(block.Stats[j].NameId = APlayerID));
+      actPlayerID := block.Stats[j].NameId;
+      if (APlayerID < 0)or(actPlayerID < 0) then
+        Found := (block.Stats[j].Name = AName)
+      else
+        Found := (block.Stats[j].NameId = APlayerID);
+        
       inc(j);
     end;
     inc(i);
@@ -735,6 +741,13 @@ begin
       if not re then
         Ready := false;
     end;
+end;
+
+function TStatPoints.PartTime_u(partnr: integer): Int64;
+begin
+  Result := 0;
+  if partnr < Count then
+    Result := Stats[partnr].Time_u;
 end;
 
 end.

@@ -7,9 +7,11 @@ uses
   cS_memstream;
 
 const
-  DLLVNumber = 27;
+  DLLVNumber = 28;
 
 {
+  V28: Count in TStats
+  
   V27: stats & sys + playerID + scan_size
 
   V26: new CallFleetEx

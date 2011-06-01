@@ -19,7 +19,7 @@ object FRM_KB_List: TFRM_KB_List
     Left = 0
     Top = 25
     Width = 794
-    Height = 242
+    Height = 244
     ActivePage = TS_KB_laufend
     Align = alClient
     TabOrder = 0
@@ -30,7 +30,7 @@ object FRM_KB_List: TFRM_KB_List
         Left = 0
         Top = 0
         Width = 786
-        Height = 214
+        Height = 216
         Align = alClient
         ClipboardFormats.Strings = (
           'CSV'
@@ -183,7 +183,7 @@ object FRM_KB_List: TFRM_KB_List
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 294
+    Top = 296
     Width = 794
     Height = 19
     Panels = <
@@ -204,7 +204,7 @@ object FRM_KB_List: TFRM_KB_List
   end
   object Panel1: TPanel
     Left = 0
-    Top = 267
+    Top = 269
     Width = 794
     Height = 27
     Align = alBottom
@@ -369,7 +369,7 @@ object FRM_KB_List: TFRM_KB_List
     Left = 256
     Top = 116
     Bitmap = {
-      494C010108000900040010001000FFFFFFFFFF00FFFFFFFFFFFFFFFF424D3600
+      494C010108000900040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -769,7 +769,8 @@ object FRM_KB_List: TFRM_KB_List
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000000000000000}
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000}
   end
   object tim_take_focus_again: TTimer
     Enabled = False
