@@ -48,7 +48,7 @@ end;
 
 procedure TFRM_Info.Label5Click(Sender: TObject);
 begin
-  ShellExecute(Self.Handle,'open',PChar('http://www.creatureScan.de.vu'),'','',0);
+  ShellExecute(Self.Handle,'open',PChar(Label5.Caption),'','',0);
 end;
 
 end.

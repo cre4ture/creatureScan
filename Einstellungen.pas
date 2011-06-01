@@ -161,6 +161,7 @@ type
     txt_beep_sound_file: TEdit;
     btn_play1: TButton;
     btn_select1: TButton;
+    cb_fleet_msg_auto_close: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure LB_FDClick(Sender: TObject);
     procedure KeyPress_OnlyNumbers(Sender: TObject; var Key: Char);

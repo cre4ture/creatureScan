@@ -2,7 +2,7 @@ object FRM_Main: TFRM_Main
   Left = 496
   Top = 282
   Width = 549
-  Height = 479
+  Height = 476
   Caption = 'creatureScan'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -25,7 +25,7 @@ object FRM_Main: TFRM_Main
     Left = 0
     Top = 0
     Width = 541
-    Height = 416
+    Height = 413
     Align = alClient
     BevelOuter = bvNone
     Color = clBlack
@@ -34,7 +34,7 @@ object FRM_Main: TFRM_Main
     OnResize = P_ExplorerDockResize
     inline Frame_Bericht2: TFrame_Bericht
       Left = 0
-      Top = 287
+      Top = 284
       Width = 541
       Height = 129
       HorzScrollBar.Style = ssHotTrack
@@ -64,14 +64,14 @@ object FRM_Main: TFRM_Main
     Left = 0
     Top = 0
     Width = 541
-    Height = 416
+    Height = 413
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
     object Splitter1: TSplitter
       Left = 437
       Top = 0
-      Height = 416
+      Height = 413
       Align = alRight
       MinSize = 20
       ResizeStyle = rsLine
@@ -80,7 +80,7 @@ object FRM_Main: TFRM_Main
       Left = 0
       Top = 0
       Width = 437
-      Height = 416
+      Height = 413
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
@@ -88,7 +88,7 @@ object FRM_Main: TFRM_Main
         Left = 0
         Top = 0
         Width = 437
-        Height = 369
+        Height = 366
         HorzScrollBar.Style = ssHotTrack
         VertScrollBar.Style = ssHotTrack
         Align = alClient
@@ -125,88 +125,11 @@ object FRM_Main: TFRM_Main
           Left = 12
         end
       end
-      object P_WF: TPanel
-        Left = 0
-        Top = 369
-        Width = 437
-        Height = 47
-        Align = alBottom
-        BevelInner = bvLowered
-        Color = 9098579
-        ParentBackground = False
-        TabOrder = 1
-        OnResize = P_WFResize
-        object LBL_WF_1: TLabel
-          Left = 164
-          Top = 2
-          Width = 93
-          Height = 42
-          Alignment = taCenter
-          AutoSize = False
-          WordWrap = True
-        end
-        object LBL_WF_0_1: TLabel
-          Left = 2
-          Top = 2
-          Width = 159
-          Height = 15
-          Alignment = taRightJustify
-          AutoSize = False
-          Caption = 'Wellenangriff: (nur Ressourcen!)'
-          WordWrap = True
-        end
-        object LBL_WF_2: TLabel
-          Left = 245
-          Top = 2
-          Width = 93
-          Height = 42
-          Alignment = taCenter
-          AutoSize = False
-          WordWrap = True
-        end
-        object LBL_WF_3: TLabel
-          Left = 344
-          Top = 2
-          Width = 77
-          Height = 42
-          Alignment = taCenter
-          AutoSize = False
-          WordWrap = True
-        end
-        object LBL_WF_0_2: TLabel
-          Left = 4
-          Top = 16
-          Width = 156
-          Height = 13
-          Alignment = taRightJustify
-          AutoSize = False
-          Caption = 'Schlachtschiffe:'
-        end
-        object LBL_WF_0_3: TLabel
-          Left = 4
-          Top = 28
-          Width = 156
-          Height = 13
-          Alignment = taRightJustify
-          AutoSize = False
-          Caption = 'gr.Transporter:'
-        end
-        object btn_fight_start: TButton
-          Tag = 2
-          Left = 12
-          Top = 20
-          Width = 61
-          Height = 21
-          Caption = 'fleet'
-          TabOrder = 0
-          OnClick = btn_fight_startClick
-        end
-      end
       object p_startscreen: TPanel
         Left = 0
         Top = 0
         Width = 437
-        Height = 369
+        Height = 366
         Align = alClient
         BevelOuter = bvNone
         Color = clBlack
@@ -216,13 +139,13 @@ object FRM_Main: TFRM_Main
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
-        TabOrder = 2
+        TabOrder = 1
         OnDblClick = Frame_Bericht1PB_BDblClick
         object sb_start_bg: TShape
           Left = 0
           Top = 0
           Width = 437
-          Height = 369
+          Height = 366
           Align = alClient
           Brush.Color = clBlack
           Pen.Style = psClear
@@ -232,7 +155,7 @@ object FRM_Main: TFRM_Main
           Left = 0
           Top = 0
           Width = 437
-          Height = 369
+          Height = 366
           Align = alClient
           AutoSize = False
           Transparent = False
@@ -659,23 +582,106 @@ object FRM_Main: TFRM_Main
           Visible = False
         end
       end
+      object P_WF: TPanel
+        Left = 0
+        Top = 366
+        Width = 437
+        Height = 47
+        Align = alBottom
+        BevelInner = bvLowered
+        Color = 9098579
+        ParentBackground = False
+        TabOrder = 2
+        OnResize = P_WFResize
+        object LBL_WF_1: TLabel
+          Left = 164
+          Top = 2
+          Width = 93
+          Height = 42
+          Alignment = taCenter
+          AutoSize = False
+          Transparent = True
+          WordWrap = True
+        end
+        object LBL_WF_0_1: TLabel
+          Left = 2
+          Top = 2
+          Width = 159
+          Height = 15
+          Alignment = taRightJustify
+          AutoSize = False
+          Caption = 'Wellenangriff: (nur Ressourcen!)'
+          Transparent = True
+          WordWrap = True
+        end
+        object LBL_WF_2: TLabel
+          Left = 245
+          Top = 2
+          Width = 93
+          Height = 42
+          Alignment = taCenter
+          AutoSize = False
+          Transparent = True
+          WordWrap = True
+        end
+        object LBL_WF_3: TLabel
+          Left = 344
+          Top = 2
+          Width = 77
+          Height = 42
+          Alignment = taCenter
+          AutoSize = False
+          Transparent = True
+          WordWrap = True
+        end
+        object LBL_WF_0_2: TLabel
+          Left = 4
+          Top = 16
+          Width = 156
+          Height = 13
+          Alignment = taRightJustify
+          AutoSize = False
+          Caption = 'Schlachtschiffe:'
+          Transparent = True
+        end
+        object LBL_WF_0_3: TLabel
+          Left = 4
+          Top = 28
+          Width = 156
+          Height = 13
+          Alignment = taRightJustify
+          AutoSize = False
+          Caption = 'gr.Transporter:'
+          Transparent = True
+        end
+        object btn_fight_start: TButton
+          Tag = 2
+          Left = 12
+          Top = 20
+          Width = 61
+          Height = 21
+          Caption = 'fleet'
+          TabOrder = 0
+          OnClick = btn_fight_startClick
+        end
+      end
     end
     object Panel1: TPanel
       Left = 440
       Top = 0
       Width = 101
-      Height = 416
+      Height = 413
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
       DesignSize = (
         101
-        416)
+        413)
       object lst_others: TListView
         Left = 3
         Top = 84
         Width = 96
-        Height = 246
+        Height = 253
         Anchors = [akLeft, akTop, akRight, akBottom]
         Columns = <
           item
@@ -718,7 +724,7 @@ object FRM_Main: TFRM_Main
       end
       object BTN_Liste: TButton
         Left = 2
-        Top = 336
+        Top = 341
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
@@ -728,7 +734,7 @@ object FRM_Main: TFRM_Main
       end
       object BTN_Suche: TButton
         Left = 2
-        Top = 384
+        Top = 389
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
@@ -738,7 +744,7 @@ object FRM_Main: TFRM_Main
       end
       object BTN_Universum: TButton
         Left = 2
-        Top = 360
+        Top = 365
         Width = 96
         Height = 21
         Anchors = [akLeft, akRight, akBottom]
@@ -769,6 +775,7 @@ object FRM_Main: TFRM_Main
         Top = 32
         Width = 41
         Height = 25
+        Anchors = [akTop, akRight]
         Caption = 'sim'
         TabOrder = 8
         OnClick = Button1Click
@@ -777,7 +784,7 @@ object FRM_Main: TFRM_Main
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 416
+    Top = 413
     Width = 541
     Height = 19
     Panels = <
@@ -866,6 +873,7 @@ object FRM_Main: TFRM_Main
       end
       object phpSync1: TMenuItem
         Caption = 'php-Sync'
+        ShortCut = 16464
         OnClick = phpSync1Click
       end
       object NetConnections1: TMenuItem

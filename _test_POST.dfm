@@ -128,7 +128,7 @@ object FRM_POST_TEST: TFRM_POST_TEST
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 347
+    Left = 403
     Top = 216
     Width = 75
     Height = 25
@@ -334,6 +334,15 @@ object FRM_POST_TEST: TFRM_POST_TEST
     Height = 17
     Caption = 'cb_filter_no_planet'
     TabOrder = 14
+  end
+  object Button12: TButton
+    Left = 328
+    Top = 216
+    Width = 75
+    Height = 25
+    Caption = 'Sync Stats'
+    TabOrder = 15
+    OnClick = Button12Click
   end
   object IdHTTP1: TIdHTTP
     MaxLineAction = maException

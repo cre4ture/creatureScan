@@ -51,6 +51,7 @@ type
     Fleet_ShowArivalMessage: boolean;
     Fleet_AMSG_Time_s: Integer;
     Fleet_alert: Boolean;
+    Fleet_close_msg_window_when_arrived: Boolean;
     Fleet_Soundfile: String;
     Fleet_auto_time_sync: Boolean;
 
@@ -91,14 +92,7 @@ type
     Zwischenablageberwachen1: TMenuItem;
     Splitter1: TSplitter;
     Panel2: TPanel;
-    P_WF: TPanel;
-    LBL_WF_1: TLabel;
-    LBL_WF_0_1: TLabel;
-    LBL_WF_2: TLabel;
-    LBL_WF_3: TLabel;
     Test1: TMenuItem;
-    LBL_WF_0_2: TLabel;
-    LBL_WF_0_3: TLabel;
     Languagefile1: TMenuItem;
     N3: TMenuItem;
     Funktionen1: TMenuItem;
@@ -136,7 +130,6 @@ type
     PopupMenu1: TPopupMenu;
     Lschen1: TMenuItem;
     Galaxie1: TMenuItem;
-    btn_fight_start: TButton;
     popup_auftrag: TPopupMenu;
     Angriff1: TMenuItem;
     Spionage1: TMenuItem;
@@ -183,6 +176,14 @@ type
     Expedition1: TMenuItem;
     stresstestforaddsolsys1: TMenuItem;
     closeFreeAudioFiles1: TMenuItem;
+    P_WF: TPanel;
+    LBL_WF_1: TLabel;
+    LBL_WF_0_1: TLabel;
+    LBL_WF_2: TLabel;
+    LBL_WF_3: TLabel;
+    LBL_WF_0_2: TLabel;
+    LBL_WF_0_3: TLabel;
+    btn_fight_start: TButton;
     procedure btn_lastClick(Sender: TObject);
     procedure btn_nextClick(Sender: TObject);
     procedure LblWikiLinkClick(Sender: TObject);
@@ -941,6 +942,7 @@ begin
   form.txt_fleet_alert_sound.Text := PlayerOptions.Fleet_Soundfile;
   form.cb_fleet_alert_sound.Checked := PlayerOptions.Fleet_alert;
   form.cb_auto_serverzeit.Checked := PlayerOptions.Fleet_auto_time_sync;
+  form.cb_fleet_msg_auto_close.Checked := PlayerOptions.Fleet_close_msg_window_when_arrived;
 
   // websim
   form.se_tech_0.Value := PlayerOptions.websim_techs[0];
@@ -1081,6 +1083,7 @@ begin
     PlayerOptions.Fleet_Soundfile := form.txt_fleet_alert_sound.Text;
     PlayerOptions.Fleet_alert := form.cb_fleet_alert_sound.Checked;
     PlayerOptions.Fleet_auto_time_sync := form.cb_auto_serverzeit.Checked;
+    PlayerOptions.Fleet_close_msg_window_when_arrived := form.cb_fleet_msg_auto_close.Checked;
 
     // websim
     PlayerOptions.websim_techs[0] := form.se_tech_0.Value;
@@ -1604,6 +1607,7 @@ begin
     sitAllanz: s := PlayerOptions.SuchInet.Allianz;
   else s := '';
   end;
+  Player := StringReplace(Player, '...', '',[]);
   SetzePlatzhalter(s,'%P',Player);
   SetzePlatzhalter(s,'%A',Allianz);
   SetzePlatzhalter(s,'%U',Uni);
@@ -1638,9 +1642,9 @@ begin
   PlayerOptions.AngriffsLogig := TAngriffslogig(ini.ReadInteger(GeneralSection,'AngriffsLogig',0));
   if ini.ReadBool(GeneralSection,'AutoUpdateCheck',True) then include(Einstellungen,soAutoUpdateCheck);
   CloseToSystray := ini.ReadBool(GeneralSection,'CloseToSysTray',True);
-  PlayerOptions.SuchInet.Name := ini.ReadString(GeneralSection,'Suche_Name','ostat.de');
-  PlayerOptions.SuchInet.Spieler := ini.ReadString(GeneralSection,'Suche_Spieler','http://uni%U.ostat.de/index.php?ext=player&name=%P');
-  PlayerOptions.SuchInet.Allianz := ini.ReadString(GeneralSection,'Suche_Allianz','http://uni%U.ostat.de/index.php?ext=allyueber&name=%A');
+  PlayerOptions.SuchInet.Name := ini.ReadString(GeneralSection,'Suche_Name','war-riders.de');
+  PlayerOptions.SuchInet.Spieler := ini.ReadString(GeneralSection,'Suche_Spieler','http://www.war-riders.de/de/%U/details/player/%P');
+  PlayerOptions.SuchInet.Allianz := ini.ReadString(GeneralSection,'Suche_Allianz','http://www.war-riders.de/de/%U/details/ally/%A');
 
   PlayerOptions.phpPost := ini.ReadString(GeneralSection,'phpPOSTAdrs','');
 
@@ -2192,6 +2196,7 @@ begin
   DoOption(GeneralSection,'fleet_alert_sound'        ,true                      ,PlayerOptions.Fleet_alert);
   DoOption(GeneralSection,'fleet_alert_sound_file'   ,'.\data\3_beep.wav'       ,PlayerOptions.Fleet_Soundfile);
   DoOption(GeneralSection,'fleet_auto_time_sync'     ,false                     ,PlayerOptions.Fleet_auto_time_sync);
+  DoOption(GeneralSection,'fleet_auto_msg_close'     ,false                     ,PlayerOptions.Fleet_close_msg_window_when_arrived);
 
   // Nachfrage nach Mond:
   DoOption(GeneralSection,'check_solsys_data_askMoon',false                     ,ODataBase.check_solsys_data_before_askMoon);
@@ -2317,7 +2322,7 @@ begin
   end
   else
   begin
-    frm_report_basket.addReport(Report);
+    frm_report_basket.addReport(Report);  // will copy the scan!
     Handled := false; // so we don't add it to DB, we do it later!
   end;
 end;

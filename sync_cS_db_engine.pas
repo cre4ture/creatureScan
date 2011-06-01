@@ -282,6 +282,9 @@ var tmp: TProgressBar;
     tmp_mem: TMemo;
     i: integer;
     uname: string;
+    typ: TStatTypeEx;
+    ntyp: TStatNameType;
+    ptyp: TStatPointType;
 begin
   Result := false;
   
@@ -328,6 +331,18 @@ begin
       for i := 1 to max_Galaxy do
         if not FRM_POST_TEST.Stop then
           FRM_POST_TEST.Sync_Report(i);
+
+      for ntyp := low(ntyp) to high(ntyp) do
+      if not FRM_POST_TEST.Stop then
+      begin
+        for ptyp := low(ptyp) to high(ptyp) do
+        if not FRM_POST_TEST.Stop then
+        begin
+          typ.NameType := ntyp;
+          typ.PointType := ptyp;
+          FRM_POST_TEST.Sync_Stats(typ);
+        end;
+      end;
 
       FRM_POST_TEST.log('ready!!',10);
 

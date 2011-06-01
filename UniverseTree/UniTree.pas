@@ -928,7 +928,6 @@ constructor TNetUniTree.Create(GalaxyCount, SolSysCount, PlanetCount: Integer;
 begin
   cS_Serv := cSServer;
   UniMerge := TMergeSocket.Create;
-  UniMerge := TMergeSocket.Create;
   UniMerge.OnNewPacket_ReadThread := SolSysMergeOnNewPacket_ReadThread;
   UniMerge.OnNewSocket := SolSysMergeOnNewSocket;
   UniMerge.OnRemoveSocket := SolSysMergeOnRemoveSocket;

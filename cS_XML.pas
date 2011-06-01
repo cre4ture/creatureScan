@@ -39,15 +39,17 @@ const
   //Statistic_XML_idents:
   xstat_group                      = 'stats';
   xstat_group_time                 = 'time';
-  xstat_group_nametype             = 'ntyp';
+  xstat_group_nametype             = 'ntype';
   xstat_group_nametype_idents      : array[TStatNameType] of string = (
                                      'player',
                                      'alliance');
-  xstat_group_pointtype            = 'ptyp';
+  xstat_group_pointtype            = 'ptype';
   xstat_group_pointtype_idents     : array[TStatPointType] of string = (
                                      'points',
                                      'fleet',
                                      'research');
+  xstat_group_first                = 'first';
+  xstat_group_count                = 'count';
   xstat_rank                       = 'rank';
   xstat_rank_position              = 'pos';
   xstat_rank_name                  = 'name';
@@ -125,6 +127,7 @@ function ScanToXML_(Scan: TScanBericht; csvers: string): String;
 procedure ScanToXML_fxml(fxml: TFastXmlWriter; Scan: TScanBericht; csvers: string);
 function parse_unknown(parser: TXMLParser; parse_known: Boolean): boolean;
 procedure ImportXMLODB_(Filename: String; ODB: TOgameDataBase);
+procedure StatToXML_fxml(fxml: TFastXmlWriter; Stat: TStat; StatType: TStatTypeEx);
 function StatToXML_(Stat: TStat; StatType: TStatTypeEx): String;
 function parse_stat(parser: TXMLParser; var Stat: TStat;
   var snt: TStatNameType; var spt: TStatPointType): boolean; overload;
@@ -540,7 +543,7 @@ begin
 end;
 
 function SysToXML_(sys: TSystemCopy; csvers: string): string;
-var fxml: TFastXmlWriter; 
+var fxml: TFastXmlWriter;
 begin
   fxml := TFastXmlWriter.Create('');
   try
@@ -996,56 +999,55 @@ begin
 end;
 
 function StatToXML_(Stat: TStat; StatType: TStatTypeEx): String;
-
-  procedure attrAdd(var xml: string; attrName, attrValue: string);
-  begin
-    xml := xml + ' ' + attrName + '="' + attrValue + '"';
-  end;
-
-var empty: Boolean;
-    i: integer;
+var fxml: TFastXmlWriter;
 begin
-  empty := True;
-  Result := '<' + xstat_group + ' ' +
-    xstat_group_time + '="' + IntToStr(Stat.Time_u) + '" ' +
-    xstat_group_nametype + '="' +
-    StatNameTypeToString(StatType.NameType) + '" ' +
-    xstat_group_pointtype + '="' +
-    StatPointTypeToString(StatType.PointType) + '"';
+  fxml := TFastXmlWriter.Create('');
+  try
+    StatToXML_fxml(fxml, Stat, StatType);
+    Result := fxml.getXML();
+  finally
+    fxml.Free;
+  end;
+end;
+
+procedure StatToXML_fxml(fxml: TFastXmlWriter; Stat: TStat; StatType: TStatTypeEx);
+var i: integer;
+begin
+  fxml.beginTag(xstat_group);
+  fxml.addAttribute(xstat_group_time, Stat.Time_u);
+  fxml.addAttribute(xstat_group_nametype, StatNameTypeToString(StatType.NameType));
+  fxml.addAttribute(xstat_group_pointtype, StatPointTypeToString(StatType.PointType));
+  fxml.addAttribute(xstat_group_first, Stat.first);
+  fxml.addAttribute(xstat_group_count, Stat.count);
+
   for i := 0 to length(Stat.Stats)-1 do
+  begin
     if Stat.Stats[i].Name <> '' then
     begin
-      if empty then
-      begin
-        empty := False;
-        Result := Result + '>';
-      end;
-
-      Result := Result + '<' + xstat_rank + ' ' +
-        xstat_rank_position + '="' + IntToStr(Stat.first+i) + '" ' +
-        xstat_rank_name + '="' + Stat.Stats[i].Name + '" ' +
-        xstat_rank_points + '="' + IntToStr(Stat.Stats[i].Punkte) + '"';
+      fxml.beginTag(xstat_rank);
+      fxml.addAttribute(xstat_rank_position, Stat.first+i);
+      fxml.addAttribute(xstat_rank_name, Stat.Stats[i].Name);
+      fxml.addAttribute(xstat_rank_points, Stat.Stats[i].Punkte);
 
       if (Stat.Stats[i].NameId >= 0) then
-        attrAdd(Result, xstat_rank_name_id, IntToStr(Stat.Stats[i].NameId));
+        fxml.addAttribute(xstat_rank_name_id, Stat.Stats[i].NameId);
 
       case StatType.NameType of
         sntPlayer:
           if Stat.Stats[i].Ally <> '' then
-            attrAdd(Result, xstat_rank_alliance, Stat.Stats[i].Ally);
+            fxml.addAttribute(xstat_rank_alliance, Stat.Stats[i].Ally);
         sntAlliance:
-          attrAdd(Result,xstat_rank_members,IntToStr(Stat.Stats[i].Mitglieder));
+          fxml.addAttribute(xstat_rank_members, Stat.Stats[i].Mitglieder);
       end;
-      Result := Result + '/>';
+      fxml.endTag(xstat_rank);
     end;
-
-  if empty then
-    Result := Result + '/>'
-  else Result := Result + '</stats>';
+  end;
+  fxml.endTag(xstat_group);
 end;
 
 function parse_stat(parser: TXMLParser; var Stat: TStat;
   var snt: TStatNameType; var spt: TStatPointType): boolean;
+var i: integer;
 
   function parse_xstat_rank: boolean;
   var r: integer;
@@ -1053,30 +1055,26 @@ function parse_stat(parser: TXMLParser; var Stat: TStat;
     Result := (parser.CurName = xstat_rank);
     if Result then
     begin
-      r := -1;
       try
         r := StrToInt(parser.CurAttr.Value(xstat_rank_position)) - Stat.first;
-
-        if Stat.first = 0 then
-        begin
-          Stat.first := r;
-          r := 0;
-        end;
+        if (r <> i) then raise Exception.Create('invalid!');
 
         Stat.Stats[r].Name := parser.CurAttr.Value(xstat_rank_name);
-        Stat.Stats[r].Punkte := StrToInt64(parser.CurAttr.Value(xstat_rank_points));
+        Stat.Stats[r].NameId := StrToInt64Def(parser.CurAttr.Value(xstat_rank_name_id), -1);
+        Stat.Stats[r].Punkte := StrToInt64Def(parser.CurAttr.Value(xstat_rank_points), 0);
         case snt of
           sntPlayer:
             Stat.Stats[r].Ally := parser.CurAttr.Value(xstat_rank_alliance);
           sntAlliance:
             Stat.Stats[r].Mitglieder := StrToInt(parser.CurAttr.Value(xstat_rank_members))
         end;
+        inc(i);
       except
         parse_error(parser,Format('Rank %d from Stat %d-%d from %s is broken!' +
         ' (%s/%s) Can''t use this stat!',
-        [r+Stat.first,Stat.first,Stat.first+99,DateTimeToStr(UnixToDateTime(Stat.Time_u)),
+        [i+Stat.first,Stat.first,Stat.first+99,DateTimeToStr(UnixToDateTime(Stat.Time_u)),
         StatNameTypeToString(snt),StatPointTypeToString(spt)]));
-        //Komplette Stat entwehrten!!!
+        //Komplette Stat entwerten!!!
         FillChar(Stat,SizeOf(Stat),0);
       end;
 
@@ -1092,7 +1090,6 @@ function parse_stat(parser: TXMLParser; var Stat: TStat;
   end;
 
 begin
-  //!!!!!!!!!!!!!!!!!!!!!!!!!! not tested jet !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Result := (parser.CurName = xstat_group);
   if Result then
   begin
@@ -1101,6 +1098,11 @@ begin
       Stat.Time_u := StrToInt64(parser.CurAttr.Value(xstat_group_time));
       snt := StringToStatNameType(parser.CurAttr.Value(xstat_group_nametype));
       spt := StringToStatpointType(parser.CurAttr.Value(xstat_group_pointtype));
+      Stat.first := StrToInt(parser.CurAttr.Value(xstat_group_first));
+      Stat.count := StrToIntDef(parser.CurAttr.Value(xstat_group_count), 0);
+
+      if (Stat.first mod 100) <> 1 then raise Exception.Create('Invalid!');
+      if Stat.count > 100 then raise Exception.Create('Invalid!');
     except
       parse_error(parser,Format('Stat %d-%d from %s is broken! (%s/%s)',
         [Stat.first,Stat.first+99,DateTimeToStr(UnixToDateTime(Stat.Time_u)),
@@ -1108,6 +1110,7 @@ begin
       FillChar(Stat,SizeOf(Stat),0);
     end;
 
+    i := 0;
     if parser.CurPartType <> ptEmptyTag then
     while (parser.Scan)and(parser.CurPartType <> ptEndTag) do
     begin
@@ -1118,6 +1121,14 @@ begin
               parse_unknown(parser,False);
           end;
       end;
+    end;
+
+    if (i <> Stat.count) then
+    begin
+      parse_error(parser,Format('Stat %d-%d from %s is broken! (%s/%s)',
+        [Stat.first,Stat.first+99,DateTimeToStr(UnixToDateTime(Stat.Time_u)),
+        StatNameTypeToString(snt),StatPointTypeToString(spt)]));
+      FillChar(Stat,SizeOf(Stat),0);
     end;
   end;
 end;

@@ -21,16 +21,16 @@ object FRM_Uebersicht: TFRM_Uebersicht
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object PB_Lupe: TPaintBox
-    Left = 567
+  object Splitter1: TSplitter
+    Left = 517
     Top = 81
-    Width = 225
     Height = 189
     Align = alRight
   end
-  object Splitter1: TSplitter
-    Left = 564
+  object PB_Lupe: TPaintBox
+    Left = 520
     Top = 81
+    Width = 272
     Height = 189
     Align = alRight
   end
@@ -128,7 +128,7 @@ object FRM_Uebersicht: TFRM_Uebersicht
   object ScrollBox1: TScrollBox
     Left = 0
     Top = 81
-    Width = 443
+    Width = 396
     Height = 189
     Align = alClient
     BorderStyle = bsNone
@@ -149,7 +149,7 @@ object FRM_Uebersicht: TFRM_Uebersicht
     end
   end
   object lb_ranges: TListBox
-    Left = 443
+    Left = 396
     Top = 81
     Width = 121
     Height = 189
@@ -218,7 +218,7 @@ object FRM_Uebersicht: TFRM_Uebersicht
     end
   end
   object PopupMenu2: TPopupMenu
-    Left = 564
+    Left = 628
     Top = 136
     object delete1: TMenuItem
       Caption = 'delete'
