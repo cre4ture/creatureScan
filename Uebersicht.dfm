@@ -1,6 +1,6 @@
 object FRM_Uebersicht: TFRM_Uebersicht
-  Left = 351
-  Top = 596
+  Left = 256
+  Top = 338
   Width = 800
   Height = 295
   HorzScrollBar.Size = 8

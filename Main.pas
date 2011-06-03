@@ -184,6 +184,7 @@ type
     LBL_WF_0_2: TLabel;
     LBL_WF_0_3: TLabel;
     btn_fight_start: TButton;
+    spiodirekt1: TMenuItem;
     procedure btn_lastClick(Sender: TObject);
     procedure btn_nextClick(Sender: TObject);
     procedure LblWikiLinkClick(Sender: TObject);
@@ -274,6 +275,7 @@ type
     procedure frmevents1Click(Sender: TObject);
     procedure stresstestforaddsolsys1Click(Sender: TObject);
     procedure closeFreeAudioFiles1Click(Sender: TObject);
+    procedure spiodirekt1Click(Sender: TObject);
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
@@ -2522,6 +2524,11 @@ end;
 procedure TFRM_Main.closeFreeAudioFiles1Click(Sender: TObject);
 begin
   SoundModul.CloseFreeFiles;
+end;
+
+procedure TFRM_Main.spiodirekt1Click(Sender: TObject);
+begin
+  Spionage1Click(Sender);
 end;
 
 end.

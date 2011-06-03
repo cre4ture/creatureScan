@@ -78,6 +78,7 @@ type
     procedure DrawFilterRanges;
     function CursorPosToKoord(x, y: Integer): TPlanetPosition;
     procedure Refresh_lb_ranges;
+    procedure DrawPlanetRange(Canvas: TCanvas; Range: TPlanetRange);
     { Private-Deklarationen }
   public
     Selected: TPlanetRangeList;
@@ -109,7 +110,7 @@ begin
   Refresh_lb_ranges;
 end;
 
-procedure DrawPlanetRange(Canvas: TCanvas; Range: TPlanetRange);
+procedure TFRM_Uebersicht.DrawPlanetRange(Canvas: TCanvas; Range: TPlanetRange);
 var g1,g2: integer;
     s1,s2: integer;
     p1,p2: integer;
@@ -124,19 +125,19 @@ begin
 
   for j := g1 to g2 do
   begin
-    Canvas.Rectangle(s1-1,(j-1)*20+p1+1,s2,(j-1)*20+p2+2);
+    Canvas.Rectangle(s1-1,(j-1)*dy+p1+1,s2,(j-1)*dy+p2+2);
 
     w1 := Canvas.TextWidth(IntToStr(s1));
-    h := (20-Canvas.TextHeight(IntToStr(s1))) div 2;
+    h := (dy-Canvas.TextHeight(IntToStr(s1))) div 2;
     w2 := Canvas.TextWidth(IntToStr(s2));
     if (w1+w2+4 > s2-s1) then
     begin
-      Canvas.TextOut(s1-2-w1,(j-1)*20+h,IntToStr(s1));
-      Canvas.TextOut(s2+1,(j-1)*20+h,IntToStr(s2));
+      Canvas.TextOut(s1-2-w1,(j-1)*dy+h,IntToStr(s1));
+      Canvas.TextOut(s2+1,(j-1)*dy+h,IntToStr(s2));
     end else
     begin
-      Canvas.TextOut(s1+1,(j-1)*20+h,IntToStr(s1));
-      Canvas.TextOut(s2-3-w2,(j-1)*20+h,IntToStr(s2));
+      Canvas.TextOut(s1+1,(j-1)*dy+h,IntToStr(s1));
+      Canvas.TextOut(s2-3-w2,(j-1)*dy+h,IntToStr(s2));
     end;
   end;
 end;
