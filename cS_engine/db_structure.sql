@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: May 31, 2011 at 11:00 AM
+-- Generation Time: Jun 03, 2011 at 11:10 PM
 -- Server version: 5.0.67
 -- PHP Version: 5.2.14
 
@@ -104,6 +104,7 @@ CREATE TABLE `planet` (
   `tfmet` bigint(20) unsigned default NULL,
   `tfcrys` bigint(20) unsigned default NULL,
   `name` varchar(25) default NULL,
+  `activity` int(11) default NULL,
   `player` varchar(25) default NULL,
   `playerid` bigint(20) unsigned default NULL,
   `alliance` varchar(10) default NULL,
