@@ -1,8 +1,8 @@
 rem rebuild all projects (automatically builds without debug flags)
 
-call project_build.bat ../_cSplugins/fullhtml_betauni/ fullhtml_betauni
+call project_build.bat ../cSplugins/fullhtml_betauni/ fullhtml_betauni
 if errorlevel 1 exit /B 1
-call project_build.bat ../_cSplugins/fullhtml/ fullhtml
+call project_build.bat ../cSplugins/fullhtml/ fullhtml
 if errorlevel 1 exit /B 1
 call project_build.bat ../ creatureScan
 if errorlevel 1 exit /B 1

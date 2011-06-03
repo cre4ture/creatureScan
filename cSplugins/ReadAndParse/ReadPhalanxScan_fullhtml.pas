@@ -177,22 +177,27 @@ function ThtmlPhalanxRead.readHtmlTag_ships(const tag: THTMLElement;
   const fce: ThtmlPhalanx_fligthclassEx; var fleet: TFleetEvent): boolean;
 var s: string;
     el: THTMLElement;
-    list: TInfoArray;
     c, i: integer;
+    tmp: TScanBericht;
 begin
   Result := False;
 
   el := tag.FindChildTagPath('th:1/span:0/a:1');
   if el = nil then exit;
   s := el.AttributeValue['title'];
-  c := readreport._LeseTeilScanBericht(s, list, sg_Flotten, false);
-  Result := c > 0;
-  if Result then
-  begin
-    for i := 0 to length(fleet.ships)-1 do
+  tmp := TScanBericht.Create;
+  try
+    c := readreport._LeseTeilScanBericht(s, tmp, sg_Flotten, false);
+    Result := c > 0;
+    if Result then
     begin
-      fleet.ships[i] := list[i];
+      for i := 0 to length(fleet.ships)-1 do
+      begin
+        fleet.ships[i] := tmp.Bericht[sg_Flotten,i];
+      end;
     end;
+  finally
+    tmp.Free;
   end;
 end;
 
@@ -200,8 +205,9 @@ function ThtmlPhalanxRead.readHtmlTag_transport(const tag: THTMLElement;
   const fce: ThtmlPhalanx_fligthclassEx; var fleet: TFleetEvent): boolean;
 var s: string;
     el: THTMLElement;
-    ress: TInfoArray;
     c: integer;
+    tmp: TScanBericht;
+    i: integer;
 begin
   Result := False;
 
@@ -209,11 +215,17 @@ begin
   if el = nil then Exit;
 
   s := el.AttributeValue['title'];
-  c := readreport._LeseTeilScanBericht(s, ress, sg_Rohstoffe, False);
-  Result := c > 0;
-  if Result then
-  begin
-    fleet.ress := ress;
+  tmp := TScanBericht.Create;
+  try
+    c := readreport._LeseTeilScanBericht(s, tmp, sg_Rohstoffe, False);
+    Result := c > 0;
+    if Result then
+    begin
+      for i := 0 to length(fleet.ress)-1 do
+        fleet.ress[i] := tmp.Bericht[sg_Rohstoffe, i];
+    end;
+  finally
+    tmp.Free;
   end;
 end;
 

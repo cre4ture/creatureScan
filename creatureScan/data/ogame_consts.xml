@@ -2,7 +2,7 @@
 <data>
   <creaturescan>
     <updatecheck url="http://creaturescan.creax.de/update/latest.txt"/>
-    <quickupdate url="http://creaturescan.creax.de/update/"/>
+    <quickupdate url="http://creaturescan.creax.de/update/2.0/"/>
   </creaturescan>
   <raids maxraids24h="5"/>
   <game count="9">

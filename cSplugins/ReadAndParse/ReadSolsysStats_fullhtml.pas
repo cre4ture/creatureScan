@@ -3,7 +3,7 @@ unit ReadSolsysStats_fullhtml;
 interface
 
 uses
-  Inifiles, OGame_Types, html, parser, DateUtils, SysUtils, readsource{, Dialogs{};
+  Inifiles, OGame_Types, html, parser, DateUtils, SysUtils, readsource, parser_types;
 
 const
    HTMLTrimChars = [' ',#$D, #$A, #9];

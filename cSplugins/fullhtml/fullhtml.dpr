@@ -18,7 +18,8 @@ uses
   ReadSolsysStats_fullhtml in '..\ReadAndParse\ReadSolsysStats_fullhtml.pas',
   readsource in '..\readsource.pas',
   call_fleet in '..\ReadAndParse\call_fleet.pas',
-  readsource_cs in '..\readsource_cs.pas';
+  readsource_cs in '..\readsource_cs.pas',
+  cS_memstream in '..\..\cS_memstream.pas';
 
 type
   TScanReadOptions = record
@@ -204,17 +205,26 @@ begin
   Result := True;
 end;
 
-function ScanToStr(SB: Pointer; AsTable: Boolean): THandle;
+function ScanToStr(scan_buf: Pointer; scan_size: cardinal;
+  AsTable: Boolean): THandle;
 var Scan: TScanBericht;
     s: string;
+    stream: TFixedMemoryStream_in;
 begin
-  Scan := ReadBufScan(SB);
+  stream := TFixedMemoryStream_in.Create(scan_buf, scan_size);
+  Scan := TScanBericht.Create;
+  try
+    Scan.deserialize(stream);
 
-  s := ReportRead.ReportToString(Scan, AsTable) + #0;
+    s := ReportRead.ReportToString(Scan, AsTable) + #0;
 
-  Result := GlobalAlloc(GMEM_MOVEABLE,length(s));
-  CopyMemory(GlobalLock(Result),PChar(s),length(s));
-  GlobalUnlock(Result);
+    Result := GlobalAlloc(GMEM_MOVEABLE,length(s));
+    CopyMemory(GlobalLock(Result),PChar(s),length(s));
+    GlobalUnlock(Result);
+  finally
+    stream.Free;
+    scan.Free;
+  end;
 end;
 
 function ReadScans(Handle: Integer): integer;
@@ -223,27 +233,34 @@ begin
   Result := -1;
   if not _get_RS(Handle, rs) then Exit;
 
-  rs.readscanlist := ReportRead.Read(rs.GetText());
+  rs.readscanlist.clear;
+  Result := ReportRead.Read(rs.GetText(), rs.readscanlist);
   rs.rsl_index := 0;
-  Result := Length(rs.readscanlist);
 end;
 
-function GetScan(Handle: integer; Scan: Pointer; var AskMoon: Boolean): Boolean;
+function GetScan(Handle: integer; Scan: Pointer; scan_size: cardinal;
+  var AskMoon: Boolean): Boolean;
 var rs: TReadSource_cS;
+    stream: TFixedMemoryStream_in;
 begin
-  Result := false;
-  if not _get_RS(Handle, rs) then Exit;
+  stream := TFixedMemoryStream_in.Create(Scan, scan_size);
+  try
+    Result := false;
+    if not _get_RS(Handle, rs) then Exit;
 
-  with rs do
-  begin
-    Result := rsl_index < length(readscanlist);
-    if Result then
+    with rs do
     begin
-      WriteBufScan(readscanlist[rsl_index].Report, Scan);
-      AskMoon := readscanlist[rsl_index].AskMoon;
-    end;
+      Result := rsl_index < readscanlist.Count;
+      if Result then
+      begin
+        readscanlist.reports[rsl_index].serialize(stream);
+        AskMoon := readscanlist.reports[rsl_index].AskMoon;
+      end;
 
-    inc(rsl_index);
+      inc(rsl_index);
+    end;
+  finally
+    stream.Free;
   end;
 end;
 

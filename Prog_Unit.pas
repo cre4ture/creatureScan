@@ -40,7 +40,7 @@ const
   pi_TSyncRaids      = 1029;
   pi_TSyncStats      = 1030;
 
-const VNumber = '2.0a';
+const VNumber = '1.9x';
       
 
 {$DEFINE oanzahl}  //ohne Anzahl!! -- brauchts nirgends mehr!
@@ -81,6 +81,7 @@ type
   TOgameDataBase = class;
   TOGameDataBase_AskMoon = procedure(Sender: TOGameDataBase; const
     Report: TScanBericht; var isMoon: Boolean; var Handled: Boolean) of object;
+  EUserCanceledInit = class(Exception);
   TOgameDataBase = class(TObject)
   protected
     cS_NetServ: TcSServer;
@@ -1037,7 +1038,11 @@ function TOgameDataBase.CheckUserOptions(ForceDialog: Boolean): boolean;
 
 var r: integer;
 begin
-  if (not ForceDialog) and ValidUserOptions then r := idYes else r := idNo;
+  if (not ForceDialog) and ValidUserOptions then
+    r := idYes
+  else
+    r := idNo;
+    
   while r = idNo do
   begin
     if ExecuteSpiDaForm then
@@ -1045,7 +1050,7 @@ begin
       if ValidUserOptions then r := idYes else r := idNo;
     end
     else
-      r := idCancel;
+      raise EUserCanceledInit.Create('User Canceled init!');
   end;
   Result := r <> idCancel;
 end;

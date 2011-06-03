@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, VirtualTrees, OGame_Types, html, IdHTTP,
-  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient;
+  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, ExtCtrls;
 
 type
   PQuickUpdateFileData = ^TQuickUpdateFileData;
@@ -16,11 +16,12 @@ type
     status: string;
   end;
   Tfrm_quickupdate = class(TForm)
+    Panel1: TPanel;
+    lbl_update: TLabel;
+    Label1: TLabel;
     vst_files: TVirtualStringTree;
     btn_update: TButton;
-    lbl_update: TLabel;
     Button2: TButton;
-    Label1: TLabel;
     Button3: TButton;
     IdHTTP1: TIdHTTP;
     procedure vst_filesGetNodeDataSize(Sender: TBaseVirtualTree;
