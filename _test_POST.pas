@@ -96,6 +96,7 @@ type
     FServerUni: array of array of TTimeID;
     more: Boolean;
     sessionid: string;
+    procedure parseError(parser: TXmlParser);
     function ReadServerUni(p1, p2: word): TTimeID;
     procedure WriteServerUni(p1, p2: word; value: TTimeID);
     procedure PostAndParseAnswer(read, write: string);
@@ -258,17 +259,11 @@ begin
       SetProgress(trunc((parser.CurFinal - parser.DocBuffer) / DocSize * 100.0));
 
       case parser.CurPartType of
-        {ptNone: ShowMessage('ptNone: "' + parser.CurName + '"');
-        ptXmlProlog: ShowMessage('ptXmlProlog: "' + parser.CurName + '"');
-        ptComment: ShowMessage('ptComment: "' + parser.CurName + '"');
-        ptPI: ShowMessage('ptPI: "' + parser.CurName + '"');
-        ptDtdc: ShowMessage('ptDtdc: "' + parser.CurName + '"');   }
         ptStartTag, ptEmptyTag:
           begin
 
             if parser.CurName = 'serverinfo' then
             begin
-//              snow := StrToInt64(parser.CurAttr.Value('time'));
               csvers := parser.CurAttr.Value('csvers');
               pos[0] := StrToInt(parser.CurAttr.Value('galacount'));
               pos[1] := StrToInt(parser.CurAttr.Value('syscount'));
@@ -285,14 +280,15 @@ begin
               pos[0] := StrToInt(parser.CurAttr.Value('gala'));
               pos[1] := StrToInt(parser.CurAttr.Value('sys'));
               tid.time := StrToInt(parser.CurAttr.Value('time'));
-              //tid.id := StrToInt(parser.CurAttr.Value('id'));  not yet implementet...
               ServerUni[pos[0],pos[1]] := tid;
             end;
 
+            if parser.CurName = 'error' then
+            begin
+              parseError(parser);
+            end;
+
           end;
-        {ptEndTag: ShowMessage('ptEndTag: "' + parser.CurName + '"');
-        ptContent: ShowMessage('ptContent: "' + parser.CurName + '"');
-        ptCData: ShowMessage('ptCData: "' + parser.CurName + '"'); }
       end;
     end;
   finally
@@ -438,6 +434,11 @@ begin
               begin
                 partnr := StrToInt(parser.CurAttr.Value('partnr'));
                 servertimes[partnr] := StrToInt(parser.CurAttr.Value('time'));
+              end;
+
+              if parser.CurName = 'error' then
+              begin
+                parseError(parser);
               end;
 
             end;
@@ -622,9 +623,7 @@ end;
 
 function TFRM_POST_TEST.ParseAnswer(xml: string): boolean;
 var parser: TXmlParser;
-//    write: boolean;
 begin
-//  write := False;
   Result := true;
   parser := TXmlParser.Create;
   parser.LoadFromBuffer(PChar(xml));
@@ -634,23 +633,14 @@ begin
     case Parser.CurPartType of
       ptStartTag, ptEmptyTag:
         begin
-//          if parser.CurName = 'write' then write := True else
           if parser.CurName = 'read' then
           begin
             parse_unknown(parser, true);
           end;
           if parser.CurName = 'error' then
           begin
-            log('error: '+parser.CurAttr.Value('type')+':'+
-                             parser.CurAttr.Value('no'),10);
-            Result := false; // report error
+            parseError(parser);
           end;
-        end;
-      ptContent: if parser.CurName = 'error' then
-              log(parser.CurContent,10);
-      ptEndTag:
-        begin
-//          if parser.CurName = 'write' then write := False;
         end;
     end;
   until (not Parser.Scan);
@@ -1222,6 +1212,38 @@ begin
         Exit;
     end;
   end;
+end;
+
+procedure TFRM_POST_TEST.parseError(parser: TXmlParser);
+var ende: boolean;
+    level: integer;
+begin
+  ende := false;
+  level := 0;
+  repeat
+    case Parser.CurPartType of
+      ptStartTag, ptEmptyTag:
+        begin
+          if parser.CurName = 'error' then
+          begin
+            log('error: '+parser.CurAttr.Value('type')+':'+
+                             parser.CurAttr.Value('no'),10);
+            inc(level);
+          end;
+        end;
+      ptContent: if parser.CurName = 'error' then
+              log(parser.CurContent,10);
+      ptEndTag:
+        begin
+          if parser.CurName = 'error' then
+          begin
+            dec(level);
+            ende := level <= 0;
+          end;
+        end;
+    end;
+    ende := ende or (not parser.Scan);
+  until ende;
 end;
 
 end.

@@ -980,6 +980,11 @@ object FRM_Main: TFRM_Main
         Caption = 'Languagefile'
         OnClick = Languagefile1Click
       end
+      object spiodirekt1: TMenuItem
+        Caption = 'spio_direkt'
+        ShortCut = 16467
+        OnClick = spiodirekt1Click
+      end
       object NewScan1: TMenuItem
         Caption = 'NewScan'
         ShortCut = 49230
@@ -1363,7 +1368,8 @@ object FRM_Main: TFRM_Main
     end
     object Spionage1: TMenuItem
       Tag = 2
-      Caption = 'Spionage (direct)'
+      Caption = 'Spionage (direkt)'
+      ShortCut = 16467
       OnClick = Spionage1Click
     end
     object Spionage2: TMenuItem

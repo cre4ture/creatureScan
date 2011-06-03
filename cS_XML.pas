@@ -17,6 +17,7 @@ const
   xsys_group_time                  = 'time';
   xsys_planet                      = 'planet';
   xsys_planet_pos                  = 'pos';
+  xsys_planet_activity             = 'activity';
   xsys_planet_moon                 = 'moon';
   xsys_planet_mtemp                = 'mtemp';
   xsys_planet_tfmet                = 'tfmet';
@@ -570,6 +571,9 @@ begin
       begin
         fxml.beginTag(xsys_planet);
         fxml.addAttribute(xsys_planet_pos, i);
+        
+        if ( csvers >= '0.7' ) and
+           ( Activity > 0 ) then fxml.addAttribute(xsys_planet_activity, Activity);
 
         if PlanetName <> '' then fxml.addAttribute(xsys_planet_name, PlanetName);
         if Player     <> '' then fxml.addAttribute(xsys_planet_player, Player);
@@ -644,6 +648,9 @@ function parse_Sys(parser: TXmlParser; var solsys: TSystemCopy): Boolean;
 
           s := parser.CurAttr.Value(xsys_planet_tfcrys);
           if s <> '' then TF[1] := StrToInt(s);
+
+          s := parser.CurAttr.Value(xsys_planet_activity);
+          if s <> '' then Activity := StrToInt(s);
         end;
       except
         //Ungültiges System durch ungültige Position Markieren!

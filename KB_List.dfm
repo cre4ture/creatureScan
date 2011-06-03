@@ -254,21 +254,22 @@ object FRM_KB_List: TFRM_KB_List
       794
       25)
     object sh_servertime: TShape
-      Left = 584
+      Left = 560
       Top = 0
-      Width = 165
+      Width = 189
       Height = 24
       Anchors = [akTop, akRight]
       Pen.Style = psClear
       Pen.Width = 0
     end
     object lbl_servertime_: TLabel
-      Left = 584
+      Left = 560
       Top = 0
-      Width = 165
+      Width = 189
       Height = 24
-      Alignment = taRightJustify
+      Alignment = taCenter
       Anchors = [akTop, akRight]
+      AutoSize = False
       BiDiMode = bdRightToLeft
       Caption = '00.00.0000 00:00:00'
       Font.Charset = DEFAULT_CHARSET
@@ -281,7 +282,7 @@ object FRM_KB_List: TFRM_KB_List
       Transparent = True
     end
     object Label2: TLabel
-      Left = 528
+      Left = 504
       Top = 6
       Width = 50
       Height = 13
@@ -305,9 +306,9 @@ object FRM_KB_List: TFRM_KB_List
       OnClick = btn_time_syncClick
     end
     object ProgressBar1: TProgressBar
-      Left = 584
+      Left = 560
       Top = 0
-      Width = 165
+      Width = 189
       Height = 24
       Anchors = [akTop, akRight]
       TabOrder = 1
