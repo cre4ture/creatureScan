@@ -38,7 +38,7 @@ const
   STR_Scanberichte: string = 'Scanberichte';
   STR_Systeme: string = 'Systeme';
   STR_Scans_gespeichert: string = 'Scans gespeichert!';
-  STR_konnte_keine_Scans_suslesen: string = 'Fehler: Konnte keine Scans auslesen!'#$0D#$0A'Wenn du den Fehler melden willst wähle im Menu "Funktionen"->"fehlerhaftes Einlesen melden..."';
+  STR_konnte_keine_Scans_suslesen: string = 'Es konnten keine Scans ausgelesen werden!';
   STR_SysImportFertig_loeschn: string = 'Der Import der alten Sonnensystemdaten ist abgeschlossen. Soll die alte Datei gelöscht werden? Sie wird normalerweise nichtmehr benötigt!';
   STR_ScanImportFertig_loeschn: string = 'Der Import der alten Spionagedaten ist abgeschlossen. Soll die alte Datei gelöscht werden? Sie wird normalerweise nichtmehr benötigt!';
   STR_MSG_Cant_ReadFlyTime: string = 'Fehler beim einlesen der Flugzeit!';

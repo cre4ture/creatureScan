@@ -488,7 +488,12 @@ begin
       begin
         if tag_.AttributeValue['class'] = 'undermark' then
         begin
-          row^.Activity := StrToIntDef(tag_.FullTagContent, 0)*60; // seconds!
+          s := Trim(tag_.FullTagContent);
+          row^.Activity := StrToIntDef(s, 0)*60; // seconds!
+          if (row^.Activity = 0)and(s = '*') then
+          begin
+            row^.Activity := -15; // (*) -> activity in last 15min
+          end;
         end;
       end;
     end
