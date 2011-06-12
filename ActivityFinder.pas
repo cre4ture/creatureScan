@@ -28,7 +28,7 @@ type
     procedure addActivity(time_u: int64; pos: TPlanetPosition);
     function count: integer;
     constructor Create(playerName: string);
-    destructor Destroy;
+    destructor Destroy; override;
   end;
 
 implementation
