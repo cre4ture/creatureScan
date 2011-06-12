@@ -81,7 +81,8 @@ uses
   chelper_server in 'chelper_server.pas' {frm_cshelper_ctrl},
   cS_memstream in 'cS_memstream.pas',
   SDBFile in '..\lib\uli\SDBFile.pas',
-  fast_xml_writer in 'fast_xml_writer.pas';
+  fast_xml_writer in 'fast_xml_writer.pas',
+  ActivityFinder in 'ActivityFinder.pas';
 
 {$R *.RES}
 

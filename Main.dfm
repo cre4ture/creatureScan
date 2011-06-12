@@ -1,6 +1,6 @@
 object FRM_Main: TFRM_Main
-  Left = 496
-  Top = 282
+  Left = 584
+  Top = 440
   Width = 549
   Height = 476
   Caption = 'creatureScan'

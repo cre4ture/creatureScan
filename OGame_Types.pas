@@ -124,7 +124,7 @@ type
     MondSize: Word;
     MondTemp: SmallInt;
     TF: array[0..1] of Cardinal;
-    Activity: Integer; {Time in Seconds (min*60) befor Time_u, -1 -> no info, 0 -> activity > 60 minutes}
+    Activity: Integer; {Time in Seconds (min*60) befor Time_u, -15 -> (*) within last 15min, 0 -> activity > 60 minutes}
   end;
   PSystemCopy = ^TSystemCopy; 
   TSystemCopy = record
