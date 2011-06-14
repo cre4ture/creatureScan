@@ -603,7 +603,6 @@ begin
 end;
 
 procedure TFRM_KB_List.tim_time_sync_autoTimer(Sender: TObject);
-var thread: TSimpleThread;
 begin
   tim_time_sync_auto.Enabled := False;
   btn_time_syncClick(Sender);
@@ -612,6 +611,14 @@ end;
 procedure TFRM_KB_List.FormDestroy(Sender: TObject);
 begin
   notify_grp.Free;
+  if sync_thread <> nil then
+  begin
+    try
+      sync_thread.Terminate;
+      sync_thread.WaitFor;
+    except
+    end;
+  end;
 end;
 
 function TFRM_KB_List.findFleet_notify_window(fleet: TFleetEvent): Tfrm_fleet_arrival;
@@ -810,6 +817,7 @@ function TFRM_KB_List.setProgressBar(Sender: TObject;
   Data: pointer): Integer;
 begin
   ProgressBar1.Position := integer(Data^);
+  Result := 0;
 end;
 
 function TFRM_KB_List.setTimeSyncResult(Sender: TObject;
@@ -835,6 +843,7 @@ begin
   ODataBase.FleetBoard.GameTime.TimeDelta := syncData.delta;
 
   sync_thread := nil; // thread will free itself!
+  result := 0;
 end;
 
 procedure TFRM_KB_List.btn_time_syncClick(Sender: TObject);

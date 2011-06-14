@@ -83,8 +83,8 @@ UnsafeCast=0
 MapFile=0
 OutputObjs=0
 ConsoleApp=1
-DebugInfo=0
-RemoteSymbols=0
+DebugInfo=1
+RemoteSymbols=1
 MinStackSize=16384
 MaxStackSize=1048576
 ImageBase=4194304
@@ -115,7 +115,7 @@ AutoIncBuild=1
 MajorVer=2
 MinorVer=0
 Release=0
-Build=221
+Build=234
 Debug=0
 PreRelease=0
 Special=0
@@ -126,7 +126,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=
 FileDescription=
-FileVersion=2.0.0.221
+FileVersion=2.0.0.234
 InternalName=
 LegalCopyright=
 LegalTrademarks=
@@ -135,17 +135,21 @@ ProductName=
 ProductVersion=1.0.0.0
 Comments=
 [HistoryLists\hlConditionals]
-Count=1
-Item0=delphi
+Count=3
+Item0=TEST;delphi;cS_plugin;
+Item1=TEST;delphi;plugin
+Item2=delphi
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
-Count=1
-Item0=D:\devel\lib\uli\TClipboardViewer
+Count=2
+Item0=..\..\
+Item1=D:\devel\lib\uli\TClipboardViewer
 [HistoryLists\hlUnitOutputDirectory]
 Count=1
 Item0=.\dcu
 [HistoryLists\hlOutputDirectorry]
-Count=1
-Item0=.\creatureScan
+Count=2
+Item0=..\..\creatureScan\ioplugins
+Item1=.\creatureScan

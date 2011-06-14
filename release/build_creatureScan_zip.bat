@@ -13,6 +13,7 @@ rm -r creatureScan
 mkdir creatureScan
 
 cp ../creatureScan/creatureScan.exe creatureScan
+cp ../creatureScan/cpphtmlparser.dll creatureScan
 cp -r ../creatureScan/data creatureScan
 cp -r ../creatureScan/images creatureScan
 cp -r ../creatureScan/ioplugins creatureScan
