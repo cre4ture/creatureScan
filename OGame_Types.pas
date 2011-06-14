@@ -1484,7 +1484,7 @@ procedure TReadReportList.clear;
 begin
   while flist.Count > 0 do
   begin
-    TScanBericht(flist[0]).Free;
+    TReadReport(flist[0]).Free;
     flist.Delete(0);
   end;
 end;

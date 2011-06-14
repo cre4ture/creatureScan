@@ -18,7 +18,6 @@ type
   private
     fname: string;
     ftimes: TList;
-    baseDate: Int64;
     function getTimes(index: integer): int64;
     procedure clear;
 

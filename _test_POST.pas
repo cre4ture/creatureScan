@@ -390,6 +390,8 @@ begin
     case typ.NameType of
     sntPlayer: mpc_start := 80;
     sntAlliance: mpc_start := 90;
+    else
+    mpc_start := 0;
     end;
 
     case typ.PointType of
