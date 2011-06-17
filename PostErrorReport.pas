@@ -99,6 +99,7 @@ begin
   mem_desc.Lines.Add('content-type:' + ComboBox1.Text);
   mem_desc.Lines.Add('browser:' + txt_browser.Text);
   mem_desc.Lines.Add('email:' + txt_email.Text);
+  mem_desc.Lines.Add('cS-version:' + VNumber);
 
   filename := ExtractFilePath(Application.ExeName) +
     'postreport_' + IntToStr(DateTimeToUnix(now)) + '.bin';

@@ -40,7 +40,7 @@ const
   pi_TSyncRaids      = 1029;
   pi_TSyncStats      = 1030;
 
-const VNumber = '2.0a';
+const VNumber = '2.0a1';
       
 
 {$DEFINE oanzahl}  //ohne Anzahl!! -- brauchts nirgends mehr!
@@ -237,12 +237,15 @@ begin
          (not ((fef_return in fleet.head.eventflags) and
                 (fef_own in fleet.head.eventflags)))} then
       begin
-        j := UniTree.UniReport(fleet.head.target);
-        if j >= 0 then
+        if (fleet.head.eventtype = fet_attack) then
         begin
-          fleet.ress[0] := Berichte[j].Bericht[sg_Rohstoffe,0] div 2;
-          fleet.ress[1] := Berichte[j].Bericht[sg_Rohstoffe,1] div 2;
-          fleet.ress[2] := Berichte[j].Bericht[sg_Rohstoffe,2] div 2;
+          j := UniTree.UniReport(fleet.head.target);
+          if j >= 0 then
+          begin
+            fleet.ress[0] := Berichte[j].Bericht[sg_Rohstoffe,0] div 2;
+            fleet.ress[1] := Berichte[j].Bericht[sg_Rohstoffe,1] div 2;
+            fleet.ress[2] := Berichte[j].Bericht[sg_Rohstoffe,2] div 2;
+          end;
         end;
 
         fleet.head.player := Username;

@@ -31,6 +31,7 @@ type
     str_flight: string;
     str_evtypeex: array[ThtmlPhalanx_fligthclassEx] of string;
     str_planet: string;
+    str_moon: string;
     str_url_key_events: string;
 
     time_regexp: Tregexpn;
@@ -148,6 +149,7 @@ begin
   end;
 
   str_planet := ini.ReadString(ThtmlPhalanx_inisection, 'key_planet', 'n/a');
+  str_moon := ini.ReadString(ThtmlPhalanx_inisection, 'moon_name', 'Mond');
 
   time_regexp := Tregexpn.Create;
   time_regexp.setexpression(
@@ -458,9 +460,33 @@ begin
       FillChar(tmppos, sizeof(tmppos), 0);
       ReadPosOrTime(s,p+1,tmppos);
       if fef_return in fleet.head.eventflags then
-        fleet.head.target := tmppos
+        fleet.head.target.P := tmppos.P
       else
-        fleet.head.origin := tmppos;
+        fleet.head.origin.P := tmppos.P;
+    end
+    else
+    if s = 'originFleet' then
+    begin
+      s := Trim(el.FullTagContent);
+      if s = str_moon then
+      begin
+        if fef_return in fleet.head.eventflags then
+          fleet.head.target.Mond := true
+        else
+          fleet.head.origin.Mond := true;
+      end;
+    end
+    else
+    if s = 'destFleet' then
+    begin
+      s := Trim(el.FullTagContent);
+      if s = str_moon then
+      begin
+        if fef_return in fleet.head.eventflags then
+          fleet.head.origin.Mond := true
+        else
+          fleet.head.target.Mond := true;
+      end;
     end
     else
     if s = 'destCoords' then
@@ -470,9 +496,9 @@ begin
       FillChar(tmppos, sizeof(tmppos), 0);
       ReadPosOrTime(s,p+1,tmppos);
       if not(fef_return in fleet.head.eventflags) then
-        fleet.head.target := tmppos
+        fleet.head.target.P := tmppos.P
       else
-        fleet.head.origin := tmppos;
+        fleet.head.origin.P := tmppos.P;
     end
     else
     if s = 'arrivalTime' then
@@ -486,6 +512,21 @@ begin
     else
     if copy(s,1,9) = 'countDown' then
     begin
+      // read netral/friendly/hostile
+      if pos('friendly',s) > 0 then
+      begin
+        include(fleet.head.eventflags, fef_friendly);
+      end;
+      if pos('hostile',s) > 0 then
+      begin
+        include(fleet.head.eventflags, fef_hostile);
+      end;
+      if pos('neutral',s) > 0 then
+      begin
+        include(fleet.head.eventflags, fef_neutral);
+      end;
+
+      // get time
       sec := 0;
       s := el.FullTagContent;
       time_regexp.match(s);
@@ -499,22 +540,6 @@ begin
       sec := sec + ReadInt(s,1);
     end;
 
-  end;
-
-
-  //Typ:
-  el := tag.FindChildTagPath('ul:0/li:0/span:0');
-  if el <> nil then
-  begin
-    s := el.AttributeValue['class'];
-    if pos('friendly',s) > 0 then
-    begin
-      include(fleet.head.eventflags, fef_friendly);
-    end;
-    if pos('hostile',s) > 0 then
-    begin
-      include(fleet.head.eventflags, fef_hostile);
-    end;
   end;
 
   //Zeiten:
