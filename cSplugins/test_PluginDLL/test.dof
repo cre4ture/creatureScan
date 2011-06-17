@@ -115,7 +115,7 @@ AutoIncBuild=1
 MajorVer=1
 MinorVer=8
 Release=3
-Build=23
+Build=24
 Debug=0
 PreRelease=0
 Special=0
@@ -126,7 +126,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=
 FileDescription=
-FileVersion=1.8.3.23
+FileVersion=1.8.3.24
 InternalName=
 LegalCopyright=
 LegalTrademarks=
@@ -135,18 +135,21 @@ ProductName=
 ProductVersion=1.0.0.0
 Comments=
 [HistoryLists\hlConditionals]
-Count=2
-Item0=TEST;delphi;
-Item1=delphi
+Count=3
+Item0=TEST;delphi;cS_plugin;
+Item1=TEST;delphi;plugin
+Item2=delphi
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
 Count=2
 Item0=..\..\
-Item1=..\;..\..\UniverseTree;..\..\;D:\devel\Ogame_tools\zeit_sync
+Item1=D:\devel\lib\uli\TClipboardViewer
 [HistoryLists\hlUnitOutputDirectory]
-Count=3
-Item0=..\..\dcu
-Item1=.\dcu
-Item2=./dcu
+Count=1
+Item0=.\dcu
+[HistoryLists\hlOutputDirectorry]
+Count=2
+Item0=..\..\creatureScan\ioplugins
+Item1=.\creatureScan
