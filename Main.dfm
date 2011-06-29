@@ -851,7 +851,7 @@ object FRM_Main: TFRM_Main
     object Statistiken1: TMenuItem
       Caption = 'Statistiken'
       object Einlesen1: TMenuItem
-        Caption = 'Einlesen...'
+        Caption = 'Anzeigen...'
         ShortCut = 16468
         OnClick = Einlesen1Click
       end

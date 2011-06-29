@@ -7,13 +7,13 @@
 		<em:iconURL>chrome://cshelper/skin/creatureScan.png</em:iconURL>
 		<em:id>creature@creax.de</em:id>
 		<em:name>cshelper</em:name>
-		<em:version>1.3</em:version>
+		<em:version>1.3b</em:version>
 		<em:updateURL/>
 		<em:type>2</em:type>
 		<em:targetApplication>
 			<RDF:Description>
 				<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-				<em:maxVersion>4.*</em:maxVersion>
+				<em:maxVersion>5.*</em:maxVersion>
 				<em:minVersion>3.0</em:minVersion>
 			</RDF:Description>
 		</em:targetApplication>

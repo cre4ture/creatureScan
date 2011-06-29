@@ -517,6 +517,9 @@ begin
       s := s + ' (' + ODataBase.GetPlayerStatusAtPos(pos) + ')';
     end;
 
+    if (Bericht.Head.SpielerId > 0) then
+     s := s + ' {' + IntToStr(Bericht.Head.SpielerId) + '}';
+
     //Ally:
     if (ODataBase.Uni[pos.P[0],pos.P[1]].SystemCopy >= 0) then
     begin
@@ -767,6 +770,7 @@ procedure TFrame_Bericht.FrameMouseWheel(Sender: TObject;
   var Handled: Boolean);
 begin
   VertScrollBar.Position := VertScrollBar.Position - (WheelDelta div 2);
+  handled := true;
 end;
 
 procedure TFrame_Bericht.tim_next_fleetTimer(Sender: TObject);

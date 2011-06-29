@@ -81,6 +81,7 @@ end;
 
 procedure TFRM_MainTest.FormCreate(Sender: TObject);
 begin
+  max_Galaxy := 20;
   plugin := TLangPlugIn.Create;
 
   Initialise('D:\devel\creatureScan\creatureScan\data\ogame_consts.xml');

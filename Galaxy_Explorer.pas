@@ -579,7 +579,7 @@ begin
     col_Fleetplatz: CellText := IntToStr(getPlayerFleetStatPlace(i));
     col_Allypunkte: CellText := IntToStrKP(getAllyStatPoints(i));
     col_Allyplatz: CellText := IntToStr(getAllyStatPlace(i));
-    col_PlayerID: CellText := IfThen(System.Planeten[i].PlayerId >= 0, IntToStr(System.Planeten[i].PlayerId));
+    col_PlayerID: CellText := IfThen(System.Planeten[i].PlayerId > 0, IntToStr(System.Planeten[i].PlayerId));
   end;
   case Column of
     col_TF,col_Punkte..col_Allyplatz: if CellText = '0' then CellText := '';
@@ -730,7 +730,7 @@ begin
   col_Player:
     if haveSystem then
     begin
-      if System.Planeten[Position.P[2]].PlayerId >= 0 then
+      if System.Planeten[Position.P[2]].PlayerId > 0 then
         FRM_Main.ShowSearchPlayerID(System.Planeten[Position.P[2]].PlayerId)
       else
         FRM_Main.ShowSearchPlayer(System.Planeten[Position.P[2]].Player);

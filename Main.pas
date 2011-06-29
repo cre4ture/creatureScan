@@ -10,7 +10,7 @@ uses
   clipbrd, ClipboardViewerForm, EditScan, stringlistedit, xmldom,
   XMLIntf, msxmldom, XMLDoc, cs_XML, oFight, clipbrdfunctions, UniTree,
   frm_pos_size_ini, MusiPlayer, TIReadPlugin, PlanetListInterface,
-  TrayIcon, PostErrorReport, quickupdate;
+  TrayIcon, PostErrorReport, quickupdate, Stats_Einlesen;
 
 const
   Transporter_space = 25000;
@@ -313,6 +313,7 @@ type
     procedure Notification(AComponent: TComponent; Operation: TOperation);
       override;
   public
+    frm_statistics: TFRM_Stats_Einlesen;
     frm_quickupdate: Tfrm_quickupdate;
     TrayIco: TTrayIcon;
     DockExplorer: TExplorer;
@@ -348,7 +349,7 @@ type
     procedure ClipbrdReadScan;
     procedure ClipbrdReadSys;
     procedure ShowSearchPlayer(name: string);
-    procedure ShowSearchPlayerID(id: Int64);
+    procedure ShowSearchPlayerID(id: TNameID);
     procedure ShowSearchAlly(ally: string);
     procedure Show;
     { Public-Deklarationen }
@@ -368,7 +369,7 @@ implementation
 uses Notizen, Favoriten, Info,
   Uebersicht, Connections, Export, Einstellungen, Suchen_Ersetzen,
   KB_List, Add_KB, Languages, Delete_Scans,
-  Stats_Einlesen, DateUtils, _test_POST, ComConst, StrUtils, sync_cS_db_engine,
+  DateUtils, _test_POST, ComConst, StrUtils, sync_cS_db_engine,
   SDBFile, Mond_Abfrage, moon_or_not, chelper_server;
 
 {$R *.DFM}
@@ -385,6 +386,7 @@ end;
 
 procedure TFRM_Main.FormDestroy(Sender: TObject);
 begin
+  frm_statistics.Free;
   mLatestPlanetListSource := nil; // remove free notification
   ODataBase.OnAskMoon := nil;
 
@@ -577,6 +579,7 @@ begin
   ODataBase.OnAskMoon := LangPluginOnAskMoon;
 
   StatusBar1.DoubleBuffered := True;
+  frm_statistics := TFRM_Stats_Einlesen.Create(Self);
 end;
 
 procedure TFRM_Main.lst_othersCompare(Sender: TObject; Item1,
@@ -1185,7 +1188,7 @@ begin
   with Frame_Bericht1.Bericht do
   if (Bericht[sg_Forschung,0] = -1) then
   begin
-    gpi := ODataBase.UniTree.Player.GetPlayerInfo(Head.Spieler);
+    gpi := ODataBase.UniTree.Player.GetPlayerInfo(Head.Spieler, Head.SpielerId);
     if (gpi <> nil)and(gpi^.ResearchTime_u <> 0) then
     begin
       Frame_Bericht1.Add_PlayerInfo(gpi^);
@@ -1256,7 +1259,7 @@ begin
       with Frame_Bericht2.Bericht do
         if (Bericht[sg_Forschung,0] = -1) then
         begin
-          gpi := ODataBase.UniTree.Player.GetPlayerInfo(Head.Spieler);
+          gpi := ODataBase.UniTree.Player.GetPlayerInfo(Head.Spieler, Head.SpielerId);
           if (gpi <> nil) and (gpi^.ResearchTime_u <> 0) then
           begin
             Frame_Bericht2.Add_PlayerInfo(gpi^);
@@ -1392,6 +1395,7 @@ begin
   if P_Scan.Visible then
     Frame_Bericht1.OnMouseWheel(Sender,Shift,WheelDelta,MousePos,Handled)
   else Frame_Bericht2.OnMouseWheel(Sender,Shift,WheelDelta,MousePos,Handled);
+  Handled := true;
 end;
 
 procedure TFRM_Main.updatecheck1Click(Sender: TObject);
@@ -1720,25 +1724,8 @@ begin
 end;
 
 procedure TFRM_Main.Einlesen1Click(Sender: TObject);
-var dialog: TFRM_Stats_Einlesen;
 begin
-  dialog := TFRM_Stats_Einlesen.Create(Self);
-  try
-
-    dialog.TXT_punkte.Text := IntToStrKP(ODataBase.Stats_own);
-    dialog.TXT_fleet.Text := IntToStrKP(ODataBase.FleetStats_own);
-    dialog.TXT_Ally.Text := IntToStrKP(ODataBase.AllyStats_own);
-
-    if dialog.ShowModal = mrOK then
-    begin
-      ODataBase.Stats_own := ReadInt(dialog.TXT_punkte.Text, 1);
-      ODataBase.FleetStats_own := ReadInt(dialog.TXT_fleet.Text, 1);
-      ODataBase.AllyStats_own := ReadInt(dialog.TXT_Ally.Text, 1);
-    end;
-    
-  finally
-    dialog.free;
-  end;
+  frm_statistics.Show;
 end;
 
 procedure TFRM_Main.FormClipboardContentChanged(Sender: TObject);
@@ -1797,6 +1784,8 @@ begin
         //Erfolgreich Eingelesen
         if soBeepByWatchClipboard in Einstellungen then
           Play_Alert_Sound(PlayerOptions.Beep_SoundFile);
+
+        frm_statistics.refreshOwnPoints;
       end;
     end;
 
@@ -2290,7 +2279,7 @@ begin
   FRM.BTN_SucheClick(self);
 end;
 
-procedure TFRM_Main.ShowSearchPlayerID(id: Int64);
+procedure TFRM_Main.ShowSearchPlayerID(id: TNameID);
 var FRM: TFRM_Suche;
 begin
   FRM := FRM_Main.NewSearch;
@@ -2499,14 +2488,14 @@ begin
     for j := 1 to max_Planeten do
     begin
       newsys.Planeten[j].Player := names[RandomRange(0, length(names))];
-      newsys.Planeten[j].PlayerId := -1;
+      newsys.Planeten[j].PlayerId := 0;
       if (newsys.Planeten[j].Player <> '') then
         newsys.Planeten[j].PlanetName := planets[RandomRange(0, length(planets))]
       else
         newsys.Planeten[j].PlanetName := '';
 
       newsys.Planeten[j].Ally := '';
-      newsys.Planeten[j].AllyId := -1;
+      newsys.Planeten[j].AllyId := 0;
       newsys.Planeten[j].Status := [];
       newsys.Planeten[j].MondSize := 0;
       newsys.Planeten[j].MondTemp := 0;

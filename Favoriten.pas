@@ -41,8 +41,8 @@ type
     calcMaxTemp: Single;
     solsatEnergy: Integer;
     lpa, lpi: integer;
-    thePlayerID: Int64;
-    theAllyID: Int64;
+    thePlayerID: TNameID;
+    theAllyID: TNameID;
   end;
   TPlanetItem = class
   private
@@ -974,7 +974,7 @@ begin
           AllyPunkte := Statistik[Allyplatz].Punkte;
         end;
 
-        gpi := ODataBase.UniTree.Player.GetPlayerInfo(Player);
+        gpi := ODataBase.UniTree.Player.GetPlayerInfo(Player, thePlayerID);
         if gpi <> nil then
         begin
           lpa := gpi^.lpa;
@@ -1062,7 +1062,7 @@ begin
         if VST_ScanList.FocusedNode <> nil then
         with TFav(VST_ScanList.GetNodeData(VST_ScanList.FocusedNode)^) do
         begin
-          if thePlayerID >= 0 then
+          if thePlayerID > 0 then
             FRM_Main.ShowSearchPlayerID(thePlayerID)
           else
             FRM_Main.ShowSearchPlayer(ODataBase.GetPlayerAtPos(Position, false));
