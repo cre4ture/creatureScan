@@ -1,6 +1,6 @@
 object FRM_Scan: TFRM_Scan
-  Left = 334
-  Top = 174
+  Left = 331
+  Top = 114
   Width = 929
   Height = 469
   Caption = 'FRM_Scan'
@@ -15,7 +15,7 @@ object FRM_Scan: TFRM_Scan
   OnDestroy = FormDestroy
   DesignSize = (
     921
-    442)
+    444)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel

@@ -102,6 +102,7 @@ const
   sys_playerstat_hard = 5;
 
 type
+  TNameID = Int64;
   TPlayerName = String[25]; //vermutlich 20
   TAllyName = String[10];  //vermutlich 8
   TPlanetName = String[25]; //eigentlich 20
@@ -116,10 +117,10 @@ type
   PSystemPlanet = ^TSystemPlanet;
   TSystemPlanet = record
     Player: TPlayerName;
-    PlayerId: Int64;
+    PlayerId: TNameID;
     PlanetName: TPlanetName;
     Ally: TAllyName;
-    AllyId: Int64;
+    AllyId: TNameID;
     Status: TStatus;
     MondSize: Word;
     MondTemp: SmallInt;
@@ -140,7 +141,7 @@ type
     Position: TPlanetPosition;
     Time_u: Int64;    //Unix
     Spieler: TPlayerName;
-    SpielerId: Int64;
+    SpielerId: TNameID;
     Spionageabwehr: integer;
     Creator: TPlayerName;
     {geraidet: Boolean;
@@ -207,7 +208,7 @@ type
   TStatType = (st_Player, st_Fleet, st_Ally);
   TStatPlayer = record
     Name: TPlayerName;
-    NameId: Int64;
+    NameId: TNameID;
     Punkte: Cardinal;
     case TStatType of
     st_Player: (Ally: TAllyName);    //nur für spielerstats! bei allystats wird der allyname in den Spielernamen geschrieben!
@@ -1349,8 +1350,7 @@ procedure TScanBericht.clear;
 begin
   if fReadOnly then raise Exception.Create('TScanBericht.clear(): Report is read Only!');
 
-  FillChar(Head,      sizeof(Head),      0);
-  Head.SpielerId := -1;
+  FillChar(Head,      sizeof(Head),       0);
   FillChar(resources, sizeof(resources), -1);
   FillChar(fleets,    sizeof(fleets),    -1);
   FillChar(defence,   sizeof(defence),   -1);

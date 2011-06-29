@@ -11,7 +11,7 @@ type
   PPlayerInformation = ^TPlayerInformation;
   TPlayerInformation = record
     Name: TPlayerName;
-    PlayerId: int64;
+    PlayerId: TNameID;
     Research: array[0..fsc_4_Forschung-1] of Integer;
     ResearchTime_u: Int64;
     ResearchPlanet: TPlanetPosition;
@@ -20,16 +20,16 @@ type
   TPlayerDB = class
   private
     FPlayerList: TList;
-    function FFindPlayerId(aPlayerId: int64): Integer;
-    function FFindPlayerName(aName: TPlayerName; var aPlayerId: int64): Integer;
-    function newPlayerInfo(name: string; PlayerId: int64): PPlayerInformation;
+    function FFindPlayerId(aPlayerId: TNameID): Integer;
+    function FFindPlayerName(aName: TPlayerName; var aPlayerId: TNameID): Integer;
+    function newPlayerInfo(name: string; PlayerId: TNameID): PPlayerInformation;
   public
     constructor Create;
     destructor Destroy; override;
-    procedure ANewReport(Report: TScanBericht; PlayerId: int64);
-    procedure setLPA_LPI(const player: TPlayerName; id: int64; const lpa, lpi: integer);
+    procedure ANewReport(Report: TScanBericht; PlayerId: TNameID);
+    procedure setLPA_LPI(const player: TPlayerName; id: TNameID; const lpa, lpi: integer);
     { Returns a record with name == '' if nothing was found }
-    function GetPlayerInfo(aName: TPlayerName): PPlayerInformation;
+    function GetPlayerInfo(aName: TPlayerName; id: TNameID): PPlayerInformation;
   end;
   TIntegerList = array of Integer;
   PTreePlanet = ^TTreePlanet;
@@ -69,7 +69,7 @@ type
     function PTreePlanet(gala, sys, planet: Integer;
       moon: Boolean): PTreePlanet; overload;
     function PTreePlanet(pos: TPlanetPosition): PTreePlanet; overload;
-    function FGetPlayerForScan(pos: TPlanetPosition): TPlayerName;
+    function completePlayerInfosForScan(scan: TScanBericht): boolean; // returns true if new info was added
     procedure FSetPlayerForScansInNewSys(SolSys: TSystemCopy);
     procedure FDeleteScansOfEmptyPlanetsInNewSys(Sys: TSystemCopy);
     function FFindLatestReport(Pos: TPlanetPosition;
@@ -351,14 +351,19 @@ begin
     //</MarkacMoon>
   end;
 
-  j := UniSys(Scan.Head.Position.P[0], Scan.Head.Position.P[1]);
-  if (j >= 0) then
+  if Scan.Head.SpielerId <= 0 then
   begin
-    Player.ANewReport(Scan,
-      SolSysDB[j].Planeten[Scan.Head.Position.P[2]].PlayerId);
+    j := UniSys(Scan.Head.Position.P[0], Scan.Head.Position.P[1]);
+    if (j >= 0) then
+    begin
+      Player.ANewReport(Scan,
+        SolSysDB[j].Planeten[Scan.Head.Position.P[2]].PlayerId);
+    end
+    else
+      Player.ANewReport(Scan, 0);
   end
   else
-    Player.ANewReport(Scan, -1);
+    Player.ANewReport(Scan, Scan.Head.SpielerId);
 end;
 
 procedure TUniverseTree.FUnInitReport(ScanNr: Integer);
@@ -611,7 +616,7 @@ end;
 
 
 
-procedure TPlayerDB.ANewReport(Report: TScanBericht; PlayerId: int64);
+procedure TPlayerDB.ANewReport(Report: TScanBericht; PlayerId: TNameID);
 var i: integer;
     ppi: PPlayerInformation;
 begin
@@ -649,16 +654,16 @@ begin
   inherited;
 end;
 
-function TPlayerDB.FFindPlayerId(aPlayerId: int64): Integer;
+function TPlayerDB.FFindPlayerId(aPlayerId: TNameID): Integer;
 var i: integer;
 begin
   Result := -1;
-  if (aPlayerId < 0) then exit;
+  if (aPlayerId <= 0) then exit;
   
   for i := 0 to FPlayerList.Count-1 do
   with TPlayerInformation(FPlayerList[i]^) do
   begin
-    if (PlayerId >= 0) and (PlayerId = aPlayerId) then
+    if (PlayerId > 0) and (PlayerId = aPlayerId) then
     begin
       Result := i;
       Break;
@@ -667,7 +672,7 @@ begin
 end;
 
 function TPlayerDB.FFindPlayerName(aName: TPlayerName;
-  var aPlayerId: int64): Integer;
+  var aPlayerId: TNameID): Integer;
 var i: integer;
 begin
   Result := -1;
@@ -676,10 +681,10 @@ begin
   begin
     if (Name = aName) then
     begin
-      if (PlayerId < 0) then
+      if (PlayerId <= 0) then
         PlayerId := aPlayerId
       else
-      if (aPlayerId < 0) then
+      if (aPlayerId <= 0) then
         aPlayerId := PlayerId
       else // playerID und aPlayerID > 0
       if (PlayerId <> aPlayerId) then
@@ -691,9 +696,8 @@ begin
   end;
 end;
 
-function TPlayerDB.GetPlayerInfo(aName: TPlayerName): PPlayerInformation;
+function TPlayerDB.GetPlayerInfo(aName: TPlayerName; id: TNameID): PPlayerInformation;
 var i: integer;
-    id: int64;
 begin
   Result := nil;
   i := FFindPlayerName(aName, id);
@@ -754,8 +758,7 @@ begin
 
   if (Result = -1) then
   begin
-    if (report.Head.Spieler = '') then
-      report.Head.Spieler := FGetPlayerForScan(report.Head.Position);
+    completePlayerInfosForScan(report);
 
     Result := ReportDB.AddReport(report);
     FInitReport(Result);
@@ -765,28 +768,35 @@ begin
   end;
 end;
 
-function TUniverseTree.FGetPlayerForScan(
-  pos: TPlanetPosition): TPlayerName;
-var t: Int64;
-    i: integer;
+function TUniverseTree.completePlayerInfosForScan(
+  scan: TScanBericht): boolean;
+var i: integer;
+    pos: TPlanetPosition;
 begin
-  //Suche Spielernamen für neue Scans! (In AddNewReport verwendet)
+  Result := false; // keine änderung
+  //Suche Spielernamen und spielerid für neue Scans! (In AddNewReport verwendet)
+  pos := scan.Head.Position;
 
-  t := low(t);
-  Result := '';
-  i := PTreeSys(pos.P[0],pos.P[1])^.SolSys;
-  if (i >= 0) then
+  if (scan.Head.Spieler = '') then
   begin
-    t := SolSysDB[i].Time_u;
-    Result := SolSysDB[i].Planeten[pos.P[2]].Player;
-  end;
-
-  i := UniReport(pos);
-  if (i >= 0)and
-     ((Result = '')or(ReportDB[i].Head.Time_u > t))and
-     (ReportDB[i].Head.Spieler <> '') then
+    i := PTreeSys(pos.P[0],pos.P[1])^.SolSys;
+    if (i >= 0) then
+    begin
+      scan.Head.Spieler := SolSysDB[i].Planeten[pos.P[2]].Player;
+      scan.Head.SpielerId := SolSysDB[i].Planeten[pos.P[2]].PlayerId;
+    end;
+    Result := true;
+  end
+  else
+  if (scan.Head.SpielerId <= 0) then
   begin
-    Result := ReportDB[i].Head.Spieler;
+    i := PTreeSys(pos.P[0],pos.P[1])^.SolSys;
+    if (i >= 0) then
+    begin
+      // maybe test for planetname: copy(solsysplanet.playername, 1, 9) == copy(scan.playername,1,9)
+      scan.Head.SpielerId := SolSysDB[i].Planeten[pos.P[2]].PlayerId;
+    end;
+    Result := true;
   end;
 end;
 
@@ -1761,7 +1771,7 @@ var gpi: PPlayerInformation;
     i: integer;
 begin
   Result := genericReport(pos, report_out);
-  gpi := Player.GetPlayerInfo(report_out.Head.Spieler);
+  gpi := Player.GetPlayerInfo(report_out.Head.Spieler, 0);
   if (gpi <> nil)and(gpi^.ResearchTime_u <> 0) then
   begin
     for i := 0 to Length(gpi.Research)-1 do
@@ -1769,7 +1779,7 @@ begin
   end;
 end;
 
-function TPlayerDB.newPlayerInfo(name: string; PlayerId: int64): PPlayerInformation;
+function TPlayerDB.newPlayerInfo(name: string; PlayerId: TNameID): PPlayerInformation;
 begin
   New(Result);
   Result^.ResearchTime_u := 0;
@@ -1780,7 +1790,7 @@ begin
   FPlayerList.Add(Result);
 end;
 
-procedure TPlayerDB.setLPA_LPI(const player: TPlayerName; id: int64;
+procedure TPlayerDB.setLPA_LPI(const player: TPlayerName; id: TNameID;
   const lpa, lpi: integer);
 var i: integer;
     ppi: PPlayerInformation;

@@ -107,7 +107,7 @@ type
     P_Mond: Boolean;
     Time_u: Int64;
     Spieler: TPlayerName;
-    SpielerId: Int64;
+    SpielerId: Int64; // invalid: 0 or -1
     Spionageabwehr: Smallint;
     Creator: TPlayerName;
     Activity: Smallint;
@@ -249,7 +249,6 @@ begin
     Position.Mond := Item.Head.P_Mond;
     Time_u := DateTimeToUnix(TimeStampToDateTime(Item.Head.Time));
     Spieler := Item.Head.Spieler;
-    SpielerId := -1;
     Spionageabwehr := Item.Head.Spionageabwehr;
     Creator := Item.Head.Creator;
     {geraidet := Item.Head.Raid;
@@ -285,7 +284,6 @@ begin
     Position.Mond := Item.Head.P_Mond;
     Time_u := DateTimeToUnix(TimeStampToDateTime(Item.Head.Time));
     Spieler := Item.Head.Spieler;
-    SpielerId := -1;
     Spionageabwehr := Item.Head.Spionageabwehr;
     Creator := Item.Head.Creator;
     Activity := Item.Head.Activity;
@@ -319,7 +317,6 @@ begin
     Position.Mond := Item.Head.P_Mond;
     Time_u := DateTimeToUnix(TimeStampToDateTime(Item.Head.Time));
     Spieler := Item.Head.Spieler;
-    SpielerId := -1;
     Spionageabwehr := Item.Head.Spionageabwehr;
     Creator := Item.Head.Creator;
     {geraidet := Item.Head.Raid;
@@ -468,7 +465,6 @@ begin
     Position.Mond := Item.Head.P_Mond;
     Time_u := DateTimeToUnix(TimeStampToDateTime(Item.Head.Time));
     Spieler := Item.Head.Spieler;
-    SpielerId := -1;
     Spionageabwehr := Item.Head.Spionageabwehr;
     Creator := Item.Head.Creator;
     {geraidet := Item.Head.Raid;

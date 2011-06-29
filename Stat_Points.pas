@@ -88,9 +88,9 @@ type
     function PartTime_u(partnr: integer): Int64;
     property Stats[nr: Integer]: TStat read GetStat;
     destructor Destroy; override;
-    function StatPoints(AName: TPLayername; APlayerID: Int64): Cardinal;
-    function StatPlace(AName: TPLayername; APlayerID: Int64): Cardinal;
-    function StatAll(AName: TPLayername; APlayerID: Int64): TStatPlayer;
+    function StatPoints(AName: TPLayername; APlayerID: TNameID): Cardinal;
+    function StatPlace(AName: TPLayername; APlayerID: TNameID): Cardinal;
+    function StatAll(AName: TPLayername; APlayerID: TNameID): TStatPlayer;
     property Count: Integer read GetCount write SetCount;
     procedure DoWork_Idle(out Ready: Boolean); virtual;
   end;
@@ -125,9 +125,9 @@ type
     FStats: array[TStatNameType,TStatPointType] of TStatPoints;
     
     function StatPoints(nt: TStatNameType; pt: TStatPointType;
-      AName: TPlayerName; APlayerID: Int64): Cardinal;
+      AName: TPlayerName; APlayerID: TNameID): Cardinal;
     function StatRank(nt: TStatNameType; pt: TStatPointType;
-      AName: TPlayername; APlayerID: Int64): Cardinal;
+      AName: TPlayername; APlayerID: TNameID): Cardinal;
     function StatInfo(nt: TStatNameType; pt: TStatPointType;
       Rank: Cardinal): TStatPlayer;
     function StatType(nt: TStatNameType; pt: TStatPointType): TStatPoints;
@@ -137,9 +137,9 @@ type
     property Statistic[nt: TStatNameType; pt: TStatPointType;
       rank: Cardinal]: TStatPlayer read StatInfo; default;
     property StatisticPoints[nt: TStatNameType; pt: TStatPointType;
-      AName: TPlayerName; APlayerID: Int64]: Cardinal read StatPoints;
+      AName: TPlayerName; APlayerID: TNameID]: Cardinal read StatPoints;
     property StatisticRank[nt: TStatNameType; pt: TStatPointType;
-      AName: TPlayerName; APlayerID: Int64]: Cardinal read StatRank;
+      AName: TPlayerName; APlayerID: TNameID]: Cardinal read StatRank;
     constructor Create(filenameMask: string; UniDomain: String);
     destructor Destroy; override;
     function AddStats(nt: TStatNameType; pt: TStatPointType;
@@ -222,18 +222,18 @@ begin
   inherited;
 end;
 
-function TStatPoints.StatPoints(AName: TPLayername; APlayerID: Int64): Cardinal;
+function TStatPoints.StatPoints(AName: TPLayername; APlayerID: TNameID): Cardinal;
 begin
   Result := StatAll(AName,APlayerID).Punkte;
 end;
 
-function TStatPoints.StatPlace(AName: TPLayername; APlayerID: Int64): Cardinal;
+function TStatPoints.StatPlace(AName: TPLayername; APlayerID: TNameID): Cardinal;
 var i, j: Integer;
     Found: Boolean;
     block: TStat;
-    actPlayerID: Int64;
+    actPlayerID: TNameID;
 begin
-  if (AName = '') and (APlayerID < 0) then
+  if (AName = '') and (APlayerID <= 0) then
   begin
     Result := 0;
     Exit;
@@ -249,7 +249,7 @@ begin
     while (not Found)and(j <= 99) do
     begin
       actPlayerID := block.Stats[j].NameId;
-      if (APlayerID < 0)or(actPlayerID < 0) then
+      if (APlayerID <= 0)or(actPlayerID <= 0) then
         Found := (block.Stats[j].Name = AName)
       else
         Found := (block.Stats[j].NameId = APlayerID);
@@ -263,19 +263,19 @@ begin
   else Result := 0;
 end;
 
-function TStatPoints.StatAll(AName: TPLayername; APlayerID: Int64): TStatPlayer;
+function TStatPoints.StatAll(AName: TPLayername; APlayerID: TNameID): TStatPlayer;
 begin
   Result := Statistik[StatPlace(AName, APlayerID)];
 end;
 
 function TStatisticDB.StatPoints(nt: TStatNameType; pt: TStatPointType;
-  AName: TPlayerName; APlayerID: Int64): Cardinal;
+  AName: TPlayerName; APlayerID: TNameID): Cardinal;
 begin
   Result := FStats[nt,pt].StatPoints(AName, APlayerID);
 end;
 
 function TStatisticDB.StatRank(nt: TStatNameType; pt: TStatPointType;
-  AName: TPlayername; APlayerID: Int64): Cardinal;
+  AName: TPlayername; APlayerID: TNameID): Cardinal;
 begin
   Result := FStats[nt,pt].StatPlace(AName, APlayerID);
 end;

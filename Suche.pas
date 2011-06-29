@@ -23,7 +23,7 @@ type
     Datum: TDateTime;
     LastPointsActivity_days: integer;
     LastPointsIncrease_days: integer;
-    playerId: int64;
+    playerId: TNameID;
     TF: array[0..1] of Cardinal;
     scantime_u: Int64;
   end;
@@ -312,14 +312,14 @@ var s_punkte, s_flotte: Integer;
       flags: TStatus;
       statsplace, statpoints, fleetplace, fleetpoints: Integer;
       areaf: boolean;
-      playerID: Int64;
+      playerID: TNameID;
   begin
     Result := 0;
     TF := StrToInt(TXT_TF.Text);
     flags := ODataBase.LanguagePlugIn.StrToStatus(TXT_Status.Text);
     s_punkte := StrToInt(txt_punkte.Text);
     s_flotte := StrToInt(txt_flotte.Text);
-    playerID := StrToInt64Def(txt_playerID.Text, -1);
+    playerID := StrToInt64Def(txt_playerID.Text, 0);
 
     with ODataBase.Systeme[Sys] do
      with ODataBase do
@@ -340,7 +340,7 @@ var s_punkte, s_flotte: Integer;
           (((TXT_Player.Text = '')or(pos(UpperCase(TXT_Player.Text),UpperCase(Planeten[P.P[2]].Player)) > 0))and
            ((TXT_ally.Text = '')or(pos(UpperCase(TXT_ally.Text),UpperCase(Planeten[P.P[2]].Ally)) > 0))and
            ((TXT_Planet.Text = '')or(p.Mond and (UpperCase(TXT_Planet.Text) = UpperCase(STR_Mond)))or(pos(UpperCase(TXT_Planet.Text),UpperCase(Planeten[P.P[2]].PlanetName)) > 0)))and
-           ((playerID = -1)or(playerID = Planeten[Planet].PlayerId))and
+           ((playerID <= 0)or(playerID = Planeten[Planet].PlayerId))and
            filterStatus(Planeten[Planet].Status, flags) and
            (Planeten[Planet].TF[0] + Planeten[Planet].TF[1] >= TF)  then
         begin
@@ -898,7 +898,7 @@ begin
 
   begin
 
-    ppi := ODataBase.UniTree.Player.GetPlayerInfo(name);
+    ppi := ODataBase.UniTree.Player.GetPlayerInfo(name, 0);
     if (ppi <> nil) and (ppi^.lpa >= 0) then
     begin
       Result := ppi^.lpa;
@@ -1024,7 +1024,7 @@ procedure TFetchLPA_LPI_Thread.findNextNodeToFetch;
     if (Result) then
     begin
       // if status ok, check ODataBase for already fetched data
-      pi := ODataBase.UniTree.Player.GetPlayerInfo(data.Player);
+      pi := ODataBase.UniTree.Player.GetPlayerInfo(data.Player, 0);
       Result := (pi = nil) or (pi^.lpa < 0);
 
       // if odatabase had data, we need no fetching, but have to write
@@ -1103,7 +1103,7 @@ begin
   pdata^ := data;
 
   // save results for later usage
-  data.playerId := -1;
+  data.playerId := 0;
   ODataBase.UniTree.Player.setLPA_LPI(data.Player, data.playerId,
     data.LastPointsActivity_days,
     data.LastPointsIncrease_days);

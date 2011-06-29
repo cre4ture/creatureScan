@@ -579,12 +579,12 @@ begin
         if Player     <> '' then fxml.addAttribute(xsys_planet_player, Player);
         
         if ( csvers >= '0.7' ) and
-           ( PlayerId >= 0 ) then fxml.addAttribute(xsys_planet_player_id, PlayerId);
+           ( PlayerId > 0 ) then fxml.addAttribute(xsys_planet_player_id, PlayerId);
 
         if Ally <> '' then fxml.addAttribute(xsys_planet_alliance, Ally);
 
         if ( csvers >= '0.7' ) and
-           ( AllyId >= 0 ) then fxml.addAttribute(xsys_planet_alliance_id, AllyId);
+           ( AllyId > 0 ) then fxml.addAttribute(xsys_planet_alliance_id, AllyId);
            
         if Status <> [] then fxml.addAttribute(xsys_planet_flags, WORD(Status));
 
@@ -630,9 +630,9 @@ function parse_Sys(parser: TXmlParser; var solsys: TSystemCopy): Boolean;
           Ally := parser.CurAttr.Value(xsys_planet_alliance);
 
           s := parser.CurAttr.Value(xsys_planet_player_id);
-          PlayerId := StrToInt64Def(s, -1);
+          PlayerId := StrToInt64Def(s, 0);
           s := parser.CurAttr.Value(xsys_planet_alliance_id);
-          AllyId := StrToInt64Def(s, -1);
+          AllyId := StrToInt64Def(s, 0);
 
           s := parser.CurAttr.Value(xsys_planet_flags);
           if s <> '' then Status := TStatus(word(StrToInt(s)));
@@ -671,7 +671,6 @@ function parse_Sys(parser: TXmlParser; var solsys: TSystemCopy): Boolean;
     end;
   end;
 
-var i: integer;
 begin
   Result := (parser.CurName = xsys_group);
   if Result then
@@ -687,12 +686,6 @@ begin
       parse_error(parser,Format('Solsys %d:%d is broken! Can''t use it!',
         [solsys.System.P[0], solsys.System.P[1]]));
       FillChar(solsys.System,SizeOf(solsys.System),0);
-    end;
-
-    for i := 1 to max_Planeten do
-    begin
-      solsys.Planeten[i].PlayerId := -1;
-      solsys.Planeten[i].AllyId := -1;
     end;
 
     if parser.CurPartType <> ptEmptyTag then
@@ -926,7 +919,7 @@ begin
   fxml.addAttribute(xspio_group_player,Scan.Head.Spieler);
 
   if (csvers >= '0.7') and
-     (Scan.Head.SpielerId >= 0) then
+     (Scan.Head.SpielerId > 0) then
     fxml.addAttribute(xspio_group_player_id,Scan.Head.SpielerId);
     
   fxml.addAttribute(xpsio_group_activity,Scan.Head.Activity);
@@ -1036,7 +1029,7 @@ begin
       fxml.addAttribute(xstat_rank_name, Stat.Stats[i].Name);
       fxml.addAttribute(xstat_rank_points, Stat.Stats[i].Punkte);
 
-      if (Stat.Stats[i].NameId >= 0) then
+      if (Stat.Stats[i].NameId > 0) then
         fxml.addAttribute(xstat_rank_name_id, Stat.Stats[i].NameId);
 
       case StatType.NameType of

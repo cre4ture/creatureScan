@@ -245,10 +245,10 @@ begin
     with Result.Planeten[i] do
     begin
       Player := Item.Planets[i].Player;
-      PlayerId := -1;
+      PlayerId := 0;
       PlanetName := Item.Planets[i].PlanetName;
       Ally := Item.Planets[i].Ally;
-      AllyId := -1;
+      AllyId := 0;
       Status := StrToStatus_21_22(Item.Planets[i].Status);
       MondSize := Item.Planets[i].MondSize;
       MondTemp := Item.Planets[i].MondTemp;
