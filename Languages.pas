@@ -26,6 +26,7 @@ const
   STR_Energie: string = 'Energie';
   STR_Mond: string = 'Mond';
   STR_M_Mond: string = 'M';
+  STR_P_Planet: string = 'P';
 
   //ScanBericht
   STR_Z0: string = 'Rohstoffe auf ';

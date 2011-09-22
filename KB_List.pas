@@ -548,7 +548,7 @@ begin
 
   next_f := -1;
 
-  cS_light := StrToBool(cS_getGlobalOption('developers', 'cs_light', '0'));
+  cS_light := StrToBool(cS_getGlobalOption('main', 'cs_light', '0'));
 
   if FRM_Main.PlayerOptions.Fleet_ShowArivalMessage then
   begin
