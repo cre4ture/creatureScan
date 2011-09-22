@@ -1626,7 +1626,7 @@ begin
   ini := TIniFile.Create(IniFile);
   Dir.Visible := ini.ReadBool(GeneralSection,'ShowDirButton',False);
   cS_setGlobalOption('developers', 'dirbutton', BoolToStr(Dir.Visible));
-  cS_setGlobalOption('developers', 'cs_light', '1');
+  cS_setGlobalOption('main', 'cs_light', BoolToStr(true));
   Test1.Visible := Dir.Visible;
   Einstellungen := [];
   if ini.ReadBool(GeneralSection,'AddNewScanToList',true) then include(Einstellungen,soAddNewScanToList);
