@@ -16,6 +16,7 @@ type
 
 const
   {$IFDEF TEST} STR_M_Mond = 'M'; {$ENDIF}
+  {$IFDEF TEST} STR_P_Planet = 'P'; {$ENDIF}
 
   max_Galaxy: word = 9;
   max_Systems: word = 499;
@@ -361,6 +362,7 @@ function ReadPosOrTime(const s: string; p: Integer; var Position: TPlanetPositio
 function PositionToStr_(pos: TPlanetPosition): string;
 function PositionToStrA(pos: TPlanetPosition): string;
 function PositionToStrMond(Pos: TplanetPosition): string;
+function PositionToStrMondPlanet(Pos: TplanetPosition): string;
 function PositionToStrAMond(Pos: TPlanetPosition): string;
 function ValidPosition(pos: TPlanetPosition): boolean; overload;
 function ValidPosition(pos: TSystemPosition): boolean; overload;
@@ -817,6 +819,15 @@ function PositionToStrMond(Pos: TplanetPosition): string;
 begin
   Result := PositionToStr_(pos);
   if Pos.Mond then Result := Result + ' ' + STR_M_Mond;
+end;
+
+function PositionToStrMondPlanet(Pos: TplanetPosition): string;
+begin
+  Result := PositionToStr_(pos);
+  if Pos.Mond then
+    Result := Result + ' ' + STR_M_Mond
+  else
+    Result := Result + ' ' + STR_P_Planet;
 end;
 
 function PositionToStrAMond(Pos: TPlanetPosition): string;

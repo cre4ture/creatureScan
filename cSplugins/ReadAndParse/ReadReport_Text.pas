@@ -25,7 +25,7 @@ type
     tsep: char;
     function _ScanToStrAsTable(SB: TScanBericht): string;
     function _ScanToStrAsTable_v2(SB: TScanBericht): string;
-    function _ReadScanHeader_RegEx(var s1: string; var Head: TScanHead): Boolean;
+    function _ReadScanHeader_RegEx(var s1: string; var Head: TScanHead; out AskMond: Boolean): Boolean;
     function _ReadScanHeaders(var s1: string; var Head: TScanHead): Boolean;
     function _LeseGanzenScanBericht(var _s: String; Bericht: TScanBericht; var AskMond: Boolean): Boolean;
     function _ScanToStr(SB: TScanBericht): string;
@@ -323,12 +323,15 @@ begin                                   //alles nur Beispiel Flotte:
     Result := -1;
 end;
 
-function TReadReport_Text._ReadScanHeader_RegEx(var s1: string; var Head: TScanHead): Boolean;
+function TReadReport_Text._ReadScanHeader_RegEx(var s1: string;
+   var Head: TScanHead; out AskMond: Boolean): Boolean;
 var regex: Tregexpn;
     p: integer;
     M,D,h,min,sec: integer;
+    tmp: string;
 begin
   Result := False;
+  AskMond := true;
 
   regex := Tregexpn.Create;
   try
@@ -342,8 +345,20 @@ begin
       Head.Position.P[0] := StrToInt(regex.getsubexpr('p0'));
       Head.Position.P[1] := StrToInt(regex.getsubexpr('p1'));
       Head.Position.P[2] := StrToInt(regex.getsubexpr('p2'));
-      Head.Position.Mond := (regex.getsubexpr('moon') <> '') or
-                            (regex.getsubexpr('kmoon') <> '');
+      Head.Position.Mond := false;
+
+      tmp := regex.getsubexpr('kmoon');
+      if (length(tmp) > 0) and (tmp[2] in [STR_M_Mond, STR_P_Planet]) then
+      begin
+        AskMond := false;  // hier können wir direkt festnageln ob mond oder nicht!
+        Head.Position.Mond := (tmp[2] = STR_M_Mond);
+      end;
+
+      if (AskMond) and (regex.getsubexpr('moon') <> '') then
+      begin
+        AskMond := false;  // hier können wir direkt festnageln wenn mond!
+        Head.Position.Mond := true;
+      end;
 
       M := StrToInt(regex.getsubexpr('m'));
       D := StrToInt(regex.getsubexpr('d'));
@@ -498,9 +513,10 @@ var j  : integer;
     sg: TScanGroup;
     s: string;
 begin
+  AskMond := true;
   s := _s;
   //ShowMessage('All: ' + _S);
-  Result := _ReadScanHeader_RegEx(s,Bericht.Head); //Head einlesen und Gesamtstring auf Scanbereich kürzen
+  Result := _ReadScanHeader_RegEx(s,Bericht.Head,AskMond); //Head einlesen und Gesamtstring auf Scanbereich kürzen
   //ShowMessage('Result von ReadHead: ' + inttostr(byte(Result)));
   //ShowMessage('Scan: ' + s);
   j := pos(s,_s);
@@ -524,8 +540,11 @@ begin
     end;
   end;
 
-  AskMond := (not Bericht.Head.Position.Mond)and   //Wenn hier schon mond, dann hat Readheader schon richtig eingelesen!
-             (not checkMoonScan(Bericht));
+  if (AskMond) then // wenns bis hierher nochnicht klar ist ob Mond oder nicht, nochmal überprüfen:
+  begin
+    AskMond := (not Bericht.Head.Position.Mond)and   //Wenn hier schon mond, dann hat Readheader schon richtig eingelesen!
+               (not checkMoonScan(Bericht));
+  end;
 end;
 
 function TReadReport_Text._ScanToStr(SB: TScanBericht): string;
@@ -596,8 +615,8 @@ end;
 
 function TReadReport_Text.checkTagAnalyseRoutine(CurElement: THTMLElement;
   Data: pointer): Boolean;
-var btn_tag, koords_tag, text_tag: THTMLElement;
-    href, ismond: string;
+var btn_tag, koords_tag: THTMLElement;
+    href: string;
     regexp: Tregexpn;
     pos_header, pos_btn: TPlanetPosition;
 const regexp_for_href = 'galaxy=(?<galaxy>[0-9]+)&amp;system=(?<system>[0-9]+)&amp;position=(?<position>[0-9]+)&amp;type=(?<type>[0-9]+)&amp;mission=(?<mission>[0-9]+)';
@@ -627,7 +646,7 @@ begin
             if SamePlanet(pos_header, pos_btn) then
             begin
               pos_btn.Mond := (regexp.getsubexpr('type') = '3');
-              koords_tag.Content := '[' + PositionToStrMond(pos_btn) + ']';
+              koords_tag.Content := '[' + PositionToStrMondPlanet(pos_btn) + ']';
             end;
           end;
         finally

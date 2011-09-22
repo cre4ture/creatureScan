@@ -370,7 +370,7 @@ uses Notizen, Favoriten, Info,
   Uebersicht, Connections, Export, Einstellungen, Suchen_Ersetzen,
   KB_List, Add_KB, Languages, Delete_Scans,
   DateUtils, _test_POST, ComConst, StrUtils, sync_cS_db_engine,
-  SDBFile, Mond_Abfrage, moon_or_not, chelper_server;
+  SDBFile, Mond_Abfrage, moon_or_not, chelper_server, global_options;
 
 {$R *.DFM}
 
@@ -1625,6 +1625,8 @@ var ini: TIniFile;
 begin
   ini := TIniFile.Create(IniFile);
   Dir.Visible := ini.ReadBool(GeneralSection,'ShowDirButton',False);
+  cS_setGlobalOption('developers', 'dirbutton', BoolToStr(Dir.Visible));
+  cS_setGlobalOption('developers', 'cs_light', '1');
   Test1.Visible := Dir.Visible;
   Einstellungen := [];
   if ini.ReadBool(GeneralSection,'AddNewScanToList',true) then include(Einstellungen,soAddNewScanToList);

@@ -13,8 +13,8 @@ object FRM_Phalanx: TFRM_Phalanx
   OldCreateOrder = False
   OnCreate = FormCreate
   DesignSize = (
-    682
-    422)
+    690
+    432)
   PixelsPerInch = 96
   TextHeight = 13
   object Shape1: TShape

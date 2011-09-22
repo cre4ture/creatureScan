@@ -111,7 +111,8 @@ var
 
 implementation
 
-uses Main, Languages, Connections, Math, DateUtils, OtherTime, IdException;
+uses Main, Languages, Connections, Math,
+ DateUtils, OtherTime, IdException, global_options;
 
 {$R *.DFM}
 
@@ -540,11 +541,14 @@ var i, next_f: integer;
     zeit: int64;
     frm: Tfrm_fleet_arrival;
     flt: TFleetEvent;
+    cS_light: boolean;
 begin
   // Zeige Serverzeit:
   lbl_servertime_.Caption := DateTimeToStr(ODataBase.FleetBoard.GameTime.Time);
 
   next_f := -1;
+
+  cS_light := StrToBool(cS_getGlobalOption('developers', 'cs_light', '0'));
 
   if FRM_Main.PlayerOptions.Fleet_ShowArivalMessage then
   begin
@@ -562,24 +566,28 @@ begin
       end;
 
       //Zeige Fenster an:
-      zeit := fleet.head.arrival_time_u - gameNow_u;
-      if (zeit < FRM_Main.PlayerOptions.Fleet_AMSG_Time_s)or
-         (fef_hostile in fleet.head.eventflags) then
+      if not (cS_light and (fef_hostile in fleet.head.eventflags)) then
       begin
-
-        frm := findFleet_notify_window(fleet);
-        if frm = nil then
+        zeit := fleet.head.arrival_time_u - gameNow_u;
+        if (zeit < FRM_Main.PlayerOptions.Fleet_AMSG_Time_s)or
+           (
+            (fef_hostile in fleet.head.eventflags)
+           ) then
         begin
-          frm := Tfrm_fleet_arrival(notify_grp.NewNotifyWindow(Tfrm_fleet_arrival));
-          frm.close_when_arrived := FRM_Main.PlayerOptions.Fleet_close_msg_window_when_arrived;
-          frm.info_fleet := fleet;
-          frm.Visible := True;
+          frm := findFleet_notify_window(fleet);
+          if frm = nil then
+          begin
+            frm := Tfrm_fleet_arrival(notify_grp.NewNotifyWindow(Tfrm_fleet_arrival));
+            frm.close_when_arrived := FRM_Main.PlayerOptions.Fleet_close_msg_window_when_arrived;
+            frm.info_fleet := fleet;
+            frm.Visible := True;
 
-          if FRM_Main.PlayerOptions.Fleet_alert then
-            FRM_Main.Play_Alert_Sound(FRM_Main.PlayerOptions.Fleet_Soundfile);
+            if FRM_Main.PlayerOptions.Fleet_alert then
+              FRM_Main.Play_Alert_Sound(FRM_Main.PlayerOptions.Fleet_Soundfile);
+          end;
+
+          frm.time_to_live := 1 + (Timer1.Interval div ListRefresh.Interval);
         end;
-
-        frm.time_to_live := 1 + (Timer1.Interval div ListRefresh.Interval);
       end;
     end;
 
@@ -829,18 +837,23 @@ begin
 
   syncData := TSyncResultData(Data^);
   if syncData.success then
-    sh_servertime.Brush.Color := clLime
+  begin
+    sh_servertime.Brush.Color := clLime;
+
+    if syncData.delta > 0 then
+      lbl_servertime_.Hint := '+ ' + TimeToStr(syncData.delta)
+    else
+      lbl_servertime_.Hint := '- ' + TimeToStr(syncData.delta);
+
+    ODataBase.FleetBoard.GameTime.TimeDelta := syncData.delta;
+  end
   else
+  begin
+    lbl_servertime_.Hint := 'Fehler beim Zeitsync!';
     sh_servertime.Brush.Color := clRed;
-
-  if syncData.delta > 0 then
-    lbl_servertime_.Hint := '+ ' + TimeToStr(syncData.delta)
-  else
-    lbl_servertime_.Hint := '- ' + TimeToStr(syncData.delta);
-
+  end;
   lbl_servertime_.ShowHint := True;
 
-  ODataBase.FleetBoard.GameTime.TimeDelta := syncData.delta;
 
   sync_thread := nil; // thread will free itself!
   result := 0;

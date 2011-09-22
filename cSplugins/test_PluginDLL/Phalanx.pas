@@ -73,7 +73,7 @@ begin
     1: CellText := PositionToStrMond(fleets[index].head.origin);
     2: CellText := PositionToStrMond(fleets[index].head.target);
     3: begin
-         CellText := FleetEventTypeToNameStr(fleets[index].head.eventtype);
+         CellText := FleetEventTypeToStrEx_(fleets[index]);
        end;
     4: CellText := fleets[index].head.player;
     5: CellText := IntToStr(fleets[index].head.unique_id);

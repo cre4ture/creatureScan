@@ -208,7 +208,8 @@ begin
   Result := false; // never delete!
   if (CurElement.TagName = 'tr') then
   begin
-    if (Copy(CurElement.AttributeValue['id'],1,8) = 'eventRow') then
+    if (Copy(CurElement.AttributeValue['id'],1,8) = 'eventRow')or
+       (CurElement.AttributeValue['class'] = 'allianceAttack') then
     begin
       readHtmlTag(CurElement);
     end;
@@ -399,6 +400,7 @@ var el, tag_ul, tag_x: THTMLElement;
     fleet: TFleetEvent;
     i, sec: integer;
     timepos, tmppos: TPlanetPosition;
+    p1, p2: TPlanetPosition;
     time_ber: TDateTime;
 
     s: string;
@@ -413,6 +415,14 @@ begin
   //unique ID
   s := tag.AttributeValue['id'];
   p := pos('-',s);
+  if (p = 0) then
+  begin
+    // try to get counter id:
+    el := tag.FindChildTag('td');
+    if el = nil then Exit;
+    s := el.AttributeValue['id'];
+    p := pos('-',s);
+  end;
   if p = 0 then Exit;
   fleet.head.unique_id := ReadInt(s,p+1);
 
@@ -441,7 +451,20 @@ begin
           end;
         end;
 
-        if pos('(R)', s) > 0 then
+        if (fleet.head.eventtype = fet_none) then
+        begin
+          // check for alliance attack
+          s := tag_x.AttributeValue['src'];
+          if pos('icon-verband.gif', s) > 0 then
+          begin
+            fleet.head.eventtype := fet_attack; // alliance attack!
+            p1.P[0] := 1;
+            p1.P[1] := 1;
+            p1.P[2] := 1;
+          end;
+        end;
+
+        (*if pos('(R)', s) > 0 then
         begin
           include(fleet.head.eventflags, fef_return);
 
@@ -449,8 +472,13 @@ begin
           tmppos := fleet.head.origin;
           fleet.head.origin := fleet.head.target;
           fleet.head.target := tmppos;
-        end;
+        end;*)
       end;
+    end
+    else
+    if s = 'icon_movement_reserve' then
+    begin
+      include(fleet.head.eventflags, fef_return); 
     end
     else
     if s = 'coordsOrigin' then
@@ -459,34 +487,22 @@ begin
       p := pos('[',s);
       FillChar(tmppos, sizeof(tmppos), 0);
       ReadPosOrTime(s,p+1,tmppos);
-      if fef_return in fleet.head.eventflags then
-        fleet.head.target.P := tmppos.P
-      else
-        fleet.head.origin.P := tmppos.P;
+      if tmppos.P[0] <> 0 then
+        p1.P := tmppos.P;
     end
     else
     if s = 'originFleet' then
     begin
       s := Trim(el.FullTagContent);
       if s = str_moon then
-      begin
-        if fef_return in fleet.head.eventflags then
-          fleet.head.target.Mond := true
-        else
-          fleet.head.origin.Mond := true;
-      end;
+        p1.Mond := true;
     end
     else
     if s = 'destFleet' then
     begin
       s := Trim(el.FullTagContent);
       if s = str_moon then
-      begin
-        if fef_return in fleet.head.eventflags then
-          fleet.head.origin.Mond := true
-        else
-          fleet.head.target.Mond := true;
-      end;
+        p2.Mond := true;
     end
     else
     if s = 'destCoords' then
@@ -495,10 +511,7 @@ begin
       p := pos('[',s);
       FillChar(tmppos, sizeof(tmppos), 0);
       ReadPosOrTime(s,p+1,tmppos);
-      if not(fef_return in fleet.head.eventflags) then
-        fleet.head.target.P := tmppos.P
-      else
-        fleet.head.origin.P := tmppos.P;
+      p2.P := tmppos.P;
     end
     else
     if s = 'arrivalTime' then
@@ -510,7 +523,8 @@ begin
       timepos.P[2] := StrToInt(arrival_regexp.getsubexpr('sec'));
     end
     else
-    if copy(s,1,9) = 'countDown' then
+    if (copy(s,1,9) = 'countDown')or
+       (copy(el.AttributeValue['id'],1,8) = 'counter-') then
     begin
       // read netral/friendly/hostile
       if pos('friendly',s) > 0 then
@@ -538,8 +552,33 @@ begin
       sec := sec + ReadInt(s,1)*60;
       s := time_regexp.getsubexpr('sec');
       sec := sec + ReadInt(s,1);
+    end
+    else
+    if copy(s,1,9) = 'sendProbe' then
+    begin
+      (*tag_x := el.FindChildTag('a');
+      if (tag_x <> nil) then
+      begin
+        s := tag_x.AttributeValue['href'];
+        if pos('&amp;planetType=1&amp;', s) > 0 then
+          fleet.head.target.Mond := true
+        else
+        if pos('&amp;planetType=0&amp;', s) > 0 then
+          fleet.head.target.Mond := false;
+      end;*)
     end;
 
+  end;
+
+  if (fef_return in fleet.head.eventflags) then
+  begin
+    fleet.head.origin := p2;
+    fleet.head.target := p1;
+  end
+  else
+  begin
+    fleet.head.origin := p1;
+    fleet.head.target := p2;
   end;
 
   //Zeiten:

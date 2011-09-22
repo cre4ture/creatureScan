@@ -82,7 +82,8 @@ uses
   cS_memstream in 'cS_memstream.pas',
   SDBFile in '..\lib\uli\SDBFile.pas',
   fast_xml_writer in 'fast_xml_writer.pas',
-  ActivityFinder in 'ActivityFinder.pas';
+  ActivityFinder in 'ActivityFinder.pas',
+  global_options in 'global_options.pas';
 
 {$R *.RES}
 
