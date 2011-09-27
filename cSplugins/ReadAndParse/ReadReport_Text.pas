@@ -627,10 +627,12 @@ begin
        (CurElement.AttributeValue['id'] = 'showSpyReportsNow') then
     begin
       koords_tag := CurElement.FindChildTagPath_e('table:0/tbody:0/tr:0/th:0/a:0/><:0');
+      if (koords_tag = nil) then exit;
       pos_header := StrToPositionEx(trim(koords_tag.Content));
 
-      btn_tag := CurElement.FindChildTagPath_e('table:6/tbody:0/tr:1/td:x/a:0');
-      if (btn_tag.AttributeValue['class'] = 'buttonSave') then
+      btn_tag := HTMLFindRoutine_NameAttribute(CurElement, 'a', 'class', 'buttonSave');
+      if (btn_tag = nil) then exit;
+//      if (btn_tag.AttributeValue['class'] = 'buttonSave') then
       begin
         href := btn_tag.AttributeValue['href'];
         regexp := Tregexpn.Create;
