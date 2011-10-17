@@ -42,12 +42,10 @@ var zeit: int64;
 begin
   zeit := info_fleet.head.arrival_time_u - gameTime.UnixTime;
 
+  s := CountDownStr(zeit);
+  s := s + ' [' + PositionToStrMond(info_fleet.head.target) + ']';
+  s := s + ' ' + FleetEventTypeToStr_(info_fleet.head.eventtype);
 
-  s := FleetEventTypeToStr_(info_fleet.head.eventtype);
-  
-
-  s := s + ' [' + PositionToStrMond(info_fleet.head.target) + '] ' +
-                       'in: ' + CountDownStr(zeit);
   lbl_title.Caption := s;
   lbl_description.Caption := '[' + PositionToStrMond(info_fleet.head.origin) + '] ' +
                              info_fleet.head.player + ' -> ' +

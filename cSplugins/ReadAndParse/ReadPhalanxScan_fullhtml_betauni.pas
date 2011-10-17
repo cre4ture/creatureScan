@@ -44,7 +44,7 @@ type
     function checkTags(CurElement: THTMLElement; Data: pointer): Boolean;
     function readHtmlTag(tag: THTMLElement): boolean;
     function readHtmlTag_ress_fleet(const tag: THTMLElement;
-       var fleet: TFleetEvent): boolean;
+      var fleet: TFleetEvent): boolean;
     function readHtmlTag_planetposition_and_fleettype(const tag: THTMLElement;
       const fce: ThtmlPhalanx_fligthclassEx; var fleet: TFleetEvent): boolean;
     function readHtmlTag_ships(const tag: THTMLElement;
@@ -602,6 +602,21 @@ begin
 
   //Ress/Fleet einlesen
   readHtmlTag_ress_fleet(tag_ul,fleet);
+
+  // quickfix: creaturesScan is currently
+  // not able to handle the x:xxx:16 position in expeditions
+  // -> replace with x:xxx:15
+  if (fleet.head.eventtype = fet_expedition) then
+  begin
+    if (fef_return in fleet.head.eventflags) then
+    begin
+      fleet.head.origin.P[2] := 15;
+    end
+    else
+    begin
+      fleet.head.target.P[2] := 15;
+    end;
+  end;
 
   Add(fleet);
 end;
