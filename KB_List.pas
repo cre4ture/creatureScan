@@ -839,18 +839,14 @@ begin
   if syncData.success then
   begin
     sh_servertime.Brush.Color := clLime;
-
-    if syncData.delta > 0 then
-      lbl_servertime_.Hint := '+ ' + TimeToStr(syncData.delta)
-    else
-      lbl_servertime_.Hint := '- ' + TimeToStr(syncData.delta);
-
     ODataBase.FleetBoard.GameTime.TimeDelta := syncData.delta;
+    lbl_servertime_.Hint := ODataBase.FleetBoard.GameTime.delayToStr;
   end
   else
   begin
     lbl_servertime_.Hint := 'Fehler beim Zeitsync!';
     sh_servertime.Brush.Color := clRed;
+    ODataBase.FleetBoard.GameTime.TimeDelta := 0;
   end;
   lbl_servertime_.ShowHint := True;
 

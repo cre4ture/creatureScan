@@ -4,8 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, Mask, OGame_Types, ExtCtrls, clipbrd, Languages, Prog_Unit,
-  DateUtils;
+  StdCtrls, Mask, OGame_Types, ExtCtrls, clipbrd, Languages,
+  DateUtils, OtherTime;
 
 type
   TFRM_Add_Raid = class(TForm)
@@ -25,28 +25,31 @@ type
     TXT_Start: TEdit;
     TXT_Ziel: TEdit;
     cb_ankunftum: TCheckBox;
-    TXT_AnkunfUm: TMaskEdit;
-    TXT_h: TEdit;
+    txt_stunde: TEdit;
     TXT_min: TEdit;
     TXT_Sec: TEdit;
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
-    BTN_Paste: TButton;
     Timer1: TTimer;
+    txt_arrival: TEdit;
+    Label7: TLabel;
+    Label11: TLabel;
+    lbl_time_diff: TLabel;
     procedure cb_ankunftumClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
-    procedure BTN_PasteClick(Sender: TObject);
-    procedure TXT_hChange(Sender: TObject);
+    procedure txt_stundeChange(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure BTN_OKClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
-    { Private-Deklarationen }
+    GameTime: TDeltaSystemTime;
+    
     function GetFleet: TFleetEvent;
     procedure SetFleet(fleet: TFleetEvent);
   public
     property Fleet: TFleetEvent read GetFleet write SetFleet;
     procedure ResetTime(time_u: Int64);
+    constructor Create(AParent: TForm; aServerTime: TDeltaSystemTime);
     { Public-Deklarationen }
   end;
 
@@ -58,53 +61,35 @@ procedure TFRM_Add_Raid.cb_ankunftumClick(Sender: TObject);
 begin
   Timer1.Enabled := not cb_ankunftum.Checked;
   if cb_ankunftum.Checked then
-    TXT_AnkunfUm.Text := DateTimeToStr(Now+1/24);
-  TXT_h.Enabled := not cb_ankunftum.Checked;
+    txt_arrival.Text := DateTimeToStr(GameTime.Time+1/24);
+  txt_stunde.Enabled := not cb_ankunftum.Checked;
   TXT_min.Enabled := not cb_ankunftum.Checked;
   TXT_Sec.Enabled := not cb_ankunftum.Checked;
-  TXT_AnkunfUm.Enabled := cb_ankunftum.Checked;
+  txt_arrival.Enabled := cb_ankunftum.Checked;
 end;
 
-procedure TFRM_Add_Raid.FormCreate(Sender: TObject);
+procedure TFRM_Add_Raid.txt_stundeChange(Sender: TObject);
 begin
-  cb_ankunftumClick(self);
-  if SaveCaptions then SaveAllCaptions(Self,LangFile);
-  if LoadCaptions then LoadAllCaptions(Self,LangFile);
-end;
-
-procedure TFRM_Add_Raid.BTN_PasteClick(Sender: TObject);
-var auftrag: TRaidAuftrag;
-    s: string;
-begin
-  s := Clipboard.AsText;
-  if ODataBase.LanguagePlugIn.ReadRaidAuftrag(s,auftrag) then
-  begin
-    TXT_Start.Text := PositionToStrMond(auftrag.Start);
-    TXT_Ziel.Text := PositionToStrMond(auftrag.Ziel);
-    cb_ankunftum.Checked := true;
-    TXT_AnkunfUm.Text := DateTimeToStr(auftrag.Zeit);
-  end;
-end;
-
-procedure TFRM_Add_Raid.TXT_hChange(Sender: TObject);
-begin
-  if (TXT_h.Text <> '')and
+  if (txt_stunde.Text <> '')and
      (TXT_min.Text <> '')and
      (TXT_Sec.Text <> '') then
   begin
-  try
-    TXT_AnkunfUm.Text := DateTimeToStr(now + StrToInt(TXT_h.Text)/24 + StrToInt(TXT_min.Text)/24/60 + StrToInt(TXT_sec.Text)/24/60/60);
-  except
-    TXT_AnkunfUm.Text := '00.00.00 00:00:00';
-  end;
+    try
+      txt_arrival.Text := DateTimeToStr(GameTime.Time + StrToInt(txt_stunde.Text)/24 + StrToInt(TXT_min.Text)/24/60 + StrToInt(TXT_sec.Text)/24/60/60);
+    except
+      txt_arrival.Text := '00.00.0000 00:00:00';
+    end;
   end
-  else TXT_AnkunfUm.Text := '00.00.00 00:00:00';
+  else
+    txt_arrival.Text := '00.00.0000 00:00:00';
 end;
 
 procedure TFRM_Add_Raid.Timer1Timer(Sender: TObject);
 begin
   if not cb_ankunftum.Checked then
-    TXT_hChange(self);
+    txt_stundeChange(self);
+
+  lbl_time_diff.Caption := GameTime.delayToStr;
 end;
 
 function TFRM_Add_Raid.GetFleet: TFleetEvent;
@@ -113,12 +98,11 @@ begin
   begin
     head.origin := StrToPosition(TXT_Start.Text);
     head.target := StrToPosition(TXT_Ziel.Text);
-    head.player := ODataBase.Username;
 
     if cb_ankunftum.Checked then  //art der Zeitangabe
-      head.arrival_time_u := DateTimeToUnix(StrToDateTime(TXT_AnkunfUm.text))
+      head.arrival_time_u := DateTimeToUnix(StrToDateTime(txt_arrival.text))
     else
-      head.arrival_time_u := DateTimeToUnix(now + StrToInt(TXT_h.Text)/24 +
+      head.arrival_time_u := DateTimeToUnix(GameTime.Time + StrToInt(txt_stunde.Text)/24 +
                                       StrToInt(TXT_min.Text)/24/60 +
                                       StrToInt(TXT_sec.Text)/24/60/60);
 
@@ -139,7 +123,7 @@ begin
   TXT_Start.Text := PositionToStrMond(fleet.head.origin);
 
   cb_ankunftum.Checked := True;
-  TXT_AnkunfUm.Text := DateTimeToStr(UnixToDateTime(fleet.head.arrival_time_u));
+  txt_arrival.Text := DateTimeToStr(UnixToDateTime(fleet.head.arrival_time_u));
   TXT_Ziel.Text := PositionToStrMond(fleet.head.target);
   
   TXT_Metall.Text := IntToStr(fleet.ress[0]);
@@ -153,7 +137,7 @@ begin
   cb_ankunftum.Checked := false;
 
   DecodeTime(UnixToDateTime(time_u),h,m,s,ms);
-  TXT_h.Text := IntToStr(h);
+  txt_stunde.Text := IntToStr(h);
   TXT_min.Text := IntToStr(m);
   TXT_Sec.Text := IntToStr(s);
 end;
@@ -162,6 +146,19 @@ procedure TFRM_Add_Raid.BTN_OKClick(Sender: TObject);
 begin
   GetFleet; //Zum testen ob auch alle Daten richtig eigegeben wurden
   ModalResult := mrOK;
+end;
+
+procedure TFRM_Add_Raid.FormShow(Sender: TObject);
+begin
+  cb_ankunftumClick(self);
+  txt_stundeChange(Self);
+  Timer1Timer(Self);
+end;
+
+constructor TFRM_Add_Raid.Create(AParent: TForm; aServerTime: TDeltaSystemTime);
+begin
+  inherited Create(AParent);
+  GameTime := aServerTime;
 end;
 
 end.

@@ -24,6 +24,7 @@ type
     procedure setTime(reference_time: TDateTime);
     constructor Create(aTimeDelta: TDateTime = 0);
     property TimeDelta: TDateTime read fTimeDelta write fTimeDelta;
+    function delayToStr: string;
   end;
 
 implementation
@@ -34,6 +35,21 @@ constructor TDeltaSystemTime.Create(aTimeDelta: TDateTime = 0);
 begin
   inherited Create();
   fTimeDelta := aTimeDelta;
+end;
+
+function TDeltaSystemTime.delayToStr: string;
+var days: integer;
+begin
+  days := trunc(TimeDelta);
+  if (TimeDelta > 0) then
+    Result := '+'
+  else
+    Result := '-';
+
+  if (days > 1) then
+    Result := Result + IntToStr(days) + ' days ';
+
+  Result := Result + TimeToStr(TimeDelta);
 end;
 
 function TDeltaSystemTime.GetTime: TDateTime;

@@ -227,7 +227,7 @@ end;
 function TFRM_Scan.CheckTestScan(st: TScanTest): Boolean;
 begin
   FRM_Sources.m_Text.Text := st.QuellText;
-  FRM_Sources.m_Html.Clear;
+  FRM_Sources.m_Html.Text := '';
   if ReadScans() = 1 then
   begin
     //Da in keinem Scan das Jahr vorhanden ist, wird dieses beim einlesen gesetzt!

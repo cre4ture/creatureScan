@@ -1527,7 +1527,7 @@ end;
 function TFRM_Main.RaidDialog(var Fleet: TFleetEvent): boolean;
 var form: TFRM_Add_Raid;
 begin
-  form := TFRM_Add_Raid.Create(self);
+  form := TFRM_Add_Raid.Create(Self, ODataBase.FleetBoard.GameTime);
   try
     form.Fleet := Fleet;
     if Fleet.head.arrival_time_u = -1 then
@@ -1538,6 +1538,7 @@ begin
     begin
       Fleet := form.Fleet;
       Fleet.head.unique_id := -3; // "Selbstgemacht" (Per hand eingegeben")
+      Fleet.head.player := ODataBase.Username;
     end;
   finally
     form.Free;

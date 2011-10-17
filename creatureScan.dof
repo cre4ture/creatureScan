@@ -23,7 +23,7 @@ S=0
 T=0
 U=0
 V=1
-W=0
+W=1
 X=1
 Y=2
 Z=1
@@ -115,7 +115,7 @@ AutoIncBuild=1
 MajorVer=2
 MinorVer=0
 Release=0
-Build=253
+Build=255
 Debug=0
 PreRelease=0
 Special=0
@@ -126,7 +126,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=
 FileDescription=
-FileVersion=2.0.0.253
+FileVersion=2.0.0.255
 InternalName=
 LegalCopyright=
 LegalTrademarks=
@@ -136,20 +136,20 @@ ProductVersion=1.0.0.0
 Comments=
 [HistoryLists\hlConditionals]
 Count=3
-Item0=TEST;delphi;cS_plugin;
-Item1=TEST;delphi;plugin
-Item2=delphi
+Item0=delphi
+Item1=TEST;delphi;cS_plugin;
+Item2=TEST;delphi;plugin
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
 Count=2
-Item0=..\..\
-Item1=D:\devel\lib\uli\TClipboardViewer
+Item0=D:\devel\lib\uli\TClipboardViewer
+Item1=..\..\
 [HistoryLists\hlUnitOutputDirectory]
 Count=1
 Item0=.\dcu
 [HistoryLists\hlOutputDirectorry]
 Count=2
-Item0=..\..\creatureScan\ioplugins
-Item1=.\creatureScan
+Item0=.\creatureScan
+Item1=..\..\creatureScan\ioplugins
