@@ -11,6 +11,9 @@ uses
 const filetype = 'cS favlist 1.0';
 const filetypelength = 14;
 
+const lpa_col = 34;
+const lpi_col = 35;
+
 type
   TPlanetItem = class; // prototype
   PFav = ^TFav;
@@ -43,6 +46,7 @@ type
     lpa, lpi: integer;
     thePlayerID: TNameID;
     theAllyID: TNameID;
+    anomalie: Integer;
   end;
   TPlanetItem = class
   private
@@ -311,8 +315,8 @@ begin
 
   if not FRM_Main.Dir.Visible then
   begin
-    VST_ScanList.Header.Columns.Delete(34);
-    VST_ScanList.Header.Columns.Delete(33);
+    VST_ScanList.Header.Columns.Delete(lpa_col);
+    VST_ScanList.Header.Columns.Delete(lpi_col);
   end;
 end;
 
@@ -784,7 +788,8 @@ begin
         //TF (Flotte)
         24: CellText := IntToStrKP(tf[0] + tf[1] + tf[2]);
         //Berechnete Rohstoffe (Produktion mit einberechnet!)
-        25..29,31,32,33,34: CellText := IntToStrKP(getIntValColumn(Column, fav));
+        25..29,31,32,lpa_col,lpi_col: CellText := IntToStrKP(getIntValColumn(Column, fav));
+        33: if (anomalie > 0) then CellText := IntToStrKP(anomalie) else CellText := ' > 1h';
       end;
     end;
   end;
@@ -834,7 +839,7 @@ begin
       Fav1.TF[0]+Fav1.TF[1]+Fav1.TF[2] > Fav2.TF[0]+Fav2.TF[1]+Fav2.TF[2],
       1,-1);
     //Berechnete Rohstoffe (Produktion mit einberechnet!)
-    25..29,31,32,33,34: if getIntValColumn(Column, Fav1) > getIntValColumn(Column, Fav2) then
+    25..29,31,32,33,lpa_col,lpi_col: if getIntValColumn(Column, Fav1) > getIntValColumn(Column, Fav2) then
               Result := 1 else Result := -1;
 //    30: if Fav1.notes then, ka wie des genau mit den notizen klappen soll (nach welcher regel?)
         
@@ -903,6 +908,8 @@ begin
           ScanTime := UnixToDateTime(report.Head.Time_u);
           Fleet := FleetPoints(report);
           Def := DefPoints(report);
+
+          anomalie := report.Head.Activity;
 
           for i := 0 to 3 do
             Ress[i] := report.Bericht[sg_Rohstoffe,i];
@@ -1368,8 +1375,8 @@ begin
       29: Result := v_Ress_div_Def;
       31: Result := RaidCount;
       32: Result := thePlayerID;
-      33: Result := lpa;
-      34: Result := lpi;
+      lpa_col: Result := lpa;
+      lpi_col: Result := lpi;
     else
       Result := -1;
     end;

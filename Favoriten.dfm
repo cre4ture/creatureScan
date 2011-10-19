@@ -1,8 +1,8 @@
 object FRM_Favoriten: TFRM_Favoriten
   Left = 237
-  Top = 268
+  Top = 267
   Width = 1043
-  Height = 456
+  Height = 457
   Caption = 'Scanbericht '#220'bersicht'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -99,7 +99,7 @@ object FRM_Favoriten: TFRM_Favoriten
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 410
+    Top = 413
     Width = 1035
     Height = 19
     Panels = <
@@ -118,7 +118,7 @@ object FRM_Favoriten: TFRM_Favoriten
     Left = 0
     Top = 29
     Width = 1035
-    Height = 381
+    Height = 384
     Align = alClient
     ClipboardFormats.Strings = (
       'CSV'
@@ -323,13 +323,17 @@ object FRM_Favoriten: TFRM_Favoriten
         WideText = 'PlayerID'
       end
       item
-        Alignment = taRightJustify
         Position = 33
-        WideText = 'lpa'
+        WideText = 'Anomalie'
       end
       item
         Alignment = taRightJustify
         Position = 34
+        WideText = 'lpa'
+      end
+      item
+        Alignment = taRightJustify
+        Position = 35
         WideText = 'lpi'
       end>
   end

@@ -513,6 +513,7 @@ begin
       if stop then break;
     end;
 
+    SetProgress(100);
     log('stats sync ready!',10);
 
     TXT_ges.Text := TimeToStr(Now-start);
