@@ -1,1 +1,1 @@
-D:\devel\creatureScan\release\build_creatureScan_zip.bat creatureScan_2_0d.zip
+D:\devel\creatureScan\release\build_creatureScan_zip.bat creatureScan_2_0d.zip "-DRELEASE"

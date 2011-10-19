@@ -164,9 +164,9 @@ object FRM_Main: TFRM_Main
         object lbl_title: TLabel
           Left = 8
           Top = 16
-          Width = 213
+          Width = 197
           Height = 39
-          Caption = 'creatureScan v'
+          Caption = 'creatureScan '
           Color = clBlack
           Font.Charset = ANSI_CHARSET
           Font.Color = clBlue
