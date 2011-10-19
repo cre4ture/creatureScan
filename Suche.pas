@@ -498,7 +498,7 @@ begin
   lpaThread := TFetchLPA_LPI_Thread.Create(self, VST_Result);
 
   ts_specials.TabVisible := FRM_Main.Dir.Visible;
-  if not ts_specials.Visible then
+  if not ts_specials.TabVisible then
   begin
     VST_Result.Header.Columns.Delete(16);
     VST_Result.Header.Columns.Delete(15);

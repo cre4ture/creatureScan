@@ -5,10 +5,11 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ComCtrls, StdCtrls, config_cS_db_engine, IniFiles, OGame_Types,
-  Spin, ExtCtrls;
+  Spin, ExtCtrls, XPMan;
 
 type
   Tfrm_sync_cS_db_engine = class(TForm)
+    XPManifest1: TXPManifest;
   published
     cb_servers: TComboBox;
     Label1: TLabel;

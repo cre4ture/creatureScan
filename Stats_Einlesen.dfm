@@ -162,4 +162,8 @@ object FRM_Stats_Einlesen: TFRM_Stats_Einlesen
     Left = 240
     Top = 120
   end
+  object XPManifest1: TXPManifest
+    Left = 308
+    Top = 112
+  end
 end
