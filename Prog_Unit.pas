@@ -40,8 +40,17 @@ const
   pi_TSyncRaids      = 1029;
   pi_TSyncStats      = 1030;
 
-const VNumber = '2.0c';
-      
+const main_ver = '2.0d';
+
+{$ifdef PRERELEASE}
+  const VNumber = 'PRE-' + main_ver;
+{$else}
+  {$ifdef RELEASE}
+    const VNumber = main_ver;
+  {$else}
+    const VNumber = 'DEV-' + main_ver;
+  {$endif}
+{$endif}
 
 {$DEFINE oanzahl}  //ohne Anzahl!! -- brauchts nirgends mehr!
 

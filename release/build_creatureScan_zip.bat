@@ -1,10 +1,15 @@
 rem rebuild all projects (automatically builds without debug flags)
 
-call project_build.bat ../cSplugins/fullhtml_betauni/ fullhtml_betauni
+setlocal
+
+set zipfile=%1
+set extraparams=%2
+
+call project_build.bat ../cSplugins/fullhtml_betauni/ fullhtml_betauni %extraparams%
 if errorlevel 1 exit /B 1
-call project_build.bat ../cSplugins/fullhtml/ fullhtml
+call project_build.bat ../cSplugins/fullhtml/ fullhtml %extraparams%
 if errorlevel 1 exit /B 1
-call project_build.bat ../ creatureScan
+call project_build.bat ../ creatureScan %extraparams%
 if errorlevel 1 exit /B 1
 
 rem collect all data in creatureScan folder
@@ -23,6 +28,8 @@ rem remove unwanted files
 rm creatureScan/ioplugins/*.rsm
 find creatureScan -name ".svn" | xargs rm -r
 
-7zip\7za.exe a %1 creatureScan
+7zip\7za.exe a %zipfile% creatureScan
 
 sleep 3
+
+endlocal
