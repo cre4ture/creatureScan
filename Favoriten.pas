@@ -315,8 +315,8 @@ begin
 
   if not FRM_Main.Dir.Visible then
   begin
-    VST_ScanList.Header.Columns.Delete(lpa_col);
     VST_ScanList.Header.Columns.Delete(lpi_col);
+    VST_ScanList.Header.Columns.Delete(lpa_col);
   end;
 end;
 

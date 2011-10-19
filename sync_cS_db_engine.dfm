@@ -16,7 +16,7 @@ object frm_sync_cS_db_engine: Tfrm_sync_cS_db_engine
   OnDestroy = FormDestroy
   DesignSize = (
     361
-    345)
+    347)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -133,6 +133,10 @@ object frm_sync_cS_db_engine: Tfrm_sync_cS_db_engine
     Enabled = False
     OnTimer = tim_start_autosyncTimer
     Left = 168
+    Top = 120
+  end
+  object XPManifest1: TXPManifest
+    Left = 216
     Top = 120
   end
 end

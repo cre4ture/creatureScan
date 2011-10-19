@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, OGame_Types, Prog_Unit, Clipbrd, Languages,
-  clipbrdfunctions, Stat_Points, ComCtrls;
+  clipbrdfunctions, Stat_Points, ComCtrls, XPMan;
 
 type
   TFRM_Stats_Einlesen = class(TForm)
@@ -26,6 +26,7 @@ type
     TXT_fleet: TEdit;
     Button1: TButton;
     Button2: TButton;
+    XPManifest1: TXPManifest;
     procedure pb_place_rangePaint(Sender: TObject);
     procedure pb_pointsPaint(Sender: TObject);
     procedure FormCreate(Sender: TObject);
