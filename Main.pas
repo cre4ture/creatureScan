@@ -338,7 +338,7 @@ type
     procedure RefreshExplorers(P: TPlanetPosition);
 
     function NewSearch: TFRM_Suche;
-    procedure ShowGalaxie(Pos: TPlanetPosition);
+    procedure ShowGalaxie(Pos: TPlanetPosition; toFront: Boolean = true);
     procedure ShowSmallScan(P: TPlanetPosition);
     procedure OpenInBrowser(url: String);
     procedure SetTrayIcon_;
@@ -1235,11 +1235,14 @@ begin
   end;
 end;
 
-procedure TFRM_Main.ShowGalaxie(pos: TPlanetPosition);
+procedure TFRM_Main.ShowGalaxie(Pos: TPlanetPosition; toFront: Boolean = true);
 begin
   DockExplorer.Initialise(Pos);
   ShowExplorerPanel;
-  BringToFront;
+  if toFront then
+  begin
+    BringToFront;
+  end;
 end;
 
 procedure TFRM_Main.ShowSmallScan(P: TPlanetPosition);

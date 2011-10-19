@@ -1006,6 +1006,7 @@ procedure TExplorer.NewSysAtPos(syspos: TPlanetPosition);
 begin
   if folgeeingelesenenSystemen1.Checked and (syspos.P[0] <> 0) then
   begin
+    syspos.P[2] := Position.P[2];
     Initialise(syspos);
   end
   else
