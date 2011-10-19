@@ -563,7 +563,14 @@ begin
   begin
     Caption := 'S [' + PositionToStrMond(Koord) + '] ' + 'Suche in dem Universumsabbild nach...';
 
-    FRM_Main.ShowScan(Koord, mPosListInterface);     
+    if (scantime_u > 0) then // scan vorhanden?
+    begin
+      FRM_Main.ShowScan(Koord, mPosListInterface);
+    end
+    else
+    begin
+      FRM_Main.ShowGalaxie(Koord, false);
+    end;
   end;
 end;
 

@@ -1,6 +1,6 @@
 object Explorer: TExplorer
-  Left = 313
-  Top = 107
+  Left = 72
+  Top = 79
   Width = 482
   Height = 463
   Caption = 'Galaxie-Explorer'
@@ -40,7 +40,7 @@ object Explorer: TExplorer
     Left = 0
     Top = 60
     Width = 474
-    Height = 357
+    Height = 359
     Align = alClient
     BorderStyle = bsNone
     Color = clBlack
@@ -258,7 +258,7 @@ object Explorer: TExplorer
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 417
+    Top = 419
     Width = 474
     Height = 19
     Panels = <

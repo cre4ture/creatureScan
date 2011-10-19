@@ -507,6 +507,18 @@ begin
       if tag_ <> nil then
       begin
         row^.MondSize := ReadInt(tag_.FullTagContent, 1);
+      end
+      else
+      begin  // alternative möglichkeit die Mondgroesse einzulesen
+        tag_ := CurElement.FindChildTagPath('a:0/img:0/');
+        if tag_ <> nil then
+        begin
+          row^.MondSize := ReadIntEx(tag_.AttributeValue['alt'], 1, 'Moon: ');
+          if (row^.MondSize = 0) then
+          begin
+            row^.MondSize := 1; // das Vorhandensein dieses Bildes beweist die Existenz eines Mondes... halt ohne Info über die Größe
+          end;
+        end;
       end;
     end
     //-------------------------------------------TRÜMMERFELD--------------------
@@ -595,10 +607,9 @@ begin
     if attr_class = 'action' then
     begin
       tag_ := HTMLFindRoutine_NameAttribute_Within(
-        CurElement, 'img', 'src', 'img/icons/mail.gif');
+        CurElement, 'a', 'href', '/game/index.php?page=writemessage&amp;');
       if tag_ <> nil then
       begin
-        tag_ := tag_.ParentElement; // <a>nachricht schreiben</a>
         row^.PlayerId := extractPlayerIdFromSendMSGUrl(
           tag_.AttributeValue['href']);
       end;
