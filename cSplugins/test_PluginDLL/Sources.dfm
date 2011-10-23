@@ -15,8 +15,8 @@ object FRM_Sources: TFRM_Sources
   OnDestroy = FormDestroy
   OnResize = FormResize
   DesignSize = (
-    676
-    368)
+    684
+    378)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel

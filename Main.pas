@@ -1823,9 +1823,9 @@ begin
   if i >= 10 then Exit;
   
   try
-    Html := GetClipboardHtml;
+    Html := Utf8ToAnsi(GetClipboardHtml);
     if ClipboardHasText then
-      Text := GetClipboardText
+      Text := Utf8ToAnsi(GetClipboardText)
     else
     begin
       Text := '';
