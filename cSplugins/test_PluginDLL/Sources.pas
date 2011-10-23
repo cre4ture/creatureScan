@@ -113,8 +113,8 @@ begin
   while (not OpenClipboard)and(i < 10) do inc(i);
   if i >= 10 then Exit;
 
-  m_Text.Text := GetClipboardText;
-  m_Html.Text := GetClipboardHtml;
+  m_Text.Text := Utf8ToAnsi(GetClipboardText);
+  m_Html.Text := Utf8ToAnsi(GetClipboardHtml);
 
   CloseClipboard;
 end;
