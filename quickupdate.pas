@@ -40,6 +40,7 @@ type
       var ContentRect: TRect);
   private
     ODB: TObject;
+    fullUpdateURL: string;
     { Private-Deklarationen }
   public
     enable_plugin_reload: boolean;
@@ -89,7 +90,7 @@ begin
   net := TIdHTTP.Create(Application);
   mem := TMemoryStream.Create;
   try
-    net.Get(QuickUpdateUrl+'quick.xml',mem);
+    net.Get(fullUpdateURL+'quick.xml',mem);
     zero := 0;
     mem.Write(zero,sizeof(zero));
     text := mem.Memory;
@@ -231,7 +232,7 @@ begin
         localfile := localPath + filename;
         if status <> 'latest' then
         begin
-          doUpdate(localfile,QuickUpdateUrl+filename);
+          doUpdate(localfile,fullUpdateURL+filename);
         end;
       end;
 
@@ -287,6 +288,7 @@ begin
   inherited Create(AOwner);
   enable_plugin_reload := aEnablePluginReload;
   self.ODB := aODB;
+  fullUpdateURL := StringReplace(QuickUpdateUrl, '%ver%', main_ver, [rfReplaceAll]);
 end;
 
 constructor Tfrm_quickupdate.Create(AOwner: TComponent);

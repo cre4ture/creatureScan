@@ -119,11 +119,11 @@ end;
 
 procedure TFRM_MainTest.Button7Click(Sender: TObject);
 var s: string;
-    isCommander: boolean;
 begin
-  if plugin.CheckClipboardUni(FRM_Sources.plugin_handle, isCommander) then
+  if plugin.CheckClipboardUni(FRM_Sources.plugin_handle) then
   begin
-    s := 'Uni identified!' + #10 + #13 + 'isCommander: ' + BoolToStr(isCommander, true);
+    s := 'Uni identified!' + #10 + #13 +
+         'isCommander: ' + BoolToStr(plugin.has_commander, true);
     ShowMessage(s);
   end
   else ShowMessage('Uni not identified!');

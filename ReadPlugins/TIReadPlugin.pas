@@ -117,6 +117,7 @@ type
     PlugInName: String;
     ValidFile: Boolean;
     SBItems: array[TScanGroup] of TStringList;
+    property has_commander: boolean read isCommander;
     function ReadSource_New: integer;
     procedure ReadSource_Free(handle: integer);
     function CallFleet_(pos: TPlanetPosition; job: TFleetEventType): Boolean;
