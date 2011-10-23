@@ -40,15 +40,16 @@ const
   pi_TSyncRaids      = 1029;
   pi_TSyncStats      = 1030;
 
-const main_ver = '2.0d';
+const main_ver = '2.1';
+const release_number = 'a';
 
 {$ifdef PRERELEASE}
-  const VNumber = 'PRE-' + main_ver;
+  const VNumber = 'PRE-' + main_ver + release_number;
 {$else}
   {$ifdef RELEASE}
     const VNumber = main_ver;
   {$else}
-    const VNumber = 'DEV-' + main_ver;
+    const VNumber = 'DEV-' + main_ver + release_number;
   {$endif}
 {$endif}
 
