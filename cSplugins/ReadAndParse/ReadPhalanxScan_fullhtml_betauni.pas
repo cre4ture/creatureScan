@@ -18,7 +18,7 @@ type
     hpfce_attack,
     hpfce_owndeploy,   //Stationieren, TODO: rückkehrende flotte ?
     hpfce_ownharvest,  //Abbau
-    hpfce_espionage,    //Spionage
+    hpfce_espionage,   //Spionage
     hpfce_owncolony,   //kolonisieren
     hpfce_ownespionage,
     hpfce_ownattack
@@ -51,7 +51,9 @@ type
       const fce: ThtmlPhalanx_fligthclassEx; var fleet: TFleetEvent): boolean;
     function GetFleet(nr: integer): TFleetEvent;
     procedure readSourceInfo(html: string; var info: TFleetsInfoSource);
+    procedure initFleet(var fleet: TFleetEvent);
   public
+    procedure ReadHTML_BuildTimer(doc_html: THTMLElement);
     function ReadHTML(html: string): TFleetsInfoSource;
     constructor Create(ini: TIniFile; aReadReport: TReadReport_Text);
     destructor Destroy; override;
@@ -244,11 +246,58 @@ begin
   end;
 end;
 
+procedure ThtmlPhalanxRead_betauni.ReadHTML_BuildTimer(doc_html: THTMLElement);
+var node: THTMLElement;
+    regex: Tregexpn;
+    h, min, sec: integer;
+    fleet: TFleetEvent;
+    end_time: TDateTime;
+begin
+  initFleet(fleet);
+
+  regex := Tregexpn.Create;
+  try
+    node := HTMLFindRoutine_NameAttribute(doc_html, 'table', 'class', 'construction');
+    if (node <> nil) then
+    begin
+      node := node.FindChildTagPath('tbody:0/tr:4/td:1/');
+      if (node <> nil) then
+      begin
+        regex.setexpression('((?<day>[0-9]+)/(?<month>[0-9]+) )?(?<h>[0-9]+):(?<min>[0-9]+):(?<sec>[0-9]+)');
+        if regex.match(node.FullTagContent) then
+        begin
+          h := StrToInt(regex.getsubexpr('h'));
+          min := StrToInt(regex.getsubexpr('min'));
+          sec := StrToInt(regex.getsubexpr('sec'));
+          end_time := Date + h/24 + min/24/60 + sec/24/60/60;
+
+          fleet.head.unique_id := 0;
+          fleet.head.eventtype := fet_none;
+          fleet.head.eventflags := [];
+          fleet.head.origin := StrToPosition('1:1:1');
+          fleet.head.target := StrToPosition('1:1:1');
+          fleet.head.arrival_time_u := DateTimeToUnix(end_time);
+          fleet.head.player := 'self';
+          fleet.head.joined_id := 0;
+
+          Add(fleet);
+        end;
+      end;
+    end;
+  finally
+    regex.Free;
+  end;
+end;
+
 function ThtmlPhalanxRead_betauni.ReadHTML_Elements(
   doc_html: THTMLElement): integer;
 begin
   //Find and read FleetEvents:
   doc_html.DeleteTagRoutine(checkTags, nil);
+
+  // search for building time:
+  ReadHTML_BuildTimer(doc_html);
+
   Result := fleets.Count;
 end;
 
@@ -590,15 +639,8 @@ begin
   if not readHtmlTag_planetposition_and_fleettype(tag, fce, fleet) then
     Exit;}
 
-  //REss initialisieren:
-  SetLength(fleet.ress, ScanFileCounts[sg_Rohstoffe]);
-  for i := 0 to length(fleet.ress)-1 do
-    fleet.ress[i] := 0;
-
-  //Flotte initialisieren:
-  SetLength(fleet.ships, ScanFileCounts[sg_Flotten]);
-  for i := 0 to length(fleet.ships)-1 do
-    fleet.ships[i] := 0;
+  // fleet ress and ships init
+  initFleet(fleet);
 
   //Ress/Fleet einlesen
   readHtmlTag_ress_fleet(tag_ul,fleet);
@@ -619,6 +661,20 @@ begin
   end;
 
   Add(fleet);
+end;
+
+procedure ThtmlPhalanxRead_betauni.initFleet(var fleet: TFleetEvent);
+var i: integer;
+begin
+  //REss initialisieren:
+  SetLength(fleet.ress, ScanFileCounts[sg_Rohstoffe]);
+  for i := 0 to length(fleet.ress)-1 do
+    fleet.ress[i] := 0;
+
+  //Flotte initialisieren:
+  SetLength(fleet.ships, ScanFileCounts[sg_Flotten]);
+  for i := 0 to length(fleet.ships)-1 do
+    fleet.ships[i] := 0;
 end;
 
 function ThtmlPhalanxRead_betauni.GetFleet(nr: integer): TFleetEvent;

@@ -9,7 +9,7 @@ MAKE = $(ROOT)\bin\make.exe -$(MAKEFLAGS) -f$**
 DCC = $(ROOT)\bin\dcc32.exe $**
 BRCC = $(ROOT)\bin\brcc32.exe $**
 #------------------------------------------------------------------------------
-PROJECTS = creatureScan.exe test.exe fullhtml_betauni.dll
+PROJECTS = creatureScan.exe test.exe fullhtml_betauni.dll fullhtml.dll
 #------------------------------------------------------------------------------
 default: $(PROJECTS)
 #------------------------------------------------------------------------------
@@ -21,6 +21,9 @@ test.exe: ..\test_PluginDLL\test.dpr
   $(DCC)
 
 fullhtml_betauni.dll: fullhtml_betauni.dpr
+  $(DCC)
+
+fullhtml.dll: ..\fullhtml\fullhtml.dpr
   $(DCC)
 
 
