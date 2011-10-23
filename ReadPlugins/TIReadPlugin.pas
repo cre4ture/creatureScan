@@ -7,9 +7,11 @@ uses
   cS_memstream;
 
 const
-  DLLVNumber = 28;
+  DLLVNumber = 29;
 
 {
+  V29: isCommander in UniCheck
+
   V28: Count in TStats
   
   V27: stats & sys + playerID + scan_size
@@ -41,7 +43,7 @@ type
   TStatusToStr = function(Status: TStatus): ShortString;
   TReadRaidAuftrag = function(s: PChar; var Auftrag: TRaidAuftrag): Boolean;
 
-  TCheckUni = function(Handle: Integer): Boolean;
+  TCheckUni = function(Handle: Integer; var isCommander: Boolean): Boolean;
   TCallFleet = function(pos: TPlanetPosition; job: TFleetEventType): Boolean;
   TCallFleetEx = function(fleet: pointer): Boolean;
   TOpenSolSys = function(pos: TSolSysPosition): Boolean;
@@ -71,6 +73,8 @@ type
     dllfile: string;
     SBItemfile: string;
     dllconfig: String;
+    isCommander: boolean;
+
   protected
     DllHandle: THandle;
     DllLoaded: boolean;
@@ -146,6 +150,8 @@ type
 
 implementation
 
+uses global_options;
+
 procedure TLangPlugIn.AssignProcedures;
 begin
   @PStartDll := GetProcAddress(DllHandle, 'StartDll');
@@ -184,9 +190,21 @@ begin
 end;
 
 function TLangPlugIn.directCallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
+var cs_light: boolean;
 begin
   if Assigned(PdirectCallFleet) then
+  begin
+    cs_light := StrToBool(cS_getGlobalOption('main', 'cs_light', BoolToStr(true)));
+    if (cs_light) and (pos.Mond) and (not isCommander) then
+    begin
+      // im cs_light-Modus dürfen Monde nur dann ausspioniert werden, wenn
+      // man einen commander hat.
+      Result := False;
+      exit;
+    end;
+
     Result := PdirectCallFleet(pos, job)
+  end
   else
     raise Exception.Create('TLangPlugIn.directCallFleet(): dll does not support this feature');
 end;
@@ -194,7 +212,7 @@ end;
 function TLangPlugIn.CheckClipboardUni(handle: integer): Boolean;
 begin
   Result := Assigned(PCheckUni) and
-            PCheckUni(handle);
+            PCheckUni(handle, isCommander);
 end;
 
 procedure TLangPlugIn.CloseDll;

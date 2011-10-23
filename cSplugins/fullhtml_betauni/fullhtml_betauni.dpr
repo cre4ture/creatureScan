@@ -39,7 +39,7 @@ type
 
 
 const
-  iopluginVersion = 28;
+  iopluginVersion = 29;
 
   RA_KeyWord_Count = 5;
   ST_KeyWord_Count = 2;
@@ -291,14 +291,14 @@ begin
   Result := SysRead.ReadFromRS(rs, Sys_X);
 end;
 
-function CheckUni(Handle: Integer): Boolean;
+function CheckUni(Handle: Integer; var isCommander: Boolean): Boolean;
 var rs: TReadSource_cS;
 begin
   Result := False;
   if not _get_RS(Handle,rs) then Exit;
 
   case UniCheck_Options.CheckType of
-    UnictHtml: Result := UniCheck._CheckUni_HTML(rs.GetHTMLString);
+    UnictHtml: Result := UniCheck._CheckUni_HTML(rs.GetHTMLString, rs.GetHTMLRoot, isCommander);
 
     else
       //UnictNone:

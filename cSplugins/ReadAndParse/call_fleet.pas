@@ -3,7 +3,7 @@ unit call_fleet;
 interface
 
 uses
-  OGame_Types, IniFiles, SysUtils, StrUtils, ShellApi, Dialogs, Windows;
+  OGame_Types, IniFiles, SysUtils, StrUtils, ShellApi, Dialogs, Windows, html;
 
 type
   TUniCheck = class
@@ -27,7 +27,8 @@ type
   public
     property session_id: string read fsession_id write fsession_id;
     constructor Create(ini: TIniFile; serverURL: String);
-    function _CheckUni_HTML(html: string): Boolean;
+    function _CheckUni_HTML(html: string;
+      html_tree: THTMLElement; var isCommander: Boolean): Boolean;
     function CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
     function CallFleetEx(fleet: TFleetEvent): Boolean;
     function SendSpio(pos: TPlanetPosition): Boolean;
@@ -66,13 +67,31 @@ begin
   end;
 end;
 
-function TUniCheck._CheckUni_HTML(html: string): Boolean;
+function TUniCheck._CheckUni_HTML(html: string;
+      html_tree: THTMLElement; var isCommander: Boolean): Boolean;
+var menuTable, imperium: THTMLElement;
 begin
+  isCommander := false;
   Result := (pos(CheckUniKeyword+UniServer,html) > 0);
 
   if Result then
   begin
     get_parse_session_ID_html(html);
+
+    // check for commander
+    // search for menue
+    menuTable := HTMLFindRoutine_NameAttribute(html_tree, 'ul', 'id', 'menuTable');
+    if (menuTable <> nil) then
+    begin
+      // search for imperium entry
+      imperium := HTMLFindRoutine_NameAttribute_Within(
+            html_tree, 'a', 'href', '/game/index.php?page=empire&amp');
+      if imperium <> nil then
+      begin
+        // check for additional attribute to be sure: (may be optional)
+        isCommander := pos('menubutton', imperium.AttributeValue['class']) > 0;
+      end;
+    end;
   end;
 end;
 

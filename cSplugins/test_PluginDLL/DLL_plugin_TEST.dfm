@@ -1,6 +1,6 @@
 object FRM_MainTest: TFRM_MainTest
-  Left = 453
-  Top = 500
+  Left = 687
+  Top = 502
   Width = 508
   Height = 237
   Caption = 'DLL_plugin_TEST'

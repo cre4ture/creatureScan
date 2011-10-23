@@ -1766,6 +1766,7 @@ end;
 
 procedure TFRM_Main.intelligentReadData(const text, html: string);
 var handle: integer;
+    isUni: Boolean;
 begin
   handle := ODataBase.LanguagePlugIn.ReadSource_New();
   try
@@ -1775,12 +1776,19 @@ begin
     ODataBase.LanguagePlugIn.SetReadSourceHTML(handle,
       html, ODataBase.FleetBoard.GameTime.UnixTime);
 
-    if
-       (
-         (not(soUniCheck in Einstellungen))or
-         (ODataBase.LanguagePlugIn.CheckClipboardUni(handle))
-       )
-       then
+
+
+
+    if (soUniCheck in Einstellungen) then
+    begin
+      isUni := ODataBase.LanguagePlugIn.CheckClipboardUni(handle);
+    end
+    else
+    begin
+      isUni := true;
+    end;
+
+    if (isUni) then
     begin
       if (ODataBase.LeseMehrereScanberichte(handle) > 0)or
          (ODataBase.LeseSystem(handle))or
