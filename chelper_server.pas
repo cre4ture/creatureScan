@@ -109,26 +109,40 @@ end;
 
 procedure Tfrm_cshelper_ctrl.cThreadRun(Sender: TSimpleClientThread;
   socket: TTCPSocket);
-var buf: char;
+var buf: array[0..1023] of AnsiChar;
+    line_utf8: AnsiString;
     line: string;
+    rcv_length, i: integer;
     strList: TStringList;
 begin
   strList := TStringList.Create;
   try
+    line_utf8 := '';
     while (not Sender.Terminated) and socket.Connected do
     begin
-      socket.ReceiveBuf(buf, sizeof(char));
-      line := line + buf;
+      rcv_length := socket.ReceiveLength;
+      if (rcv_length <= 0) then
+        rcv_length := 1;
+      if (rcv_length > 1024) then
+        rcv_length := 1024;
 
-      if (buf = #13) then
+      socket.ReceiveBuf(buf, rcv_length);
+
+      for i := 0 to rcv_length-1 do
       begin
-        strList.Add(line);
-        if (trim(line) = 'CS:HELPER:END:OF:TRANSMISSION') then
+        line_utf8 := line_utf8 + buf[i];
+
+        if (buf[i] = #13) then
         begin
-          Sender.triggerSyncEvent(strList);
-          strList.Clear;
+          line := Utf8ToAnsi(line_utf8);
+          strList.Add(line);
+          if (trim(line) = 'CS:HELPER:END:OF:TRANSMISSION') then
+          begin
+            Sender.triggerSyncEvent(strList);
+            strList.Clear;
+          end;
+          line_utf8 := '';
         end;
-        line := '';
       end;
     end;
   except
