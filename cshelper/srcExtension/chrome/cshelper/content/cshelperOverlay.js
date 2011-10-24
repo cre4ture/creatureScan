@@ -123,7 +123,11 @@ cshelper.BrowserOverlay = {
 			var socketTransportService = Components.classes['@mozilla.org/network/socket-transport-service;1']
 				.getService(Components.interfaces.nsISocketTransportService); 
 			connection.transport = socketTransportService.createTransport(null, null, "localhost", port, null); 
-			connection.outputStream = connection.transport.openOutputStream(1, 0, 0); 
+			connection.outputStream = Components.classes["@mozilla.org/intl/converter-output-stream;1"]
+			             .createInstance(Components.interfaces.nsIConverterOutputStream);
+			connection.outputStream.init(
+						connection.transport.openOutputStream(1, 0, 0),
+						"UTF-8", 0, 0x0000);
 			connection.inputStream = connection.transport.openInputStream(1, 0, 0);
 			
 		}
@@ -135,9 +139,9 @@ cshelper.BrowserOverlay = {
 	{
 		
 		out = this.getTCPConnection(uni_url).outputStream;
-		out.write(string, string.length);
+		out.writeString(string, string.length);
 		var endmsg = "\n\rCS:HELPER:END:OF:TRANSMISSION\n\r";
-		out.write(endmsg, endmsg.length);
+		out.writeString(endmsg, endmsg.length);
 		
 	},
 	
