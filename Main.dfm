@@ -1043,6 +1043,11 @@ object FRM_Main: TFRM_Main
         Caption = 'closeFreeAudioFiles'
         OnClick = closeFreeAudioFiles1Click
       end
+      object commander1: TMenuItem
+        Caption = 'commander?'
+        ShortCut = 16503
+        OnClick = commander1Click
+      end
     end
   end
   object TrayIconPopup: TPopupMenu
