@@ -47,7 +47,7 @@ const release_number = 'a';
   const VNumber = 'PRE-' + main_ver + release_number;
 {$else}
   {$ifdef RELEASE}
-    const VNumber = main_ver;
+    const VNumber = main_ver + release_number;
   {$else}
     const VNumber = 'DEV-' + main_ver + release_number;
   {$endif}
