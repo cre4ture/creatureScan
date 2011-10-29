@@ -18,6 +18,7 @@
       <uni name="io" urlname="uni109" tffleetfactor="0.7"/>
       <uni name="jupiter" urlname="uni110" tfdeffactor="0.3"/>
       <uni name="kassiopeia" urlname="uni111" gamespeedfactor="2.0"/>
+      <uni name="leo" urlname="uni112"/>
       <uni name="uni$" symbol="$" index="1" to="13"/>
       <uni name="uni14" tfdeffactor="0.3"/>
       <uni name="uni15" tfdeffactor="0.3"/>

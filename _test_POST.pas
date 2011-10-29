@@ -980,12 +980,12 @@ begin
 
   url := txt_url.Text + param;
 
-  s := mem_send.Text;
+  s := AnsiToUtf8(mem_send.Text);
   buf := TMemoryStream.Create;
   try
     buf.Write(PChar(s)^, length(s));
     startpost := now;
-    mem_recv.Text := IdHTTP1.Post(url,buf);
+    mem_recv.Text := Utf8ToAnsi(IdHTTP1.Post(url,buf));
     startpost := Now - startpost;
     TXT_post.Text := FloatToStrF(startpost*24*60*60,ffNumber,80,4) + ' s';
   finally

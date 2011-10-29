@@ -185,6 +185,7 @@ type
     LBL_WF_0_3: TLabel;
     btn_fight_start: TButton;
     spiodirekt1: TMenuItem;
+    commander1: TMenuItem;
     procedure btn_lastClick(Sender: TObject);
     procedure btn_nextClick(Sender: TObject);
     procedure LblWikiLinkClick(Sender: TObject);
@@ -276,6 +277,7 @@ type
     procedure stresstestforaddsolsys1Click(Sender: TObject);
     procedure closeFreeAudioFiles1Click(Sender: TObject);
     procedure spiodirekt1Click(Sender: TObject);
+    procedure commander1Click(Sender: TObject);
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
@@ -2532,6 +2534,18 @@ end;
 procedure TFRM_Main.spiodirekt1Click(Sender: TObject);
 begin
   Spionage1Click(Sender);
+end;
+
+procedure TFRM_Main.commander1Click(Sender: TObject);
+begin
+  if ODataBase.LanguagePlugIn.has_commander then
+  begin
+    ShowMessage('Commander: Yes!');
+  end
+  else
+  begin
+    ShowMessage('Commander: No!');
+  end;
 end;
 
 end.
