@@ -15,9 +15,8 @@ type
     Note: string;
     Image: Integer;
     Date: TDateTime;
-    case integer of
-    0: (Pos: TPlanetPosition);
-    1: (PlayerOrAlly: TPlayerName);
+    Pos: TPlanetPosition;
+    PlayerOrAlly: string;
   end;
   TNoteImage = record
     Name: string;
@@ -47,7 +46,7 @@ type
     procedure Entfernen1Click(Sender: TObject);
     procedure VST_NotizenGetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: String);
     procedure VST_NotizenGetImageIndex(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
       var Ghosted: Boolean; var ImageIndex: Integer);
@@ -71,9 +70,9 @@ type
     function GetPlanetInfo(APos: TPlanetPosition): TNotizArray;
     procedure ShowAddDialog(Sender: TForm; Position: TPlanetPosition; NT: TNotizTyp = nPlanet);
     procedure AddPlanet(Notiz: string; Planet: TPLanetPosition; Image: integer);
-    procedure AddPlayer(Notiz: string; Player: TPlayerName; Image: integer);
-    procedure AddAlly(Notiz: string; Ally: TPlayerName; Image: integer);
-    procedure ReplacePlayername(Name, InTo: TPlayerName);
+    procedure AddPlayer(Notiz: string; Player: string; Image: integer);
+    procedure AddAlly(Notiz: string; Ally: string; Image: integer);
+    procedure ReplacePlayername(Name, InTo: string);
     function GetBackgroundColor(Typ: Integer): TColor;
     procedure EditImages;
     function GenerateNextImageFilename: string;
@@ -293,7 +292,7 @@ begin
   Add(nt);
 end;
 
-procedure TFRM_Notizen.AddPlayer(Notiz: string; Player: TPlayerName; Image: integer);
+procedure TFRM_Notizen.AddPlayer(Notiz: string; Player: string; Image: integer);
 var nt: TNotiz;
 begin
   nt.Typ := nPlayer;
@@ -304,7 +303,7 @@ begin
   Add(nt);
 end;
 
-procedure TFRM_Notizen.AddAlly(Notiz: string; Ally: TPlayerName; Image: integer);
+procedure TFRM_Notizen.AddAlly(Notiz: string; Ally: string; Image: integer);
 var nt: TNotiz;
 begin
   nt.Typ := nAlly;
@@ -338,7 +337,7 @@ begin
   VST_Notizen.DeleteSelectedNodes;
 end;
 
-procedure TFRM_Notizen.ReplacePlayername(Name, InTo: TPlayerName);
+procedure TFRM_Notizen.ReplacePlayername(Name, InTo: string);
 var node: PVirtualNode;
 begin
   node := VST_Notizen.GetFirst;
@@ -361,7 +360,7 @@ end;
 
 procedure TFRM_Notizen.VST_NotizenGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+  var CellText: String);
 begin
   CellText := '';
   with TNotiz(VST_Notizen.GetNodeData(Node)^) do
@@ -516,7 +515,7 @@ begin
       if pos(copy(GenerateNextImageFilename,1,10),SubItems[1]) <= 0 then
       begin
         images[i].filename := GenerateNextImageFilename;
-        CopyFileA(PChar(SubItems[1]),PChar(images[i].filename),false);
+        CopyFileA(PAnsiChar(AnsiString(SubItems[1])),PAnsiChar(AnsiString(images[i].filename)),false);
       end else images[i].filename := SubItems[1];
       images[i].BackgroundColor := StrToInt(SubItems[2]);
       CB_Image.Items.Add(SubItems[0]);

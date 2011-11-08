@@ -111,7 +111,7 @@ procedure Tfrm_cshelper_ctrl.cThreadRun(Sender: TSimpleClientThread;
   socket: TTCPSocket);
 var buf: array[0..1023] of AnsiChar;
     line_utf8: AnsiString;
-    line: string;
+    line: String;
     rcv_length, i: integer;
     strList: TStringList;
 begin
@@ -134,7 +134,7 @@ begin
 
         if (buf[i] = #13) then
         begin
-          line := Utf8ToAnsi(line_utf8);
+          line := trnslShortString(line_utf8);
           strList.Add(line);
           if (trim(line) = 'CS:HELPER:END:OF:TRANSMISSION') then
           begin

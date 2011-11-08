@@ -49,7 +49,7 @@ type
   public
     property Fleet: TFleetEvent read GetFleet write SetFleet;
     procedure ResetTime(time_u: Int64);
-    constructor Create(AParent: TForm; aServerTime: TDeltaSystemTime);
+    constructor Create(AParent: TForm; aServerTime: TDeltaSystemTime); reintroduce;
     { Public-Deklarationen }
   end;
 

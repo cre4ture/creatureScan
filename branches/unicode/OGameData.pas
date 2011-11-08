@@ -3,7 +3,7 @@ unit OGameData;
 interface
 
 uses
-  html, parser, classes, sysutils;
+  html, classes, sysutils;
 
 type
   TGameUniverse = class

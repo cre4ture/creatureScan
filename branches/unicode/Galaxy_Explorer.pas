@@ -74,7 +74,7 @@ type
     procedure PopupMenu1Popup(Sender: TObject);
     procedure VST_SystemGetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: String);
     procedure VST_SystemPaintText(Sender: TBaseVirtualTree;
       const TargetCanvas: TCanvas; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType);
@@ -229,8 +229,10 @@ end;
 
 procedure TExplorer.Reload;
 var s: string;
+    p_tmp: TPlanetPosition;
 begin
-  with Position do
+  p_tmp := Position;
+  with p_tmp do
   begin
     P[0] := StrToInt(TXT_Galaxy.Text);
     if P[0] < 1 then
@@ -259,6 +261,7 @@ begin
       Beep;
     end;
   end;
+  Position := p_tmp;
 
   FPhalanxList := ODataBase.UniTree.GetPhalanxList(Position);
 
@@ -401,14 +404,17 @@ end;
 
 procedure TExplorer.FormCreate(Sender: TObject);
 var ini: TIniFile;
+    p_tmp: TPlanetPosition;
 begin
   tablewidth := 500;
-  with Position do
+  with p_tmp do
   begin
     P[0] := 1;
     P[1] := 1;
     P[2] := 1;
+    Mond := false;
   end;
+  Position := p_tmp;
   if SaveCaptions then SaveAllCaptions(Self,LangFile);
   if LoadCaptions then LoadAllCaptions(Self,LangFile);
 
@@ -537,7 +543,7 @@ end;
 
 procedure TExplorer.VST_SystemGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+  var CellText: String);
 var i: Integer;
     pos: TPlanetPosition;
     la_u: int64;
@@ -554,6 +560,7 @@ begin
         if System.Planeten[i].PlanetName <> '' then
         begin
           CellText := System.Planeten[i].PlanetName;
+
           //Letzte Aktivität?
           la_u := ODataBase.FleetBoard.GameTime.UnixTime - ODataBase.GetLastActivity(pos);
           if la_u < 60*60 then
@@ -683,15 +690,20 @@ end;
 
 procedure TExplorer.VST_SystemFocusChanged(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex);
-  var i, j: integer;
+var i, j: integer;
+    p_tmp: TPlanetPosition;
 begin
   if not SettingPos then
-  with Position do
   begin
-    {P[0] := System.System.P[0];
-    P[1] := System.System.P[1];}
-    P[2] := Node.Index+1;
-    Mond := Column = col_Mond;
+    p_tmp := Position;
+    with p_tmp do
+    begin
+      {P[0] := System.System.P[0];
+      P[1] := System.System.P[1];}
+      P[2] := Node.Index+1;
+      Mond := Column = col_Mond;
+    end;
+    Position := p_tmp;
   end;
   SCol := Column;
   

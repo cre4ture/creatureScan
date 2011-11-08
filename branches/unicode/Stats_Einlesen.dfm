@@ -1,10 +1,10 @@
 object FRM_Stats_Einlesen: TFRM_Stats_Einlesen
   Left = 351
   Top = 115
-  Width = 527
-  Height = 386
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Statistiken'
+  ClientHeight = 361
+  ClientWidth = 519
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -161,9 +161,5 @@ object FRM_Stats_Einlesen: TFRM_Stats_Einlesen
     OnTimer = Timer1Timer
     Left = 240
     Top = 120
-  end
-  object XPManifest1: TXPManifest
-    Left = 308
-    Top = 112
   end
 end

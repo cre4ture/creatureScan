@@ -104,9 +104,9 @@ const
 
 type
   TNameID = Int64;
-  TPlayerName = String[25]; //vermutlich 20
-  TAllyName = String[10];  //vermutlich 8
-  TPlanetName = String[25]; //eigentlich 20
+  TPlayerName_utf8 = String[25]; //vermutlich 20
+  TAllyName_utf8 = String[10];  //vermutlich 8
+  TPlanetName_utf8 = String[25]; //eigentlich 20
   TStati = 0..15;  //16 Bit
   TStatus = set of TStati;
   PPlanetPosition = ^TPlanetPosition;
@@ -115,12 +115,11 @@ type
     Mond : Boolean;
   end;
   TAbsPlanetNr = Cardinal;
-  PSystemPlanet = ^TSystemPlanet;
-  TSystemPlanet = record
-    Player: TPlayerName;
+  TSystemPlanet_utf8 = record
+    Player: TPlayerName_utf8;
     PlayerId: TNameID;
-    PlanetName: TPlanetName;
-    Ally: TAllyName;
+    PlanetName: TPlanetName_utf8;
+    Ally: TAllyName_utf8;
     AllyId: TNameID;
     Status: TStatus;
     MondSize: Word;
@@ -128,23 +127,42 @@ type
     TF: array[0..1] of Cardinal;
     Activity: Integer; {Time in Seconds (min*60) befor Time_u, -15 -> (*) within last 15min, 0 -> activity > 60 minutes}
   end;
+  PSystemPlanet = ^TSystemPlanet;
+  TSystemPlanet = record
+    Player: string;
+    PlayerId: TNameID;
+    PlanetName: string;
+    Ally: string;
+    AllyId: TNameID;
+    Status: TStatus;
+    MondSize: Word;
+    MondTemp: SmallInt;
+    TF: array[0..1] of Cardinal;
+    Activity: Integer; {Time in Seconds (min*60) befor Time_u, -15 -> (*) within last 15min, 0 -> activity > 60 minutes}
+  end;
+  TSystemCopy_utf8 = record
+    Time_u : Int64;  //Unix
+    System : TPlanetPosition; //nur 0,1 wird dann verwendet!
+    Planeten : Array[1..max_Planeten] of TSystemPlanet_utf8;
+    Creator: TPlayerName_utf8;
+  end;
   PSystemCopy = ^TSystemCopy; 
   TSystemCopy = record
     Time_u : Int64;  //Unix
     System : TPlanetPosition; //nur 0,1 wird dann verwendet!
     Planeten : Array[1..max_Planeten] of TSystemPlanet;
-    Creator: TPlayerName;
+    Creator: string;
   end;
   TSystemPosition = Array[0..1] of Word;
   TSolSysPosition = TSystemPosition;
   TScanHead = record
-    Planet: TPlanetName;
+    Planet: string;
     Position: TPlanetPosition;
     Time_u: Int64;    //Unix
-    Spieler: TPlayerName;
+    Spieler: string;
     SpielerId: TNameID;
     Spionageabwehr: integer;
-    Creator: TPlayerName;
+    Creator: string;
     {geraidet: Boolean;
     von: TPlayerName;}
     Activity: Integer; {Time in Seconds (min*60) befor Time_u, -1 -> no info, 0 -> activity > 60 minutes}
@@ -207,19 +225,32 @@ type
   TReportTimeList = array of TReportTime;
   TPlanetScanListSortType = (pslst_Nummer, pslst_Alter);
   TStatType = (st_Player, st_Fleet, st_Ally);
-  TStatPlayer = record
-    Name: TPlayerName;
+  TStatPlayer_utf8 = record
+    Name: TPlayerName_utf8;
     NameId: TNameID;
     Punkte: Cardinal;
     case TStatType of
-    st_Player: (Ally: TAllyName);    //nur für spielerstats! bei allystats wird der allyname in den Spielernamen geschrieben!
+    st_Player: (Ally: TAllyName_utf8);    //nur für spielerstats! bei allystats wird der allyname in den Spielernamen geschrieben!
     st_Ally: (Mitglieder: Word);
+  end;
+  TStatPlayer = record
+    Name: string;
+    NameId: TNameID;
+    Punkte: Cardinal;
+    Ally: string;    //nur für spielerstats! bei allystats wird der allyname in den Spielernamen geschrieben!
+    Mitglieder: Word; // nur für allystats!
   end;
   TStatNameType = (sntPlayer, sntAlliance);
   TStatPointType = (sptPoints, sptFleet, sptResearch);
   TStatTypeEx = record
     NameType: TStatNameType;
     PointType: TStatPointType;
+  end;
+  TStat_utf8 = record
+    first: Word;
+    count: byte; 
+    Stats: array[0..99] of TStatPlayer_utf8;
+    Time_u: Int64;
   end;
   PStat = ^TStat;
   TStat = record
@@ -252,7 +283,7 @@ type
   PFleetEventScan = ^TFleetEventScan;
   TFleetEventScanType = (fes_none, fes_own, fes_phalanx, fes_manuel);
   TFleetEventScan = record
-    scanplayer: TPlayerName;
+    scanplayer: TPlayerName_utf8;
     scantype: TFleetEventScanType;
     scantime_u: Int64;
   end;
@@ -296,7 +327,7 @@ type
     eventflags: TFleetEventFlags;
     origin, target: TPlanetPosition;
     arrival_time_u: Int64;
-    player: TPlayerName;
+    player: string;
     joined_id: integer;  //set an id > 0 if Fleet belongs to a "Verbands-Angriff"
   end;
   PFleetEvent_ = ^TFleetEvent;
@@ -332,11 +363,11 @@ type
     constructor Create(XML_Data_File: string);
   end;
 
-  TTrimCharSet = set of Char;
+  TTrimCharSet = set of AnsiChar;
 
 var
   game_sites_OLD: array of String;
-  xspio_idents: array[TScanGroup] of array of String;
+  xspio_idents: array[TScanGroup] of array of string;
   maxPlanetTemp: array[1..max_Planeten] of single;
   maxPlanetTemp_redesign: array[1..max_Planeten] of single;
   fleet_resources: array[0..fsc_1_Flotten-1] of Tresources;
@@ -409,9 +440,54 @@ function CalcScanRess_Now_(Scan: TScanBericht; const Mine: TRessType;
 function GetStorageSize(scan: TScanBericht; resstype: TRessType): TcSResource;
 function GetScanGrpCount(Scan: TScanBericht): integer;
 function domainTolangindex(domain: string): integer;
-
+procedure decodeSysUTF8(const sys_utf8: TSystemCopy_utf8;
+  out sys: TSystemCopy);
+procedure decodeStatUTF8(const stat_utf8: TStat_utf8;
+  out stat: TStat);
 
 implementation
+
+uses xml_parser_unicode, cS_utf8_conv;
+
+procedure decodeStatUTF8(const stat_utf8: TStat_utf8;
+  out stat: TStat);
+var i: integer;
+begin
+  stat.first := stat_utf8.first;
+  stat.count := stat_utf8.count;
+  stat.Time_u := stat_utf8.Time_u;
+  for i := 0 to 99 do
+  begin
+    stat.Stats[i].Name := trnslShortStr(stat_utf8.Stats[i].Name);
+    stat.Stats[i].NameId := stat_utf8.Stats[i].NameId;
+    stat.Stats[i].Punkte := stat_utf8.Stats[i].Punkte;
+    stat.Stats[i].Ally := trnslShortStr(stat_utf8.Stats[i].Ally);
+    stat.Stats[i].Mitglieder := stat_utf8.Stats[i].Mitglieder;
+  end;
+end;
+
+procedure decodeSysUTF8(const sys_utf8: TSystemCopy_utf8;
+  out sys: TSystemCopy);
+var i: integer;
+begin
+  sys.Time_u := sys_utf8.Time_u;
+  sys.System := sys_utf8.System;
+  sys.Creator := trnslShortStr(sys_utf8.Creator);
+  for i := 1 to max_Planeten do
+  begin
+    sys.Planeten[i].Player := trnslShortStr(sys_utf8.Planeten[i].Player);
+    sys.Planeten[i].PlayerId := sys_utf8.Planeten[i].PlayerId;
+    sys.Planeten[i].PlanetName := trnslShortStr(sys_utf8.Planeten[i].PlanetName);
+    sys.Planeten[i].Ally := trnslShortStr(sys_utf8.Planeten[i].Ally);
+    sys.Planeten[i].AllyId := sys_utf8.Planeten[i].AllyId;
+    sys.Planeten[i].Status := sys_utf8.Planeten[i].Status;
+    sys.Planeten[i].MondSize := sys_utf8.Planeten[i].MondSize;
+    sys.Planeten[i].MondTemp := sys_utf8.Planeten[i].MondTemp;
+    sys.Planeten[i].TF[0] := sys_utf8.Planeten[i].TF[0];
+    sys.Planeten[i].TF[1] := sys_utf8.Planeten[i].TF[1];
+    sys.Planeten[i].Activity := sys_utf8.Planeten[i].Activity;
+  end;
+end;
 
 function domainTolangindex(domain: string): integer;
   var i: integer;
@@ -462,13 +538,13 @@ end;
 function IntToStrKP(i: Int64; kpc: char = #0): String;
 var restore: char;
 begin
-  restore := ThousandSeparator;
+  restore := FormatSettings.ThousandSeparator;
   if kpc <> #0 then
-    ThousandSeparator := kpc;
+    FormatSettings.ThousandSeparator := kpc;
 
   Result := FloatToStrF(i,ffNumber,60000000,0);
 
-  ThousandSeparator := restore;
+  FormatSettings.ThousandSeparator := restore;
 end;
 
 function SamePlanet(const Pos1, Pos2: TPlanetPosition): Boolean;
@@ -483,35 +559,35 @@ PROCEDURE TReadDataXMLScanner.ScannerProcessTag(Sender : TObject; TagName : STRI
 var s: string;
     i: integer;
 begin
-  DecimalSeparator := '.';
+  FormatSettings.DecimalSeparator := '.';
   if TagName = 'updatecheck' then
-    UpdateCheckUrl := Attributes.Value('url')
+    UpdateCheckUrl := atValStr(Attributes,'url')
   else
   if TagName = 'quickupdate' then
-    QuickUpdateUrl := Attributes.Value('url')
+    QuickUpdateUrl := atValStr(Attributes,'url')
   else
   if TagName = 'raids' then
-    maxraids24h := StrToIntDef(Attributes.Value('maxraids24h'),maxraids24h)
+    maxraids24h := StrToIntDef(atValStr(Attributes,'maxraids24h'),maxraids24h)
   else
   if TagName = 'game' then
   begin
-    s := Attributes.Value('count');
+    s := atValStr(Attributes,'count');
     if s <> '' then i := StrToInt(s) else i := 0;
     SetLength(game_sites_OLD,i);
   end
   else
   if TagName = 'site' then
   begin
-    s := Attributes.Value('index');
+    s := atValStr(Attributes,'index');
     if s <> '' then i := StrToInt(s) else i := 0;
     if (length(game_sites_OLD) <= i) then
       ShowMessage('game sites count in Data is wrong!')
-    else game_sites_OLD[i] := Attributes.Value('name');
+    else game_sites_OLD[i] := atValStr(Attributes,'name');
   end
   else
   if TagName = 'planets' then
   begin
-    s := Attributes.Value('count');
+    s := atValStr(Attributes,'count');
     if (s = '')or(StrToInt(s) <> max_Planeten) then
       ShowMessage('planetcount in Data is wrong!');
   end
@@ -519,17 +595,17 @@ begin
   if copy(TagName,1,6) = 'planet' then
   begin
     i := ReadInt(TagName,7);
-    s := Attributes.Value('maxtemp');
+    s := atValStr(Attributes,'maxtemp');
     if (i >= 1)and(i <= max_Planeten)and(s <> '') then
       maxPlanetTemp[i] := StrToFloat(s);
-    s := Attributes.Value('maxtemp_redesign');
+    s := atValStr(Attributes,'maxtemp_redesign');
     if (i >= 1)and(i <= max_Planeten)and(s <> '') then
       maxPlanetTemp_redesign[i] := StrToFloat(s);
   end
   else
   if TagName = 'units' then
   begin
-    s := Attributes.Value('groupcount');
+    s := atValStr(Attributes,'groupcount');
     if (s = '')or(StrToInt(s) <> SF_Group_Count) then
       ShowMessage('groupcount in Data is wrong!');
   end
@@ -537,7 +613,7 @@ begin
   if copy(TagName,1,5) = 'group' then
   begin
     i := ReadInt(TagName,6);
-    s := Attributes.Value('count');
+    s := atValStr(Attributes,'count');
     if (i >= 0)and(i <= SF_Group_Count-1)and(s <> '') then
     begin
       if StrToInt(s) <> scanfilecounts[TScanGroup(i)] then ShowMessage('unitcount(' + IntToStr(i) + ') in Data is wrong!');
@@ -545,7 +621,7 @@ begin
       group := i;
       SetLength(xspio_idents[TScanGroup(i)],scanfilecounts[TScanGroup(i)]+1);
 
-      xspio_idents[TScanGroup(i)][0] := Attributes.Value('xml');
+      xspio_idents[TScanGroup(i)][0] := atValStr(Attributes,'xml');
     end else group := -1;
   end
   else
@@ -554,33 +630,33 @@ begin
     i := ReadInt(TagName,5);
     if (group >= 0)and(i >= 0)and(i <= scanfilecounts[TScanGroup(group)]-1) then
     begin
-      xspio_idents[TScanGroup(group)][i+1] := Attributes.Value('xml');
+      xspio_idents[TScanGroup(group)][i+1] := atValStr(Attributes,'xml');
 
       if (group = Integer(fleet_group)) then
       begin
-        s := Attributes.Value('met');
+        s := atValStr(Attributes,'met');
         if s = '' then s := '0';
         fleet_resources[i][0] := StrToInt(s);
-        s := Attributes.Value('crys');
+        s := atValStr(Attributes,'crys');
         if s = '' then s := '0';
         fleet_resources[i][1] := StrToInt(s);
-        s := Attributes.Value('deut');
+        s := atValStr(Attributes,'deut');
         if s = '' then s := '0';
         fleet_resources[i][2] := StrToInt(s);
       end;
       if (group = Integer(def_group)) then
       begin
-        s := Attributes.Value('met');
+        s := atValStr(Attributes,'met');
         if s = '' then s := '0';
         def_resources[i][0] := StrToInt(s);
-        s := Attributes.Value('crys');
+        s := atValStr(Attributes,'crys');
         if s = '' then s := '0';
         def_resources[i][1] := StrToInt(s);
-        s := Attributes.Value('deut');
+        s := atValStr(Attributes,'deut');
         if s = '' then s := '0';
         def_resources[i][2] := StrToInt(s);
 
-        def_ignoreFight[i] := Attributes.Value('ignoreFight') = '1';
+        def_ignoreFight[i] := atValStr(Attributes,'ignoreFight') = '1';
       end;
     end;
   end;

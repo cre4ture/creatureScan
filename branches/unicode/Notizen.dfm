@@ -1,9 +1,9 @@
 object FRM_Notizen: TFRM_Notizen
   Left = 269
   Top = 273
-  Width = 531
-  Height = 297
   Caption = 'Notizen'
+  ClientHeight = 272
+  ClientWidth = 523
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,12 +17,13 @@ object FRM_Notizen: TFRM_Notizen
   TextHeight = 13
   object Panel2: TPanel
     Left = 0
-    Top = 217
+    Top = 219
     Width = 523
     Height = 53
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitTop = 217
     DesignSize = (
       523
       53)
@@ -48,7 +49,6 @@ object FRM_Notizen: TFRM_Notizen
       Height = 22
       Style = csOwnerDrawFixed
       Anchors = [akTop, akRight]
-      ItemHeight = 16
       TabOrder = 2
       OnChange = CB_ImageChange
       OnDrawItem = CB_ImageDrawItem
@@ -77,10 +77,9 @@ object FRM_Notizen: TFRM_Notizen
     Left = 0
     Top = 0
     Width = 523
-    Height = 217
+    Height = 219
     Align = alClient
     Header.AutoSizeIndex = 2
-    Header.DefaultHeight = 17
     Header.Font.Charset = DEFAULT_CHARSET
     Header.Font.Color = clWindowText
     Header.Font.Height = -11
@@ -99,6 +98,7 @@ object FRM_Notizen: TFRM_Notizen
     OnGetImageIndex = VST_NotizenGetImageIndex
     OnGetNodeDataSize = VST_NotizenGetNodeDataSize
     OnHeaderClick = VST_NotizenHeaderClick
+    ExplicitHeight = 217
     Columns = <
       item
         Position = 0
@@ -111,7 +111,7 @@ object FRM_Notizen: TFRM_Notizen
       end
       item
         Position = 2
-        Width = 219
+        Width = 223
         WideText = 'Notiz'
       end
       item

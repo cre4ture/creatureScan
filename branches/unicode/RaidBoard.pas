@@ -4,7 +4,7 @@ interface
 
 uses
   cS_networking, OGame_Types, cS_DB, cS_DB_fleetfile, OtherTime, MergeSocket,
-  SysUtils, SplitSocket, LibXmlParser, LibXmlComps;
+  SysUtils, SplitSocket, LibXmlParser, LibXmlComps, xml_parser_unicode;
 
 type
   TFleetBoard_NotifyFleetArrival = procedure(Sender: TObject; Nr: Integer) of object;
@@ -390,18 +390,17 @@ end;
 
 procedure TFleetBoard_NET.FleetMergeNewPacket_DoWork(Sender: TObject;
   Socket: TSplitSocket; Data: pointer; Size: Word);
-var s: string;
-    parser: TXmlParser;
+var s: AnsiString;
+    parser: TUnicodeXmlParser;
     delete: Boolean;
     fleet: TFleetEvent;
 begin
-  parser := TXmlParser.Create;
+  parser := TUnicodeXmlParser.Create;
   try
     SetLength(s, Size);
-    Move(Data^, PChar(s)^, Size);
-    s := Utf8ToAnsi(s);
+    Move(Data^, PAnsiChar(s)^, Size);
     
-    parser.LoadFromBuffer(PChar(s));
+    parser.LoadFromBuffer(PAnsiChar(s));
     parser.StartScan;
 
     delete := false;

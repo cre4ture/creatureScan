@@ -1,9 +1,9 @@
 object FRM_Favoriten: TFRM_Favoriten
   Left = 237
   Top = 267
-  Width = 1043
-  Height = 457
   Caption = 'Scanbericht '#220'bersicht'
+  ClientHeight = 432
+  ClientWidth = 1035
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -83,7 +83,6 @@ object FRM_Favoriten: TFRM_Favoriten
       Width = 153
       Height = 21
       Style = csDropDownList
-      ItemHeight = 13
       TabOrder = 1
       OnChange = CB_KoordsChange
     end
@@ -131,7 +130,6 @@ object FRM_Favoriten: TFRM_Favoriten
     Colors.UnfocusedSelectionColor = clInactiveCaption
     Colors.UnfocusedSelectionBorderColor = clInactiveCaption
     Header.AutoSizeIndex = 0
-    Header.DefaultHeight = 17
     Header.Font.Charset = DEFAULT_CHARSET
     Header.Font.Color = clWindowText
     Header.Font.Height = -11
@@ -274,6 +272,7 @@ object FRM_Favoriten: TFRM_Favoriten
       end
       item
         Alignment = taRightJustify
+        BiDiMode = bdLeftToRight
         Options = [coAllowClick, coDraggable, coEnabled, coParentColor, coResizable, coShowDropMark, coVisible]
         Position = 13
         WideText = 'Minenproduktion'
@@ -392,7 +391,7 @@ object FRM_Favoriten: TFRM_Favoriten
     Left = 104
     Top = 160
     Bitmap = {
-      494C010104000900040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010104000900080010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -669,7 +668,7 @@ object FRM_Favoriten: TFRM_Favoriten
     Left = 168
     Top = 160
     Bitmap = {
-      494C01010100040004000A000A00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010100040008000A000A00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000280000000A00000001002000000000004006
       0000000000000000000000000000000000000000000000000000000000000000
       0000D0D0D000A7A7A70000000000000000000000000000000000000000000000
@@ -745,7 +744,7 @@ object FRM_Favoriten: TFRM_Favoriten
     Left = 120
     Top = 92
     Bitmap = {
-      494C010106000900040006000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010106000900080006000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000180000001A0000000100200000000000C009
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

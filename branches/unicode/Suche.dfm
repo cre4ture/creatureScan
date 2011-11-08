@@ -1,9 +1,9 @@
 object FRM_Suche: TFRM_Suche
   Left = 224
   Top = 150
-  Width = 800
-  Height = 386
   Caption = 'Suche in dem Universumsabbild nach...'
+  ClientHeight = 361
+  ClientWidth = 792
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -166,7 +166,6 @@ object FRM_Suche: TFRM_Suche
             Top = 20
             Width = 161
             Height = 21
-            ItemHeight = 13
             TabOrder = 0
             Text = 'cb_koords'
             OnChange = cb_koordsChange
@@ -299,7 +298,6 @@ object FRM_Suche: TFRM_Suche
             Width = 57
             Height = 21
             Style = csDropDownList
-            ItemHeight = 13
             ItemIndex = 0
             TabOrder = 1
             Text = '-'
@@ -314,7 +312,6 @@ object FRM_Suche: TFRM_Suche
             Width = 57
             Height = 21
             Style = csDropDownList
-            ItemHeight = 13
             ItemIndex = 0
             TabOrder = 4
             Text = '-'
@@ -328,7 +325,6 @@ object FRM_Suche: TFRM_Suche
             Top = 16
             Width = 57
             Height = 21
-            ItemHeight = 13
             ItemIndex = 0
             TabOrder = 0
             Text = '(Platz)'
@@ -341,7 +337,6 @@ object FRM_Suche: TFRM_Suche
             Top = 44
             Width = 57
             Height = 21
-            ItemHeight = 13
             ItemIndex = 0
             TabOrder = 3
             Text = '(Platz)'
@@ -398,7 +393,6 @@ object FRM_Suche: TFRM_Suche
       'Unicode text'
       'Virtual Tree Data')
     Header.AutoSizeIndex = -1
-    Header.DefaultHeight = 17
     Header.Font.Charset = DEFAULT_CHARSET
     Header.Font.Color = clWindowText
     Header.Font.Height = -11
@@ -513,7 +507,7 @@ object FRM_Suche: TFRM_Suche
     Left = 64
     Top = 184
     Bitmap = {
-      494C010104000900040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010104000900080010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
