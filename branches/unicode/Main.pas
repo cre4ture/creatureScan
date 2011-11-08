@@ -372,7 +372,8 @@ uses Notizen, Favoriten, Info,
   Uebersicht, Connections, Export, Einstellungen, Suchen_Ersetzen,
   KB_List, Add_KB, Languages, Delete_Scans,
   DateUtils, _test_POST, ComConst, StrUtils, sync_cS_db_engine,
-  SDBFile, Mond_Abfrage, moon_or_not, chelper_server, global_options;
+  SDBFile, Mond_Abfrage, moon_or_not, chelper_server, global_options,
+  cS_utf8_conv;
 
 {$R *.DFM}
 
@@ -1781,7 +1782,7 @@ begin
   try
 
     ODataBase.LanguagePlugIn.SetReadSourceText(handle,
-      trnslToUtf8(text), ODataBase.FleetBoard.GameTime.UnixTime);
+      trnslToUTF8(text), ODataBase.FleetBoard.GameTime.UnixTime);
     ODataBase.LanguagePlugIn.SetReadSourceHTML(handle,
       trnslToUtf8(html), ODataBase.FleetBoard.GameTime.UnixTime);
 
@@ -1831,7 +1832,7 @@ begin
   end;
   if i >= 10 then Exit;
   
-  try  hההה?
+  try
     Html := {$ifndef UNICODE}Utf8ToAnsi{$endif}(GetClipboardHtml);
     if ClipboardHasText then
       Text := {$ifndef UNICODE}Utf8ToAnsi{$endif}(GetClipboardText)

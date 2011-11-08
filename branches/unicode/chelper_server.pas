@@ -38,7 +38,7 @@ var
 
 implementation
 
-uses Math;
+uses Math, cS_utf8_conv;
 
 {$R *.dfm}
 
@@ -134,7 +134,7 @@ begin
 
         if (buf[i] = #13) then
         begin
-          line := trnslShortString(line_utf8);
+          line := trnslShortStr(line_utf8);
           strList.Add(line);
           if (trim(line) = 'CS:HELPER:END:OF:TRANSMISSION') then
           begin
