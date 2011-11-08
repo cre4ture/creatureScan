@@ -11,14 +11,13 @@ const
   crOVersionID = 8;        
 
 type
-  TOPass = string[15];
   TRight = (gr_Scan,gr_System,gr_Raids,gr_Chat,gr_Stats);
   TRights = set of TRight;
   TGalaxyRight = Byte;
   TGalaxyRights = set of TGalaxyRight;
   TGroup = Record
-    Name: TPlayerName;
-    Pass: TOPass;
+    Name: string;
+    Pass: string;
     Rights: TRights;
     ScanGalaxys: TGalaxyRights;
     SystemGalaxys: TGalaxyRights;
@@ -32,14 +31,14 @@ type
     SolsysCount,
     PlanetCount: Word;
     LangIndex: TLanguage;
-    PlayerName: TPlayerName;
+    PlayerName: TPlayerName_utf8;
     Login: TGroup;
   end;
   TcSConnectionData = class
   public
     ConnectionTime: Int64;
     UserRights: TGroup;
-    RemoteUser: TPlayerName;
+    RemoteUser: TPlayerName_utf8;
     RecvStatCount: Cardinal;
     SendStatCount: Cardinal;
     SendScanCount: Cardinal;

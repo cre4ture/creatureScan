@@ -7,7 +7,7 @@ uses
   ExtCtrls, ComCtrls, Grids, VirtualTrees, OGame_Types, Prog_Unit, StdCtrls,
   Menus, Add_KB, TThreadSocketSplitter, syncobjs, MergeSocket, cS_networking,
   SplitSocket, RaidBoard, cS_DB, notifywindow, notify_fleet_arrival,
-  ImgList, zeit_sync, StatusThread;
+  ImgList, zeit_sync, StatusThread, IdExceptionCore;
 
 type
   TSyncResultData = record
@@ -48,7 +48,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure VST_RAIDGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: String);
     procedure ListRefreshTimer(Sender: TObject);
     procedure entf1Click(Sender: TObject);
     procedure Kopieren1Click(Sender: TObject);
@@ -137,7 +137,7 @@ end;
 
 procedure TFRM_KB_List.VST_RAIDGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+  var CellText: String);
 
   procedure Text(rd: TFleetEvent);
   var dt: TDateTime;
@@ -484,9 +484,9 @@ begin
   handle := ODataBase.LanguagePlugIn.ReadSource_New();
   try
     ODataBase.LanguagePlugIn.SetReadSourceText(handle,
-      FRM_Main.GetClipboardText, ODataBase.FleetBoard.GameTime.UnixTime);
+      FRM_Main.GetClipboardText_utf8, ODataBase.FleetBoard.GameTime.UnixTime);
     ODataBase.LanguagePlugIn.SetReadSourceHTML(handle, 
-      FRM_Main.GetClipboardHtml, ODataBase.FleetBoard.GameTime.UnixTime);
+      FRM_Main.GetClipboardHtml_utf8, ODataBase.FleetBoard.GameTime.UnixTime);
     ODataBase.LeseFleets(handle);
   finally
     ODataBase.LanguagePlugIn.ReadSource_Free(handle);

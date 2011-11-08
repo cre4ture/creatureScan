@@ -1,9 +1,9 @@
 object FRM_Marker: TFRM_Marker
   Left = 369
   Top = 334
-  Width = 550
-  Height = 234
   Caption = #220'bersichtsoptionen f'#252'r Markierung'
+  ClientHeight = 209
+  ClientWidth = 542
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -29,7 +29,7 @@ object FRM_Marker: TFRM_Marker
   end
   object Panel1: TPanel
     Left = 0
-    Top = 166
+    Top = 175
     Width = 542
     Height = 34
     Align = alBottom
@@ -92,7 +92,7 @@ object FRM_Marker: TFRM_Marker
     Left = 399
     Top = 13
     Width = 143
-    Height = 153
+    Height = 162
     Align = alRight
     BevelOuter = bvNone
     TabOrder = 1
@@ -136,7 +136,6 @@ object FRM_Marker: TFRM_Marker
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = []
-      ItemHeight = 16
       ParentFont = False
       TabOrder = 1
       Visible = False
@@ -149,7 +148,6 @@ object FRM_Marker: TFRM_Marker
       Width = 131
       Height = 21
       Style = csDropDownList
-      ItemHeight = 13
       TabOrder = 0
       OnChange = CB_TypChange
       Items.Strings = (
@@ -172,7 +170,7 @@ object FRM_Marker: TFRM_Marker
     Left = 0
     Top = 13
     Width = 399
-    Height = 153
+    Height = 162
     Align = alClient
     CheckImageKind = ckDarkTick
     Color = clBlack
@@ -184,11 +182,6 @@ object FRM_Marker: TFRM_Marker
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     Header.AutoSizeIndex = 0
-    Header.Font.Charset = DEFAULT_CHARSET
-    Header.Font.Color = clWindowText
-    Header.Font.Height = -11
-    Header.Font.Name = 'MS Sans Serif'
-    Header.Font.Style = []
     Header.Options = [hoAutoResize, hoColumnResize, hoDblClickResize, hoVisible]
     Header.ParentFont = True
     Header.PopupMenu = PopupMenu1
@@ -244,7 +237,7 @@ object FRM_Marker: TFRM_Marker
     Left = 312
     Top = 36
     Bitmap = {
-      494C010102000400040012001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101020004000C0012001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000480000001000000001002000000000000012
       00000000000000000000000000000000000000000000FFFFFF00FFFFFF00FFFF
       FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF

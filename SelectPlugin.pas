@@ -28,8 +28,8 @@ type
     PlugInDir: String;
     { Private-Deklarationen }
   public
-    game_domain: String;
-    PluginFile: String;
+    game_domain: string;
+    PluginFile: string;
     constructor Create(AOwner: TComponent; agame_domain: String); reintroduce;
     { Public-Deklarationen }
   end;

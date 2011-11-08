@@ -21,7 +21,7 @@ const
   ( 'error', {'cscan_sys_2.1',} 'cscan_sys_2.2', 'creatureScan_SolSysDB_3.0',
     'creatureScan_SolSysDB_3.1');
 
-  StatusItems_21_22 = 'igIuns';
+  StatusItems_21_22: AnsiString = 'igIuns';
 
   new_file_ident = 'new_file';
 
@@ -87,9 +87,9 @@ type
     SystemPos: packed array[0..1] of Word;
   end;
   TcSSolSysItem_22_Planet = packed record
-    Player: TPlayerName;
-    PlanetName: TPlanetName;
-    Ally: TAllyName;
+    Player: TPlayerName_utf8;
+    PlanetName: TPlanetName_utf8;
+    Ally: TAllyName_utf8;
     Status: TStatusStr_10;
     MondSize: Word;
     MondTemp: Smallint;
@@ -103,13 +103,13 @@ type
   TcSSolSysItem_31_Head = packed Record
     Time_u: Int64;
     SystemPos: packed array[0..1] of Word;
-    Creator: TPlayerName;
+    Creator: TPlayerName_utf8;
   end;
   TcSSolSysItem_31_Planet = packed record
-    Player: TPlayerName;
+    Player: TPlayerName_utf8;
     PlayerId: int64;
-    PlanetName: TPlanetName;
-    Ally: TAllyName;
+    PlanetName: TPlanetName_utf8;
+    Ally: TAllyName_utf8;
     AllyId: int64;
     Status: TStatusStr_10;
     MondSize: Word;
@@ -165,8 +165,9 @@ type
 
 implementation
 
+uses cS_utf8_conv;
 
-function StatusToStr_21_22(Status: TStatus): String;
+function StatusToStr_21_22(Status: TStatus): AnsiString;
 var st: TStati;
 begin
   Result := '';
@@ -175,7 +176,7 @@ begin
       Result := Result + StatusItems_21_22[word(st)+1];
 end;
 
-function StrToStatus_21_22(s: string): TStatus;
+function StrToStatus_21_22(s: AnsiString): TStatus;
 var i, p: integer;
 begin
   Result := [];
@@ -215,7 +216,7 @@ begin
     if (FFormat = css_none) then
       raise EcSDBUnknownSysFileFormat.Create(
         'TcSSolSysDB.Create: Unknown file format (File: "' +
-         aFilename  + '", Format: "' + FHeader.filetype + '")');
+         aFilename  + '", Format: "' + String(FHeader.filetype) + '")');
   end;
   InitFormat;
 
@@ -244,10 +245,10 @@ begin
   begin
     with Result.Planeten[i] do
     begin
-      Player := Item.Planets[i].Player;
+      Player := trnslShortStr(Item.Planets[i].Player);
       PlayerId := 0;
-      PlanetName := Item.Planets[i].PlanetName;
-      Ally := Item.Planets[i].Ally;
+      PlanetName := trnslShortStr(Item.Planets[i].PlanetName);
+      Ally := trnslShortStr(Item.Planets[i].Ally);
       AllyId := 0;
       Status := StrToStatus_21_22(Item.Planets[i].Status);
       MondSize := Item.Planets[i].MondSize;
@@ -280,9 +281,9 @@ begin
   begin
     with Item.Planets[i] do
     begin
-      Player := Sys.Planeten[i].Player;
-      PlanetName := Sys.Planeten[i].PlanetName;
-      Ally := Sys.Planeten[i].Ally;
+      Player := trnsltoUTF8(Sys.Planeten[i].Player);
+      PlanetName := trnsltoUTF8(Sys.Planeten[i].PlanetName);
+      Ally := trnsltoUTF8(Sys.Planeten[i].Ally);
       Status := StatusToStr_21_22(Sys.Planeten[i].Status);
       MondSize := Sys.Planeten[i].MondSize;
       MondTemp := Sys.Planeten[i].MondTemp;
@@ -305,7 +306,7 @@ begin
   Result.System.P[1] := Item.Head.SystemPos[1];
   Result.System.P[2] := 1;
   Result.System.Mond := False;
-  Result.Creator := Item.Head.Creator;
+  Result.Creator := trnslShortStr(Item.Head.Creator);
 
   for i := 1 to length(Result.Planeten) do           //Clear
   begin
@@ -316,10 +317,10 @@ begin
   begin
     with Result.Planeten[i] do
     begin
-      Player := Item.Planets[i].Player;
+      Player := trnslShortStr(Item.Planets[i].Player);
       PlayerId := Item.Planets[i].PlayerId;
-      PlanetName := Item.Planets[i].PlanetName;
-      Ally := Item.Planets[i].Ally;
+      PlanetName := trnslShortStr(Item.Planets[i].PlanetName);
+      Ally := trnslShortStr(Item.Planets[i].Ally);
       AllyId := Item.Planets[i].AllyId;
       Status := StrToStatus_21_22(Item.Planets[i].Status);
       MondSize := Item.Planets[i].MondSize;
@@ -341,7 +342,7 @@ begin
     Time_u := Sys.Time_u;
     SystemPos[0] := Sys.System.P[0];
     SystemPos[1] := Sys.System.P[1];
-    Creator := Sys.Creator;
+    Creator := trnsltoUTF8(Sys.Creator);
   end;
 
   for i := 1 to length(Item.Planets) do           //Clear
@@ -353,10 +354,10 @@ begin
   begin
     with Item.Planets[i] do
     begin
-      Player := Sys.Planeten[i].Player;
+      Player := trnsltoUTF8(Sys.Planeten[i].Player);
       PlayerId := Sys.Planeten[i].PlayerId;
-      PlanetName := Sys.Planeten[i].PlanetName;
-      Ally := Sys.Planeten[i].Ally;
+      PlanetName := trnsltoUTF8(Sys.Planeten[i].PlanetName);
+      Ally := trnsltoUTF8(Sys.Planeten[i].Ally);
       AllyId := Sys.Planeten[i].AllyId;
       Status := StatusToStr_21_22(Sys.Planeten[i].Status);
       MondSize := Sys.Planeten[i].MondSize;
@@ -382,7 +383,7 @@ end;
 
 function TcSSolSysDBFile.GetUni: string;
 begin
-  Result := FHeader.domain;
+  Result := trnslShortStr(FHeader.domain);
 end;
 
 procedure TcSSolSysDBFile.InitFormat;
@@ -398,7 +399,7 @@ begin
       // import old header
       FHeaderSize := SizeOf(old_h_10);
       GetHeader(old_h_10); // low level stream read
-      FHeader.domain := 'uni' + IntToStr(old_h_10.Uni);
+      FHeader.domain := AnsiString('uni' + IntToStr(old_h_10.Uni));
     end;
     css_30:
     begin
@@ -446,7 +447,7 @@ begin
     raise Exception.Create(
       'TcSSolSysDBFile.SetUni: Old fileformat can be read only!');
 
-  FHeader.domain := Uni;
+  FHeader.domain := trnslToUtf8(Uni);
   SetHeader(FHeader);
 end;
 

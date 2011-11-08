@@ -26,7 +26,6 @@ type
     TXT_fleet: TEdit;
     Button1: TButton;
     Button2: TButton;
-    XPManifest1: TXPManifest;
     procedure pb_place_rangePaint(Sender: TObject);
     procedure pb_pointsPaint(Sender: TObject);
     procedure FormCreate(Sender: TObject);

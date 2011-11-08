@@ -7,7 +7,7 @@ uses
   Dialogs, OGame_Types, StdCtrls, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdHTTP, IdURI, DateUtils, cS_XML, XMLDoc, xmldom,
   XMLIntf, msxmldom, shellapi, ExtCtrls, clientlogin, IdAuthentication,
-  ComCtrls, LibXmlParser, LibXmlComps, Prog_unit, Spin, Inifiles, html, Stat_Points;
+  ComCtrls, xml_parser_unicode, Prog_unit, Spin, Inifiles, html, Stat_Points;
 
 type
   TStatsPartTime = class
@@ -26,7 +26,7 @@ type
     destructor Destroy; override;
   end;
   TTimeID = record
-    time: int64;
+    time_u: int64;
     id: int64;
   end;
   TFRM_POST_TEST = class(TForm)
@@ -96,7 +96,7 @@ type
     FServerUni: array of array of TTimeID;
     more: Boolean;
     sessionid: string;
-    procedure parseError(parser: TXmlParser);
+    procedure parseError(parser: TUnicodeXmlParser);
     function ReadServerUni(p1, p2: word): TTimeID;
     procedure WriteServerUni(p1, p2: word; value: TTimeID);
     procedure PostAndParseAnswer(read, write: string);
@@ -115,7 +115,7 @@ type
     function ScanToXMLString(Scan: TScanBericht; csvers: string): string;
     function entflines(s: string): String;
     procedure SetServerUniSize(gala: integer; solsys: integer);
-    function ParseAnswer(xml: string): boolean;
+    function ParseAnswer(xml_utf8: AnsiString): boolean;
     procedure Sync_Report(gala: Integer);
     procedure Sync_Systems(Sender: TObject);
     procedure POST(param: string = '');
@@ -129,7 +129,7 @@ function GetPlanetReportList(Pos: TPlanetPosition; since_u: int64): TReportTimeL
 
 implementation
 
-uses main, Math, RTLConsts;
+uses main, Math, RTLConsts, LibXmlParser, cS_utf8_conv;
 
 {$R *.dfm}
 
@@ -222,7 +222,7 @@ begin
 end;
 
 procedure TFRM_POST_TEST.Sync_Systems(Sender: TObject);
-var parser: TXmlParser;
+var parser: TUnicodeXmlParser;
     DocSize: Integer;
 //    snow: int64;
     pos: array[0..2] of word;
@@ -250,9 +250,9 @@ begin
 
   SetMainProgress(0,10);
 
-  parser := TXmlParser.Create;
+  parser := TUnicodeXmlParser.Create;
   try
-    parser.LoadFromBuffer(PChar(mem_recv.Lines.Text));
+    parser.LoadFromBuffer(PAnsiChar(UTF8Encode(mem_recv.Lines.Text)));
     parser.StartScan;
     while parser.Scan and (not stop) do
     begin
@@ -264,10 +264,10 @@ begin
 
             if parser.CurName = 'serverinfo' then
             begin
-              csvers := parser.CurAttr.Value('csvers');
-              pos[0] := StrToInt(parser.CurAttr.Value('galacount'));
-              pos[1] := StrToInt(parser.CurAttr.Value('syscount'));
-              pos[2] := StrToInt(parser.CurAttr.Value('planetcount'));
+              csvers := parser.attrAsString('csvers');
+              pos[0] := parser.attrAsInt('galacount');
+              pos[1] := parser.attrAsInt('syscount');
+              pos[2] := parser.attrAsInt('planetcount');
               if (pos[0] <> max_Galaxy)or(pos[1] <> max_Systems)or(pos[2] <> max_Planeten) then
                 raise Exception.Create('Server pos_count definitions are not compatible!')
               else SetServerUniSize(max_Galaxy, max_Systems);
@@ -277,9 +277,9 @@ begin
 
             if parser.CurName = 'solsystime' then
             begin
-              pos[0] := StrToInt(parser.CurAttr.Value('gala'));
-              pos[1] := StrToInt(parser.CurAttr.Value('sys'));
-              tid.time := StrToInt(parser.CurAttr.Value('time'));
+              pos[0] := parser.attrAsInt('gala');
+              pos[1] := parser.attrAsInt('sys');
+              tid.time_u := parser.attrAsInt64('time');
               ServerUni[pos[0],pos[1]] := tid;
             end;
 
@@ -315,12 +315,12 @@ begin
     for p2 := 1 to max_Systems do
     begin
 
-      if ServerUni[p1,p2].time > ODataBase.GetSystemTime_u(p1,p2) then
+      if ServerUni[p1,p2].time_u > ODataBase.GetSystemTime_u(p1,p2) then
       begin
         read := read + Format('<solsys_pos gala="%d" sys="%d"/>', [p1,p2]);
         log(Format('get solsys [%d:%d]',[p1, p2]),10);
       end else
-      if ServerUni[p1,p2].time < ODataBase.GetSystemTime_u(p1,p2) then
+      if ServerUni[p1,p2].time_u < ODataBase.GetSystemTime_u(p1,p2) then
       begin
         if (ODataBase.Uni[p1,p2].SystemCopy >= 0) then
         begin
@@ -355,8 +355,7 @@ begin
 end;
 
 procedure TFRM_POST_TEST.Sync_Stats(typ: TStatTypeEx);
-var parser: TXmlParser;
-    DocSize: Integer;
+var parser: TUnicodeXmlParser;
     partnr, partcount, i, mpc_start: integer;
     read, write: string;
     start: Tdatetime;
@@ -383,7 +382,6 @@ begin
       xstat_group_pointtype_idents[typ.PointType] + '"/></read>');
 
     POST;
-    DocSize := length(mem_recv.Lines.Text);
 
     log('got times, parse...',10);
 
@@ -402,9 +400,9 @@ begin
 
     SetProgress(0);
 
-    parser := TXmlParser.Create;
+    parser := TUnicodeXmlParser.Create;
     try
-      parser.LoadFromBuffer(PChar(mem_recv.Lines.Text));
+    parser.LoadFromBuffer(PAnsiChar(UTF8Encode(mem_recv.Lines.Text)));
       parser.StartScan;
       while parser.Scan and (not stop) do
       begin
@@ -414,10 +412,10 @@ begin
 
               if parser.CurName = 'serverinfo' then
               begin
-                csvers := parser.CurAttr.Value('csvers');
-                pos[0] := StrToInt(parser.CurAttr.Value('galacount'));
-                pos[1] := StrToInt(parser.CurAttr.Value('syscount'));
-                pos[2] := StrToInt(parser.CurAttr.Value('planetcount'));
+                csvers := parser.attrAsString('csvers');
+                pos[0] := parser.attrAsInt('galacount');
+                pos[1] := parser.attrAsInt('syscount');
+                pos[2] := parser.attrAsInt('planetcount');
                 if (pos[0] <> max_Galaxy)or(pos[1] <> max_Systems)or(pos[2] <> max_Planeten) then
                   raise Exception.Create('Server pos_count definitions are not compatible!')
                 else SetServerUniSize(max_Galaxy, max_Systems);
@@ -427,15 +425,15 @@ begin
 
               if parser.CurName = 'statstimes_type' then
               begin
-                if (parser.CurAttr.Value('ntype') <> xstat_group_nametype_idents[typ.NameType]) or
-                   (parser.CurAttr.Value('ntype') <> xstat_group_nametype_idents[typ.NameType]) then
+                if (parser.attrAsString('ntype') <> xstat_group_nametype_idents[typ.NameType]) or
+                   (parser.attrAsString('ntype') <> xstat_group_nametype_idents[typ.NameType]) then
                   raise Exception.Create('SyncStats: protokoll error, answer types doesn''t match!');
               end;
 
               if parser.CurName = 'statstime' then
               begin
-                partnr := StrToInt(parser.CurAttr.Value('partnr'));
-                servertimes[partnr] := StrToInt(parser.CurAttr.Value('time'));
+                partnr := parser.attrAsInt('partnr');
+                servertimes[partnr] := parser.attrAsInt('time');
               end;
 
               if parser.CurName = 'error' then
@@ -563,7 +561,7 @@ begin
     SetLength(FServerUni[i], solsys);
     for j := 0 to solsys-1 do
     begin
-      FServerUni[i,j].time := -1; //  n/a
+      FServerUni[i,j].time_u := -1; //  n/a
       FServerUni[i,j].id := -1;
     end;
   end;
@@ -624,12 +622,12 @@ begin
   mem_send.Lines.Text := s;
 end;
 
-function TFRM_POST_TEST.ParseAnswer(xml: string): boolean;
-var parser: TXmlParser;
+function TFRM_POST_TEST.ParseAnswer(xml_utf8: AnsiString): boolean;
+var parser: TUnicodeXmlParser;
 begin
   Result := true;
-  parser := TXmlParser.Create;
-  parser.LoadFromBuffer(PChar(xml));
+  parser := TUnicodeXmlParser.Create;
+  parser.LoadFromBuffer(PAnsiChar(xml_utf8));
   parser.StartScan;
   if Parser.Scan then
   repeat
@@ -652,7 +650,7 @@ end;
 
 procedure TFRM_POST_TEST.Button6Click(Sender: TObject);
 begin
-  ParseAnswer(mem_recv.Lines.Text);
+  ParseAnswer(trnsltoUTF8(mem_recv.Lines.Text));
 end;
 
 procedure TFRM_POST_TEST.BTN_genScanClick(Sender: TObject);
@@ -662,10 +660,10 @@ begin
 end;
 
 procedure TFRM_POST_TEST.Button8Click(Sender: TObject);
-var parser: TXmlParser;
+var parser: TUnicodeXmlParser;
 begin
-  parser := TXmlParser.Create;
-  parser.LoadFromBuffer(PChar(mem_recv.Text));
+  parser := TUnicodeXmlParser.Create;
+  parser.LoadFromBuffer(PAnsiChar(UTF8Encode(mem_recv.Lines.Text)));
   parser.StartScan;
   while parser.Scan do
     case parser.CurPartType of
@@ -941,7 +939,7 @@ begin
   if (read <> '')or(write <> '') then
   begin
     POST; //POST!
-    ParseAnswer(Utf8ToAnsi(mem_recv.Text));
+    ParseAnswer(trnsltoUTF8(mem_recv.Text));
   end;
 end;
 
@@ -965,8 +963,10 @@ end;
 
 procedure TFRM_POST_TEST.POST(param: string = '');
 var startpost: Tdatetime;
-    url, s: string;
-    buf: TMemoryStream;
+    url: string;
+    s: AnsiString;
+    request, response: TMemoryStream;
+    terminator: integer;
 begin
   if pos('?', txt_url.Text) > 0 then
     param := '&' + param
@@ -980,16 +980,23 @@ begin
 
   url := txt_url.Text + param;
 
-  s := AnsiToUtf8(mem_send.Text);
-  buf := TMemoryStream.Create;
+  s := trnsltoUTF8(mem_send.Text);
+  request := TMemoryStream.Create;
+  response := TMemoryStream.Create;
   try
-    buf.Write(PChar(s)^, length(s));
+    request.Write(PAnsiChar(s)^, length(s));
     startpost := now;
-    mem_recv.Text := Utf8ToAnsi(IdHTTP1.Post(url,buf));
+
+    IdHTTP1.Post(url, request, response);
+    terminator := 0;
+    response.WriteBuffer(terminator,1); // Add terminating NULL!
+    mem_recv.Text := trnslShortStr(PAnsiChar(response.Memory));
+
     startpost := Now - startpost;
     TXT_post.Text := FloatToStrF(startpost*24*60*60,ffNumber,80,4) + ' s';
   finally
-    buf.Free;
+    request.Free;
+    response.Free;
   end;
 end;
 
@@ -1034,7 +1041,7 @@ begin
 
   POST(param);
 
-  if not ParseAnswer(mem_recv.Lines.Text) then
+  if not ParseAnswer(trnsltoUTF8(mem_recv.Lines.Text)) then
     exit; // error on login!
 
   res := THTMLElement.Create(nil, 'root');
@@ -1217,7 +1224,7 @@ begin
   end;
 end;
 
-procedure TFRM_POST_TEST.parseError(parser: TXmlParser);
+procedure TFRM_POST_TEST.parseError(parser: TUnicodeXmlParser);
 var ende: boolean;
     level: integer;
 begin
@@ -1229,13 +1236,13 @@ begin
         begin
           if parser.CurName = 'error' then
           begin
-            log('error: '+parser.CurAttr.Value('type')+':'+
-                             parser.CurAttr.Value('no'),10);
+            log('error: '+parser.attrAsString('type')+':'+
+                             parser.attrAsString('no'),10);
             inc(level);
           end;
         end;
       ptContent: if parser.CurName = 'error' then
-              log(parser.CurContent,10);
+              log(trnslShortStr(parser.CurContent),10);
       ptEndTag:
         begin
           if parser.CurName = 'error' then

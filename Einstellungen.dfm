@@ -42,6 +42,10 @@ object FRM_Einstellungen: TFRM_Einstellungen
     TabOrder = 2
     object TS_allgemein: TTabSheet
       Caption = 'Allgemein'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Label17: TLabel
         Left = 4
         Top = 64
@@ -143,6 +147,10 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TS_ScansSysteme: TTabSheet
       Caption = 'Scans/Systeme'
       ImageIndex = 6
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 0
         Top = 0
@@ -240,6 +248,10 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TabSheet1: TTabSheet
       Caption = 'Automatisches Einlesen'
       ImageIndex = 10
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox2: TGroupBox
         Left = 0
         Top = 4
@@ -393,6 +405,10 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TS_GalaxieExplorer: TTabSheet
       Caption = 'Galaxie-Explorer'
       ImageIndex = 8
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox7: TGroupBox
         Left = 4
         Top = 4
@@ -572,6 +588,10 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TS_FleetDef: TTabSheet
       Caption = 'Fleet/Def Punkte'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object LBL_FD: TLabel
         Left = 188
         Top = 72
@@ -616,6 +636,10 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TS_Angriffsberechnung: TTabSheet
       Caption = 'Angriffsberechnung'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox3: TGroupBox
         Left = 4
         Top = 0
@@ -757,6 +781,10 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TS_Websim: TTabSheet
       Caption = 'Websim'
       ImageIndex = 11
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox15: TGroupBox
         Left = 0
         Top = 0
@@ -878,6 +906,10 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TS_Farben: TTabSheet
       Caption = 'Farben'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object TC_Farben: TTabControl
         Left = 8
         Top = 8
@@ -964,6 +996,10 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TS_Direktverbindung: TTabSheet
       Caption = 'Rechte'
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Label15: TLabel
         Left = 4
         Top = 112
@@ -1088,6 +1124,10 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TS_Notizen: TTabSheet
       Caption = 'Notizen'
       ImageIndex = 5
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Button4: TButton
         Left = 4
         Top = 4
@@ -1110,6 +1150,10 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object TS_SuchLink: TTabSheet
       Caption = 'Such-Link'
       ImageIndex = 7
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Label19: TLabel
         Left = 4
         Top = 4
@@ -1183,6 +1227,10 @@ object FRM_Einstellungen: TFRM_Einstellungen
     object ts_Flotten: TTabSheet
       Caption = 'Flotten'
       ImageIndex = 9
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Label9: TLabel
         Left = 24
         Top = 28

@@ -12,7 +12,7 @@ type
   TMarker = record
     Typ: TMarkerTyp;
     Color: TColor;
-    Bezeichner: TPlayerName;
+    Bezeichner: string;
     NotizIndex: integer;
     Aktive: Boolean;
   end;
@@ -48,7 +48,7 @@ type
     procedure P_ColorClick(Sender: TObject);
     procedure LV_OptionsGetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: string);
     procedure LV_OptionsChecked(Sender: TBaseVirtualTree;
       Node: PVirtualNode);
     procedure LV_OptionsPaintText(Sender: TBaseVirtualTree;
@@ -292,7 +292,7 @@ end;
 
 procedure TFRM_Marker.LV_OptionsGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+  var CellText: string);
 var nodeData: ^TMarker;
 begin
   nodeData := LV_Options.GetNodeData(Node);

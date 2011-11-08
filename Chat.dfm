@@ -1,9 +1,9 @@
 object FRM_Chat: TFRM_Chat
   Left = 482
   Top = 312
-  Width = 448
-  Height = 294
   Caption = 'FRM_Chat'
+  ClientHeight = 250
+  ClientWidth = 440
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,21 +19,23 @@ object FRM_Chat: TFRM_Chat
   PixelsPerInch = 96
   TextHeight = 13
   object Splitter1: TSplitter
-    Left = 300
+    Left = 308
     Top = 4
-    Height = 206
+    Height = 216
     Align = alRight
+    ExplicitLeft = 300
+    ExplicitHeight = 206
   end
   object Panel1: TPanel
     Left = 0
-    Top = 210
-    Width = 432
+    Top = 220
+    Width = 440
     Height = 30
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
     DesignSize = (
-      432
+      440
       30)
     object Edit1: TEdit
       Left = 4
@@ -48,17 +50,17 @@ object FRM_Chat: TFRM_Chat
   object Memo1: TMemo
     Left = 4
     Top = 4
-    Width = 296
-    Height = 206
+    Width = 304
+    Height = 216
     Align = alClient
     ReadOnly = True
     TabOrder = 1
   end
   object Panel2: TPanel
-    Left = 303
+    Left = 311
     Top = 4
     Width = 129
-    Height = 206
+    Height = 216
     Align = alRight
     BevelOuter = bvNone
     Caption = 'Panel2'
@@ -67,10 +69,9 @@ object FRM_Chat: TFRM_Chat
       Left = 0
       Top = 0
       Width = 129
-      Height = 181
+      Height = 191
       Align = alClient
       Header.AutoSizeIndex = 0
-      Header.DefaultHeight = 17
       Header.Font.Charset = DEFAULT_CHARSET
       Header.Font.Color = clWindowText
       Header.Font.Height = -11
@@ -88,7 +89,7 @@ object FRM_Chat: TFRM_Chat
     end
     object Panel3: TPanel
       Left = 0
-      Top = 181
+      Top = 191
       Width = 129
       Height = 25
       Align = alBottom
@@ -113,7 +114,7 @@ object FRM_Chat: TFRM_Chat
     Left = 0
     Top = 4
     Width = 4
-    Height = 206
+    Height = 216
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 3
@@ -121,7 +122,7 @@ object FRM_Chat: TFRM_Chat
   object Panel5: TPanel
     Left = 0
     Top = 0
-    Width = 432
+    Width = 440
     Height = 4
     Align = alTop
     BevelOuter = bvNone

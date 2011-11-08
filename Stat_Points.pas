@@ -3,7 +3,7 @@ unit Stat_Points;
 interface
 
 uses classes, OGame_Types, Windows, SysUtils, MergeSocket, SDBFile, SplitSocket,
-  cS_networking, LibXmlParser, LibXmlComps;
+  cS_networking, LibXmlParser, LibXmlComps, xml_parser_unicode;
 
 const
   StatFileV = 'creatureScan_StatisticBD_2.1';
@@ -88,9 +88,9 @@ type
     function PartTime_u(partnr: integer): Int64;
     property Stats[nr: Integer]: TStat read GetStat;
     destructor Destroy; override;
-    function StatPoints(AName: TPLayername; APlayerID: TNameID): Cardinal;
-    function StatPlace(AName: TPLayername; APlayerID: TNameID): Cardinal;
-    function StatAll(AName: TPLayername; APlayerID: TNameID): TStatPlayer;
+    function StatPoints(AName: string; APlayerID: TNameID): Cardinal;
+    function StatPlace(AName: string; APlayerID: TNameID): Cardinal;
+    function StatAll(AName: string; APlayerID: TNameID): TStatPlayer;
     property Count: Integer read GetCount write SetCount;
     procedure DoWork_Idle(out Ready: Boolean); virtual;
   end;
@@ -109,8 +109,8 @@ type
       Socket: TSplitSocket; Data: pointer; Size: Word);
     function DoSync_Master_ready(Socket: TSplitSocket): Boolean;
     function AddNewStatFromSocket(Stat: TStat; Socket: TSplitSocket): Boolean;
-    procedure DoSync_Slave(Parser: TXMLParser; Socket: TSplitSocket);
-    procedure AnswerRequest(parser: TXMLParser; Socket: TSplitSocket);
+    procedure DoSync_Slave(Parser: TUnicodeXmlParser; Socket: TSplitSocket);
+    procedure AnswerRequest(parser: TUnicodeXmlParser; Socket: TSplitSocket);
     procedure FSendStatToSocket(Stat: TStat; Socket: TSplitSocket);
     procedure FSendStat(Stat: TStat; Skip: TSplitSocket);
   public
@@ -125,9 +125,9 @@ type
     FStats: array[TStatNameType,TStatPointType] of TStatPoints;
     
     function StatPoints(nt: TStatNameType; pt: TStatPointType;
-      AName: TPlayerName; APlayerID: TNameID): Cardinal;
+      AName: string; APlayerID: TNameID): Cardinal;
     function StatRank(nt: TStatNameType; pt: TStatPointType;
-      AName: TPlayername; APlayerID: TNameID): Cardinal;
+      AName: string; APlayerID: TNameID): Cardinal;
     function StatInfo(nt: TStatNameType; pt: TStatPointType;
       Rank: Cardinal): TStatPlayer;
     function StatType(nt: TStatNameType; pt: TStatPointType): TStatPoints;
@@ -137,9 +137,9 @@ type
     property Statistic[nt: TStatNameType; pt: TStatPointType;
       rank: Cardinal]: TStatPlayer read StatInfo; default;
     property StatisticPoints[nt: TStatNameType; pt: TStatPointType;
-      AName: TPlayerName; APlayerID: TNameID]: Cardinal read StatPoints;
+      AName: string; APlayerID: TNameID]: Cardinal read StatPoints;
     property StatisticRank[nt: TStatNameType; pt: TStatPointType;
-      AName: TPlayerName; APlayerID: TNameID]: Cardinal read StatRank;
+      AName: string; APlayerID: TNameID]: Cardinal read StatRank;
     constructor Create(filenameMask: string; UniDomain: String);
     destructor Destroy; override;
     function AddStats(nt: TStatNameType; pt: TStatPointType;
@@ -149,7 +149,7 @@ type
 
 implementation
 
-uses prog_unit, DateUtils, cS_XML;
+uses prog_unit, DateUtils, cS_XML, cS_utf8_conv;
 
 function TStatPoints.GetDateAtPos(Platz: Word): TDateTime;
 var i: integer;
@@ -222,12 +222,12 @@ begin
   inherited;
 end;
 
-function TStatPoints.StatPoints(AName: TPLayername; APlayerID: TNameID): Cardinal;
+function TStatPoints.StatPoints(AName: string; APlayerID: TNameID): Cardinal;
 begin
   Result := StatAll(AName,APlayerID).Punkte;
 end;
 
-function TStatPoints.StatPlace(AName: TPLayername; APlayerID: TNameID): Cardinal;
+function TStatPoints.StatPlace(AName: string; APlayerID: TNameID): Cardinal;
 var i, j: Integer;
     Found: Boolean;
     block: TStat;
@@ -263,19 +263,19 @@ begin
   else Result := 0;
 end;
 
-function TStatPoints.StatAll(AName: TPLayername; APlayerID: TNameID): TStatPlayer;
+function TStatPoints.StatAll(AName: string; APlayerID: TNameID): TStatPlayer;
 begin
   Result := Statistik[StatPlace(AName, APlayerID)];
 end;
 
 function TStatisticDB.StatPoints(nt: TStatNameType; pt: TStatPointType;
-  AName: TPlayerName; APlayerID: TNameID): Cardinal;
+  AName: string; APlayerID: TNameID): Cardinal;
 begin
   Result := FStats[nt,pt].StatPoints(AName, APlayerID);
 end;
 
 function TStatisticDB.StatRank(nt: TStatNameType; pt: TStatPointType;
-  AName: TPlayername; APlayerID: TNameID): Cardinal;
+  AName: string; APlayerID: TNameID): Cardinal;
 begin
   Result := FStats[nt,pt].StatPlace(AName, APlayerID);
 end;
@@ -396,7 +396,7 @@ end;
 
 function TStatisticDBFile.GetUni: string;
 begin
-  Result := FHeader.domain;
+  Result := trnslShortStr(FHeader.domain);
 end;
 
 procedure TStatisticDBFile.ItemToPtr(var Buf; const p: pointer);
@@ -408,10 +408,10 @@ begin
     TStat(p^).Time_u := Time_u;
     for i := 0 to length(Stats)-1 do
     begin
-      TStat(p^).Stats[i].Name := Stats[i].Name;
+      TStat(p^).Stats[i].Name := trnslShortStr(Stats[i].Name);
       TStat(p^).Stats[i].NameId := Stats[i].NameId;
       TStat(p^).Stats[i].Punkte := Stats[i].Punkte;
-      TStat(p^).Stats[i].Ally := Stats[i].Ally;
+      TStat(p^).Stats[i].Ally := trnslShortStr(Stats[i].Ally);
       TStat(p^).Stats[i].Mitglieder := Stats[i].Mitglieder;
     end;
   end;
@@ -432,10 +432,10 @@ begin
     Time_u := TStat(p^).Time_u;
     for i := 0 to length(Stats)-1 do
     begin
-      Stats[i].Name := TStat(p^).Stats[i].Name;
+      Stats[i].Name := trnsltoUTF8(TStat(p^).Stats[i].Name);
       Stats[i].NameId := TStat(p^).Stats[i].NameId;
       Stats[i].Punkte := TStat(p^).Stats[i].Punkte;
-      Stats[i].Ally := TStat(p^).Stats[i].Ally;
+      Stats[i].Ally := trnsltoUTF8(TStat(p^).Stats[i].Ally);
       Stats[i].Mitglieder := TStat(p^).Stats[i].Mitglieder;
     end;
   end;
@@ -448,7 +448,7 @@ end;
 
 procedure TStatisticDBFile.SetUni(u: string);
 begin
-  FHeader.domain := u;
+  FHeader.domain := trnsltoUTF8(u);
   SetHeader(FHeader);
 end;
 
@@ -498,13 +498,13 @@ begin
   end;
 end;
 
-procedure TStatPointsNet.AnswerRequest(parser: TXMLParser;
+procedure TStatPointsNet.AnswerRequest(parser: TUnicodeXmlParser;
   Socket: TSplitSocket);
 var nr: Integer;
 begin
   if parser.CurAttr.Value('type') = xstat_group then
   begin
-    nr := StrToInt(parser.CurAttr.Value('nr'));
+    nr := parser.attrAsInt('nr');
     FSendStatToSocket(Stats[nr],Socket);
   end else raise Exception.Create('TStatPointsNet.AnswerRequest: ' +
                    'Falscher "type" im request!');
@@ -532,7 +532,7 @@ end;
 
 function TStatPointsNet.DoSync_Master_ready(Socket: TSplitSocket): Boolean;
 var i: Integer;
-    s: string;
+    s: AnsiString;
 begin
   Result := True;
   with TStatPointsNet_SplitSocketData(Socket.LockData('TStatPointsNet.DoSync_Master_ready')) do
@@ -542,13 +542,12 @@ begin
       s := '<syncdata>';
       for i := 0 to Count-1 do
       begin
-        s := s + Format('<stattime nr="%d" %s="%d"/>',
-                        [i, xstat_group_time, Stats[i].Time_u]);
+        s := s + trnsltoUTF8(Format('<stattime nr="%d" %s="%d"/>',
+                        [i, xstat_group_time, Stats[i].Time_u]));
       end;
       s := s + '</syncdata>';
 
-      s := AnsiToUtf8(s);
-      Socket.SendPacket(PChar(s)^,length(s));
+      Socket.SendPacket(PAnsiChar(s)^,length(s));
 
       Synced := True;
     end;
@@ -557,12 +556,12 @@ begin
   end;
 end;
 
-procedure TStatPointsNet.DoSync_Slave(Parser: TXMLParser;
+procedure TStatPointsNet.DoSync_Slave(Parser: TUnicodeXmlParser;
   Socket: TSplitSocket);
-var roottag: string;
+var roottag: AnsiString;
     t: int64;
     nr, pos: Integer;
-    s: string;
+    s: AnsiString;
 begin
   roottag := Parser.CurName;
   pos := 0;
@@ -572,15 +571,14 @@ begin
       ptStartTag, ptEmptyTag:
         if (parser.CurName = 'stattime') then
         begin
-          nr := StrToInt(Parser.CurAttr.Value('nr'));
+          nr := Parser.attrAsInt('nr');
           pos := nr+1;
-          t := StrToInt64(Parser.CurAttr.Value(xstat_group_time));
+          t := StrToInt64(Parser.attrAsString(xstat_group_time));
           if (nr >= Count)or(t > Stats[nr].Time_u) then
           begin
-            s := Format('<request type="%s" nr="%d"/>',
-                        [xstat_group, nr]);
-            s := AnsiToUtf8(s);
-            Socket.SendPacket(PChar(s)^,length(s));
+            s := trnsltoUTF8(Format('<request type="%s" nr="%d"/>',
+                        [xstat_group, nr]));
+            Socket.SendPacket(PAnsiChar(s)^,length(s));
           end
           else
           if (t < Stats[nr].Time_u) then
@@ -650,10 +648,10 @@ end;
 
 procedure TStatPointsNet.FSendStatToSocket(Stat: TStat;
   Socket: TSplitSocket);
-var s: string;
+var s: AnsiString;
 begin
-  s := AnsiToUtf8(StatToXML_(Stat,StatTyp));
-  Socket.SendPacket(PChar(s)^,length(s));
+  s := trnsltoUTF8(StatToXML_(Stat,StatTyp));
+  Socket.SendPacket(PAnsiChar(s)^,length(s));
 
   with Socket.HostSocket as TSocketMultiplex,
        TcSConnectionData(LockData('TStatPointsNet.FSendStatToSocket')) do
@@ -666,19 +664,18 @@ end;
 
 procedure TStatPointsNet.StatMergeNewPacket_DoWork(Sender: TObject;
   Socket: TSplitSocket; Data: pointer; Size: Word);
-var s: string;
-    parser: TXmlParser;
+var s: AnsiString;
+    parser: TUnicodeXmlParser;
     stat: TStat;
     snt: TStatNameType;
     spt: TStatPointType;
 begin
-  parser := TXmlParser.Create;
+  parser := TUnicodeXmlParser.Create;
   try
     SetLength(s, Size);
-    Move(Data^, PChar(s)^, Size);
-    s := Utf8ToAnsi(s);
+    Move(Data^, PAnsiChar(s)^, Size);
 
-    parser.LoadFromBuffer(PChar(s));
+    parser.LoadFromBuffer(PAnsiChar(s));
     parser.StartScan;
 
     while parser.Scan do

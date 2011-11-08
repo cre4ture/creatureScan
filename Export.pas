@@ -71,7 +71,7 @@ var
 
 implementation
 
-uses Languages, DateUtils, Math;
+uses Languages, DateUtils, Math, cS_utf8_conv;
 
 {$R *.DFM}
 
@@ -159,7 +159,7 @@ procedure TFRM_Export.ExportSys;
 var i: integer;
     s: shortString;
     t: byte;
-    text: string;
+    text: AnsiString;
 begin
   case ExportType of
   cSeSysScanFile:
@@ -178,7 +178,7 @@ begin
     begin
       FileStream := TFileStream.Create(Edit1.Text,fmCreate);
       text := '<?xml version="1.0" encoding="UTF-8"?><export>';
-      FileStream.WriteBuffer(PChar(text)^,length(text));
+      FileStream.WriteBuffer(PAnsiChar(text)^,length(text));
 
       if RB_Ranges.Checked then
       begin
@@ -189,13 +189,13 @@ begin
       begin
         for i := 0 to ODataBase.Systeme.Count-1 do
         begin
-          text := AnsiToUtf8(SysToXML_(ODataBase.Systeme[i], '9.9'));
-          FileStream.WriteBuffer(PChar(text)^,length(text));
+          text := trnsltoUTF8(SysToXML_(ODataBase.Systeme[i], '9.9'));
+          FileStream.WriteBuffer(PAnsiChar(text)^,length(text));
         end;
       end;
       
       text := '</export>';
-      FileStream.WriteBuffer(PChar(text)^,length(text));
+      FileStream.WriteBuffer(PAnsiChar(text)^,length(text));
       FileStream.Free;
     end;
   cSe_1_0:
@@ -222,7 +222,7 @@ end;
 
 procedure TFRM_Export.ExportPositionSys(Position: TCoordinates; var Cancel: Boolean);
 var t: byte;
-    s: string;
+    s: AnsiString;
 begin
   if ODataBase.Uni[Position[0],Position[1]].SystemCopy >= 0 then
   begin
@@ -230,8 +230,8 @@ begin
     cSeSysScanFile: SysFile.AddSolSys(ODataBase.Systeme[ODataBase.Uni[Position[0],Position[1]].SystemCopy]);
     cSeXML:
       begin
-        s := AnsiToUtf8(SysToXML_(ODataBase.Systeme[ODataBase.Uni[Position[0],Position[1]].SystemCopy], '9.9'));
-        FileStream.WriteBuffer(PChar(s)^,length(s));
+        s := trnsltoUTF8(SysToXML_(ODataBase.Systeme[ODataBase.Uni[Position[0],Position[1]].SystemCopy], '9.9'));
+        FileStream.WriteBuffer(PAnsiChar(s)^,length(s));
       end;
     cSe_1_0:
       begin
@@ -246,7 +246,7 @@ end;
 
 procedure TFRM_Export.ExportScans;
 var i: integer;
-    text: string;
+    text: AnsiString;
 begin
   case ExportType of
   cSeSysScanFile:
@@ -265,7 +265,7 @@ begin
     begin
       FileStream := TFileStream.Create(Edit1.Text,fmCreate);
       text := '<?xml version="1.0" encoding="UTF-8"?><export>';
-      FileStream.WriteBuffer(PChar(text)^,length(text));
+      FileStream.WriteBuffer(PAnsiChar(text)^,length(text));
 
       if RB_Ranges.Checked then
       begin
@@ -276,13 +276,13 @@ begin
       begin
         for i := 0 to ODataBase.Berichte.Count-1 do
         begin
-          text := AnsiToUtf8(ScanToXML_(ODataBase.Berichte[i], '9.9'));
-          FileStream.WriteBuffer(PChar(text)^,length(text));
+          text := trnsltoUTF8(ScanToXML_(ODataBase.Berichte[i], '9.9'));
+          FileStream.WriteBuffer(PAnsiChar(text)^,length(text));
         end;
       end;
 
       text := '</export>';
-      FileStream.WriteBuffer(PChar(text)^,length(text));
+      FileStream.WriteBuffer(PAnsiChar(text)^,length(text));
       FileStream.Free;
     end;
   cSe_1_0:
@@ -295,7 +295,7 @@ end;
 procedure TFRM_Export.ExportPositionScan(Position: TCoordinates; var Cancel: Boolean);
 var M: boolean;
     i: word;
-    s: string;
+    s: AnsiString;
 begin
   if CH_OnlyNew.Checked then
   begin
@@ -306,8 +306,8 @@ begin
        cSeSysScanFile: ScanFile.AddReport(ODataBase.Berichte[ODataBase.Uni[Position[0],Position[1]].Planeten[Position[2],M].ScanBericht]);
        cSeXML:
          begin
-           s := AnsiToUtf8(ScanToXML_(ODataBase.Berichte[ODataBase.Uni[Position[0],Position[1]].Planeten[Position[2],M].ScanBericht], '9.9'));
-           FileStream.WriteBuffer(PChar(s)^,length(s));
+           s := trnsltoUTF8(ScanToXML_(ODataBase.Berichte[ODataBase.Uni[Position[0],Position[1]].Planeten[Position[2],M].ScanBericht], '9.9'));
+           FileStream.WriteBuffer(PAnsiChar(s)^,length(s));
          end;
        cSe_1_0: Raise Exception.Create('Gibs nochnet!');
        end;
@@ -327,8 +327,8 @@ begin
         cSeSysScanFile: ScanFile.AddReport(ODataBase.Berichte[i]);
         cSeXML:
           begin
-            s := AnsiToUtf8(ScanToXML_(ODataBase.Berichte[i], '9.9'));
-            FileStream.WriteBuffer(PChar(s)^,length(s));
+            s := trnsltoUTF8(ScanToXML_(ODataBase.Berichte[i], '9.9'));
+            FileStream.WriteBuffer(PAnsiChar(s)^,length(s));
           end;
         cSe_1_0: Raise Exception.Create('Gibs nochnet!');
         end;

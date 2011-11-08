@@ -74,7 +74,6 @@ type
     N1: TMenuItem;
     Close1: TMenuItem;
     Beenden1: TMenuItem;
-    NetConnections1: TMenuItem;
     Fenster1: TMenuItem;
     Dir: TMenuItem;
     Import2: TMenuItem;
@@ -278,6 +277,7 @@ type
     procedure closeFreeAudioFiles1Click(Sender: TObject);
     procedure spiodirekt1Click(Sender: TObject);
     procedure commander1Click(Sender: TObject);
+    procedure Panel1Resize(Sender: TObject);
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
@@ -818,7 +818,7 @@ end;
 
 procedure TFRM_Main.DirClick(Sender: TObject);
 begin
-  WinExec(PChar('"explorer" "' + ExtractFileDir(application.exename)), SW_SHOWNORMAL);
+  WinExec(PAnsiChar(AnsiString('"explorer" "' + ExtractFileDir(application.exename))), SW_SHOWNORMAL);
 end;
 
 procedure TFRM_Main.Export1Click(Sender: TObject);
@@ -1198,6 +1198,13 @@ begin
   end;
   Frame_Bericht1.Report_Refresh;
   Wellenangriff(Frame_Bericht1.Bericht);
+end;
+
+procedure TFRM_Main.Panel1Resize(Sender: TObject);
+begin
+  btn_last.Width := ((Panel1.ClientWidth - 2 - 6 - 4) div 2);
+  btn_next.left := btn_last.Width + 6;
+  btn_next.Width := Panel1.ClientWidth - 4 - btn_next.Left;
 end;
 
 procedure TFRM_Main.phpSync1Click(Sender: TObject);
@@ -1774,9 +1781,9 @@ begin
   try
 
     ODataBase.LanguagePlugIn.SetReadSourceText(handle,
-      text, ODataBase.FleetBoard.GameTime.UnixTime);
+      trnslToUtf8(text), ODataBase.FleetBoard.GameTime.UnixTime);
     ODataBase.LanguagePlugIn.SetReadSourceHTML(handle,
-      html, ODataBase.FleetBoard.GameTime.UnixTime);
+      trnslToUtf8(html), ODataBase.FleetBoard.GameTime.UnixTime);
 
 
 
@@ -1824,10 +1831,10 @@ begin
   end;
   if i >= 10 then Exit;
   
-  try
-    Html := Utf8ToAnsi(GetClipboardHtml);
+  try  hההה?
+    Html := {$ifndef UNICODE}Utf8ToAnsi{$endif}(GetClipboardHtml);
     if ClipboardHasText then
-      Text := Utf8ToAnsi(GetClipboardText)
+      Text := {$ifndef UNICODE}Utf8ToAnsi{$endif}(GetClipboardText)
     else
     begin
       Text := '';
@@ -2016,7 +2023,10 @@ begin
   handle := ODataBase.LanguagePlugIn.ReadSource_New();
   try
     ODataBase.LanguagePlugIn.SetReadSourceText(handle,
-      clipboard.AsText + ' ', ODataBase.FleetBoard.GameTime.UnixTime);
+      GetClipboardText_utf8, ODataBase.FleetBoard.GameTime.UnixTime);
+    ODataBase.LanguagePlugIn.SetReadSourceHTML(handle,
+      GetClipboardHtml_utf8, ODataBase.FleetBoard.GameTime.UnixTime);
+
     r := ODataBase.LeseMehrereScanberichte(handle);
     if r > 0 then
     begin
@@ -2025,6 +2035,7 @@ begin
     end
     else
       ShowMessage(STR_konnte_keine_Scans_suslesen);
+
   finally
     ODataBase.LanguagePlugIn.ReadSource_Free(handle);
   end;
@@ -2036,9 +2047,9 @@ begin
   handle := ODataBase.LanguagePlugIn.ReadSource_New();
   try
     ODataBase.LanguagePlugIn.SetReadSourceText(handle,
-      GetClipboardText, ODataBase.FleetBoard.GameTime.UnixTime);
+      GetClipboardText_utf8, ODataBase.FleetBoard.GameTime.UnixTime);
     ODataBase.LanguagePlugIn.SetReadSourceHTML(handle,
-      GetClipboardHtml, ODataBase.FleetBoard.GameTime.UnixTime);
+      GetClipboardHtml_utf8, ODataBase.FleetBoard.GameTime.UnixTime);
     ODataBase.LeseSystem(handle);
   finally
     ODataBase.LanguagePlugIn.ReadSource_Free(handle);
@@ -2484,14 +2495,14 @@ end;
 procedure TFRM_Main.stresstestforaddsolsys1Click(Sender: TObject);
 var i, j: integer;
     newsys: TSystemCopy;
-const names: array[0..69-1] of shortstring =
+const names: array[0..69-1] of string =
    ('dave', 'dieter', 'albert', 'chris', 'hans', 'herbert',
   'Manu', 'Martin', 'Frederik', 'Wolfgang', 'FighterXYZ', 'Fleeterking',
   'GamerSau', 'ZockerTimm', 'MaxMonster',
   '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
    '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
     '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
-  planets: array[0..7-1] of shortstring =
+  planets: array[0..7-1] of string =
     ('A', 'B', 'C', 'Kolonie', 'Heimatplanet', 'Bunker', 'Sauhaufen');
 begin
   for i := 0 to 10000 do

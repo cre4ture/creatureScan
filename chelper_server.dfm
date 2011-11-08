@@ -1,9 +1,9 @@
 object frm_cshelper_ctrl: Tfrm_cshelper_ctrl
   Left = 667
   Top = 123
-  Width = 613
-  Height = 287
   Caption = 'frm_cshelper_ctrl'
+  ClientHeight = 262
+  ClientWidth = 605
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

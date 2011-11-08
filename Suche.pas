@@ -89,7 +89,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure VST_ResultGetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: String);
     procedure VST_ResultDblClickX(Sender: TObject);
     procedure VST_ResultFocusChanged(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex);
@@ -126,7 +126,6 @@ type
       HitInfo: TVTHeaderHitInfo);
     procedure Spionieren1Click(Sender: TObject);
     procedure tim_take_focus_againTimer(Sender: TObject);
-    procedure IdThreadComponent1Run(Sender: TIdCustomThreadComponent);
   private
     mPosListInterface: TPlanetListInterface;
     e, Topmost : boolean;
@@ -515,7 +514,7 @@ end;
 
 procedure TFRM_Suche.VST_ResultGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+  var CellText: String);
 begin
   CellText := '-';
   with TSearch_ND(Sender.GetNodeData(node)^) do
@@ -588,7 +587,7 @@ end;
 
 procedure TFRM_Suche.VST_ResultCompareNodes(Sender: TBaseVirtualTree;
   Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
-var S1, S2: WideString;
+var S1, S2: String;
     nd1, nd2: TSearch_ND;
 begin
   nd1 := TSearch_ND(Sender.GetNodeData(node1)^);
@@ -958,12 +957,6 @@ begin
       fs.Free;
     end;
   end;
-end;
-
-procedure TFRM_Suche.IdThreadComponent1Run(
-  Sender: TIdCustomThreadComponent);
-begin
-
 end;
 
 { TFetchLPA_LPI_Thread }

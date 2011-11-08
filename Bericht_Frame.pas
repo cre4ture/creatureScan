@@ -1136,6 +1136,7 @@ begin
   with PB_B do
   begin
     y := 0;
+    Canvas.Font.Name := 'Arial';
     Canvas.Font.Size := 20;
     Canvas.Font.Color := clWhite;
     Canvas.Brush.Color := clBlue;
@@ -1147,10 +1148,10 @@ begin
         ODataBase.LanguagePlugIn.StatusToStr(fplanetInfo.Status) + ')';
         
     if not Bericht.Head.Position.Mond then
-      Canvas.TextOut(3,y+3,'[' + PositionToStrMond(Bericht.Head.Position) + ']'
+      Canvas.TextOut(3,y+3,'[' + PositionToStrMond(Bericht.Head.Position) + '] '
                        + fplanetInfo.PlanetName + ' (' + player + ')')
     else
-      Canvas.TextOut(3,y+3,'[' + PositionToStrMond(Bericht.Head.Position) + ']'
+      Canvas.TextOut(3,y+3,'[' + PositionToStrMond(Bericht.Head.Position) + '] '
                        + STR_Mond + ' (' + player + ')');
 
     inc(y,dy);

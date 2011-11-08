@@ -5,12 +5,12 @@ interface
 uses
   SysUtils, Classes, OGame_Types, cS_DB, MergeSocket, LibXmlParser,
   LibXmlComps, SplitSocket, cS_networking, StatusThread,
-  Windows, Forms, DateUtils;
+  Windows, Forms, DateUtils, xml_parser_unicode;
 
 type
   PPlayerInformation = ^TPlayerInformation;
   TPlayerInformation = record
-    Name: TPlayerName;
+    Name: string;
     PlayerId: TNameID;
     Research: array[0..fsc_4_Forschung-1] of Integer;
     ResearchTime_u: Int64;
@@ -21,15 +21,15 @@ type
   private
     FPlayerList: TList;
     function FFindPlayerId(aPlayerId: TNameID): Integer;
-    function FFindPlayerName(aName: TPlayerName; var aPlayerId: TNameID): Integer;
+    function FFindPlayerName(aName: string; var aPlayerId: TNameID): Integer;
     function newPlayerInfo(name: string; PlayerId: TNameID): PPlayerInformation;
   public
     constructor Create;
     destructor Destroy; override;
     procedure ANewReport(Report: TScanBericht; PlayerId: TNameID);
-    procedure setLPA_LPI(const player: TPlayerName; id: TNameID; const lpa, lpi: integer);
+    procedure setLPA_LPI(const player: string; id: TNameID; const lpa, lpi: integer);
     { Returns a record with name == '' if nothing was found }
-    function GetPlayerInfo(aName: TPlayerName; id: TNameID): PPlayerInformation;
+    function GetPlayerInfo(aName: string; id: TNameID): PPlayerInformation;
   end;
   TIntegerList = array of Integer;
   PTreePlanet = ^TTreePlanet;
@@ -157,7 +157,7 @@ type
 implementation
 
 uses
-  cS_XML;
+  cS_XML, cS_utf8_conv;
 
 function TUniverseTree.GetPhalanxList(Solsys: TPlanetPosition): TPlanetPosList;
 begin
@@ -671,7 +671,7 @@ begin
   end;
 end;
 
-function TPlayerDB.FFindPlayerName(aName: TPlayerName;
+function TPlayerDB.FFindPlayerName(aName: string;
   var aPlayerId: TNameID): Integer;
 var i: integer;
 begin
@@ -696,7 +696,7 @@ begin
   end;
 end;
 
-function TPlayerDB.GetPlayerInfo(aName: TPlayerName; id: TNameID): PPlayerInformation;
+function TPlayerDB.GetPlayerInfo(aName: string; id: TNameID): PPlayerInformation;
 var i: integer;
 begin
   Result := nil;
@@ -1041,7 +1041,7 @@ function TNetUniTree.DoSync_SendSyncInfo(Socket: TSplitSocket): boolean;
   end;
 
 var c: Integer;
-    xmla, xml: string;
+    xmla, xml: AnsiString;
     pos_a, pos_z, spos: TPLanetPosition;
 begin
   Result := False;
@@ -1065,19 +1065,19 @@ begin
       if (spos.P[2] = 1)and
          (not spos.Mond) then
       begin
-        xml := xml + SyncData_SolSys(spos);
+        xml := xml + trnsltoUTF8(SyncData_SolSys(spos));
       end;
 
       //Reports syncen:
-      xml := xml + SyncData_Planet(spos);
+      xml := xml + trnsltoUTF8(SyncData_Planet(spos));
 
       //Verpacken und zum verschicken tun:
       if length(xml) > 0 then
       begin
-        xmla := xmla + Format('<position %s="%d" %s="%d" %s="%d"',
+        xmla := xmla + trnsltoUTF8(Format('<position %s="%d" %s="%d" %s="%d"',
                              [xpos_gala, spos.P[0],
                               xpos_sys,  spos.P[1],
-                              xpos_pos,  spos.P[2]]);
+                              xpos_pos,  spos.P[2]]));
         if spos.Mond then
           xmla := xmla + ' ' + xpos_moon + '="1">'
         else xmla := xmla + '>';
@@ -1094,9 +1094,9 @@ begin
 
 
     //Einpacken:
-    xmla := AnsiToUtf8('<syncdata from="' + PositionToStrMond(pos_a) + '"' +
-                                   'to="' + PositionToStrMond(pos_z) + '">' +
-                        xmla + '</syncdata>');
+    xmla := AnsiString('<syncdata from="' + PositionToStrMond(pos_a) + '"' +
+                                   'to="' + PositionToStrMond(pos_z) + '">') +
+                        xmla + AnsiString('</syncdata>');
 
     if (length(xmla) > high(word)) then
       raise Exception.Create('TNetUniTree.FSendSolSysTimes: ' +
@@ -1106,7 +1106,7 @@ begin
     Socket.UnlockData;
   end;
 
-  Socket.SendPacket(PChar(xmla)^,length(xmla));
+  Socket.SendPacket(PAnsiChar(xmla)^,length(xmla));
 end;
 
 { -> Is Old!!! New: GetPlanetReportList
@@ -1186,10 +1186,10 @@ end;
 
 procedure TNetUniTree.FSendSolSysToSocket(Sys: TSystemCopy;
   Socket: TSplitSocket);
-var s: string;
+var s: AnsiString;
 begin
-  s := AnsiToUtf8(SysToXML_(Sys, '9.9')) + #0;
-  Socket.SendPacket(PChar(s)^,length(s)+1);
+  s := trnsltoUTF8(SysToXML_(Sys, '9.9')) + #0;
+  Socket.SendPacket(PAnsiChar(s)^,length(s)+1);
 
   with Socket.HostSocket as TSocketMultiplex,
        TcSConnectionData(LockData('TNetUniTree.FSendSolSysToSocket')) do
@@ -1237,21 +1237,20 @@ end;
 
 procedure TNetUniTree.SolSysMergeNewPacket_DoWork(Sender: TObject;
   Socket: TSplitSocket; Data: pointer; Size: Word);
-var s: string;
-    parser: TXmlParser;
+var s: AnsiString;
+    parser: TUnicodeXmlParser;
     sys: TSystemCopy;
     report: TScanBericht;
 begin
-  parser := TXmlParser.Create;
+  parser := TUnicodeXmlParser.Create;
   report := TScanBericht.Create;
   try
     SetLength(s, Size);
     Move(Data^, PChar(s)^, Size);
-    s := Utf8ToAnsi(s);
 
     //FreeMem(data);  -> wird von DoWork_idle ausgeführt!
 
-    parser.LoadFromBuffer(PChar(s));
+    parser.LoadFromBuffer(PAnsiChar(s));
     parser.StartScan;
 
     while parser.Scan do
@@ -1790,7 +1789,7 @@ begin
   FPlayerList.Add(Result);
 end;
 
-procedure TPlayerDB.setLPA_LPI(const player: TPlayerName; id: TNameID;
+procedure TPlayerDB.setLPA_LPI(const player: string; id: TNameID;
   const lpa, lpi: integer);
 var i: integer;
     ppi: PPlayerInformation;

@@ -69,7 +69,7 @@ type
     SystemCopy : integer;
   end;
   TRaidPlayer = record
-    Name: TPlayerName;
+    Name: TPlayerName_utf8;
     Forschungen: array[0..2] of integer;
   end;
   TRaidAusgang = (kaUnentschieden,kaAngreifer,kaVerteidiger);
@@ -120,7 +120,7 @@ type
     //--------------------------------------
     UniTree: TUniverseTree;
     UserPosition: TPlanetPosition;
-    Username: TPlayerName;
+    Username: string;
     game_domain: string;
     UniDomain: string;  // andromeda, X -> domain can be pinged, but in url there is an other name like uniXXX.ogame.de
     UniCheckName: string;
@@ -204,8 +204,8 @@ function Time_To_AgeStr_Ex(a_now, time: TDateTime): String;
 
 implementation
 
-uses Languages, Connections, cS_XML, Export,
-  SDBFile, OtherTime, Math;
+uses Languages, Connections, cS_XML, export,
+  SDBFile, OtherTime, Math, cS_utf8_conv;
 
 
 function TOgameDataBase.LeseFleets(handle: integer): Boolean;
@@ -341,7 +341,7 @@ begin
 
   LanguagePlugIn := TLangPlugIn.Create;
   SaveDir := UserDir;
-  if not DirectoryExists(SaveDir) then CreateDir(SaveDir);
+  if not SysUtils.DirectoryExists(SaveDir) then CreateDir(SaveDir);
 
   PlayerInf := SaveDir + 'options.inf';
 
@@ -887,7 +887,7 @@ begin
                   end;
       ptContent: if tag_cS and tag_version_main then
                  begin
-                   Result := trim(parser.CurContent);
+                   Result := trim(trnslShortStr(parser.CurContent));
                    break;
                  end;
       end;
@@ -1121,9 +1121,9 @@ begin
   begin
     with Result.Planeten[p] do
     begin
-      Player := ReadStringFromStream(stream);
-      PlanetName := ReadStringFromStream(stream);
-      Ally := ReadStringFromStream(stream);
+      Player := trnslShortStr(ReadStringFromStream(stream));
+      PlanetName := trnslShortStr(ReadStringFromStream(stream));
+      Ally := trnslShortStr(ReadStringFromStream(stream));
       stream.ReadBuffer(Status,sizeof(Status));
 
       stream.ReadBuffer(MondSize,SizeOf(MondSize));
@@ -1151,9 +1151,9 @@ begin
   begin
     with Sys.Planeten[p] do
     begin
-      WriteStringToStream(Player,stream);
-      WriteStringToStream(PlanetName,stream);
-      WriteStringToStream(Ally,stream);
+      WriteStringToStream(trnsltoUTF8(Player),stream);
+      WriteStringToStream(trnsltoUTF8(PlanetName),stream);
+      WriteStringToStream(trnsltoUTF8(Ally),stream);
       stream.WriteBuffer(Status,sizeof(Status));
 
       stream.WriteBuffer(MondSize,SizeOf(MondSize));

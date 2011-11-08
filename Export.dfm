@@ -243,7 +243,6 @@ object FRM_Export: TFRM_Export
     Width = 125
     Height = 21
     Style = csDropDownList
-    ItemHeight = 13
     ItemIndex = 0
     TabOrder = 6
     Text = '"normal"'

@@ -91,6 +91,8 @@ type
 
 implementation
 
+uses cS_utf8_conv;
+
 constructor TcSFleetDBFile.Create(aFilename: string);
 var frmt: TcSFleetFileFormat;
 begin
@@ -119,7 +121,7 @@ begin
     if (FFormat = cff_none) then
       raise EcSDBUnknownFileFormat.Create(
         'TcSFleetDB.Create: Unknown file format (File: "' + aFilename  +
-        '", Format: "' + FHeader.filetype + '")');
+        '", Format: "' + String(FHeader.filetype) + '")');
   end;
   InitFormat;
 
@@ -148,7 +150,7 @@ begin
   Result.head.target.Mond := Item.Head.target.P_Mond;
 
   Result.head.arrival_time_u := Item.Head.time_u;
-  Result.head.player := Item.Head.player;
+  Result.head.player := trnslShortStr(Item.Head.player);
   Result.head.joined_id := Item.Head.joined_id;
 
   SetLength(Result.ress,length(Item.ress));
@@ -186,7 +188,7 @@ begin
   Item.Head.target.P_Mond := Fleet.head.target.Mond;
 
   Item.Head.time_u := Fleet.head.arrival_time_u;
-  Item.Head.player := Fleet.head.player;
+  Item.Head.player := trnsltoUTF8(Fleet.head.player);
   Item.Head.joined_id := Fleet.head.joined_id;
 
   for i := 0 to length(Item.ress)-1 do
@@ -213,7 +215,7 @@ end;
 
 function TcSFleetDBFile.GetUni: String;
 begin
-  Result := FHeader.domain;
+  Result := trnslShortStr(FHeader.domain);
 end;
 
 procedure TcSFleetDBFile.InitFormat;
@@ -229,7 +231,7 @@ begin
       // import old header
       FHeaderSize := SizeOf(old_h_10);
       GetHeader(old_h_10); // low level stream read
-      FHeader.domain := 'uni' + IntToStr(old_h_10.Uni);
+      FHeader.domain := AnsiString('uni' + IntToStr(old_h_10.Uni));
     end;
     cff_30:
     begin
@@ -269,7 +271,7 @@ procedure TcSFleetDBFile.SetUni(Uni: string);
 begin
   if FFormat < high(FFormat) then
     raise Exception.Create('TcSFleetDBFile.SetUni: can''t change old fileformat');
-  FHeader.domain := Uni;
+  FHeader.domain := trnslToUtf8(Uni);
   SetHeader(FHeader);
 end;
 
