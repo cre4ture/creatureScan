@@ -50,7 +50,6 @@ uses
   cS_XML in 'cS_XML.pas',
   VSTPopup in 'VSTPopup.pas',
   Prog_Unit in 'Prog_Unit.pas',
-  ReadWriteEvent in 'ReadWriteEvent.pas',
   Chat in 'Chat.pas' {FRM_Chat},
   CoordinatesRanges in 'CoordinatesRanges.pas',
   FavFilter in 'FavFilter.pas' {FRM_Filter},
@@ -83,7 +82,15 @@ uses
   SDBFile in '..\lib\uli\SDBFile.pas',
   fast_xml_writer in 'fast_xml_writer.pas',
   ActivityFinder in 'ActivityFinder.pas',
-  global_options in 'global_options.pas';
+  global_options in 'global_options.pas',
+  cpp_dll_interface in '..\lib\uli\htmllib\cpp_dll_interface.pas',
+  html in '..\lib\uli\htmllib\html.pas',
+  parser_types in '..\lib\uli\htmllib\parser_types.pas',
+  fast_strings in '..\lib\uli\htmllib\fast_strings.pas',
+  xml_parser_unicode in 'xml_parser_unicode.pas',
+  cS_utf8_conv in 'cS_utf8_conv.pas',
+  Vcl.Themes,
+  Vcl.Styles;
 
 {$R *.RES}
 
@@ -180,9 +187,9 @@ begin
 
   if LastUser = '' then Exit;
 
-  if not DirectoryExists(userdatadir) then
+  if not SysUtils.DirectoryExists(userdatadir) then
     CreateDir(userdatadir);
-  if not DirectoryExists(userdatadir + LastUser) then
+  if not SysUtils.DirectoryExists(userdatadir + LastUser) then
     CreateDir(userdatadir + LastUser);
   SaveMainOptions;
 
@@ -255,7 +262,7 @@ begin
   cSServer.Free;
   Protocol.Free;
   if login then
-    WinExec(PChar('"' + Application.Exename + '" -selectuser'), SW_SHOWNORMAL);
+    WinExec(PAnsiChar(AnsiString('"' + Application.Exename + '" -selectuser')), SW_SHOWNORMAL);
 
   GlobalLangMod_Free;
 end.

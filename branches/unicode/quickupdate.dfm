@@ -1,9 +1,9 @@
 object frm_quickupdate: Tfrm_quickupdate
   Left = 383
   Top = 222
-  Width = 520
-  Height = 352
   Caption = 'Quick Update'
+  ClientHeight = 327
+  ClientWidth = 512
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -53,7 +53,6 @@ object frm_quickupdate: Tfrm_quickupdate
       Height = 232
       Anchors = [akLeft, akTop, akRight, akBottom]
       Header.AutoSizeIndex = 0
-      Header.DefaultHeight = 17
       Header.Font.Charset = DEFAULT_CHARSET
       Header.Font.Color = clWindowText
       Header.Font.Height = -11
@@ -124,18 +123,19 @@ object frm_quickupdate: Tfrm_quickupdate
     end
   end
   object IdHTTP1: TIdHTTP
-    MaxLineAction = maException
-    ReadTimeout = 0
     AllowCookies = True
     ProxyParams.BasicAuthentication = False
     ProxyParams.ProxyPort = 0
     Request.ContentLength = -1
-    Request.ContentRangeEnd = 0
-    Request.ContentRangeStart = 0
+    Request.ContentRangeEnd = -1
+    Request.ContentRangeStart = -1
+    Request.ContentRangeInstanceLength = -1
     Request.ContentType = 'text/html'
     Request.Accept = 'text/html, */*'
     Request.BasicAuthentication = False
     Request.UserAgent = 'Mozilla/3.0 (compatible; Indy Library)'
+    Request.Ranges.Units = 'bytes'
+    Request.Ranges = <>
     HTTPOptions = [hoForceEncodeParams]
     Left = 208
     Top = 136

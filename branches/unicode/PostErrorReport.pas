@@ -31,11 +31,11 @@ type
     procedure FormShow(Sender: TObject);
     procedure FormHide(Sender: TObject);
     procedure HTTPWorkBegin(Sender: TObject; AWorkMode: TWorkMode;
-      const AWorkCountMax: Integer);
-    procedure HTTPWork(Sender: TObject; AWorkMode: TWorkMode;
-      const AWorkCount: Integer);
+      const AWorkCountMax: Int64);
     procedure HTTPWorkEnd(Sender: TObject; AWorkMode: TWorkMode);
     procedure Button1Click(Sender: TObject);
+    procedure HTTPWork(ASender: TObject; AWorkMode: TWorkMode;
+      AWorkCount: Int64);
   private
     { Private-Deklarationen }
   public
@@ -70,14 +70,14 @@ begin
 end;
 
 procedure Tfrm_postErrorReport.HTTPWorkBegin(Sender: TObject;
-  AWorkMode: TWorkMode; const AWorkCountMax: Integer);
+  AWorkMode: TWorkMode; const AWorkCountMax: Int64);
 begin
   ProgressBar1.Position := 0;
   ProgressBar1.Max := AWorkCountMax;
 end;
 
-procedure Tfrm_postErrorReport.HTTPWork(Sender: TObject;
-  AWorkMode: TWorkMode; const AWorkCount: Integer);
+procedure Tfrm_postErrorReport.HTTPWork(ASender: TObject; AWorkMode: TWorkMode;
+  AWorkCount: Int64);
 begin
   ProgressBar1.Position := AWorkCount;
   Application.ProcessMessages;

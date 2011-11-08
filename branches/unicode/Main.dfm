@@ -1,9 +1,9 @@
 object FRM_Main: TFRM_Main
   Left = 706
   Top = 106
-  Width = 549
-  Height = 476
   Caption = 'creatureScan'
+  ClientHeight = 432
+  ClientWidth = 541
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -46,16 +46,23 @@ object FRM_Main: TFRM_Main
       PopupMenu = Frame_Bericht2.PopupMenu1
       TabOrder = 0
       TabStop = True
+      ExplicitTop = 284
+      ExplicitWidth = 541
+      ExplicitHeight = 129
       inherited PB_B: TPaintBox
-        Width = 524
+        Width = 541
+        ExplicitWidth = 524
       end
       inherited Panel1: TPanel
-        Width = 524
+        Width = 541
+        ExplicitWidth = 541
         inherited LBL_Raid24_Info: TLabel
-          Left = 354
+          Left = 371
+          ExplicitLeft = 354
         end
         inherited BTN_Last24: TSpeedButton
-          Left = 438
+          Left = 455
+          ExplicitLeft = 438
         end
       end
     end
@@ -99,17 +106,23 @@ object FRM_Main: TFRM_Main
         TabOrder = 0
         TabStop = True
         OnDblClick = Frame_Bericht1PB_BDblClick
+        ExplicitWidth = 437
+        ExplicitHeight = 366
         inherited PB_B: TPaintBox
           Width = 437
           OnDblClick = Frame_Bericht1PB_BDblClick
+          ExplicitWidth = 437
         end
         inherited Panel1: TPanel
           Width = 437
+          ExplicitWidth = 437
           inherited LBL_Raid24_Info: TLabel
             Left = 308
+            ExplicitLeft = 308
           end
           inherited BTN_Last24: TSpeedButton
             Left = 396
+            ExplicitLeft = 396
           end
         end
         inherited PopupMenu1: TPopupMenu
@@ -674,6 +687,7 @@ object FRM_Main: TFRM_Main
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
+      OnResize = Panel1Resize
       DesignSize = (
         101
         413)
@@ -875,11 +889,6 @@ object FRM_Main: TFRM_Main
         Caption = 'php-Sync'
         ShortCut = 16464
         OnClick = phpSync1Click
-      end
-      object NetConnections1: TMenuItem
-        Caption = 'Netz-Syncronisation'
-        ShortCut = 16459
-        OnClick = NetConnections1Click
       end
       object Flottenbersicht1: TMenuItem
         Caption = 'Flotten'#252'bersicht'
@@ -1089,7 +1098,7 @@ object FRM_Main: TFRM_Main
     Left = 12
     Top = 276
     Bitmap = {
-      494C010102000400040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010102000400240010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       00000000000000000000000000000000000000000000C0C0C000BABABA00B4B4
       B400ADADAD00A4A4A4009B9B9B009D9D9D008B8B8B0026262600090909001010
@@ -1265,7 +1274,7 @@ object FRM_Main: TFRM_Main
     Left = 468
     Top = 120
     Bitmap = {
-      494C010106000800040006000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010106000800240006000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000180000001A0000000100200000000000C009
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

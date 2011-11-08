@@ -4,7 +4,7 @@ interface
 
 uses
   Ogame_Types, inifiles, Classes, SysUtils, XMLDoc, XMLIntf, DateUtils, Prog_Unit, dialogs,
-  ImportProgress, LibXmlParser, LibXmlComps, languages, forms, fast_xml_writer;
+  ImportProgress, LibXmlParser, LibXmlComps, languages, forms, fast_xml_writer, xml_parser_unicode;
 
 const
   //Position_XML_idents:
@@ -119,20 +119,20 @@ function XMLToSys(node: IXMLNode): TSystemCopy;
 procedure ImportXMLODB_wrong(Filename: String; ODB: TOgameDataBase);
 function SysToXML_(sys: TSystemCopy; csvers: string): string;
 procedure SysToXML_fxml(fxml: TFastXmlWriter; sys: TSystemCopy; csvers: string);
-function parse_Sys(parser: TXmlParser): Boolean; overload;
-function parse_Sys(parser: TXmlParser; var solsys: TSystemCopy): Boolean; overload;
-procedure parse_error(parser: TXMLParser; msg: string);
-function parse_report(parser: TXMLParser): boolean; overload;
-function parse_report(parser: TXMLParser; report: TScanBericht): boolean; overload;
+function parse_Sys(parser: TUnicodeXmlParser): Boolean; overload;
+function parse_Sys(parser: TUnicodeXmlParser; var solsys: TSystemCopy): Boolean; overload;
+procedure parse_error(parser: TUnicodeXmlParser; msg: string);
+function parse_report(parser: TUnicodeXmlParser): boolean; overload;
+function parse_report(parser: TUnicodeXmlParser; report: TScanBericht): boolean; overload;
 function ScanToXML_(Scan: TScanBericht; csvers: string): String;
 procedure ScanToXML_fxml(fxml: TFastXmlWriter; Scan: TScanBericht; csvers: string);
-function parse_unknown(parser: TXMLParser; parse_known: Boolean): boolean;
+function parse_unknown(parser: TUnicodeXmlParser; parse_known: Boolean): boolean;
 procedure ImportXMLODB_(Filename: String; ODB: TOgameDataBase);
 procedure StatToXML_fxml(fxml: TFastXmlWriter; Stat: TStat; StatType: TStatTypeEx);
 function StatToXML_(Stat: TStat; StatType: TStatTypeEx): String;
-function parse_stat(parser: TXMLParser; var Stat: TStat;
+function parse_stat(parser: TUnicodeXmlParser; var Stat: TStat;
   var snt: TStatNameType; var spt: TStatPointType): boolean; overload;
-function parse_stat(parser: TXMLParser): boolean; overload;
+function parse_stat(parser: TUnicodeXmlParser): boolean; overload;
 function StatNameTypeToString(t: TStatNameType): string;
 function StringToStatNameType(s: string): TStatNameType;
 function StatPointTypeToString(t: TStatPointType): string;
@@ -144,10 +144,10 @@ function PlanetPositionToXML_attr(pos: TPlanetPosition): string;
 procedure PlanetPositionToXML_attr_fxml(fxml: TFastXmlWriter; pos: TPlanetPosition);
 function ScanPartToXML_(scan: TScanBericht; partnr: TScanGroup): string;
 procedure ScanPartToXML_fxml(fxml: TFastXmlWriter; scan: TScanBericht; partnr: TScanGroup);
-function parse_fleet(parser: TXMLParser; var fleet: TFleetEvent): Boolean;
+function parse_fleet(parser: TUnicodeXmlParser; var fleet: TFleetEvent): Boolean;
 function StringToFleetJobFlags(s: string): TFleetEventFlags;
 function StringToFleetJob(s: String): TFleetEventType;
-function XML_attrToPlanetPosition(parser: TXMLParser): TPlanetPosition;
+function XML_attrToPlanetPosition(parser: TUnicodeXmlParser): TPlanetPosition;
 
 implementation
 
@@ -370,7 +370,7 @@ begin
 
     if TagName = 'export' then  //-----------------------export-----------------
     begin
-      s := Attributes.Value('count');
+      s := atValStr(Attributes,'count');
       if (ProcessForm <> nil)and(s <> '') then
       begin
         ProcessForm.SetMax(StrToInt(s));
@@ -436,26 +436,26 @@ begin
   if TagName = xsys_planet then
   begin
     try
-      p := StrToInt(Attributes.Value(xsys_planet_pos));
+      p := StrToInt(atValStr(Attributes,xsys_planet_pos));
       with sys.Planeten[p] do
       begin
-        PlanetName := Attributes.Value(xsys_planet_name);
-        Player := Attributes.Value(xsys_planet_player);
-        Ally := Attributes.Value(xsys_planet_alliance);
+        PlanetName := atValStr(Attributes,xsys_planet_name);
+        Player := atValStr(Attributes,xsys_planet_player);
+        Ally := atValStr(Attributes,xsys_planet_alliance);
 
-        s := Attributes.Value(xsys_planet_flags);
+        s := atValStr(Attributes,xsys_planet_flags);
         if s <> '' then Status := TStatus(word(StrToInt(s)));
 
-        s := Attributes.Value(xsys_planet_moon);
+        s := atValStr(Attributes,xsys_planet_moon);
         if s <> '' then MondSize := StrToInt(s);
 
-        s := Attributes.Value(xsys_planet_mtemp);
+        s := atValStr(Attributes,xsys_planet_mtemp);
         if s <> '' then MondTemp := StrToInt(s);
 
-        s := Attributes.Value(xsys_planet_tfmet);
+        s := atValStr(Attributes,xsys_planet_tfmet);
         if s <> '' then TF[0] := StrToInt(s);
 
-        s := Attributes.Value(xsys_planet_tfcrys);
+        s := atValStr(Attributes,xsys_planet_tfcrys);
         if s <> '' then TF[1] := StrToInt(s);
       end;
     except
@@ -477,7 +477,7 @@ begin
       try
         for j := 0 to ScanFileCounts[sg]-1 do
         begin
-          s := Attributes.Value(xspio_idents[sg][j+1]);
+          s := atValStr(Attributes,xspio_idents[sg][j+1]);
           if s <> '' then
             Scan.Bericht[sg,j] := StrToInt(s)
           else Scan.Bericht[sg,j] := 0;
@@ -497,23 +497,23 @@ begin
   Scan.clear;
 
   try
-    Scan.Head.Position.P[0] := StrToInt(Attributes.Value(xpos_gala));
-    Scan.Head.Position.P[1] := StrToInt(Attributes.Value(xpos_sys));
-    Scan.Head.Position.P[2] := StrToInt(Attributes.Value(xpos_pos));
-    Scan.Head.Position.Mond := Attributes.Value(xpos_moon) = 'true';
+    Scan.Head.Position.P[0] := StrToInt(atValStr(Attributes,xpos_gala));
+    Scan.Head.Position.P[1] := StrToInt(atValStr(Attributes,xpos_sys));
+    Scan.Head.Position.P[2] := StrToInt(atValStr(Attributes,xpos_pos));
+    Scan.Head.Position.Mond := atValStr(Attributes,xpos_moon) = 'true';
 
-    Scan.Head.Time_u := StrToInt64(Attributes.Value(xspio_group_time)); //Unix
+    Scan.Head.Time_u := StrToInt64(atValStr(Attributes,xspio_group_time)); //Unix
   except
     FillChar(Scan.Head.Position,SizeOf(Scan.Head.Position),0);
   end;
 
-  Scan.Head.Planet := Attributes.Value(xspio_group_planet);
+  Scan.Head.Planet := atValStr(Attributes,xspio_group_planet);
   //Attributes[xspio_group_player] := scan.Head.Spieler;
 
-  s := Attributes.Value(xspio_group_cspio);
+  s := atValStr(Attributes,xspio_group_cspio);
   if s <> '' then Scan.Head.Spionageabwehr := StrToInt(s);
 
-  Scan.Head.Creator := Attributes.Value(xspio_group_creator);
+  Scan.Head.Creator := atValStr(Attributes,xspio_group_creator);
 end;
 
 procedure TcSXMLScanner.process_xspio_endtag(Sender: TObject; TagName: STRING);
@@ -528,11 +528,11 @@ begin
   FillChar(Sys,SizeOf(Sys),0);   //Sys leeren (Standartwehrte setzen!)
 
   try                            //HeadDaten einlesen
-    sys.System.P[0] := StrToInt(Attributes.Value(xpos_gala));
-    sys.System.P[1] := StrToInt(Attributes.Value(xpos_sys));
+    sys.System.P[0] := StrToInt(atValStr(Attributes,xpos_gala));
+    sys.System.P[1] := StrToInt(atValStr(Attributes,xpos_sys));
     Sys.System.P[2] := 1;
 
-    Sys.Time_u := StrToInt64(Attributes.Value(xsys_group_time));
+    Sys.Time_u := StrToInt64(atValStr(Attributes,xsys_group_time));
   except
     FillChar(sys.System,SizeOf(Sys.System),0);
   end;
@@ -603,7 +603,7 @@ begin
   fxml.endTag(xsys_group);
 end;
 
-function parse_Sys(parser: TXmlParser): Boolean;
+function parse_Sys(parser: TUnicodeXmlParser): Boolean;
 var solsys: TSystemCopy;
 begin
   Result := parse_Sys(parser,solsys);
@@ -611,7 +611,7 @@ begin
     ODataBase.UniTree.AddNewSolSys(solsys); 
 end;
 
-function parse_Sys(parser: TXmlParser; var solsys: TSystemCopy): Boolean;
+function parse_Sys(parser: TUnicodeXmlParser; var solsys: TSystemCopy): Boolean;
 
   function parse_xsys_planet: boolean;
   var p: integer;
@@ -622,34 +622,34 @@ function parse_Sys(parser: TXmlParser; var solsys: TSystemCopy): Boolean;
     begin
       p := -1;
       try
-        p := StrToInt(parser.CurAttr.Value(xsys_planet_pos));
+        p := parser.attrAsInt(xsys_planet_pos);
         with solsys.Planeten[p] do
         begin
-          PlanetName := parser.CurAttr.Value(xsys_planet_name);
-          Player := parser.CurAttr.Value(xsys_planet_player);
-          Ally := parser.CurAttr.Value(xsys_planet_alliance);
+          PlanetName := parser.attrAsString(xsys_planet_name);
+          Player := parser.attrAsString(xsys_planet_player);
+          Ally := parser.attrAsString(xsys_planet_alliance);
 
-          s := parser.CurAttr.Value(xsys_planet_player_id);
+          s := parser.attrAsString(xsys_planet_player_id);
           PlayerId := StrToInt64Def(s, 0);
-          s := parser.CurAttr.Value(xsys_planet_alliance_id);
+          s := parser.attrAsString(xsys_planet_alliance_id);
           AllyId := StrToInt64Def(s, 0);
 
-          s := parser.CurAttr.Value(xsys_planet_flags);
+          s := parser.attrAsString(xsys_planet_flags);
           if s <> '' then Status := TStatus(word(StrToInt(s)));
 
-          s := parser.CurAttr.Value(xsys_planet_moon);
+          s := parser.attrAsString(xsys_planet_moon);
           if s <> '' then MondSize := StrToInt(s);
 
-          s := parser.CurAttr.Value(xsys_planet_mtemp);
+          s := parser.attrAsString(xsys_planet_mtemp);
           if s <> '' then MondTemp := StrToInt(s);
 
-          s := parser.CurAttr.Value(xsys_planet_tfmet);
+          s := parser.attrAsString(xsys_planet_tfmet);
           if s <> '' then TF[0] := StrToInt(s);
 
-          s := parser.CurAttr.Value(xsys_planet_tfcrys);
+          s := parser.attrAsString(xsys_planet_tfcrys);
           if s <> '' then TF[1] := StrToInt(s);
 
-          s := parser.CurAttr.Value(xsys_planet_activity);
+          s := parser.attrAsString(xsys_planet_activity);
           if s <> '' then Activity := StrToInt(s);
         end;
       except
@@ -677,11 +677,11 @@ begin
   begin
     FillChar(solsys,SizeOf(solsys),0);   //Sys leeren (Standartwehrte setzen!)
     try                            //HeadDaten einlesen
-      solsys.System.P[0] := StrToInt(parser.CurAttr.Value(xpos_gala));
-      solsys.System.P[1] := StrToInt(parser.CurAttr.Value(xpos_sys));
+      solsys.System.P[0] := StrToInt(parser.attrAsString(xpos_gala));
+      solsys.System.P[1] := StrToInt(parser.attrAsString(xpos_sys));
       solsys.System.P[2] := 1;
 
-      solsys.Time_u := StrToInt64(parser.CurAttr.Value(xsys_group_time));
+      solsys.Time_u := StrToInt64(parser.attrAsString(xsys_group_time));
     except
       parse_error(parser,Format('Solsys %d:%d is broken! Can''t use it!',
         [solsys.System.P[0], solsys.System.P[1]]));
@@ -702,12 +702,12 @@ begin
   end;
 end;
 
-procedure parse_error(parser: TXMLParser; msg: string);
+procedure parse_error(parser: TUnicodeXmlParser; msg: string);
 begin
   raise Exception.Create(msg);
 end;
 
-function parse_report(parser: TXMLParser): boolean;
+function parse_report(parser: TUnicodeXmlParser): boolean;
 var report: TScanBericht;
 begin
   report := TScanBericht.Create;
@@ -720,18 +720,18 @@ begin
   end;
 end;
 
-function parse_report_group(parser: TXMLParser; sg: TScanGroup;
+function parse_report_group(parser: TUnicodeXmlParser; sg: TScanGroup;
   scan: TScanBericht): boolean;
 var j: integer;
     s: string;
 begin
-  Result := parser.CurName = xspio_idents[sg][0];
+  Result := (parser.CurName = AnsiString(xspio_idents[sg][0]));
   if Result then
   begin
     try
       for j := 0 to ScanFileCounts[sg]-1 do
       begin
-        s := parser.CurAttr.Value(xspio_idents[sg][j+1]);
+        s := parser.attrAsString(xspio_idents[sg][j+1]);
         if s <> '' then
           scan.Bericht[sg,j] := StrToInt(s)
         else scan.Bericht[sg,j] := 0;
@@ -751,18 +751,18 @@ begin
   end;
 end;
 
-function parse_report_group_AI(parser: TXMLParser; sg: TScanGroup;
+function parse_report_group_AI(parser: TUnicodeXmlParser; sg: TScanGroup;
   part: TInfoArray): boolean;
 var j: integer;
     s: string;
 begin
-  Result := parser.CurName = xspio_idents[sg][0];
+  Result := (parser.CurName = AnsiString(xspio_idents[sg][0]));
   if Result then
   begin
     try
       for j := 0 to ScanFileCounts[sg]-1 do
       begin
-        s := parser.CurAttr.Value(xspio_idents[sg][j+1]);
+        s := parser.attrAsString(xspio_idents[sg][j+1]);
         if s <> '' then
           part[j] := StrToInt(s)
         else part[j] := 0;
@@ -782,15 +782,15 @@ begin
   end;
 end;
 
-function XML_attrToPlanetPosition(parser: TXMLParser): TPlanetPosition;
+function XML_attrToPlanetPosition(parser: TUnicodeXmlParser): TPlanetPosition;
 begin
-  Result.P[0] := StrToInt(parser.CurAttr.Value(xpos_gala));
-  Result.P[1] := StrToInt(parser.CurAttr.Value(xpos_sys));
-  Result.P[2] := StrToInt(parser.CurAttr.Value(xpos_pos));
-  Result.Mond := parser.CurAttr.Value(xpos_moon) = 'true';
+  Result.P[0] := StrToInt(parser.attrAsString(xpos_gala));
+  Result.P[1] := StrToInt(parser.attrAsString(xpos_sys));
+  Result.P[2] := StrToInt(parser.attrAsString(xpos_pos));
+  Result.Mond := parser.attrAsString(xpos_moon) = 'true';
 end;
 
-function parse_report(parser: TXMLParser; report: TScanBericht): boolean;
+function parse_report(parser: TUnicodeXmlParser; report: TScanBericht): boolean;
 var s: string;
 
   function parse_xspio_idents: Boolean;
@@ -813,20 +813,20 @@ begin
     try
       report.Head.Position := XML_attrToPlanetPosition(parser);
       
-      report.Head.Time_u := StrToInt64(parser.CurAttr.Value(xspio_group_time)); //Unix
-      report.Head.Planet := parser.CurAttr.Value(xspio_group_planet);
-      report.Head.Spieler := parser.CurAttr.Value(xspio_group_player);
+      report.Head.Time_u := StrToInt64(parser.attrAsString(xspio_group_time)); //Unix
+      report.Head.Planet := parser.attrAsString(xspio_group_planet);
+      report.Head.Spieler := parser.attrAsString(xspio_group_player);
 
-      s := parser.CurAttr.Value(xspio_group_player_id);
+      s := parser.attrAsString(xspio_group_player_id);
       if s <> '' then report.Head.SpielerId := StrToInt64(s);
 
-      s := parser.CurAttr.Value(xpsio_group_activity);
+      s := parser.attrAsString(xpsio_group_activity);
       if s <> '' then report.Head.Activity := StrToInt(s);
       
-      s := parser.CurAttr.Value(xspio_group_cspio);
+      s := parser.attrAsString(xspio_group_cspio);
       if s <> '' then report.Head.Spionageabwehr := StrToInt(s);
 
-      report.Head.Creator := parser.CurAttr.Value(xspio_group_creator);
+      report.Head.Creator := parser.attrAsString(xspio_group_creator);
     except
       parse_error(parser,Format('Report %d:&d:&d is broken!',
         [report.Head.Position.P[0],report.Head.Position.P[1],
@@ -936,7 +936,7 @@ begin
   fxml.endTag(xspio_group);
 end;
 
-function parse_unknown(parser: TXMLParser; parse_known: Boolean): boolean;
+function parse_unknown(parser: TUnicodeXmlParser; parse_known: Boolean): boolean;
 begin
   Result := True;
   if parser.CurPartType <> ptEmptyTag then
@@ -959,9 +959,9 @@ begin
 end;
 
 procedure ImportXMLODB_(Filename: String; ODB: TOgameDataBase);
-var parser: TXmlParser;
+var parser: TUnicodeXmlParser;
 begin
-  parser := TXmlParser.Create;
+  parser := TUnicodeXmlParser.Create;
   parser.LoadFromFile(Filename);
   parser.StartScan;
   while parser.Scan do
@@ -1045,7 +1045,7 @@ begin
   fxml.endTag(xstat_group);
 end;
 
-function parse_stat(parser: TXMLParser; var Stat: TStat;
+function parse_stat(parser: TUnicodeXmlParser; var Stat: TStat;
   var snt: TStatNameType; var spt: TStatPointType): boolean;
 var i: integer;
 
@@ -1056,17 +1056,17 @@ var i: integer;
     if Result then
     begin
       try
-        r := StrToInt(parser.CurAttr.Value(xstat_rank_position)) - Stat.first;
+        r := StrToInt(parser.attrAsString(xstat_rank_position)) - Stat.first;
         if (r <> i) then raise Exception.Create('invalid!');
 
-        Stat.Stats[r].Name := parser.CurAttr.Value(xstat_rank_name);
-        Stat.Stats[r].NameId := StrToInt64Def(parser.CurAttr.Value(xstat_rank_name_id), -1);
-        Stat.Stats[r].Punkte := StrToInt64Def(parser.CurAttr.Value(xstat_rank_points), 0);
+        Stat.Stats[r].Name := parser.attrAsString(xstat_rank_name);
+        Stat.Stats[r].NameId := StrToInt64Def(parser.attrAsString(xstat_rank_name_id), -1);
+        Stat.Stats[r].Punkte := StrToInt64Def(parser.attrAsString(xstat_rank_points), 0);
         case snt of
           sntPlayer:
-            Stat.Stats[r].Ally := parser.CurAttr.Value(xstat_rank_alliance);
+            Stat.Stats[r].Ally := parser.attrAsString(xstat_rank_alliance);
           sntAlliance:
-            Stat.Stats[r].Mitglieder := StrToInt(parser.CurAttr.Value(xstat_rank_members))
+            Stat.Stats[r].Mitglieder := StrToInt(parser.attrAsString(xstat_rank_members))
         end;
         inc(i);
       except
@@ -1095,11 +1095,11 @@ begin
   begin
     FillChar(Stat,SizeOf(Stat),0);
     try
-      Stat.Time_u := StrToInt64(parser.CurAttr.Value(xstat_group_time));
-      snt := StringToStatNameType(parser.CurAttr.Value(xstat_group_nametype));
-      spt := StringToStatpointType(parser.CurAttr.Value(xstat_group_pointtype));
-      Stat.first := StrToInt(parser.CurAttr.Value(xstat_group_first));
-      Stat.count := StrToIntDef(parser.CurAttr.Value(xstat_group_count), 0);
+      Stat.Time_u := StrToInt64(parser.attrAsString(xstat_group_time));
+      snt := StringToStatNameType(parser.attrAsString(xstat_group_nametype));
+      spt := StringToStatpointType(parser.attrAsString(xstat_group_pointtype));
+      Stat.first := StrToInt(parser.attrAsString(xstat_group_first));
+      Stat.count := StrToIntDef(parser.attrAsString(xstat_group_count), 0);
 
       if (Stat.first mod 100) <> 1 then raise Exception.Create('Invalid!');
       if Stat.count > 100 then raise Exception.Create('Invalid!');
@@ -1133,7 +1133,7 @@ begin
   end;
 end;
 
-function parse_stat(parser: TXMLParser): boolean;
+function parse_stat(parser: TUnicodeXmlParser): boolean;
 var Stat: TStat;
     snt: TStatNameType;
     spt: TStatPointType;
@@ -1227,7 +1227,7 @@ begin
   Result := Result + '</'+xflt_group+'>';
 end;
 
-function parse_fleet(parser: TXMLParser; var fleet: TFleetEvent): Boolean;
+function parse_fleet(parser: TUnicodeXmlParser; var fleet: TFleetEvent): Boolean;
 
   function parse_fleet_info: boolean;
   begin
@@ -1275,10 +1275,10 @@ begin
     FillChar(fleet,SizeOf(fleet),0);   //fleet leeren (Standartwehrte setzen!)
                                //HeadDaten einlesen
     fleet.head.eventflags := StringToFleetJobFlags(
-                   parser.CurAttr.Value(xflt_group_mission_flags));
-    Fleet.head.eventtype := StringToFleetJob(parser.CurAttr.Value(xflt_group_mission));
-    Fleet.head.arrival_time_u := StrToInt64(parser.CurAttr.Value(xflt_group_arrivaltime));
-    Fleet.head.player := parser.CurAttr.Value(xflt_group_player);
+                   parser.attrAsString(xflt_group_mission_flags));
+    Fleet.head.eventtype := StringToFleetJob(parser.attrAsString(xflt_group_mission));
+    Fleet.head.arrival_time_u := StrToInt64(parser.attrAsString(xflt_group_arrivaltime));
+    Fleet.head.player := parser.attrAsString(xflt_group_player);
 
     if parser.CurPartType <> ptEmptyTag then
     while (parser.Scan)and(parser.CurPartType <> ptEndTag) do

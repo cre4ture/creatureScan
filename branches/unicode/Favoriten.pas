@@ -17,6 +17,7 @@ const lpi_col = 35;
 type
   TPlanetItem = class; // prototype
   PFav = ^TFav;
+  // TODO: transform into class! (   TNotizArray = array of TNotiz;  )
   TFav = record
     InitPointer: TPlanetItem;
     Position : TPlanetPosition;
@@ -128,7 +129,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure VST_ScanListGetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: String);
     procedure VST_ScanListCompareNodes(Sender: TBaseVirtualTree; Node1,
       Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
     procedure VST_ScanListPaintText(Sender: TBaseVirtualTree;
@@ -733,7 +734,7 @@ end;
 
 procedure TFRM_Favoriten.VST_ScanListGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+  var CellText: String);
 var i: Integer;
 //    scan: TScanBericht;
     fav: TFav;
@@ -813,7 +814,11 @@ end;
 procedure TFRM_Favoriten.VST_ScanListCompareNodes(Sender: TBaseVirtualTree;
   Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
 var Fav1, Fav2: TFav;
+{$ifdef UNICODE}
+    s1,s2: String;
+{$else}
     s1,s2: WideString;
+{$endif}
 begin
   // WARNING: When adding here a new Column, don't forget adding it to
   // VST_ScanListGetText as well!
@@ -1058,7 +1063,7 @@ end;
 
 procedure TFRM_Favoriten.VST_ScanListDblClick(Sender: TObject);
 var Column: Integer;
-    s: widestring;
+    s: string;
 begin
   //Berechen Spalte:
   Column := getColumnAt(VST_clickpos.X);

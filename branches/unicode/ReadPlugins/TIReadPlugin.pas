@@ -30,18 +30,18 @@ const
 type
   // ------------------------ DLL Interface ------------------------------------
 
-  TStartDllFunction = function(const inifile: PChar;
+  TStartDllFunction = function(const inifile: PAnsiChar;
     var Version: integer;
-    const uniDomain: PChar;
-    const AUserIniFile: PChar;
-    const AUserIniFileSection: PChar): Boolean;
+    const uniDomain: PAnsiChar;
+    const AUserIniFile: PAnsiChar;
+    const AUserIniFileSection: PAnsiChar): Boolean;
   TEndDllFunction = function: boolean;
   TScanToStrFunction = function(scan_buf: pointer; scan_size: cardinal;
     AsTable: Boolean): THandle;
   TRunOptions = procedure();
   TStrToStatus = function(s: ShortString): TStatus;
   TStatusToStr = function(Status: TStatus): ShortString;
-  TReadRaidAuftrag = function(s: PChar; var Auftrag: TRaidAuftrag): Boolean;
+  TReadRaidAuftrag = function(s: PAnsiChar; var Auftrag: TRaidAuftrag): Boolean;
 
   TCheckUni = function(Handle: Integer; var isCommander: Boolean): Boolean;
   TCallFleet = function(pos: TPlanetPosition; job: TFleetEventType): Boolean;
@@ -52,17 +52,17 @@ type
   TGetScanFunction = function(Handle: integer; Scan: Pointer; scan_size: cardinal;
     var AskMoon: Boolean): Boolean;
   //Sonnensystem
-  TReadSystemFunction = function(Handle: integer; var Sys_X: TSystemCopy): Boolean;
+  TReadSystemFunction = function(Handle: integer; var Sys_X: TSystemCopy_utf8): Boolean;
   //Statistiken
-  TReadStats = function(Handle: Integer; var Stats: TStat; var typ: TStatTypeEx): Boolean;
+  TReadStats = function(Handle: Integer; var Stats: TStat_utf8; var typ: TStatTypeEx): Boolean;
   //Phalanx-> Besserer Name: Ereignisse
   TReadPhalanxScan = function(Handle: integer): TFleetsInfoSource;
   TGetPhalaxScan = function(fleet: pointer): Boolean; //use Read/WriteBufScan for FleetData!
 
   TReadSource_NewFunction = function: integer;
   TReadSource_FreeFunction = procedure (Handle: Integer);
-  TReadSource_SetTextFunction = function (Handle: Integer; text: PChar; server_time: int64): Boolean;
-  TReadSource_SetHTMLFuncktion = function (Handle: Integer; html: PChar; server_time: int64): Boolean;
+  TReadSource_SetTextFunction = function (Handle: Integer; text: PAnsiChar; server_time: int64): Boolean;
+  TReadSource_SetHTMLFuncktion = function (Handle: Integer; html: PAnsiChar; server_time: int64): Boolean;
 
   // ------------------------ DLL Interface ende -------------------------------
 
@@ -70,9 +70,9 @@ type
   TLangPlugIn = class;
   TLangPlugIn = class(TObject)
   private
-    dllfile: string;
-    SBItemfile: string;
-    dllconfig: String;
+    dllfile: AnsiString;
+    SBItemfile: AnsiString;
+    dllconfig: AnsiString;
     isCommander: boolean;
 
   protected
@@ -104,17 +104,17 @@ type
     PReadSource_SetText: TReadSource_SetTextFunction;
     PReadSource_SetHTML: TReadSource_SetHTMLFuncktion;
 
-    SaveInf: string;
+    SaveInf: AnsiString;
     function OpenDll: Boolean;
     procedure CloseDll;
     procedure AssignProcedures;
     function LoadReportElements(inifile: string): boolean;
     procedure FillFakeElements;
   public
-    PluginFilename: String;
+    PluginFilename: string;
     configGameDomain: string;
-    ServerURL: String;
-    PlugInName: String;
+    ServerURL: string;
+    PlugInName: string;
     ValidFile: Boolean;
     SBItems: array[TScanGroup] of TStringList;
     property has_commander: boolean read isCommander;
@@ -128,30 +128,30 @@ type
       out moon_unknown: Boolean): Boolean;
     function ReadReports(handle: integer): Integer;
     constructor Create;
-    function LoadPluginFile(const IniFile: String;
-      const ServerURL: String; const ASaveInf: String): boolean;
-    function ScanToStr(SB: TScanBericht; AsTable: Boolean): String;
+    function LoadPluginFile(const IniFile: string;
+      const ServerURL: string; const ASaveInf: string): boolean;
+    function ScanToStr(SB: TScanBericht; AsTable: Boolean): string;
     function ReadSystem(handle: integer;
       var Sys: TSystemCopy; creator: string): Boolean;
     destructor Destroy; override;
-    function ReadRaidAuftrag(s: string; var Auftrag: TRaidAuftrag): Boolean;
+    function ReadRaidAuftrag(s: AnsiString; var Auftrag: TRaidAuftrag): Boolean;
     function ReadStats(handle: integer;
       var Stat: TStat; var typ: TStatTypeEx): Boolean;
     function CheckClipboardUni(handle: integer): Boolean;
     procedure RunOptions;
     function StrToStatus(s: string): TStatus;
-    function StatusToStr(Status: TStatus): String;
+    function StatusToStr(Status: TStatus): string;
     function ReadPhalanxScan(handle: integer): TFleetsInfoSource;
     function ReadPhalanxScanGet(out fleet: TFleetEvent): Boolean;
     procedure SetReadSourceText(handle: integer;
-      text: string; server_time: int64);
+      text_utf8: AnsiString; server_time: int64);
     procedure SetReadSourceHTML(handle: integer;
-      html: string; server_time: int64);
+      html_utf8: AnsiString; server_time: int64);
   end;
 
 implementation
 
-uses global_options;
+uses global_options, cS_utf8_conv;
 
 procedure TLangPlugIn.AssignProcedures;
 begin
@@ -285,8 +285,8 @@ begin
   ini.free;
 end;
 
-function TLangPlugIn.LoadPluginFile(const IniFile: String;
-  const ServerURL: String; const ASaveInf: String): boolean;
+function TLangPlugIn.LoadPluginFile(const IniFile: string;
+  const ServerURL: string; const ASaveInf: string): boolean;
 const
   section = 'ioplugin';
 var ini: TIniFile;
@@ -295,24 +295,24 @@ begin
     CloseDll;
 
   self.ServerURL := ServerURL;
-  SaveInf := ASaveInf;
+  SaveInf := AnsiString(ASaveInf);
   Result := FileExists(IniFile);
   if Result then
   begin
     ini := TIniFile.Create(IniFile);
     configGameDomain := ini.ReadString(section,'game_domain','--n/a--');
     PluginFilename := IniFile;
-    dllfile := ini.ReadString(section,'dllfile','');
-    dllconfig := ini.ReadString(section,'configfile','');
-    SBItemfile := ini.ReadString(section,'elements','');
+    dllfile := AnsiString(ini.ReadString(section,'dllfile',''));
+    dllconfig := AnsiString(ini.ReadString(section,'configfile',''));
+    SBItemfile := AnsiString(ini.ReadString(section,'elements',''));
     PlugInName := ini.ReadString(section,'name','');
     ChDir(ExtractFilePath(IniFile));
     Result := (configGameDomain <> '--n/a--')
-              and FileExists(dllconfig)
-              and FileExists(dllfile)
+              and FileExists(WideString(dllconfig))
+              and FileExists(WideString(dllfile))
               and (PlugInName <> '')
-              and FileExists(SBItemfile)
-              and LoadReportElements(SBItemfile);
+              and FileExists(WideString(SBItemfile))
+              and LoadReportElements(WideString(SBItemfile));
     if Result then
       OpenDll
     else
@@ -328,14 +328,14 @@ end;
 function TLangPlugIn.OpenDll: Boolean;
 var V: integer;
 begin
-  DllHandle := LoadLibrary(PChar(dllfile));
+  DllHandle := LoadLibrary(PChar(WideString(dllfile)));
   DllLoaded := DllHandle <> 0;
   if DllLoaded then
   begin
     AssignProcedures;
     if not(Assigned(PStartDll)and
-       PStartDll(PChar(dllconfig),V,PChar(ServerURL),
-                 PChar(SaveInf),PChar(PlugInName))) then
+       PStartDll(PAnsiChar(dllconfig),V,PAnsiChar(trnsltoUTF8(ServerURL)),
+                 PAnsiChar(SaveInf),PAnsiChar(trnsltoUTF8(PlugInName)))) then
     begin
       //Irgend ein Fehler
       FreeLibrary(DllHandle);
@@ -358,10 +358,10 @@ begin
   Result := DllLoaded;
 end;
 
-function TLangPlugIn.ReadRaidAuftrag(s: string; var Auftrag: TRaidAuftrag): Boolean;
+function TLangPlugIn.ReadRaidAuftrag(s: AnsiString; var Auftrag: TRaidAuftrag): Boolean;
 begin
   if Assigned(PReadRaidAuftrag) then
-    Result := PReadRaidAuftrag(PChar(s),Auftrag)
+    Result := PReadRaidAuftrag(PAnsiChar(s),Auftrag)
   else Result := False;
 end;
 
@@ -409,18 +409,24 @@ end;
 
 function TLangPlugIn.ReadStats(handle: integer;
   var Stat: TStat; var typ: TStatTypeEx): Boolean;
+var stat_utf8: TStat_utf8;
 begin
   if Assigned(PReadStats) then
-    Result := PReadStats(handle, Stat, typ)
+  begin
+    Result := PReadStats(handle, stat_utf8, typ);
+    decodeStatUTF8(stat_utf8, Stat);
+  end
   else Result := False;
 end;
 
 function TLangPlugIn.ReadSystem(handle: integer;
   var Sys: TSystemCopy; creator: string): Boolean;
+var sys_utf8: TSystemCopy_utf8;
 begin
   if Assigned(PReadSystem) then
   begin
-    Result := PReadSystem(handle, Sys);
+    Result := PReadSystem(handle, sys_utf8);
+    decodeSysUTF8(sys_utf8, Sys);
     Sys.Creator := creator;
   end
   else Result := False;
@@ -442,7 +448,7 @@ begin
     if Assigned(PScanToStr) then
     begin
       gh := PScanToStr(stream.p, stream.size, AsTable);
-      Result := PChar(GlobalLock(gh));
+      Result := trnslShortStr(PAnsiChar(GlobalLock(gh)));
       GlobalUnlock(gh);
       GlobalFree(gh);
     end
@@ -453,11 +459,11 @@ begin
 end;
 
 procedure TLangPlugIn.SetReadSourceHTML(handle: integer;
-  html: string; server_time: int64);
+  html_utf8: AnsiString; server_time: int64);
 begin
   if Assigned(PReadSource_SetHTML) then
   begin
-    PReadSource_SetHTML(handle, PChar(html), server_time);
+    PReadSource_SetHTML(handle, PAnsiChar(html_utf8), server_time);
   end
   else
     raise TLangPluginNoPluginException.Create(
@@ -465,28 +471,32 @@ begin
 end;
 
 procedure TLangPlugIn.SetReadSourceText(handle: integer;
-  text: string; server_time: int64);
+  text_utf8: AnsiString; server_time: int64);
 begin
   if Assigned(PReadSource_SetText) then
   begin
-    PReadSource_SetText(handle, PChar(text), server_time);
+    PReadSource_SetText(handle, PAnsiChar(text_utf8), server_time);
   end
   else
     raise TLangPluginNoPluginException.Create(
       'TLangPlugIn.SetReadSourceText: Plugin fehlerhaft, oder kein Plugin geladen!');
 end;
 
-function TLangPlugIn.StatusToStr(Status: TStatus): String;
+function TLangPlugIn.StatusToStr(Status: TStatus): string;
 begin
   if Assigned(PStatusToStr) then
-    Result := PStatusToStr(Status)
+  begin
+    Result := trnslShortStr(PStatusToStr(Status));
+  end
   else Result := '';
 end;
 
 function TLangPlugIn.StrToStatus(s: string): TStatus;
 begin
   if Assigned(PStrToStatus) then
-    Result := PStrToStatus(s)
+  begin
+    Result := PStrToStatus(trnslToUtf8(s));
+  end
   else Result := [];
 end;
 

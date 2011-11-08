@@ -11,14 +11,14 @@ uses
 type
   TMessageType = (mtChat, mtStatus, mtReloadStatus);
   TChatMSG = record
-    Owner: TPlayerName;
+    Owner: TPlayerName_utf8;
     Chat: string[255];
     ID: Cardinal;
     MessageType: TMessageType;
   end;
   TChatMemberStatus = (cmsConnected, cmsInChat);
   TChatMember = record
-    Name: TPlayerName;
+    Name: TPlayerName_utf8;
     Status: TChatMemberStatus;
   end;
   TFRM_Chat = class(TForm)
@@ -44,7 +44,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure VST_MemberGetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: String);
     procedure VST_MemberPaintText(Sender: TBaseVirtualTree;
       const TargetCanvas: TCanvas; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType);
@@ -214,7 +214,7 @@ end;
 
 procedure TFRM_Chat.VST_MemberGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+  var CellText: String);
 begin
   with Tchatmember(VST_Member.GetNodeData(node)^) do
   begin

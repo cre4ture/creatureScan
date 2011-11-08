@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, VirtualTrees, OGame_Types, html, IdHTTP,
-  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, ExtCtrls;
+  IdBaseComponent, IdTCPConnection, IdTCPClient, ExtCtrls, IdComponent;
 
 type
   PQuickUpdateFileData = ^TQuickUpdateFileData;
@@ -28,7 +28,7 @@ type
       var NodeDataSize: Integer);
     procedure vst_filesGetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: String);
     procedure Button3Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btn_updateClick(Sender: TObject);
@@ -67,9 +67,7 @@ uses IdHashMessageDigest, idHash, Math, Prog_Unit;
    idmd5 := TIdHashMessageDigest5.Create;
    fs := TFileStream.Create(fileName, fmOpenRead OR fmShareDenyWrite) ;
    try
-     result := idmd5.AsHex(
-       idmd5.HashValue(fs)
-       );
+     result := idmd5.HashStreamAsHex(fs);
    finally
      fs.Free;
      idmd5.Free;
@@ -155,7 +153,7 @@ end;
 
 procedure Tfrm_quickupdate.vst_filesGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+  var CellText: String);
 var data: PQuickUpdateFileData;
 begin
   CellText := '-';
@@ -258,7 +256,7 @@ end;
 
 procedure Tfrm_quickupdate.vst_filesCompareNodes(Sender: TBaseVirtualTree;
   Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
-var text1, text2: WideString;
+var text1, text2: String;
 begin
   vst_filesGetText(Sender, Node1, Column, ttNormal, text1);
   vst_filesGetText(Sender, Node2, Column, ttNormal, text2);
@@ -269,7 +267,7 @@ procedure Tfrm_quickupdate.vst_filesBeforeCellPaint(
   Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
   Column: TColumnIndex; CellPaintMode: TVTCellPaintMode; CellRect: TRect;
   var ContentRect: TRect);
-var status: WideString;
+var status: String;
 begin
   if Column = 3 then
   begin

@@ -1,10 +1,10 @@
 object FRM_Connections: TFRM_Connections
   Left = 270
   Top = 174
-  Width = 643
-  Height = 272
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Verbindungen'
+  ClientHeight = 247
+  ClientWidth = 635
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,13 +13,12 @@ object FRM_Connections: TFRM_Connections
   Font.Style = []
   KeyPreview = True
   OldCreateOrder = False
-  Position = poDefaultPosOnly
   OnCreate = FormCreate
   OnHide = FormHide
   OnShow = FormShow
   DesignSize = (
     635
-    245)
+    247)
   PixelsPerInch = 96
   TextHeight = 13
   object LV_Connections: TListView
@@ -87,8 +86,8 @@ object FRM_Connections: TFRM_Connections
     end
   end
   object BTN_Close: TButton
-    Left = 524
-    Top = 213
+    Left = 522
+    Top = 214
     Width = 105
     Height = 25
     Anchors = [akRight, akBottom]

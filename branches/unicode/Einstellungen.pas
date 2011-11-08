@@ -390,7 +390,7 @@ end;
 
 procedure TFRM_Einstellungen.RefreshPluginSprachdatei;
 begin
-  LBL_Plugin.Caption := ODataBase.LanguagePlugIn.PlugInName;
+  LBL_Plugin.Caption := string(ODataBase.LanguagePlugIn.PlugInName);
   LBL_Sprachdatei.Caption := STR_Sprache;
 end;
 
@@ -499,3 +499,4 @@ begin
 end;
 
 end.
+

@@ -91,7 +91,6 @@ object frm_postErrorReport: Tfrm_postErrorReport
     Width = 305
     Height = 21
     Style = csDropDownList
-    ItemHeight = 13
     TabOrder = 0
     Items.Strings = (
       'Scans'
@@ -156,8 +155,6 @@ object frm_postErrorReport: Tfrm_postErrorReport
     Top = 432
   end
   object HTTP: TIdHTTP
-    MaxLineAction = maException
-    ReadTimeout = 0
     OnWork = HTTPWork
     OnWorkBegin = HTTPWorkBegin
     OnWorkEnd = HTTPWorkEnd
@@ -165,12 +162,15 @@ object frm_postErrorReport: Tfrm_postErrorReport
     ProxyParams.BasicAuthentication = False
     ProxyParams.ProxyPort = 0
     Request.ContentLength = -1
-    Request.ContentRangeEnd = 0
-    Request.ContentRangeStart = 0
+    Request.ContentRangeEnd = -1
+    Request.ContentRangeStart = -1
+    Request.ContentRangeInstanceLength = -1
     Request.ContentType = 'text/html'
     Request.Accept = 'text/html, */*'
     Request.BasicAuthentication = False
     Request.UserAgent = 'Mozilla/3.0 (compatible; Indy Library)'
+    Request.Ranges.Units = 'bytes'
+    Request.Ranges = <>
     HTTPOptions = [hoForceEncodeParams]
     Left = 88
     Top = 432

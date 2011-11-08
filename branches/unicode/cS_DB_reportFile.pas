@@ -81,35 +81,35 @@ type
   end;
 
   TcSReportItem_25_36_37_Head = packed record
-    Planet: TPlanetName;
+    Planet: TPlanetName_utf8;
     Position : packed array[0..2] of Word;
     P_Mond : Boolean;
     Time: TTimeStamp;
-    Spieler: TPlayerName;
+    Spieler: TPlayerName_utf8;
     Spionageabwehr: Smallint;
-    Creator: TPlayerName;
+    Creator: TPlayerName_utf8;
     Raid: Boolean;
-    Raid_Von: TPlayerName;
+    Raid_Von: TPlayerName_utf8;
   end;
   TcSReportItem_38_Head = packed record
-    Planet: TPlanetName;
+    Planet: TPlanetName_utf8;
     Position : packed array[0..2] of Word;
     P_Mond : Boolean;
     Time: TTimeStamp;
-    Spieler: TPlayerName;
+    Spieler: TPlayerName_utf8;
     Spionageabwehr: Smallint;
-    Creator: TPlayerName;
+    Creator: TPlayerName_utf8;
     Activity: Smallint;
   end;
   TcSReportItem_41_Head = packed record
-    Planet: TPlanetName;
+    Planet: TPlanetName_utf8;
     Position: packed array[0..2] of Word;
     P_Mond: Boolean;
     Time_u: Int64;
-    Spieler: TPlayerName;
+    Spieler: TPlayerName_utf8;
     SpielerId: Int64; // invalid: 0 or -1
     Spionageabwehr: Smallint;
-    Creator: TPlayerName;
+    Creator: TPlayerName_utf8;
     Activity: Smallint;
   end;
 
@@ -198,6 +198,8 @@ type
 
 implementation
 
+uses cS_utf8_conv;
+
 constructor TcSReportDBFile.Create(aFilename: string);
 var frmt: TcSReportFileFormat;
 begin
@@ -226,7 +228,7 @@ begin
     if (FFormat = csr_none) then
       raise EcSDBUnknownReportFileFormat.Create(
         'TcSReportDB.Create: Unknown file format (File: "' +
-          aFilename  + '", Format: "' + FHeader.filetype + '")');
+          aFilename  + '", Format: "' + String(FHeader.filetype) + '")');
   end;
   InitFormat;
 
@@ -242,15 +244,15 @@ begin
 
   with Result.Head do
   begin
-    Planet := Item.Head.Planet;
+    Planet := trnslShortStr(Item.Head.Planet);
     Position.P[0] := Item.Head.Position[0];
     Position.P[1] := Item.Head.Position[1];
     Position.P[2] := Item.Head.Position[2];
     Position.Mond := Item.Head.P_Mond;
     Time_u := DateTimeToUnix(TimeStampToDateTime(Item.Head.Time));
-    Spieler := Item.Head.Spieler;
+    Spieler := trnslShortStr(Item.Head.Spieler);
     Spionageabwehr := Item.Head.Spionageabwehr;
-    Creator := Item.Head.Creator;
+    Creator := trnslShortStr(Item.Head.Creator);
     {geraidet := Item.Head.Raid;
     von := Item.Head.Raid_Von; 14.04.2008: abgeschafft!, Neu: Activity}
     Activity := -1;
@@ -277,15 +279,15 @@ begin
 
   with Result.Head do
   begin
-    Planet := Item.Head.Planet;
+    Planet := trnslShortStr(Item.Head.Planet);
     Position.P[0] := Item.Head.Position[0];
     Position.P[1] := Item.Head.Position[1];
     Position.P[2] := Item.Head.Position[2];
     Position.Mond := Item.Head.P_Mond;
     Time_u := DateTimeToUnix(TimeStampToDateTime(Item.Head.Time));
-    Spieler := Item.Head.Spieler;
+    Spieler := trnslShortStr(Item.Head.Spieler);
     Spionageabwehr := Item.Head.Spionageabwehr;
-    Creator := Item.Head.Creator;
+    Creator := trnslShortStr(Item.Head.Creator);
     Activity := Item.Head.Activity;
   end;
 
@@ -310,15 +312,15 @@ begin
   
   with Result.Head do
   begin
-    Planet := Item.Head.Planet;
+    Planet := trnslShortStr(Item.Head.Planet);
     Position.P[0] := Item.Head.Position[0];
     Position.P[1] := Item.Head.Position[1];
     Position.P[2] := Item.Head.Position[2];
     Position.Mond := Item.Head.P_Mond;
     Time_u := DateTimeToUnix(TimeStampToDateTime(Item.Head.Time));
-    Spieler := Item.Head.Spieler;
+    Spieler := trnslShortStr(Item.Head.Spieler);
     Spionageabwehr := Item.Head.Spionageabwehr;
-    Creator := Item.Head.Creator;
+    Creator := trnslShortStr(Item.Head.Creator);
     {geraidet := Item.Head.Raid;
     von := Item.Head.Raid_Von; 14.04.2008: abgeschafft!, Neu: Activity}
     Activity := -1;
@@ -348,15 +350,15 @@ var Item: TcSReportItem_37;
 begin
   with Item.Head do
   begin
-    Planet := Scan.Head.Planet;
+    Planet := trnsltoUTF8(Scan.Head.Planet);
     Position[0] := Scan.Head.Position.P[0];
     Position[1] := Scan.Head.Position.P[1];
     Position[2] := Scan.Head.Position.P[2];
     P_Mond := Scan.Head.Position.Mond;
     Time := DateTimeToTimeStamp(UnixToDateTime(Scan.Head.Time_u));
-    Spieler := Scan.Head.Spieler;
+    Spieler := trnsltoUTF8(Scan.Head.Spieler);
     Spionageabwehr := Scan.Head.Spionageabwehr;
-    Creator := Scan.Head.Creator;
+    Creator := trnsltoUTF8(Scan.Head.Creator);
     Raid := false;
     Raid_Von := '';
     { 14.04.2008: abgeschafft!, Neu: Activity }
@@ -383,15 +385,15 @@ var Item: TcSReportItem_38;
 begin
   with Item.Head do
   begin
-    Planet := Scan.Head.Planet;
+    Planet := trnsltoUTF8(Scan.Head.Planet);
     Position[0] := Scan.Head.Position.P[0];
     Position[1] := Scan.Head.Position.P[1];
     Position[2] := Scan.Head.Position.P[2];
     P_Mond := Scan.Head.Position.Mond;
     Time := DateTimeToTimeStamp(UnixToDateTime(Scan.Head.Time_u));
-    Spieler := Scan.Head.Spieler;
+    Spieler := trnsltoUTF8(Scan.Head.Spieler);
     Spionageabwehr := Scan.Head.Spionageabwehr;
-    Creator := Scan.Head.Creator;
+    Creator := trnsltoUTF8(Scan.Head.Creator);
     Activity := Scan.Head.Activity;
   end;
 
@@ -416,15 +418,15 @@ var Item: TcSReportItem_36;
 begin
   with Item.Head do
   begin
-    Planet := Scan.Head.Planet;
+    Planet := trnsltoUTF8(Scan.Head.Planet);
     Position[0] := Scan.Head.Position.P[0];
     Position[1] := Scan.Head.Position.P[1];
     Position[2] := Scan.Head.Position.P[2];
     P_Mond := Scan.Head.Position.Mond;
     Time := DateTimeToTimeStamp(UnixToDateTime(Scan.Head.Time_u));
-    Spieler := Scan.Head.Spieler;
+    Spieler := trnsltoUTF8(Scan.Head.Spieler);
     Spionageabwehr := Scan.Head.Spionageabwehr;
-    Creator := Scan.Head.Creator;
+    Creator := trnsltoUTF8(Scan.Head.Creator);
     Raid := false;
     Raid_Von := '';
     { 14.04.2008: abgeschafft!, Neu: Activity }
@@ -458,15 +460,15 @@ begin
 
   with Result.Head do
   begin
-    Planet := Item.Head.Planet;
+    Planet := trnslShortStr(Item.Head.Planet);
     Position.P[0] := Item.Head.Position[0];
     Position.P[1] := Item.Head.Position[1];
     Position.P[2] := Item.Head.Position[2];
     Position.Mond := Item.Head.P_Mond;
     Time_u := DateTimeToUnix(TimeStampToDateTime(Item.Head.Time));
-    Spieler := Item.Head.Spieler;
+    Spieler := trnslShortStr(Item.Head.Spieler);
     Spionageabwehr := Item.Head.Spionageabwehr;
-    Creator := Item.Head.Creator;
+    Creator := trnslShortStr(Item.Head.Creator);
     {geraidet := Item.Head.Raid;
     von := Item.Head.Raid_Von;  14.04.2008: abgeschafft!, Neu: Activity}
     Activity := -1;
@@ -491,15 +493,15 @@ var Item: TcSReportItem_25;
 begin
   with Item.Head do
   begin
-    Planet := Scan.Head.Planet;
+    Planet := trnsltoUTF8(Scan.Head.Planet);
     Position[0] := Scan.Head.Position.P[0];
     Position[1] := Scan.Head.Position.P[1];
     Position[2] := Scan.Head.Position.P[2];
     P_Mond := Scan.Head.Position.Mond;
     Time := DateTimeToTimeStamp(UnixToDateTime(Scan.Head.Time_u));
-    Spieler := Scan.Head.Spieler;
+    Spieler := trnsltoUTF8(Scan.Head.Spieler);
     Spionageabwehr := Scan.Head.Spionageabwehr;
-    Creator := Scan.Head.Creator;
+    Creator := trnsltoUTF8(Scan.Head.Creator);
     Raid := false;
     Raid_Von := '';
     { 14.04.2008: abgeschafft!, Neu: Activity}
@@ -528,16 +530,16 @@ begin
 
   with Result.Head do
   begin
-    Planet := Item.Head.Planet;
+    Planet := trnslShortStr(Item.Head.Planet);
     Position.P[0] := Item.Head.Position[0];
     Position.P[1] := Item.Head.Position[1];
     Position.P[2] := Item.Head.Position[2];
     Position.Mond := Item.Head.P_Mond;
     Time_u := Item.Head.Time_u;
-    Spieler := Item.Head.Spieler;
+    Spieler := trnslShortStr(Item.Head.Spieler);
     SpielerId := Item.Head.SpielerId;
     Spionageabwehr := Item.Head.Spionageabwehr;
-    Creator := Item.Head.Creator;
+    Creator := trnslShortStr(Item.Head.Creator);
     Activity := Item.Head.Activity;
   end;
 
@@ -560,16 +562,16 @@ var Item: TcSReportItem_41;
 begin
   with Item.Head do
   begin
-    Planet := Scan.Head.Planet;
+    Planet := trnsltoUTF8(Scan.Head.Planet);
     Position[0] := Scan.Head.Position.P[0];
     Position[1] := Scan.Head.Position.P[1];
     Position[2] := Scan.Head.Position.P[2];
     P_Mond := Scan.Head.Position.Mond;
     Time_u := Scan.Head.Time_u;
-    Spieler := Scan.Head.Spieler;
+    Spieler := trnsltoUTF8(Scan.Head.Spieler);
     SpielerId := Scan.Head.SpielerId;
     Spionageabwehr := Scan.Head.Spionageabwehr;
-    Creator := Scan.Head.Creator;
+    Creator := trnsltoUTF8(Scan.Head.Creator);
     Activity := Scan.Head.Activity;
   end;
 
@@ -605,7 +607,7 @@ end;
 
 function TcSReportDBFile.GetUni: string;
 begin
-  Result := FHeader.domain;
+  Result := trnslShortStr(FHeader.domain);
 end;
 
 procedure TcSReportDBFile.InitFormat;
@@ -617,7 +619,7 @@ begin
     begin
       FHeaderSize := SizeOf(old_h_10);
       GetHeader(old_h_10); // low level stream read
-      FHeader.domain := 'uni' + IntToStr(old_h_10.Uni);
+      FHeader.domain := trnslToUtf8('uni' + IntToStr(old_h_10.Uni));
     end;
   end;
 
@@ -696,7 +698,7 @@ begin
   if FFormat < high(FFormat) then
     raise Exception.Create('TcSReportDBFile.SetUni: can''t change old fileformat');
 
-  FHeader.domain := Uni;
+  FHeader.domain := trnslToUtf8(Uni);
   SetHeader(FHeader);
 end;
 
