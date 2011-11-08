@@ -1,0 +1,49 @@
+<report gala="2" sys="102" pos="6" time="1231173505" planet="Heimatplanet" player="JaXX" cspio="0" creator=""><resources met="29536" crys="15940" deut="1385" energ="1718"/><fleets/><defence sl="2"/><buildings metm="16" crysm="14" deuts="5" solp="17" robot="2" shipy="2" rlab="1"/><research spiot="3" comput="4" weapt="5" armourt="6" energt="4" combut="4" impe="3" lasert="7" iont="2"/></report>
+
+  3 von 101 
+Von: 	Flottenkommando
+An: 	creature
+Betreff: 	Heimatplanet [2:102:6]
+Datum: 	01-05 16:38:25
+
+    * löschen
+
+Rohstoffe auf Heimatplanet [2:102:6] (Spieler 'JaXX')
+am 01-05 16:38:25
+	
+Metall:	29.536 	Kristall: 	15.940
+Deuterium:	1.385 	Energie: 	1.718
+	
+Aktivität
+Aktivität
+Aktivität bedeutet, dass entweder der gescannte Spieler in dieser Zeit auf dem Planeten aktiv war oder ein anderer Spieler mit diesem Planeten Flottenkontakt hatte.
+Dein Sondenscan fand keine Anomalien in der Atmosphäre des Planeten. Eine Aktivität auf diesem Planeten innerhalb der letzten Stunde kann daher fast ausgeschlossen werden.
+Flotten
+Verteidigung
+Leichtes Lasergeschütz	2
+Gebäude
+Metallmine	16	Kristallmine	14
+Deuteriumsynthetisierer	5	Solarkraftwerk	17
+Roboterfabrik	2	Raumschiffswerft	2
+Forschungslabor	1
+Forschung
+Spionagetechnik	3	Computertechnik	4
+Waffentechnik	5	Raumschiffpanzerung	6
+Energietechnik	4	Verbrennungstriebwerk	4
+Impulstriebwerk	3	Lasertechnik	7
+Ionentechnik	2
+Chance auf Spionageabwehr: 0 %
+Angreifen
+
+Achtung
+
+-
+Ja
+Nein
+
+Hinweis
+
+-
+Ok
+
+

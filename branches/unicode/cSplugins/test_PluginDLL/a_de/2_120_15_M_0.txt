@@ -1,0 +1,39 @@
+<report gala="2" sys="120" pos="15" moon="true" time="1231557336" planet="Kolonie 3 Mond" player="MaKaBeLe" activ="900" cspio="0" creator=""><resources/><fleets/><defence/><buildings lunb="1"/></report>
+
+  1 von 101 
+Von: 	Flottenkommando
+An: 	creature
+Betreff: 	Kolonie 3 Mond [2:120:15]
+Datum: 	01-10 03:15:36
+
+    * löschen
+
+Rohstoffe auf Kolonie 3 Mond [2:120:15] (Spieler 'MaKaBeLe')
+am 01-10 03:15:36
+	
+Metall:	0 	Kristall: 	0
+Deuterium:	0 	Energie: 	0
+	
+Aktivität
+Aktivität
+Aktivität bedeutet, dass entweder der gescannte Spieler in dieser Zeit auf dem Planeten aktiv war oder ein anderer Spieler mit diesem Planeten Flottenkontakt hatte.
+Dein Sondenscan hat Anomalien in der Atmosphäre des Planeten festgestellt, die auf eine Aktivität innerhalb der letzten 15 Minuten hindeuten.
+Flotten
+Verteidigung
+Gebäude
+Mondbasis	1
+Chance auf Spionageabwehr: 0 %
+Angreifen
+
+Achtung
+
+-
+Ja
+Nein
+
+Hinweis
+
+-
+Ok
+
+

@@ -1,0 +1,34 @@
+<report gala="2" sys="101" pos="11" time="1231767702" planet="BLA[2:1:1]" player="fender" activ="-1" cspio="0" creator=""><resources met="61055" crys="27128" deut="46114" energ="2649"/><fleets/><defence/><buildings metm="1"/><research/></report>
+
+    * löschen
+
+Rohstoffe auf BLA[2:1:1] [2:101:11] (Spieler 'fender')
+am 01-12 13:41:42
+	
+Metall:	61.055 	Kristall: 	27.128
+Deuterium:	46.114 	Energie: 	2.649
+	
+Aktivität
+Flotten
+Verteidigung
+Gebäude
+Metallmine 1
+Forschung
+Chance auf Spionageabwehr: 0 %
+Angreifen
+
+Achtung
+
+-
+Ja
+Nein
+
+Hinweis
+
+-
+Ok
+
+Aktivität
+Aktivität bedeutet, dass entweder der gescannte Spieler in dieser Zeit auf dem Planeten aktiv war oder ein anderer Spieler mit diesem Planeten Flottenkontakt hatte.
+Dein Sondenscan hat Anomalien in der Atmosphäre des Planeten festgestellt, die auf eine Aktivität innerhalb der letzten 15 Minuten hindeuten.
+
