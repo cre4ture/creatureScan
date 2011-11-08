@@ -1,0 +1,14 @@
+<report gala="3" sys="159" pos="11" time="1285244162" planet="martha" player="razor444" activ="0" cspio="8" creator=""><resources met="73192" crys="91786" deut="39793" energ="1734"/></report>
+mmand 	Espionage report of martha [3:159:11] 	23.09.2010 12:16:03 	
+Resources at martha [3:159:11] (Player 'razor444') on 09-23 12:16:02
+	
+Metal:	73.192 	Crystal: 	91.786
+Deuterium:	39.793 	Energy: 	1.734
+	
+Activity
+Activity
+Activity means that the scanned player has been active on that planet or another player had fleet contact with the planet you scanned.
+Your espionage does not show abnormalities in the atmosphere of the planet. There appears to have been no activity on the planet within the last hour.
+Chance of counter-espionage: 8 %
+	Attack	WebSim	
+Resources
