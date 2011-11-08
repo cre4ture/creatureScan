@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<PersonalityInfo>
+		<Option>
+			<Option Name="Personality">Default.Personality</Option>
+			<Option Name="ProjectType"></Option>
+			<Option Name="Version">1.0</Option>
+			<Option Name="GUID">{8798F995-77CE-46D6-A417-9FE104B5F125}</Option>
+		</Option>
+	</PersonalityInfo>
+	<Default.Personality>  <Projects>
+      <Projects Name="creatureScan.exe">creatureScan.bdsproj</Projects>
+      <Projects Name="test.exe">_cSplugins\test_PluginDLL\test.bdsproj</Projects>
+      <Projects Name="fullhtml_betauni.dll">_cSplugins\fullhtml_betauni\fullhtml_betauni.bdsproj</Projects>
+      <Projects Name="fullhtml.dll">_cSplugins\fullhtml\fullhtml.bdsproj</Projects>
+      <Projects Name="creatureScan_tools.bpl">creatureScan_tools.bdsproj</Projects>
+      <Projects Name="Targets">creatureScan.exe test.exe fullhtml_betauni.dll fullhtml.dll creatureScan_tools.bpl</Projects>
+    </Projects>
+    <Dependencies>
+      <Dependency GUID="{09538D1C-E139-4A2E-B452-EC2EB82CDC4F}">
+        <Dependency GUID="{2753412D-F547-4902-A52C-934DE0549905}"/>
+      </Dependency>
+      <Dependency GUID="{560B4AA9-A320-435A-AEA1-D2BFD8C5F3D2}">
+        <Dependency GUID="{2753412D-F547-4902-A52C-934DE0549905}"/>
+      </Dependency>
+    </Dependencies>
+  </Default.Personality>
+	<CheckinList>
+    creatureScan_and_Tools.bdsgroup;
+    creatureScan.bdsproj;
+    _cSplugins\test_PluginDLL\test.bdsproj;
+    _cSplugins\fullhtml_betauni\fullhtml_betauni.bdsproj;
+    _cSplugins\fullhtml\fullhtml.bdsproj;
+    creatureScan_tools.bdsproj
+  </CheckinList>
+</BorlandProject>

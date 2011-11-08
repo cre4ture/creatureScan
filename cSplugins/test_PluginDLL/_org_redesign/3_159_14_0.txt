@@ -1,0 +1,25 @@
+<report gala="3" sys="159" pos="14" time="1285244169" planet="Colony" player="pixeler" activ="1500" cspio="0" creator=""><resources met="200000" crys="150000" deut="37627" energ="2690"/><fleets lcs="10"/><defence/><buildings metm="19" crysm="18" deuts="5" solp="20" robot="2" shipy="4" mets="2" crys="1"/></report>
+	36.000	Recs:	2
+	Fleet Command 	Espionage report of Colony [3:159:14] 	23.09.2010 12:16:10 	
+Resources at Colony [3:159:14] (Player 'pixeler') on 09-23 12:16:09
+	
+Metal:	200.000 	Crystal: 	150.000
+Deuterium:	37.627 	Energy: 	2.690
+	
+Activity
+Activity
+Activity means that the scanned player has been active on that planet or another player had fleet contact with the planet you scanned.
+Your espionage report shows abnormalities in the atmosphere of the planet which suggests activity within the last 25 minutes.
+fleets
+Large Cargo	10
+Defense
+Building
+Metal Mine	19	Crystal Mine	18
+Deuterium Synthesizer	5	Solar Plant	20
+Robotics Factory	2	Shipyard	4
+Metal Storage	2	Crystal Storage	1
+Chance of counter-espionage: 0 %
+	Attack	WebSim	
+Resources
+Total:	387.627	Loot:	193.813
+LC:	9	SC:	44

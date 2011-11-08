@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<overlay id="cshelperOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<script type="application/x-javascript" src="chrome://cshelper/content/cshelperOverlay.js"></script>
+	
+	<statusbar id="status-bar">
+	    <statusbarpanel id="cshelper-status" context=""
+	    	onclick="cshelper.BrowserOverlay.statusClicked(event);">
+	    	<image id="cshelper-status-image" width="16" height="16"
+	    		src="chrome://cshelper/skin/creatureScan_small.png" />
+	    </statusbarpanel>
+    </statusbar>
+    
+</overlay>

@@ -1,0 +1,28 @@
+<report gala="3" sys="159" pos="12" time="1285244166" planet="Homeworld" player="pixeler" activ="1500" cspio="0" creator=""><resources met="1944955" crys="781814" deut="45617" energ="3581"/><fleets lcs="2" cs="8" recy="3"/><defence ssd="1" lsd="1"/><buildings metm="20" crysm="20" deuts="11" solp="22" robot="9" shipy="10" mets="9" crys="7" dtank="2" rlab="8" silo="4"/></report>
+58.095	Loot:	129.047
+LC:	7	SC:	31
+	Fleet Command 	Espionage report of Homeworld [3:159:12] 	23.09.2010 12:16:07 	
+Resources at Homeworld [3:159:12] (Player 'pixeler') on 09-23 12:16:06
+	
+Metal:	1.944.955 	Crystal: 	781.814
+Deuterium:	45.617 	Energy: 	3.581
+	
+Activity
+Activity
+Activity means that the scanned player has been active on that planet or another player had fleet contact with the planet you scanned.
+Your espionage report shows abnormalities in the atmosphere of the planet which suggests activity within the last 25 minutes.
+fleets
+Large Cargo	2	Colony Ship	8
+Recycler	3
+Defense
+Small Shield Dome	1	Large Shield Dome	1
+Building
+Metal Mine	20	Crystal Mine	20
+Deuterium Synthesizer	11	Solar Plant	22
+Robotics Factory	9	Shipyard	10
+Metal Storage	9	Crystal Storage	7
+Deuterium Tank	2	Research Lab	8
+Missile Silo	4
+Chance of counter-espionage: 0 %
+	Attack	WebSim	
+Resources

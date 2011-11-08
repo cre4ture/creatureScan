@@ -1,0 +1,53 @@
+<report gala="2" sys="154" pos="4" time="1231763091" planet="EMOÂ´s Home" player="Xaros24" activ="1620" cspio="0" creator=""><resources met="200000" crys="161219" deut="78402" energ="2075"/><fleets scs="3" lf="57" hf="51" solsat="2"/><defence msl="36" sl="148" hl="2"/><buildings metm="18" crysm="15" deuts="9" solp="18" fusp="5" robot="2" shipy="4" mets="2" crys="2" dtank="1" rlab="4"/><research spiot="2" comput="1" weapt="4" armourt="3" energt="4" combut="2" impe="4" lasert="7"/></report>
+
+  3 von 71 
+Von: 	Flottenkommando
+An: 	creature
+Betreff: 	EMOÂ´s Home [2:154:4]
+Datum: 	01-12 12:24:51
+
+    * löschen
+
+Rohstoffe auf EMOÂ´s Home [2:154:4] (Spieler 'Xaros24')
+am 01-12 12:24:51
+	
+Metall:	200.000 	Kristall: 	161.219
+Deuterium:	78.402 	Energie: 	2.075
+	
+Aktivität
+Aktivität
+Aktivität bedeutet, dass entweder der gescannte Spieler in dieser Zeit auf dem Planeten aktiv war oder ein anderer Spieler mit diesem Planeten Flottenkontakt hatte.
+Dein Sondenscan hat Anomalien in der Atmosphäre des Planeten festgestellt, die auf eine Aktivität innerhalb der letzten 27 Minuten hindeuten.
+Flotten
+Kleiner Transporter	3	Leichter Jäger	57
+Schwerer Jäger	51	Solarsatellit	2
+Verteidigung
+Raketenwerfer	36	Leichtes Lasergeschütz	148
+Schweres Lasergeschütz	2
+Gebäude
+Metallmine	18	Kristallmine	15
+Deuteriumsynthetisierer	9	Solarkraftwerk	18
+Fusionskraftwerk	5	Roboterfabrik	2
+Raumschiffswerft	4	Metallspeicher	2
+Kristallspeicher	2	Deuteriumtank	1
+Forschungslabor	4
+Forschung
+Spionagetechnik	2	Computertechnik	1
+Waffentechnik	4	Raumschiffpanzerung	3
+Energietechnik	4	Verbrennungstriebwerk	2
+Impulstriebwerk	4	Lasertechnik	7
+Chance auf Spionageabwehr: 0 %
+Angreifen
+
+Achtung
+
+-
+Ja
+Nein
+
+Hinweis
+
+-
+Ok
+
+

@@ -1,0 +1,55 @@
+<report gala="2" sys="101" pos="11" time="1231767702" planet="[u]mars[/u]" player="fender" activ="900" cspio="0" creator=""><resources met="61055" crys="27128" deut="46114" energ="2649"/><fleets lf="1" solsat="31"/><defence msl="54" sl="37" hl="21" ion="1" ssd="1" lsd="1"/><buildings metm="17" crysm="15" deuts="15" solp="16" fusp="7" robot="8" shipy="7" mets="3" crys="1" dtank="1" rlab="7" silo="1"/><research spiot="4" comput="5" weapt="4" shieldt="6" armourt="5" energt="6" hypt="2" combut="6" impe="4" lasert="7" iont="4" expedt="1"/></report>
+
+  5 von 43 
+Von: 	Flottenkommando
+An: 	creature
+Betreff: 	[u]mars[/u] [2:101:11]
+Datum: 	01-12 13:41:42
+
+    * löschen
+
+Rohstoffe auf [u]mars[/u] [2:101:11] (Spieler 'fender')
+am 01-12 13:41:42
+	
+Metall:	61.055 	Kristall: 	27.128
+Deuterium:	46.114 	Energie: 	2.649
+	
+Aktivität
+Aktivität
+Aktivität bedeutet, dass entweder der gescannte Spieler in dieser Zeit auf dem Planeten aktiv war oder ein anderer Spieler mit diesem Planeten Flottenkontakt hatte.
+Dein Sondenscan hat Anomalien in der Atmosphäre des Planeten festgestellt, die auf eine Aktivität innerhalb der letzten 15 Minuten hindeuten.
+Flotten
+Leichter Jäger	1	Solarsatellit	31
+Verteidigung
+Raketenwerfer	54	Leichtes Lasergeschütz	37
+Schweres Lasergeschütz	21	Ionengeschütz	1
+Kleine Schildkuppel	1	Große Schildkuppel	1
+Gebäude
+Metallmine	17	Kristallmine	15
+Deuteriumsynthetisierer	15	Solarkraftwerk	16
+Fusionskraftwerk	7	Roboterfabrik	8
+Raumschiffswerft	7	Metallspeicher	3
+Kristallspeicher	1	Deuteriumtank	1
+Forschungslabor	7	Raketensilo	1
+Forschung
+Spionagetechnik	4	Computertechnik	5
+Waffentechnik	4	Schildtechnik	6
+Raumschiffpanzerung	5	Energietechnik	6
+Hyperraumtechnik	2	Verbrennungstriebwerk	6
+Impulstriebwerk	4	Lasertechnik	7
+Ionentechnik	4	Expeditionstechnik	1
+Chance auf Spionageabwehr: 0 %
+Angreifen
+
+Achtung
+
+-
+Ja
+Nein
+
+Hinweis
+
+-
+Ok
+
+

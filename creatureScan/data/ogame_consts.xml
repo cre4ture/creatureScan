@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+  <creaturescan>
+    <updatecheck url="http://creaturescan.creax.de/update/latest.txt"/>
+    <quickupdate url="http://creaturescan.creax.de/update/%ver%/"/>
+  </creaturescan>
+  <raids maxraids24h="5"/>
+  <game count="9">
+    <site index="0" name="ogame.de">
+      <uni name="andromeda" urlname="uni101"/>
+      <uni name="barym" urlname="uni102"/>
+      <uni name="capella" urlname="uni103"/>
+      <uni name="draco" urlname="uni104"/>
+      <uni name="electra" urlname="uni105" gamespeedfactor="4.0" tffleetfactor="0.5" galaxyCount="11"/>
+      <uni name="fornax" urlname="uni106" gamespeedfactor="2.0"/>
+      <uni name="gemini" urlname="uni107"/>
+      <uni name="hydra" urlname="uni108"/>
+      <uni name="io" urlname="uni109" tffleetfactor="0.7"/>
+      <uni name="jupiter" urlname="uni110" tfdeffactor="0.3"/>
+      <uni name="kassiopeia" urlname="uni111" gamespeedfactor="2.0"/>
+      <uni name="leo" urlname="uni112"/>
+      <uni name="uni$" symbol="$" index="1" to="13"/>
+      <uni name="uni14" tfdeffactor="0.3"/>
+      <uni name="uni15" tfdeffactor="0.3"/>
+      <uni name="uni$" symbol="$" index="16" to="17"/>
+      <uni name="uni18" galaxyCount="19"/>
+      <uni name="uni19"/>
+      <uni name="uni20" redesign="0" tfdeffactor="0.3"/>
+      <uni name="uni$" symbol="$" index="21" to="24"/>
+      <uni name="uni25" tfdeffactor="0.3"/>
+      <uni name="uni$" symbol="$" index="26" to="49"/>
+      <uni name="uni50" galaxyCount="50" solsyscount="100" gamespeedfactor="2.0"/>
+      <uni name="uni$" symbol="$" index="51" to="59"/>
+      <uni name="uni60" gamespeedfactor="2.0"/>
+      <uni name="uni$" symbol="$" index="61" to="69"/>
+      <uni name="uni70" gamespeedfactor="2.0" tffleetfactor="0.7"/>
+      <uni name="uni$" symbol="$" index="71" to="78"/>
+    </site>
+    <site index="1" name="ogame.org">
+      <uni name="andromeda" urlname="uni101"/>
+      <uni name="barym" urlname="uni102"/>
+      <uni name="capella" urlname="uni103"/>
+      <uni name="draco" urlname="uni104"/>
+      <uni name="electra" urlname="uni105" gamespeedfactor="4.0"/>
+      <uni name="fornax" urlname="uni106"/>
+      <uni name="gemini" urlname="uni107"/>
+      <uni name="hydra" urlname="uni108" tfdeffactor="0.3" tffleetfactor="0.3" galaxyCount="12"/>
+      <uni name="io" urlname="uni109" tffleetfactor="0.7"/>
+      <uni name="jupiter" urlname="uni110"/>
+      <uni name="uni$" symbol="$" index="1" to="29"/>
+      <uni name="uni30" gamespeedfactor="2.0"/>
+      <uni name="uni$" symbol="$" index="31" to="34"/>
+      <uni name="uni35" gamespeedfactor="5.0"/>
+      <uni name="uni$" symbol="$" index="36" to="39"/>
+      <uni name="uni40" gamespeedfactor="2.0" tffleetfactor="0.4"/>
+      <uni name="uni41"/>
+      <uni name="uni42" gamespeedfactor="2.0"/>
+      <uni name="uni43"/>
+    </site>
+    <site index="2" name="ogame.fr">
+       <uni name="uni$" symbol="$" index="1" to="42" redesign="0"/>
+    </site>
+    <site index="3" name="ogame.com.tr">
+       <uni name="uni$" symbol="$" index="1" to="42" redesign="0"/>
+    </site>
+    <site index="4" name="ogame.nl">
+       <uni name="uni$" symbol="$" index="1" to="42" redesign="0"/>
+    </site>
+    <site index="5" name="ogame.ru">
+       <uni name="uni$" symbol="$" index="1" to="42" redesign="0"/>
+    </site>
+    <site index="6" name="ogame.dk">
+       <uni name="uni$" symbol="$" index="1" to="42" redesign="0"/>
+    </site>
+    <site index="7" name="XNOVA"/>
+    <site index="8" name="ogame.us">
+      <uni name="andromeda" urlname="uni101"/>
+      <uni name="barym" urlname="uni102" gamespeedfactor="3.0" tffleetfactor="0.4"/>
+      <uni name="capella" urlname="uni103"/>
+      <uni name="draco" urlname="uni104"/>
+      <uni name="electra" urlname="uni105"/>
+      <uni name="fornax" urlname="uni106"/>
+      <uni name="gemini" urlname="uni107"/>
+      <uni name="hydra" urlname="uni108"/>
+      <uni name="io" urlname="uni109"/>
+      <uni name="jupiter" urlname="uni110"/>
+      <uni name="uni$" symbol="$" index="1" to="4" redesign="0"/>
+      <uni name="uni5" gamespeedfactor="2.0" redesign="0"/>
+      <uni name="uni$" symbol="$" index="6" to="7" redesign="0"/>
+    </site>
+  </game>
+  <planets count="15">
+    <planet1 maxtemp="123" maxtemp_redesign="240"/>
+    <planet2 maxtemp="123" maxtemp_redesign="190"/>
+    <planet3 maxtemp="120" maxtemp_redesign="140"/>
+    <planet4 maxtemp="66.7" maxtemp_redesign="90"/>
+    <planet5 maxtemp="64.5" maxtemp_redesign="80"/>
+    <planet6 maxtemp="63" maxtemp_redesign="70"/>
+    <planet7 maxtemp="41" maxtemp_redesign="60"/>
+    <planet8 maxtemp="39" maxtemp_redesign="50"/>
+    <planet9 maxtemp="36" maxtemp_redesign="40"/>
+    <planet10 maxtemp="14.5" maxtemp_redesign="30"/>
+    <planet11 maxtemp="12" maxtemp_redesign="20"/>
+    <planet12 maxtemp="11" maxtemp_redesign="10"/>
+    <planet13 maxtemp="-43" maxtemp_redesign="-30"/>
+    <planet14 maxtemp="-44" maxtemp_redesign="-70"/>
+    <planet15 maxtemp="-46" maxtemp_redesign="-110"/>
+  </planets>
+  <units groupcount="5">
+    <group0 count="4" xml="resources">
+      <unit0 xml="met"/>
+      <unit1 xml="crys"/>
+      <unit2 xml="deut"/>
+      <unit3 xml="energ"/>
+    </group0>
+    <group1 count="14" xml="fleets">
+      <unit0 xml="scs" met="2000" crys="2000"/><!-- Kleiner Transporter -->
+      <unit1 xml="lcs" met="6000" crys="6000"/><!-- Großer Transporter -->
+      <unit2 xml="lf" met="3000" crys="1000"/><!-- Leicher Jäger -->
+      <unit3 xml="hf" met="6000" crys="4000"/><!-- Schwerer Jäger -->
+      <unit4 xml="cru" met="20000" crys="7000" deut="2000"/><!-- Kreuzer -->
+      <unit5 xml="bs" met="45000" crys="15000"/><!-- Schlachtschiff -->
+      <unit6 xml="cs" met="10000" crys="20000" deut="10000"/><!-- Kolonieschiff -->
+      <unit7 xml="recy" met="10000" crys="6000" deut="2000"/><!-- Recycler -->
+      <unit8 xml="esp" crys="1000"/><!-- Spionagesonde -->
+      <unit9 xml="bomb" met="50000" crys="25000" deut="15000"/><!-- Bomber -->
+      <unit10 xml="solsat" crys="2000" deut="500"/><!-- Solarsatellit -->
+      <unit11 xml="destr" met="60000" crys="50000" deut="15000"/><!-- Zerstörer -->
+      <unit12 xml="rip" met="5000000" crys="4000000" deut="1000000"/><!-- Todesstern -->
+      <unit13 xml="bcru" met="30000" crys="40000" deut="15000"/><!-- Schlachtkreuzer -->
+    </group1>
+    <group2 count="10" xml="defence">
+      <unit0 xml="msl" met="2000"/>
+      <unit1 xml="sl" met="1500" crys="500"/>
+      <unit2 xml="hl" met="6000" crys="2000"/>
+      <unit3 xml="gaus" met="20000" crys="15000" deut="2000"/>
+      <unit4 xml="ion" met="2000" crys="6000"/>
+      <unit5 xml="pc" met="50000" crys="50000" deut="30000"/>
+      <unit6 xml="ssd" met="10000" crys="10000"/>
+      <unit7 xml="lsd" met="50000" crys="50000"/>
+      <unit8 xml="abm" met="8000" deut="2000" ignoreFight="1"/>
+      <unit9 xml="inter" met="12500" crys="2500" deut="10000" ignoreFight="1"/>
+    </group2>
+    <group3 count="18" xml="buildings">
+      <unit0 xml="metm"/>
+      <unit1 xml="crysm"/>
+      <unit2 xml="deuts"/>
+      <unit3 xml="solp"/>
+      <unit4 xml="fusp"/>
+      <unit5 xml="robot"/>
+      <unit6 xml="nani"/>
+      <unit7 xml="shipy"/>
+      <unit8 xml="mets"/>
+      <unit9 xml="crys"/>
+      <unit10 xml="dtank"/>
+      <unit11 xml="rlab"/>
+      <unit12 xml="terra"/>
+      <unit13 xml="allydep"/>
+      <unit14 xml="silo"/>
+      <unit15 xml="lunb"/>
+      <unit16 xml="phalanx"/>
+      <unit17 xml="jumpg"/>
+    </group3>
+    <group4 count="16" xml="research">
+      <unit0 xml="spiot"/>
+      <unit1 xml="comput"/>
+      <unit2 xml="weapt"/>
+      <unit3 xml="shieldt"/>
+      <unit4 xml="armourt"/>
+      <unit5 xml="energt"/>
+      <unit6 xml="hypt"/>
+      <unit7 xml="combut"/>
+      <unit8 xml="impe"/>
+      <unit9 xml="hype"/>
+      <unit10 xml="lasert"/>
+      <unit11 xml="iont"/>
+      <unit12 xml="plasmat"/>
+      <unit13 xml="intergal"/>
+      <unit14 xml="expedt"/>
+      <unit15 xml="gravi"/>
+    </group4>
+  </units>
+</data>
