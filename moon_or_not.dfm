@@ -1,9 +1,9 @@
 object frm_report_basket: Tfrm_report_basket
   Left = 151
   Top = 234
-  Width = 612
-  Height = 407
   Caption = 'Mond?Scans Zwischenablage'
+  ClientHeight = 382
+  ClientWidth = 604
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -33,7 +33,6 @@ object frm_report_basket: Tfrm_report_basket
     Height = 311
     Anchors = [akLeft, akTop, akBottom]
     Header.AutoSizeIndex = 0
-    Header.DefaultHeight = 17
     Header.Font.Charset = DEFAULT_CHARSET
     Header.Font.Color = clWindowText
     Header.Font.Height = -11
@@ -94,16 +93,24 @@ object frm_report_basket: Tfrm_report_basket
     PopupMenu = Frame_Bericht1.PopupMenu1
     TabOrder = 3
     TabStop = True
+    ExplicitLeft = 232
+    ExplicitTop = 32
+    ExplicitWidth = 354
+    ExplicitHeight = 311
     inherited PB_B: TPaintBox
       Width = 354
+      ExplicitWidth = 354
     end
     inherited Panel1: TPanel
       Width = 354
+      ExplicitWidth = 354
       inherited LBL_Raid24_Info: TLabel
         Left = 237
+        ExplicitLeft = 237
       end
       inherited BTN_Last24: TSpeedButton
         Left = 321
+        ExplicitLeft = 321
       end
     end
   end
