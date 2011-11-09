@@ -84,6 +84,10 @@ type
     procedure ScanZiel1Click(Sender: TObject);
     procedure tim_take_focus_againTimer(Sender: TObject);
     procedure btn_time_syncClick(Sender: TObject);
+    procedure VST_RAIDBeforeItemPaint(Sender: TBaseVirtualTree;
+      TargetCanvas: TCanvas; Node: PVirtualNode; ItemRect: TRect;
+      var CustomDraw: Boolean);
+    procedure VST_RAIDChecked(Sender: TBaseVirtualTree; Node: PVirtualNode);
   private
     { Private-Deklarationen }
     SortDirection_Raids: TSortDirection;
@@ -332,6 +336,15 @@ begin
 
 end;
 
+procedure TFRM_KB_List.VST_RAIDChecked(Sender: TBaseVirtualTree;
+  Node: PVirtualNode);
+var fleet: TFleetEvent;
+begin
+  fleet := ODataBase.FleetBoard.Fleets.Fleets[Integer(Sender.GetNodeData(Node)^)];
+  fleet.Head.alert := (Node.CheckState = csCheckedNormal);
+  ODataBase.FleetBoard.Fleets.Fleets[Integer(Sender.GetNodeData(Node)^)] := fleet
+end;
+
 procedure TFRM_KB_List.ShowRaid(Pos: TPlanetPosition);
 var n: PVirtualNode;
 begin
@@ -506,6 +519,7 @@ procedure TFRM_KB_List.VST_RAIDInitNode(Sender: TBaseVirtualTree;
   end;
 
 begin
+  Node.CheckType := ctCheckBox;
   exit;
   
   if Sender = VST_RAID then Text(ODataBase.FleetBoard.Fleets[Integer(VST_RAID.GetNodeData(Node)^)]);
@@ -705,6 +719,19 @@ procedure TFRM_KB_List.VST_RAIDBeforeCellPaint(Sender: TBaseVirtualTree;
 begin
   if Sender = VST_RAID then Text(ODataBase.FleetBoard.Fleets[Integer(VST_RAID.GetNodeData(Node)^)]);
   if Sender = VST_HISTORY then Text(ODataBase.FleetBoard.History[Integer(VST_HISTORY.GetNodeData(Node)^)]);
+end;
+
+procedure TFRM_KB_List.VST_RAIDBeforeItemPaint(Sender: TBaseVirtualTree;
+  TargetCanvas: TCanvas; Node: PVirtualNode; ItemRect: TRect;
+  var CustomDraw: Boolean);
+begin
+  with ODataBase.FleetBoard.Fleets.Fleets[Integer(Sender.GetNodeData(Node)^)] do
+  begin
+    if Head.alert then
+      Node.CheckState := csCheckedNormal
+    else
+      Node.CheckState := csUncheckedNormal;
+  end;
 end;
 
 procedure TFRM_KB_List.VST_RAIDHeaderClick(Sender: TVTHeader;

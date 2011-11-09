@@ -50,7 +50,6 @@ uses
   cS_XML in 'cS_XML.pas',
   VSTPopup in 'VSTPopup.pas',
   Prog_Unit in 'Prog_Unit.pas',
-  Chat in 'Chat.pas' {FRM_Chat},
   CoordinatesRanges in 'CoordinatesRanges.pas',
   FavFilter in 'FavFilter.pas' {FRM_Filter},
   _test_POST in '_test_POST.pas' {FRM_POST_TEST},
@@ -239,7 +238,6 @@ begin
   Application.CreateForm(TFRM_Suchen_Ersetzen, FRM_Suchen_Ersetzen);
   Application.CreateForm(TFRM_KB_List, FRM_KB_List);
   Application.CreateForm(TFRM_Delete_Scans, FRM_Delete_Scans);
-  Application.CreateForm(TFRM_Chat, FRM_Chat);
   Application.CreateForm(TFRM_Filter, FRM_Filter);
   Application.CreateForm(TFRM_POST_TEST, FRM_POST_TEST);
   Application.CreateForm(TFRM_Connections, FRM_Connections);
@@ -252,7 +250,6 @@ begin
   Application.CreateForm(Tfrm_report_basket, frm_report_basket);
   Application.Run;
 
-  FRM_Chat.Free;
   FRM_Notizen.Free;
   FRM_Connections.Free;
   FRM_KB_List.Free;
