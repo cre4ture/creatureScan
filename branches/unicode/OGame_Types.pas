@@ -167,6 +167,18 @@ type
     von: TPlayerName;}
     Activity: Integer; {Time in Seconds (min*60) befor Time_u, -1 -> no info, 0 -> activity > 60 minutes}
   end;
+  TScanHead_utf8 = record
+    Planet: TPlanetName_utf8;
+    Position: TPlanetPosition;
+    Time_u: Int64;    //Unix
+    Spieler: TPlayerName_utf8;
+    SpielerId: TNameID;
+    Spionageabwehr: integer;
+    Creator: TPlayerName_utf8;
+    {geraidet: Boolean;
+    von: TPlayerName;}
+    Activity: Integer; {Time in Seconds (min*60) befor Time_u, -1 -> no info, 0 -> activity > 60 minutes}
+  end;
   TInfoArray = array of integer;
   TScanBericht = class
   private
@@ -329,6 +341,7 @@ type
     arrival_time_u: Int64;
     player: string;
     joined_id: integer;  //set an id > 0 if Fleet belongs to a "Verbands-Angriff"
+    alert: boolean;
   end;
   PFleetEvent_ = ^TFleetEvent;
   TFleetEvent = record
@@ -1522,8 +1535,18 @@ begin
 end;
 
 procedure TScanBericht.serialize(stream: TAbstractFixedMemoryStream);
+var head_utf8: TScanHead_utf8;
 begin
-  stream.WriteBuffer(Head,      sizeof(Head));
+  head_utf8.Planet := Head.Planet;
+  head_utf8.Position := Head.Position;
+  head_utf8.Time_u := Head.Time_u;
+  head_utf8.Spieler := Head.Spieler;
+  head_utf8.SpielerId := Head.SpielerId;
+  head_utf8.Spionageabwehr := Head.Spionageabwehr;
+  head_utf8.Creator := Head.Creator;
+  head_utf8.Activity := Head.Activity;
+
+  stream.WriteBuffer(head_utf8, sizeof(head_utf8));
   stream.WriteBuffer(resources, sizeof(resources));
   stream.WriteBuffer(fleets,    sizeof(fleets));
   stream.WriteBuffer(defence,   sizeof(defence));
@@ -1532,21 +1555,31 @@ begin
 end;
 
 procedure TScanBericht.deserialize(stream: TAbstractFixedMemoryStream);
+var head_utf8: TScanHead_utf8;
 begin
   if fReadOnly then
     raise Exception.Create('TScanBericht.deserialize(): Report is read Only!');
 
-  stream.ReadBuffer(Head,      sizeof(Head));
+  stream.ReadBuffer(head_utf8, sizeof(head_utf8));
   stream.ReadBuffer(resources, sizeof(resources));
   stream.ReadBuffer(fleets,    sizeof(fleets));
   stream.ReadBuffer(defence,   sizeof(defence));
   stream.ReadBuffer(buildings, sizeof(buildings));
   stream.ReadBuffer(research,  sizeof(research));
+
+  Head.Planet := head_utf8.Planet;
+  Head.Position := head_utf8.Position;
+  Head.Time_u := head_utf8.Time_u;
+  Head.Spieler := head_utf8.Spieler;
+  Head.SpielerId := head_utf8.SpielerId;
+  Head.Spionageabwehr := head_utf8.Spionageabwehr;
+  Head.Creator := head_utf8.Creator;
+  Head.Activity := head_utf8.Activity;
 end;
 
 function TScanBericht.serialize_size: cardinal;
 begin
-  Result := sizeof(Head) + sizeof(resources) + sizeof(fleets) +
+  Result := sizeof(TScanHead_utf8) + sizeof(resources) + sizeof(fleets) +
     sizeof(defence) + sizeof(buildings) + sizeof(research);
 end;
 

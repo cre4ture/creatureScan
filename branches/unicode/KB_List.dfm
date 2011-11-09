@@ -3,7 +3,7 @@ object FRM_KB_List: TFRM_KB_List
   Top = 380
   Caption = 'Raid Liste'
   ClientHeight = 315
-  ClientWidth = 794
+  ClientWidth = 885
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,22 +18,105 @@ object FRM_KB_List: TFRM_KB_List
   object PageControl1: TPageControl
     Left = 0
     Top = 25
-    Width = 794
+    Width = 885
     Height = 244
     ActivePage = TS_KB_laufend
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
+    ExplicitWidth = 794
     object TS_KB_laufend: TTabSheet
       Caption = 'aktuell'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitWidth = 786
       object VST_RAID: TVirtualStringTree
         Left = 0
         Top = 0
-        Width = 786
+        Width = 877
+        Height = 216
+        Align = alClient
+        ClipboardFormats.Strings = (
+          'CSV'
+          'HTML Format'
+          'Plain text'
+          'Rich Text Format'
+          'Rich Text Format Without Objects'
+          'Unicode text'
+          'Virtual Tree Data')
+        Header.AutoSizeIndex = 6
+        Header.Font.Charset = DEFAULT_CHARSET
+        Header.Font.Color = clWindowText
+        Header.Font.Height = -11
+        Header.Font.Name = 'MS Sans Serif'
+        Header.Font.Style = []
+        Header.Options = [hoAutoResize, hoColumnResize, hoDblClickResize, hoDrag, hoVisible]
+        PopupMenu = PopupMenu1
+        StateImages = IL_mission
+        TabOrder = 0
+        TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoSpanColumns, toAutoTristateTracking, toAutoHideButtons, toAutoDeleteMovedNodes]
+        TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
+        TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toThemeAware, toUseBlendedImages]
+        TreeOptions.SelectionOptions = [toFullRowSelect, toMultiSelect, toRightClickSelect]
+        TreeOptions.StringOptions = [toAutoAcceptEditChange]
+        OnBeforeCellPaint = VST_RAIDBeforeCellPaint
+        OnBeforeItemPaint = VST_RAIDBeforeItemPaint
+        OnChange = VST_RAIDChange
+        OnChecked = VST_RAIDChecked
+        OnClick = VST_RAIDClick
+        OnCompareNodes = VST_RAIDCompareNodes
+        OnDblClick = VST_RAIDDblClick
+        OnGetText = VST_RAIDGetText
+        OnGetImageIndex = VST_RAIDGetImageIndex
+        OnHeaderClick = VST_RAIDHeaderClick
+        OnInitChildren = VST_RAIDInitChildren
+        OnInitNode = VST_RAIDInitNode
+        OnKeyUp = VST_RAIDKeyUp
+        ExplicitWidth = 786
+        Columns = <
+          item
+            Position = 0
+            Width = 196
+            WideText = 'Ankunft'
+          end
+          item
+            Position = 1
+            Width = 100
+            WideText = 'Startplanet'
+          end
+          item
+            Position = 2
+            Width = 125
+            WideText = 'Spieler'
+          end
+          item
+            Position = 3
+            Width = 100
+            WideText = 'Zielplanet'
+          end
+          item
+            Position = 4
+            Width = 125
+            WideText = 'Spieler'
+          end
+          item
+            Position = 5
+            Width = 100
+            WideText = 'Auftrag'
+          end
+          item
+            Position = 6
+            Width = 127
+            WideText = 'Username'
+          end>
+      end
+    end
+    object TS_KB_fertig: TTabSheet
+      Caption = 'History'
+      ImageIndex = 1
+      ExplicitWidth = 786
+      object VST_HISTORY: TVirtualStringTree
+        Left = 0
+        Top = 0
+        Width = 877
         Height = 216
         Align = alClient
         ClipboardFormats.Strings = (
@@ -67,92 +150,8 @@ object FRM_KB_List: TFRM_KB_List
         OnGetText = VST_RAIDGetText
         OnGetImageIndex = VST_RAIDGetImageIndex
         OnHeaderClick = VST_RAIDHeaderClick
-        OnInitChildren = VST_RAIDInitChildren
-        OnInitNode = VST_RAIDInitNode
         OnKeyUp = VST_RAIDKeyUp
-        Columns = <
-          item
-            Position = 0
-            Width = 224
-            WideText = 'Ankunft'
-          end
-          item
-            Position = 1
-            Width = 100
-            WideText = 'Startplanet'
-          end
-          item
-            Position = 2
-            Width = 125
-            WideText = 'Spieler'
-          end
-          item
-            Position = 3
-            Width = 100
-            WideText = 'Zielplanet'
-          end
-          item
-            Position = 4
-            Width = 125
-            WideText = 'Spieler'
-          end
-          item
-            Position = 5
-            Width = 100
-            WideText = 'Auftrag'
-          end
-          item
-            Position = 6
-            Width = 12
-            WideText = 'Username'
-          end>
-      end
-    end
-    object TS_KB_fertig: TTabSheet
-      Caption = 'History'
-      ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-      object VST_HISTORY: TVirtualStringTree
-        Left = 0
-        Top = 0
-        Width = 778
-        Height = 206
-        Align = alClient
-        ClipboardFormats.Strings = (
-          'CSV'
-          'HTML Format'
-          'Plain text'
-          'Rich Text Format'
-          'Rich Text Format Without Objects'
-          'Unicode text'
-          'Virtual Tree Data')
-        Header.AutoSizeIndex = -1
-        Header.Font.Charset = DEFAULT_CHARSET
-        Header.Font.Color = clWindowText
-        Header.Font.Height = -11
-        Header.Font.Name = 'MS Sans Serif'
-        Header.Font.Style = []
-        Header.MainColumn = 1
-        Header.Options = [hoAutoResize, hoColumnResize, hoDblClickResize, hoDrag, hoVisible]
-        PopupMenu = PopupMenu1
-        StateImages = IL_mission
-        TabOrder = 0
-        TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoSpanColumns, toAutoTristateTracking, toAutoDeleteMovedNodes]
-        TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowRoot, toThemeAware, toUseBlendedImages]
-        TreeOptions.SelectionOptions = [toFullRowSelect, toMultiSelect, toRightClickSelect]
-        TreeOptions.StringOptions = [toAutoAcceptEditChange]
-        OnBeforeCellPaint = VST_RAIDBeforeCellPaint
-        OnChange = VST_RAIDChange
-        OnClick = VST_RAIDClick
-        OnCompareNodes = VST_RAIDCompareNodes
-        OnDblClick = VST_RAIDDblClick
-        OnGetText = VST_RAIDGetText
-        OnGetImageIndex = VST_RAIDGetImageIndex
-        OnHeaderClick = VST_RAIDHeaderClick
-        OnKeyUp = VST_RAIDKeyUp
+        ExplicitWidth = 786
         Columns = <
           item
             Position = 0
@@ -181,7 +180,7 @@ object FRM_KB_List: TFRM_KB_List
           end
           item
             Position = 5
-            Width = 128
+            Width = 223
             WideText = 'Auftrag'
           end>
       end
@@ -190,7 +189,7 @@ object FRM_KB_List: TFRM_KB_List
   object StatusBar1: TStatusBar
     Left = 0
     Top = 296
-    Width = 794
+    Width = 885
     Height = 19
     Panels = <
       item
@@ -207,23 +206,26 @@ object FRM_KB_List: TFRM_KB_List
         Width = 50
       end>
     OnResize = StatusBar1Resize
+    ExplicitWidth = 794
   end
   object Panel1: TPanel
     Left = 0
     Top = 269
-    Width = 794
+    Width = 885
     Height = 27
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitWidth = 794
     object lbl_flotte: TLabel
       Left = 109
       Top = 0
-      Width = 685
+      Width = 776
       Height = 27
       Align = alClient
       AutoSize = False
       WordWrap = True
+      ExplicitWidth = 685
     end
     object Panel2: TPanel
       Left = 0
@@ -251,25 +253,27 @@ object FRM_KB_List: TFRM_KB_List
   object Panel3: TPanel
     Left = 0
     Top = 0
-    Width = 794
+    Width = 885
     Height = 25
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 3
+    ExplicitWidth = 794
     DesignSize = (
-      794
+      885
       25)
     object sh_servertime: TShape
-      Left = 560
+      Left = 651
       Top = 0
       Width = 189
       Height = 24
       Anchors = [akTop, akRight]
       Pen.Style = psClear
       Pen.Width = 0
+      ExplicitLeft = 560
     end
     object lbl_servertime_: TLabel
-      Left = 560
+      Left = 651
       Top = 0
       Width = 189
       Height = 24
@@ -286,17 +290,19 @@ object FRM_KB_List: TFRM_KB_List
       ParentBiDiMode = False
       ParentFont = False
       Transparent = True
+      ExplicitLeft = 560
     end
     object Label2: TLabel
-      Left = 504
+      Left = 595
       Top = 6
       Width = 50
       Height = 13
       Anchors = [akTop, akRight]
       Caption = 'Serverzeit:'
+      ExplicitLeft = 504
     end
     object btn_time_sync: TButton
-      Left = 755
+      Left = 846
       Top = 0
       Width = 30
       Height = 24
@@ -310,25 +316,27 @@ object FRM_KB_List: TFRM_KB_List
       ParentFont = False
       TabOrder = 0
       OnClick = btn_time_syncClick
+      ExplicitLeft = 755
     end
     object ProgressBar1: TProgressBar
-      Left = 560
+      Left = 651
       Top = 0
       Width = 189
       Height = 24
       Anchors = [akTop, akRight]
       TabOrder = 1
       Visible = False
+      ExplicitLeft = 560
     end
   end
   object ListRefresh: TTimer
     OnTimer = ListRefreshTimer
     Left = 20
-    Top = 56
+    Top = 80
   end
   object PopupMenu1: TPopupMenu
     Left = 80
-    Top = 56
+    Top = 80
     object entf1: TMenuItem
       Caption = 'L'#246'schen'
       ShortCut = 46
@@ -376,7 +384,7 @@ object FRM_KB_List: TFRM_KB_List
     Left = 256
     Top = 116
     Bitmap = {
-      494C0101080009000C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010108000900140010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

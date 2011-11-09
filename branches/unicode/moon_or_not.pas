@@ -30,7 +30,7 @@ type
       Node: PVirtualNode; Column: TColumnIndex);
     procedure vst_reportsGetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: String);
     procedure vst_reportsFreeNode(Sender: TBaseVirtualTree;
       Node: PVirtualNode);
     procedure Button1Click(Sender: TObject);
@@ -122,7 +122,7 @@ end;
 
 procedure Tfrm_report_basket.vst_reportsGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+  var CellText: String);
 var data: PReportRec;
 begin
   data := vst_reports.GetNodeData(Node);

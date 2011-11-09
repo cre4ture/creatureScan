@@ -235,6 +235,7 @@ var s : string;
 begin
  with PB_B.Canvas do
  begin
+   Font.Name := 'Tahoma';
    Font.Size := 8;
    Font.Color := clWhite;
    Brush.Style := bsSolid;
@@ -487,6 +488,7 @@ begin
   if ValidPosition(Bericht.Head.Position) then
   with PB_B.Canvas do
   begin
+    Font.Name := 'Tahoma';
     Font.Size := 8;
     Font.Color := cl_text_color;
     Brush.Color := clblack;
@@ -709,6 +711,7 @@ begin
       maxx := (ClientHeight-Panel1.Height) div Zeile
     else maxx := ClientHeight div Zeile;
 
+    Font.Name := 'Tahoma';
     Font.Size := 8;
     Font.Color := cl_text_color;
     Brush.Color := cl_bg_color;
@@ -1136,7 +1139,7 @@ begin
   with PB_B do
   begin
     y := 0;
-    Canvas.Font.Name := 'Arial';
+    Canvas.Font.Name := 'Tahoma';
     Canvas.Font.Size := 20;
     Canvas.Font.Color := clWhite;
     Canvas.Brush.Color := clBlue;

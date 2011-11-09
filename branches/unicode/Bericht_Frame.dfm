@@ -5,6 +5,7 @@ object Frame_Bericht: TFrame_Bericht
   Height = 424
   HorzScrollBar.Style = ssHotTrack
   VertScrollBar.Style = ssHotTrack
+  AutoScroll = True
   Color = clBlack
   ParentBackground = False
   ParentColor = False

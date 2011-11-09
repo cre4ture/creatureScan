@@ -268,9 +268,21 @@ end;
 function TLangPlugIn.LoadReportElements(inifile: string): boolean;
 var ini: TIniFile;
     sg: TScanGroup;
+    utf8: boolean;
+
+  function translate_utf8(list: TStringList): string;
+  var i: integer;
+  begin
+    for i := 0 to list.Count-1 do
+    begin
+      list[i] := trnslShortStr(AnsiString(list[i]));
+    end;
+  end;
+
 begin
   Result := True;
   ini := TIniFile.Create(ExpandFileName(inifile));
+  utf8 := ini.ReadBool('this','utf8',false);
   for sg := low(sg) to high(sg) do
   begin
     SBItems[sg].Clear;
@@ -281,6 +293,8 @@ begin
       Result := False;
       Break;
     end;
+    if utf8 then
+      translate_utf8(SBItems[sg]);
   end;
   ini.free;
 end;
@@ -377,7 +391,11 @@ begin
       Result := PGetScan(handle, stream.p, stream.size, moon_unknown)
     else Result := False;
 
-    Bericht.deserialize(stream);
+    if Result then
+    begin
+      Bericht.deserialize(stream);
+    end;
+
   finally
     stream.Free;
   end;
@@ -414,7 +432,10 @@ begin
   if Assigned(PReadStats) then
   begin
     Result := PReadStats(handle, stat_utf8, typ);
-    decodeStatUTF8(stat_utf8, Stat);
+    if Result then
+    begin
+      decodeStatUTF8(stat_utf8, Stat);
+    end;
   end
   else Result := False;
 end;
@@ -426,8 +447,11 @@ begin
   if Assigned(PReadSystem) then
   begin
     Result := PReadSystem(handle, sys_utf8);
-    decodeSysUTF8(sys_utf8, Sys);
-    Sys.Creator := creator;
+    if Result then
+    begin
+      decodeSysUTF8(sys_utf8, Sys);
+      Sys.Creator := creator;
+    end;
   end
   else Result := False;
 end;
