@@ -21,7 +21,8 @@ uses
   creaturesStrUtils in '..\..\..\lib\uli\creaturesStrUtils.pas',
   cS_memstream in '..\..\cS_memstream.pas',
   html in '..\..\..\lib\uli\htmllib\html.pas',
-  cpp_dll_interface in '..\..\..\lib\uli\htmllib\cpp_dll_interface.pas';
+  cpp_dll_interface in '..\..\..\lib\uli\htmllib\cpp_dll_interface.pas',
+  CoordinatesRanges in '..\..\CoordinatesRanges.pas';
 
 type
   TScanReadOptions = record
@@ -386,6 +387,14 @@ begin
   end;
 end;
 
+procedure test_ShowReadSource(Handle: Integer); stdcall;
+var rs: TReadSource_cS;
+begin
+  rs := TReadSource_cS(GetReadSource(Handle));
+  ShowMessage('Text: ' + rs.GetText);
+  ShowMessage('HTML: ' + rs.GetHTMLString);
+end;
+
 exports
   StartDll,
   EndDll,
@@ -409,7 +418,9 @@ exports
   ReadSource_New,
   ReadSource_Free,
   ReadSource_SetText,
-  ReadSource_SetHTML;
+  ReadSource_SetHTML,
+
+  test_ShowReadSource;
 
 begin
 

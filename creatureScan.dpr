@@ -50,7 +50,6 @@ uses
   cS_XML in 'cS_XML.pas',
   VSTPopup in 'VSTPopup.pas',
   Prog_Unit in 'Prog_Unit.pas',
-  ReadWriteEvent in 'ReadWriteEvent.pas',
   Chat in 'Chat.pas' {FRM_Chat},
   CoordinatesRanges in 'CoordinatesRanges.pas',
   FavFilter in 'FavFilter.pas' {FRM_Filter},
@@ -83,7 +82,8 @@ uses
   SDBFile in '..\lib\uli\SDBFile.pas',
   fast_xml_writer in 'fast_xml_writer.pas',
   ActivityFinder in 'ActivityFinder.pas',
-  global_options in 'global_options.pas';
+  global_options in 'global_options.pas',
+  ReadWriteEvent in '..\lib\uli\SocketMultiplexer\ReadWriteEvent.pas';
 
 {$R *.RES}
 
