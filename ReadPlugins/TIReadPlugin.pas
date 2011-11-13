@@ -64,6 +64,8 @@ type
   TReadSource_SetTextFunction = function (Handle: Integer; text: PChar; server_time: int64): Boolean;
   TReadSource_SetHTMLFuncktion = function (Handle: Integer; html: PChar; server_time: int64): Boolean;
 
+  TIOPlugin_DLL_test_ShowReadSource = procedure(Handle: Integer); stdcall;
+
   // ------------------------ DLL Interface ende -------------------------------
 
   TLangPluginNoPluginException = class(Exception);
@@ -78,7 +80,7 @@ type
   protected
     DllHandle: THandle;
     DllLoaded: boolean;
-    
+
     //Dll-Funktionen:
     PScanToStr: TScanToStrFunction;
     PScanToStrTable: TScanToStrFunction;
@@ -103,6 +105,7 @@ type
     PReadSource_Free: TReadSource_FreeFunction;
     PReadSource_SetText: TReadSource_SetTextFunction;
     PReadSource_SetHTML: TReadSource_SetHTMLFuncktion;
+    PIODLL_test_ShowReadSource: TIOPlugin_DLL_test_ShowReadSource;
 
     SaveInf: string;
     function OpenDll: Boolean;
@@ -119,6 +122,7 @@ type
     SBItems: array[TScanGroup] of TStringList;
     property has_commander: boolean read isCommander;
     function ReadSource_New: integer;
+    procedure test_ShowReadSourceContent(handle: integer);
     procedure ReadSource_Free(handle: integer);
     function CallFleet_(pos: TPlanetPosition; job: TFleetEventType): Boolean;
     function CallFleetEx(fleet: TFleetEvent): Boolean;
@@ -180,6 +184,7 @@ begin
   @PReadSource_SetText := GetProcAddress(DllHandle, 'ReadSource_SetText');
   @PReadSource_SetHTML := GetProcAddress(DllHandle, 'ReadSource_SetHTML');
 
+  @PIODLL_test_ShowReadSource := GetProcAddress(DllHandle, 'test_ShowReadSource');
 end;
 
 function TLangPlugIn.CallFleet_(pos: TPlanetPosition; job: TFleetEventType): Boolean;
@@ -462,6 +467,17 @@ begin
   else
     raise TLangPluginNoPluginException.Create(
       'TLangPlugIn.SetReadSourceHTML: Plugin fehlerhaft, oder kein Plugin geladen!');
+end;
+
+procedure TLangPlugIn.test_ShowReadSourceContent(handle: integer);
+begin
+  if Assigned(PIODLL_test_ShowReadSource) then
+  begin
+    PIODLL_test_ShowReadSource(handle);
+  end
+  else
+    raise TLangPluginNoPluginException.Create(
+      'TLangPlugIn.test_ShowReadSourceContent: Plugin fehlerhaft, oder kein Plugin geladen!');
 end;
 
 procedure TLangPlugIn.SetReadSourceText(handle: integer;

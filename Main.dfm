@@ -1048,6 +1048,13 @@ object FRM_Main: TFRM_Main
         ShortCut = 16503
         OnClick = commander1Click
       end
+      object N12: TMenuItem
+        Caption = '-'
+      end
+      object testShowReadSource1: TMenuItem
+        Caption = 'test_ShowReadSource'
+        OnClick = testShowReadSource1Click
+      end
     end
   end
   object TrayIconPopup: TPopupMenu

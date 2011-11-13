@@ -186,6 +186,8 @@ type
     btn_fight_start: TButton;
     spiodirekt1: TMenuItem;
     commander1: TMenuItem;
+    N12: TMenuItem;
+    testShowReadSource1: TMenuItem;
     procedure btn_lastClick(Sender: TObject);
     procedure btn_nextClick(Sender: TObject);
     procedure LblWikiLinkClick(Sender: TObject);
@@ -278,6 +280,7 @@ type
     procedure closeFreeAudioFiles1Click(Sender: TObject);
     procedure spiodirekt1Click(Sender: TObject);
     procedure commander1Click(Sender: TObject);
+    procedure testShowReadSource1Click(Sender: TObject);
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
@@ -2545,6 +2548,22 @@ begin
   else
   begin
     ShowMessage('Commander: No!');
+  end;
+end;
+
+procedure TFRM_Main.testShowReadSource1Click(Sender: TObject);
+var handle: integer;
+begin
+  handle := ODataBase.LanguagePlugIn.ReadSource_New();
+  try
+    ODataBase.LanguagePlugIn.SetReadSourceText(handle,
+      GetClipboardText, ODataBase.FleetBoard.GameTime.UnixTime);
+    ODataBase.LanguagePlugIn.SetReadSourceHTML(handle,
+      GetClipboardHtml, ODataBase.FleetBoard.GameTime.UnixTime);
+
+    ODataBase.LanguagePlugIn.test_ShowReadSourceContent(handle);
+  finally
+    ODataBase.LanguagePlugIn.ReadSource_Free(handle);
   end;
 end;
 
