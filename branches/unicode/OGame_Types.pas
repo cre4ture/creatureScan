@@ -2,8 +2,12 @@ unit OGame_Types;
 
 interface
 
+{$ifdef TEST}
+{$define NO_LANGUAGES}
+{$endif}
+
 uses
-  Sysutils, {$IFNDEF TEST}Languages,{$ENDIF} Math, LibXmlParser, LibXmlComps,
+  Sysutils, {$IFNDEF NO_LANGUAGES}Languages,{$ENDIF} Math, LibXmlParser, LibXmlComps,
   Classes, Dialogs, clipbrd, windows, CoordinatesRanges, cS_memstream;
 
 type
@@ -15,8 +19,8 @@ type
                 sg_Forschung);
 
 const
-  {$IFDEF TEST} STR_M_Mond = 'M'; {$ENDIF}
-  {$IFDEF TEST} STR_P_Planet = 'P'; {$ENDIF}
+  {$IFDEF NO_LANGUAGES} STR_M_Mond = 'M'; {$ENDIF}
+  {$IFDEF NO_LANGUAGES} STR_P_Planet = 'P'; {$ENDIF}
 
   max_Galaxy: word = 9;
   max_Systems: word = 499;
@@ -213,6 +217,7 @@ type
   public
     AskMoon: Boolean;
   end;
+  
   TReadReportList = class
   private
     flist: TList;
@@ -339,7 +344,7 @@ type
     eventflags: TFleetEventFlags;
     origin, target: TPlanetPosition;
     arrival_time_u: Int64;
-    player: string;
+    player: TPlayerName_utf8;
     joined_id: integer;  //set an id > 0 if Fleet belongs to a "Verbands-Angriff"
     alert: boolean;
   end;
@@ -436,6 +441,7 @@ function CompareSys(Sys1, Sys2: TSystemCopy;
   ignoreTime: Boolean = False): string;
 function CompareScans(Scan1, Scan2: TScanBericht): string;
 function SamePlanet(const Pos1, Pos2: TPlanetPosition): Boolean;
+function IntToStrKP_ansi(i: Int64; kpc: char = #0): AnsiString;
 function IntToStrKP(i: Int64; kpc: char = #0): String;
 function PosBigger(pos1, pos2: TPlanetPosition): boolean;
 function StrToPosition(S: string): TPlanetPosition;
@@ -548,16 +554,21 @@ begin
        
 end;
 
+function IntToStrKP_ansi(i: Int64; kpc: char = #0): AnsiString;
+begin
+  Result := AnsiString(IntToStrKP(i, kpc));
+end;
+
 function IntToStrKP(i: Int64; kpc: char = #0): String;
 var restore: char;
 begin
-  restore := FormatSettings.ThousandSeparator;
+  restore := {$ifdef UNICODE}FormatSettings.{$endif}ThousandSeparator;
   if kpc <> #0 then
-    FormatSettings.ThousandSeparator := kpc;
+    {$ifdef UNICODE}FormatSettings.{$endif}ThousandSeparator := kpc;
 
   Result := FloatToStrF(i,ffNumber,60000000,0);
 
-  FormatSettings.ThousandSeparator := restore;
+  {$ifdef UNICODE}FormatSettings.{$endif}ThousandSeparator := restore;
 end;
 
 function SamePlanet(const Pos1, Pos2: TPlanetPosition): Boolean;
@@ -572,7 +583,7 @@ PROCEDURE TReadDataXMLScanner.ScannerProcessTag(Sender : TObject; TagName : STRI
 var s: string;
     i: integer;
 begin
-  FormatSettings.DecimalSeparator := '.';
+  {$ifdef UNICODE}FormatSettings.{$endif}DecimalSeparator := '.';
   if TagName = 'updatecheck' then
     UpdateCheckUrl := atValStr(Attributes,'url')
   else
@@ -1537,13 +1548,13 @@ end;
 procedure TScanBericht.serialize(stream: TAbstractFixedMemoryStream);
 var head_utf8: TScanHead_utf8;
 begin
-  head_utf8.Planet := Head.Planet;
+  head_utf8.Planet := trnsltoUTF8(Head.Planet);
   head_utf8.Position := Head.Position;
   head_utf8.Time_u := Head.Time_u;
-  head_utf8.Spieler := Head.Spieler;
+  head_utf8.Spieler := trnsltoUTF8(Head.Spieler);
   head_utf8.SpielerId := Head.SpielerId;
   head_utf8.Spionageabwehr := Head.Spionageabwehr;
-  head_utf8.Creator := Head.Creator;
+  head_utf8.Creator := trnsltoUTF8(Head.Creator);
   head_utf8.Activity := Head.Activity;
 
   stream.WriteBuffer(head_utf8, sizeof(head_utf8));
@@ -1567,13 +1578,13 @@ begin
   stream.ReadBuffer(buildings, sizeof(buildings));
   stream.ReadBuffer(research,  sizeof(research));
 
-  Head.Planet := head_utf8.Planet;
+  Head.Planet := trnslShortStr(head_utf8.Planet);
   Head.Position := head_utf8.Position;
   Head.Time_u := head_utf8.Time_u;
-  Head.Spieler := head_utf8.Spieler;
+  Head.Spieler := trnslShortStr(head_utf8.Spieler);
   Head.SpielerId := head_utf8.SpielerId;
   Head.Spionageabwehr := head_utf8.Spionageabwehr;
-  Head.Creator := head_utf8.Creator;
+  Head.Creator := trnslShortStr(head_utf8.Creator);
   Head.Activity := head_utf8.Activity;
 end;
 

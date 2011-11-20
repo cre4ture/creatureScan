@@ -18,13 +18,13 @@ type
     ImageList1: TImageList;
     procedure VST_GalaGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: String);
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure VST_TestsGetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: String);
     procedure VST_TestsFocusChanged(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex);
     procedure VST_TestsGetNodeDataSize(Sender: TBaseVirtualTree;
@@ -56,7 +56,7 @@ uses DLL_plugin_TEST, Sources, Math;
 
 procedure TFRM_Solsys.VST_GalaGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+  var CellText: String);
 begin
   CellText := '';
   with TestSys.Planeten[node^.Index+1] do
@@ -105,7 +105,7 @@ end;
 
 procedure TFRM_Solsys.VST_TestsGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+  var CellText: String);
 begin
   case Column of
   0: CellText := DateTimeToStr(UnixToDateTime(SysTestFile[node.Index].Time_u));
@@ -123,7 +123,7 @@ begin
     CreateDir(ExtractFilePath(filename));
 
   if FileExists(filename) then
-   mode := fmOpenReadWrite
+    mode := fmOpenReadWrite
   else mode := fmCreate;
   SysTestFile := TcSSolSysDB_for_File.Create(filename,FRM_MainTest.txt_serverURL.Text);
 

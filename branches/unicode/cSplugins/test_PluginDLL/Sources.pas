@@ -54,7 +54,7 @@ var
 
 implementation
 
-uses chelper_server;
+uses chelper_server, cS_utf8_conv;
 
 {$R *.dfm}
 
@@ -66,7 +66,7 @@ end;
 procedure TFRM_Sources.m_HtmlChange(Sender: TObject);
 begin
   try
-    plugin.SetReadSourceHTML(plugin_handle, m_Html.Text, datetimetounix(now));
+    plugin.SetReadSourceHTML(plugin_handle, trnsltoUTF8(m_Html.Text), datetimetounix(now));
     Color := clGreen;
   except
     Color := clRed;
@@ -76,7 +76,7 @@ end;
 procedure TFRM_Sources.m_TextChange(Sender: TObject);
 begin
   try
-    plugin.SetReadSourceText(plugin_handle, m_Text.Text, datetimetounix(now));
+    plugin.SetReadSourceText(plugin_handle, trnsltoUTF8(m_Text.Text), datetimetounix(now));
     Color := clGreen;
   except
     Color := clRed;
@@ -113,8 +113,8 @@ begin
   while (not OpenClipboard)and(i < 10) do inc(i);
   if i >= 10 then Exit;
 
-  m_Text.Text := Utf8ToAnsi(GetClipboardText);
-  m_Html.Text := Utf8ToAnsi(GetClipboardHtml);
+  m_Text.Text := trnslShortStr(GetClipboardText_utf8); // this double-convertion is intended!
+  m_Html.Text := trnslShortStr(GetClipboardHtml_utf8); // so we have exactly same behaviour like in cS
 
   CloseClipboard;
 end;
@@ -197,7 +197,7 @@ begin
       plugin.PluginFilename,plugin.PlugInName,
       plugin.configGameDomain,plugin.ServerURL)
   else
-    CopyFile(PAnsiChar(lastsourcefile),PAnsiChar(filename),False);
+    CopyFile(PChar(lastsourcefile),PChar(filename),False);
 end;
 
 procedure TFRM_Sources.Button2Click(Sender: TObject);

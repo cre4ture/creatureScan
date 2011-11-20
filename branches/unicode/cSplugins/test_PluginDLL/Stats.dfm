@@ -1,9 +1,9 @@
 object FRM_Stats: TFRM_Stats
   Left = 524
   Top = 190
-  Width = 477
-  Height = 688
   Caption = 'FRM_Stats'
+  ClientHeight = 663
+  ClientWidth = 469
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,7 +14,7 @@ object FRM_Stats: TFRM_Stats
   OnCreate = FormCreate
   DesignSize = (
     469
-    661)
+    663)
   PixelsPerInch = 96
   TextHeight = 13
   object Shape1: TShape
@@ -55,7 +55,6 @@ object FRM_Stats: TFRM_Stats
     Height = 601
     Anchors = [akLeft, akTop, akRight, akBottom]
     Header.AutoSizeIndex = 0
-    Header.DefaultHeight = 17
     Header.Font.Charset = DEFAULT_CHARSET
     Header.Font.Color = clWindowText
     Header.Font.Height = -11
@@ -104,7 +103,6 @@ object FRM_Stats: TFRM_Stats
     Style = csDropDownList
     Anchors = [akTop, akRight]
     Enabled = False
-    ItemHeight = 13
     TabOrder = 2
     Items.Strings = (
       'player'
@@ -118,7 +116,6 @@ object FRM_Stats: TFRM_Stats
     Style = csDropDownList
     Anchors = [akTop, akRight]
     Enabled = False
-    ItemHeight = 13
     TabOrder = 3
     Items.Strings = (
       'points'

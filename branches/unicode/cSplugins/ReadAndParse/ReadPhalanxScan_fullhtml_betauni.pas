@@ -3,7 +3,7 @@ unit ReadPhalanxScan_fullhtml_betauni;
 interface
 
 uses
-  Classes, IniFiles, Contnrs, OGame_Types, html, parser, windows,
+  Classes, IniFiles, Contnrs, OGame_Types, creax_html, parser, windows,
   ReadReport_Text, readsource, regexpname;
 
 const

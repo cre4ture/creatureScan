@@ -122,13 +122,44 @@ begin
 end;
 
 constructor TFleetBoard.Create(const SaveDir: String; const UniDomainID: string);
+
+  function __importold(Filename: string; fleetDB: TcSFleetDB_for_File): boolean;
+  var old: TcSFleetDB_for_File;
+      i: integer;
+  begin
+    Result := false;
+    old := TcSFleetDB_for_File.Create(Filename, UniDomainID);
+    try
+      for i := 0 to old.Count-1 do
+      begin
+        fleetDB.AddFleet(old.Fleets[i]);
+      end;
+    finally
+      old.Free;
+    end;
+    Result := true;
+  end;
+
+  function openFleetDBFile(Filename: string): TcSFleetDB_for_File;
+  begin
+    result := TcSFleetDB_for_File.Create(Filename, UniDomainID);
+    if result.IsOldFormat then
+    begin
+      result.Free;
+      RenameFile(Filename,Filename+'.old');
+      result := TcSFleetDB_for_File.Create(Filename, UniDomainID);
+      if __importold(Filename+'.old', result) then
+        DeleteFile(Filename+'.old');
+    end;
+  end;
+
 begin
   inherited Create();
   Self.UniDomainID := UniDomainID;
   fGameTime := TDeltaSystemTime.Create;
 
-  Fleets := TcSFleetDB_for_File.Create(SaveDir + 'fleets.csflt', UniDomainID);
-  History := TcSFleetDB_for_File.Create(SaveDir + 'fleets_history.csflt', UniDomainID);
+  Fleets := openFleetDBFile(SaveDir + 'fleets.csflt');
+  History := openFleetDBFile(SaveDir + 'fleets_history.csflt');
 end;
 
 procedure TFleetBoard.DeleteFleet(nr: Integer);

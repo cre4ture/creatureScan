@@ -4,7 +4,7 @@ interface
 
 uses
   Inifiles, OGame_Types, SysUtils, DateUtils, Classes, regexpname,
-  html;
+  creax_html;
 
 const
   SB_KeyWord_Count = 12;

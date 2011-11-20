@@ -3,14 +3,29 @@ unit readsource_cs;
 interface
 
 uses
-  readsource, ReadReport_Text, OGame_Types;
+  readsource, ReadReport_Text, OGame_Types, TIReadPlugin_Types;
 
 type
   TReadSource_cS = class(TReadSource)
   private
   public
+    status_buffer: AnsiString;
+    scanstr_buffer: AnsiString;
+
     readscanlist: TReadReportList;
-    rsl_index: integer;
+    portableScanHead: TPortableScanHead;
+    portableScanBody: TPortableScanBody;
+
+    portableFleetInfoSource: TPortableFleetsInfoSource;
+
+    stats: TStat;
+    portableStatsHead: TPortableStatisticPageHead;
+    portableStatsEntry: TPortableStatisticEntry;
+
+    solsys: TSystemCopy;
+    portableSolSysHead: TPortableSolarSystemHead;
+    portableSolSysPlanet: TPortableSolarSystemPlanet;
+
     constructor Create; override;
     destructor Destroy; override;
   end;

@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, VirtualTrees, OGame_Types, html, IdHTTP,
+  Dialogs, StdCtrls, VirtualTrees, OGame_Types, creax_html, IdHTTP,
   IdBaseComponent, IdTCPConnection, IdTCPClient, ExtCtrls, IdComponent;
 
 type

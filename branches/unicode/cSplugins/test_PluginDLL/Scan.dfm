@@ -1,9 +1,9 @@
 object FRM_Scan: TFRM_Scan
   Left = 331
   Top = 114
-  Width = 929
-  Height = 469
   Caption = 'FRM_Scan'
+  ClientHeight = 444
+  ClientWidth = 921
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -40,23 +40,33 @@ object FRM_Scan: TFRM_Scan
     HorzScrollBar.Style = ssHotTrack
     VertScrollBar.Style = ssHotTrack
     Anchors = [akLeft, akTop, akBottom]
+    AutoScroll = True
     Color = clBlack
     ParentBackground = False
     ParentColor = False
     PopupMenu = Frame_Bericht1.PopupMenu1
     TabOrder = 0
     TabStop = True
+    ExplicitLeft = 106
+    ExplicitTop = 34
+    ExplicitWidth = 343
+    ExplicitHeight = 387
     inherited PB_B: TPaintBox
       Width = 343
       Height = 332
+      ExplicitWidth = 343
+      ExplicitHeight = 332
     end
     inherited Panel1: TPanel
       Width = 343
+      ExplicitWidth = 343
       inherited LBL_Raid24_Info: TLabel
         Left = 228
+        ExplicitLeft = 228
       end
       inherited BTN_Last24: TSpeedButton
         Left = 312
+        ExplicitLeft = 312
       end
     end
   end
@@ -86,7 +96,6 @@ object FRM_Scan: TFRM_Scan
     Height = 325
     Anchors = [akLeft, akTop, akBottom]
     Header.AutoSizeIndex = 0
-    Header.DefaultHeight = 17
     Header.Font.Charset = DEFAULT_CHARSET
     Header.Font.Color = clWindowText
     Header.Font.Height = -11
@@ -182,22 +191,31 @@ object FRM_Scan: TFRM_Scan
     HorzScrollBar.Style = ssHotTrack
     VertScrollBar.Style = ssHotTrack
     Anchors = [akLeft, akTop, akRight, akBottom]
+    AutoScroll = True
     Color = clBlack
     ParentBackground = False
     ParentColor = False
     PopupMenu = Frame_Bericht1.PopupMenu1
     TabOrder = 11
     TabStop = True
+    ExplicitLeft = 562
+    ExplicitTop = 34
+    ExplicitWidth = 343
+    ExplicitHeight = 387
     inherited PB_B: TPaintBox
       Width = 343
+      ExplicitWidth = 343
     end
     inherited Panel1: TPanel
       Width = 343
+      ExplicitWidth = 343
       inherited LBL_Raid24_Info: TLabel
         Left = 226
+        ExplicitLeft = 226
       end
       inherited BTN_Last24: TSpeedButton
         Left = 310
+        ExplicitLeft = 310
       end
     end
   end
