@@ -45,7 +45,7 @@ type
     procedure Button3Click(Sender: TObject);
     procedure VST_testsFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure VST_testsGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
-      Column: TColumnIndex; TextType: TVSTTextType; var CellText: WideString);
+      Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
     procedure VST_testsDblClick(Sender: TObject);
     procedure Button6Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -69,7 +69,7 @@ function RemoveYear_u(time_u: int64): int64;
 
 implementation
 
-uses Sources, Math;
+uses Sources, Math, cS_utf8_conv, xml_parser_unicode;
 
 {$R *.dfm}
 
@@ -87,7 +87,7 @@ begin
   scan := TReadReport.Create;
   try
 
-    while plugin.GetReport(FRM_Sources.plugin_handle, Scan, Scan.askMoon) do
+    while plugin.GetReport(FRM_Sources.plugin_handle, i, Scan, Scan.askMoon) do
     begin
       Scans.push_back(Scan); // copy
       ListBox1.Items.Add(IntToStr(i));
@@ -263,7 +263,7 @@ end;
 
 procedure TFRM_Scan.VST_testsGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+  var CellText: String);
 begin
   case Column of
     0: CellText := PositionToStrMond(
@@ -313,19 +313,19 @@ begin
 end;
 
 function TScanTest.LoadTestScan(filename: string): boolean;
-var parser: TXmlParser;
+var parser: TUnicodeXmlParser;
     sl: TStringList;
-    s: string;
+    s: AnsiString;
 begin
   Result := False;
-  parser := TXmlParser.Create;
+  parser := TUnicodeXmlParser.Create;
   sl := TStringList.Create;
   try
     sl.LoadFromFile(filename);
-    s := sl[0];
+    s := trnsltoUTF8(sl[0]);
     sl.Delete(0);
 
-    parser.LoadFromBuffer(PChar(s));
+    parser.LoadFromBuffer(PAnsiChar(s));
     parser.StartScan;
     if parser.Scan then
     begin

@@ -2,7 +2,7 @@ unit FetchStats;
 
 interface
 
-uses IdHTTP, html, IdURI;
+uses IdHTTP, creax_html, IdURI;
 
 type
   TStatRecord = record

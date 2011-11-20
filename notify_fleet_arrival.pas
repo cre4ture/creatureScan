@@ -56,7 +56,7 @@ begin
   dec(time_to_live);
   if time_to_live < 0 then
   begin
-    if (close_when_arrived) then
+    if (close_when_arrived) or (zeit > 0) then
       Release;
     Color := not Color;
   end;

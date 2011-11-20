@@ -19,7 +19,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure VST_StatsGetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: String);
     procedure FormCreate(Sender: TObject);
   private
     { Private-Deklarationen }
@@ -52,7 +52,7 @@ end;
 
 procedure TFRM_Stats.VST_StatsGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+  var CellText: String);
 begin
   case Column of
   0: //nummer

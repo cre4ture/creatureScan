@@ -20,8 +20,10 @@ uses
   readsource_cs in '..\readsource_cs.pas',
   creaturesStrUtils in '..\..\..\lib\uli\creaturesStrUtils.pas',
   cS_memstream in '..\..\cS_memstream.pas',
-  html in '..\..\..\lib\uli\htmllib\html.pas',
-  cpp_dll_interface in '..\..\..\lib\uli\htmllib\cpp_dll_interface.pas';
+  creax_html in '..\..\..\lib\uli\htmllib\creax_html.pas',
+  cpp_dll_interface in '..\..\..\lib\uli\htmllib\cpp_dll_interface.pas',
+  TIReadPlugin_Types in '..\..\ReadPlugins\TIReadPlugin_Types.pas',
+  TIReadPlugin_Types_conv in '..\..\ReadPlugins\TIReadPlugin_Types_conv.pas';
 
 type
   TScanReadOptions = record
@@ -39,7 +41,7 @@ type
 
 
 const
-  iopluginVersion = 29;
+  iopluginVersion = 100;
 
   RA_KeyWord_Count = 5;
   ST_KeyWord_Count = 2;
@@ -60,7 +62,6 @@ var
   StatRead: ThtmlStatRead_betauni;
   SysRead: ThtmlSysRead_betauni;
   PhalanxRead: ThtmlPhalanxRead_betauni;
-  Phalanx_getIndex: integer;
 
   UniCheck: TUniCheck;
 
@@ -78,42 +79,61 @@ begin
   Result := rs <> nil;
 end;
 
-function ReadPhalanxScan(Handle: integer): TFleetsInfoSource;
+function dll_readFleetEventList(rs_handle: integer;
+  info: PPPortableFleetsInfoSource): Boolean; stdcall;
 var rs: TReadSource_cS;
+    internal: TFleetsInfoSource;
 begin
-  Result.count := 0;
-  Result.typ := fist_none;
-  if not _get_RS(Handle, rs) then Exit;
+  Result := false;
+  if not _get_RS(rs_handle, rs) then Exit;
 
   PhalanxRead.Clear;
-  Phalanx_getIndex := 0;
-  Result := PhalanxRead.ReadFromRS(rs);
-end;
+  internal := PhalanxRead.ReadFromRS(rs);
 
-function GetPhalaxScan(fleet: Pointer): Boolean;
-var tmp: TFleetEvent;
-begin
-  Result := (Phalanx_getIndex < PhalanxRead.Count);
-  if Result then
+  Result := (internal.count > 0);
+  if (Result) then
   begin
-    tmp := PhalanxRead.FleetList[Phalanx_getIndex];
-    WriteBufFleet(tmp, fleet);
-    inc(Phalanx_getIndex);
+    createPortable_FleetInfoSource(internal, rs.portableFleetInfoSource);
+    info^ := @rs.portableFleetInfoSource;
   end;
 end;
 
-function StatusToStr(Status: TStatus): ShortString;
-var st: TStati;
+function dll_getFleetEvent(rs_handle: integer;
+  index: integer; fleet: pointer): Boolean; stdcall;
+var rs: TReadSource_cS;
+    tmp: TFleetEvent;
 begin
-  Result := '';
-  for st := low(st) to high(st) do
-    if (st in Status)and(word(st) < length(StatusItems)) then
-      Result := Result + StatusItems[word(st)+1];
+  Result := false;
+  if not _get_RS(rs_handle, rs) then Exit;
+  
+  Result := (index < PhalanxRead.Count);
+  if Result then
+  begin
+    tmp := PhalanxRead.FleetList[index];
+    WriteBufFleet(tmp, fleet);
+  end;
 end;
 
-function StrToStatus(s: ShortString): TStatus;
-var i, p: integer;
+function dll_doStatusToStr(rs_handle: integer; Status: TStatus): PAnsiChar; stdcall;
+var rs: TReadSource_cS;
+    st: TStati;
 begin
+  Result := nil;
+  if not _get_RS(rs_handle, rs) then Exit;
+
+  rs.status_buffer := '';
+  for st := low(st) to high(st) do
+    if (st in Status)and(word(st) < length(StatusItems)) then
+      rs.status_buffer := rs.status_buffer + StatusItems[word(st)+1];
+
+  Result := PAnsiChar(rs.status_buffer);
+end;
+
+function dll_doStrToStatus(input_s: PAnsiChar): TStatus; stdcall;
+var i, p: integer;
+    s: AnsiString;
+begin
+  s := input_s;
   Result := [];
   for i := 1 to length(s) do
   begin
@@ -129,7 +149,7 @@ begin
   FFO_FoxGame_active := ini.ReadBool(section,'FFO_FoxGame_active',False);
 end;
 
-procedure LoadOptions;
+procedure _LoadOptions;
 var ini: TIniFile;
 begin
   ini := TIniFile.Create(UserIniFile);
@@ -139,16 +159,16 @@ begin
   ini.Free;
 end;
 
-function StartDll(const inifile: PChar;
-  var Version: integer;
-  const uniDomain: PChar;
-  const AUserIniFile: PChar;
-  const AUserIniFileSection: PChar): Boolean;
+function dll_startDll(const inifile: PAnsiChar;
+  pVersion: PInteger;
+  const uniDomain: PAnsiChar;
+  const AUserIniFile: PAnsiChar;
+  const AUserIniFileSection: PAnsiChar): Boolean; stdcall;
 var ini: TIniFile;
     i: Integer;
     s: string;
 begin
-  Version := iopluginVersion;
+  pVersion^ := iopluginVersion;
 
   serverURL := uniDomain;
 
@@ -176,7 +196,7 @@ begin
   s := ini.ReadString('dllOptions','Run_Options','None');
   if s = 'FireFoxOptions' Then Run_Options.Typ := ro_FireFoxOptions;
 
-  LoadOptions;
+  _LoadOptions;
 
   SB_tsep := ini.ReadString('Espionage report','tsep','');
 
@@ -195,7 +215,7 @@ begin
   Result := True;
 end;
 
-function EndDll: boolean;
+function dll_endDll: boolean; stdcall;
 begin
   StatRead.Free;
   SysRead.Free;
@@ -206,99 +226,144 @@ begin
   Result := True;
 end;
 
-function ScanToStr(scan_buf: Pointer; scan_size: cardinal;
-  AsTable: Boolean): THandle;
+function dll_doScanToStr(rs_handle: integer;
+  asTable: Boolean;
+  p_scan_head: PPortableScanHead;
+  p_scan_body: PPortableScanBody): PAnsiChar; stdcall;
+  
 var Scan: TScanBericht;
-    s: string;
-    stream: TFixedMemoryStream_in;
+    rs: TReadSource_cS;
 begin
-  stream := TFixedMemoryStream_in.Create(scan_buf, scan_size);
+  Result := nil;
+  if not _get_RS(rs_handle, rs) then Exit;
+  
   Scan := TScanBericht.Create;
   try
-    Scan.deserialize(stream);
-
-    s := ReportRead.ReportToString(Scan, AsTable) + #0;
-
-    Result := GlobalAlloc(GMEM_MOVEABLE,length(s));
-    CopyMemory(GlobalLock(Result),PChar(s),length(s));
-    GlobalUnlock(Result);
-  finally
-    stream.Free;
-    scan.Free;
+    makeFromPortable_Scan(p_scan_head^, p_scan_body^, Scan);
+    rs.scanstr_buffer := ReportRead.ReportToString(Scan, AsTable);
+    Result := PAnsiChar(rs.scanstr_buffer);
+  except
+    Result := nil;
   end;
+  scan.Free;
 end;
 
-function ReadScans(Handle: Integer): integer;
+function dll_readScans(rs_handle: Integer): integer; stdcall;
 var rs: TReadSource_cS;
 begin
   Result := -1;
-  if not _get_RS(Handle, rs) then Exit;
+  if not _get_RS(rs_handle, rs) then Exit;
 
   rs.readscanlist.clear;
   if (rs.GetHTMLString <> '') then
     Result := ReportRead.ReadHTML(rs.GetHTMLRoot, rs.readscanlist)
   else
     Result := ReportRead.Read(rs.GetText(), rs.readscanlist);
-  rs.rsl_index := 0;
 end;
 
-function GetScan(Handle: integer; Scan: Pointer; scan_size: cardinal;
-  var AskMoon: Boolean): Boolean;
+function dll_getScan(
+  rs_handle: integer;
+  scan_index: integer;
+  p_scan_head: PPPortableScanHead;
+  p_scan_body: PPPortableScanBody;
+  askMoon: PBoolean): Boolean; stdcall;
+
 var rs: TReadSource_cS;
-    stream: TFixedMemoryStream_in;
 begin
-  stream := TFixedMemoryStream_in.Create(Scan, scan_size);
+  Result := false;
+  if not _get_RS(rs_handle, rs) then Exit;
   try
-    Result := false;
-    if not _get_RS(Handle, rs) then Exit;
-
-    with rs do
+    Result := (scan_index >= 0) and (scan_index < rs.readscanlist.Count);
+    if Result then
     begin
-      Result := rsl_index < readscanlist.Count;
-      if Result then
-      begin
-        readscanlist.reports[rsl_index].serialize(stream);
-        AskMoon := readscanlist.reports[rsl_index].AskMoon;
-      end;
+      createPortable_Scan(rs.readscanlist.reports[scan_index],
+                          rs.portableScanHead, rs.portableScanBody);
 
-      inc(rsl_index);
+      p_scan_head^ := @rs.portableScanHead;
+      p_scan_body^ := @rs.portableScanBody;
+      askMoon^ := rs.readscanlist.reports[scan_index].AskMoon;
     end;
-  finally
-    stream.Free;
+  except
+    result := false;
   end;
 end;
 
-function ReadRaidAuftrag(s: PChar;var Auftrag: TRaidAuftrag): Boolean;
+function dll_readStatistics(rs_handle: Integer;
+  p_stats: PPPortableStatisticPageHead): Boolean; stdcall;
+var rs: TReadSource_cS;
+    typ: TStatTypeEx;
 begin
-  Result := false;
+  Result := False;
+  if not _get_RS(rs_handle, rs) then Exit;
+
+  Result := StatRead.ReadFromRS(rs,rs.stats,typ);
+
+  if Result then
+  begin
+    createPortable_StatisticPageHead(rs.stats, typ, rs.portableStatsHead);
+    p_stats^ := @(rs.portableStatsHead);
+  end;
 end;
 
-function ReadStats(Handle: Integer; var Stats: TStat; var typ: TStatTypeEx): Boolean;
+function dll_getStatisticEntry(rs_handle: Integer;
+  index: integer;
+  p_stat_entry: PPPortableStatisticEntry): Boolean; stdcall;
 var rs: TReadSource_cS;
 begin
   Result := False;
-  if not _get_RS(Handle, rs) then Exit;
+  if not _get_RS(rs_handle, rs) then Exit;
 
-  Result := StatRead.ReadFromRS(rs,Stats,typ);
+  Result := (index >= 0) and (index < rs.stats.count);
+  if Result then
+  begin
+    createPortable_StatisticEntry(rs.stats.Stats[index], rs.portableStatsEntry);
+    p_stat_entry^ := @(rs.portableStatsEntry);
+  end;
 end;
 
-function ReadSystem(Handle: integer; var Sys_X: TSystemCopy): Boolean;
+function dll_readSolarSystem(rs_handle: integer;
+  p_sys_head: PPPortableSolarSystemHead): Boolean; stdcall;
 var rs: TReadSource_cS;
 begin
   Result := False;
-  if not _get_RS(Handle, rs) then Exit;
+  if not _get_RS(rs_handle, rs) then Exit;
 
-  Result := SysRead.ReadFromRS(rs, Sys_X);
+  Result := SysRead.ReadFromRS(rs, rs.solsys);
+  if (Result) then
+  begin
+    createPortable_SolarSystemHead(rs.solsys, rs.portableSolSysHead);
+    p_sys_head^ := @(rs.portableSolSysHead);
+  end;
 end;
 
-function CheckUni(Handle: Integer; var isCommander: Boolean): Boolean;
+function dll_getSolarSystemPlanet(rs_handle: integer;
+  index: integer;
+  p_sys_planet: PPPortableSolarSystemPlanet): Boolean; stdcall;
+
 var rs: TReadSource_cS;
 begin
   Result := False;
-  if not _get_RS(Handle,rs) then Exit;
+  if not _get_RS(rs_handle, rs) then Exit;
+
+  Result := (index >= 1) and (index <= max_Planeten);
+  if (Result) then
+  begin
+    createPortable_SolarSystemPlanet(
+          rs.solsys.Planeten[index], rs.portableSolSysPlanet);
+    p_sys_planet^ := @(rs.portableSolSysPlanet);
+  end;
+end;
+
+function dll_checkUni(rs_handle: Integer;
+  isCommander: PBoolean): Boolean; stdcall;
+var rs: TReadSource_cS;
+begin
+  Result := False;
+  if not _get_RS(rs_handle,rs) then Exit;
 
   case UniCheck_Options.CheckType of
-    UnictHtml: Result := UniCheck._CheckUni_HTML(rs.GetHTMLString, rs.GetHTMLRoot, isCommander);
+    UnictHtml: Result := UniCheck._CheckUni_HTML(rs.GetHTMLString,
+                            rs.GetHTMLRoot, isCommander^);
 
     else
       //UnictNone:
@@ -312,12 +377,17 @@ begin
   end;
 end;
 
-function CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
+function dll_callFleet(pos: PPortablePlanetPosition;
+  job: Integer): Boolean; stdcall;
+var i_pos: TPlanetPosition;
+    i_job: TFleetEventType;
 begin
-  Result := UniCheck.CallFleet(pos, job);
+  i_job := TFleetEventType(job);
+  makeFromPortable_PlanetPosition(pos^, i_pos);
+  Result := UniCheck.CallFleet(i_pos, i_job);
 end;
 
-function CallFleetEx(fleet: pointer): Boolean;
+function dll_callFleetExtended(fleet: pointer): Boolean; stdcall;
 var afleet: TFleetEvent;
 begin
   if (fleet <> nil) then
@@ -329,43 +399,52 @@ begin
     Result := False;
 end;
 
-function directCallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
+function dll_directCallFleet(pos: PPortablePlanetPosition;
+  job: Integer): Boolean; stdcall;
+var i_pos: TPlanetPosition;
+    i_job: TFleetEventType;
 begin
-  if job = fet_espionage then
-    Result := UniCheck.SendSpio(pos)
+  i_job := TFleetEventType(job);
+  makeFromPortable_PlanetPosition(pos^, i_pos);
+  if i_job = fet_espionage then
+    Result := UniCheck.SendSpio(i_pos)
   else
     Result := false;
 end;
 
-function OpenSolSys(pos: TSolSysPosition): Boolean;
+function dll_openSolSys(pos: PPortablePlanetPosition): Boolean; stdcall;
+var i_pos: TPlanetPosition;
+    spos: TSolSysPosition;
 begin
-  Result := UniCheck.OpenSolSys(pos);
+  makeFromPortable_PlanetPosition(pos^, i_pos);
+  spos[0] := i_pos.P[0];
+  spos[1] := i_pos.P[1];
+  Result := UniCheck.OpenSolSys(spos);
 end;
 
-procedure RunOptions;
+procedure dll_runOptions; stdcall;
 var ini: TIniFile;
 begin
   ini := TIniFile.Create(UserIniFile);
-
-    ShowMessage('No options available!');
-
+  ShowMessage('No options available!');
   ini.Free;
 end;
 
-function ReadSource_New: integer;
+function dll_ReadSource_New: integer; stdcall;
 begin
   Result := CreateAReadSource(TReadSource_cS);
 end;
 
-procedure ReadSource_Free(Handle: Integer);
+procedure dll_ReadSource_Free(rs_handle: Integer); stdcall;
 begin
-  FreeAReadSource(Handle);
+  FreeAReadSource(rs_handle);
 end;
 
-function ReadSource_SetText(Handle: Integer; text: PChar; server_time_u: int64): Boolean;
+function dll_ReadSource_SetText(rs_handle: Integer;
+  text: PAnsiChar; server_time_u: int64): Boolean; stdcall;
 var rs: TReadSource;
 begin
-  rs := GetReadSource(Handle);
+  rs := GetReadSource(rs_handle);
   Result := rs <> nil;
   if Result then
   begin
@@ -374,10 +453,11 @@ begin
   end;
 end;
 
-function ReadSource_SetHTML(Handle: Integer; html: PChar; server_time_u: int64): Boolean;
+function dll_ReadSource_SetHTML(rs_handle: Integer;
+  html: PAnsiChar; server_time_u: int64): Boolean; stdcall;
 var rs: TReadSource;
 begin
-  rs := GetReadSource(Handle);
+  rs := GetReadSource(rs_handle);
   Result := rs <> nil;
   if Result then
   begin
@@ -386,30 +466,53 @@ begin
   end;
 end;
 
-exports
-  StartDll,
-  EndDll,
-  ScanToStr,
-  ReadScans,
-  GetScan,
-  ReadSystem,
-  ReadRaidAuftrag,
-  ReadStats,
-  CheckUni,
-  RunOptions,
-  StatusToStr,
-  StrToStatus,
-  ReadPhalanxScan,
-  GetPhalaxScan,
-  CallFleet,
-  CallFleetEx,
-  directCallFleet,
-  OpenSolSys,
+procedure dll_testReadSource(rs_handle: Integer); stdcall;
+var rs: TReadSource_cS;
+begin
+  rs := TReadSource_cS(GetReadSource(rs_handle));
+  if (rs <> nil) then
+  begin
+    ShowMessage('Text: ' + rs.GetText);
+    ShowMessage('HTML: ' + rs.GetHTMLString);
+  end
+  else
+  begin
+    ShowMessage('Error: Handle invalid!');
+  end;
+end;
 
-  ReadSource_New,
-  ReadSource_Free,
-  ReadSource_SetText,
-  ReadSource_SetHTML;
+exports
+  dll_startDll,
+  dll_endDll,
+
+  dll_doScanToStr,
+
+  dll_readScans,
+  dll_getScan,
+
+  dll_readSolarSystem,
+  dll_getSolarSystemPlanet,
+
+  dll_readStatistics,
+  dll_getStatisticEntry,
+  
+  dll_checkUni,
+  dll_runOptions,
+  dll_doStatusToStr,
+  dll_doStrToStatus,
+  dll_readFleetEventList,
+  dll_getFleetEvent,
+  dll_callFleet,
+  dll_callFleetExtended,
+  dll_directCallFleet,
+  dll_openSolSys,
+
+  dll_ReadSource_New,
+  dll_ReadSource_Free,
+  dll_ReadSource_SetText,
+  dll_ReadSource_SetHTML,
+
+  dll_testReadSource;
 
 begin
 

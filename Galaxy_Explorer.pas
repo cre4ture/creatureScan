@@ -530,7 +530,7 @@ end;
 procedure explorer_load(ini: TIniFile);
 const Section = 'explorer_options';
 begin
-  explorer_Zeitformat := TExplorerZeitFormat(ini.ReadInteger(Section,'TimeFormat',Integer(ezf_Datum)));
+  explorer_Zeitformat := TExplorerZeitFormat(ini.ReadInteger(Section,'TimeFormat',Integer(ezf_DatumUhrzeit)));
   explorer_mouseover := ini.ReadBool(Section,'MouseOver',true);
   explorer_TF_Size := ini.ReadInteger(Section,'TF_Size',20000);
   explorer_bgcolor_vaction := ini.ReadInteger(Section, 'bgcolor_vacation', 4194304);

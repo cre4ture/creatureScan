@@ -24,10 +24,8 @@ object FRM_KB_List: TFRM_KB_List
     Align = alClient
     TabOrder = 0
     OnChange = PageControl1Change
-    ExplicitWidth = 794
     object TS_KB_laufend: TTabSheet
       Caption = 'aktuell'
-      ExplicitWidth = 786
       object VST_RAID: TVirtualStringTree
         Left = 0
         Top = 0
@@ -70,7 +68,6 @@ object FRM_KB_List: TFRM_KB_List
         OnInitChildren = VST_RAIDInitChildren
         OnInitNode = VST_RAIDInitNode
         OnKeyUp = VST_RAIDKeyUp
-        ExplicitWidth = 786
         Columns = <
           item
             Position = 0
@@ -112,7 +109,10 @@ object FRM_KB_List: TFRM_KB_List
     object TS_KB_fertig: TTabSheet
       Caption = 'History'
       ImageIndex = 1
-      ExplicitWidth = 786
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object VST_HISTORY: TVirtualStringTree
         Left = 0
         Top = 0
@@ -151,7 +151,6 @@ object FRM_KB_List: TFRM_KB_List
         OnGetImageIndex = VST_RAIDGetImageIndex
         OnHeaderClick = VST_RAIDHeaderClick
         OnKeyUp = VST_RAIDKeyUp
-        ExplicitWidth = 786
         Columns = <
           item
             Position = 0
@@ -180,7 +179,7 @@ object FRM_KB_List: TFRM_KB_List
           end
           item
             Position = 5
-            Width = 223
+            Width = 227
             WideText = 'Auftrag'
           end>
       end
@@ -206,7 +205,6 @@ object FRM_KB_List: TFRM_KB_List
         Width = 50
       end>
     OnResize = StatusBar1Resize
-    ExplicitWidth = 794
   end
   object Panel1: TPanel
     Left = 0
@@ -216,7 +214,6 @@ object FRM_KB_List: TFRM_KB_List
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 794
     object lbl_flotte: TLabel
       Left = 109
       Top = 0
@@ -258,7 +255,6 @@ object FRM_KB_List: TFRM_KB_List
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitWidth = 794
     DesignSize = (
       885
       25)
@@ -316,7 +312,6 @@ object FRM_KB_List: TFRM_KB_List
       ParentFont = False
       TabOrder = 0
       OnClick = btn_time_syncClick
-      ExplicitLeft = 755
     end
     object ProgressBar1: TProgressBar
       Left = 651
@@ -326,7 +321,6 @@ object FRM_KB_List: TFRM_KB_List
       Anchors = [akTop, akRight]
       TabOrder = 1
       Visible = False
-      ExplicitLeft = 560
     end
   end
   object ListRefresh: TTimer
@@ -384,7 +378,7 @@ object FRM_KB_List: TFRM_KB_List
     Left = 256
     Top = 116
     Bitmap = {
-      494C010108000900140010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101080009001C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

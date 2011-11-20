@@ -26,7 +26,14 @@ uses
   Bericht_Frame in '..\..\Bericht_Frame.pas' {Frame_Bericht: TFrame},
   Notizen in '..\..\Notizen.pas' {FRM_Notizen},
   cS_DB_reportFile in '..\..\cS_DB_reportFile.pas',
-  chelper_server in '..\..\chelper_server.pas' {frm_cshelper_ctrl};
+  chelper_server in '..\..\chelper_server.pas' {frm_cshelper_ctrl},
+  creax_html in '..\..\..\lib\uli\htmllib\creax_html.pas',
+  cpp_dll_interface in '..\..\..\lib\uli\htmllib\cpp_dll_interface.pas',
+  parser_types in '..\..\..\lib\uli\htmllib\parser_types.pas',
+  TIReadPlugin_Types in '..\..\ReadPlugins\TIReadPlugin_Types.pas',
+  TIReadPlugin_Types_conv_UNICODE in '..\..\ReadPlugins\TIReadPlugin_Types_conv_UNICODE.pas',
+  zeit_sync in '..\..\..\Ogame_tools\zeit_sync\zeit_sync.pas',
+  Connect in '..\..\Connect.pas' {FRM_Connect};
 
 {$R *.res}
 

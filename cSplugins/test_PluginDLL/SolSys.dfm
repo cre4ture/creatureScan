@@ -1,9 +1,9 @@
 object FRM_Solsys: TFRM_Solsys
   Left = 285
   Top = 147
-  Width = 856
-  Height = 407
   Caption = 'FRM_Solsys'
+  ClientHeight = 382
+  ClientWidth = 848
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -31,7 +31,6 @@ object FRM_Solsys: TFRM_Solsys
     Height = 325
     Anchors = [akLeft, akTop, akRight, akBottom]
     Header.AutoSizeIndex = 0
-    Header.DefaultHeight = 17
     Header.Font.Charset = DEFAULT_CHARSET
     Header.Font.Color = clWindowText
     Header.Font.Height = -11
@@ -106,7 +105,6 @@ object FRM_Solsys: TFRM_Solsys
     Height = 325
     Anchors = [akTop, akRight]
     Header.AutoSizeIndex = 0
-    Header.DefaultHeight = 17
     Header.Font.Charset = DEFAULT_CHARSET
     Header.Font.Color = clWindowText
     Header.Font.Height = -11
@@ -149,7 +147,7 @@ object FRM_Solsys: TFRM_Solsys
     Left = 620
     Top = 108
     Bitmap = {
-      494C010103000400040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101030004000C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000053464500534645005346450053464500000000000000

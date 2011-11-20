@@ -2,6 +2,14 @@ unit cS_utf8_conv;
 
 interface
 
+uses inifiles;
+
+type
+  TIniFileUTF8 = class(TIniFile)
+  public
+    function ReadString(const Section, Ident: string; Default: AnsiString): AnsiString; reintroduce;
+  end;
+
 function trnslShortStr(input: AnsiString): string;
 function trnsltoUTF8(input: string): AnsiString;
 
@@ -23,6 +31,14 @@ begin
 {$else}
   result := AnsiToUtf8(input);
 {$endif}
+end;
+
+{ TIniFileUTF8 }
+
+function TIniFileUTF8.ReadString(const Section, Ident: string;
+  Default: AnsiString): AnsiString;
+begin
+  result := AnsiString(inherited ReadString(Section, Ident, string(Default)));
 end;
 
 end.

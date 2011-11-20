@@ -241,7 +241,7 @@ begin
 
   for i := 0 to count -1 do
   begin
-    if LanguagePlugIn.ReadPhalanxScanGet(fleet) then
+    if LanguagePlugIn.ReadPhalanxScanGet(handle, i, fleet) then
     begin
       if (fleet.head.eventtype <> fet_espionage){ and
          (not ((fef_return in fleet.head.eventflags) and
@@ -930,7 +930,7 @@ begin
 
   Scan := TScanBericht.Create;
   try
-    while LanguagePlugIn.GetReport(handle, Scan, moon_unknown) do
+    while LanguagePlugIn.GetReport(handle, Result, Scan, moon_unknown) do
     begin
       Scan.Head.Creator := Username;
 

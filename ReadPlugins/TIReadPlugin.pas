@@ -4,12 +4,17 @@ interface
 
 uses
   Classes, OGame_Types, Windows, SysUtils, IniFiles, Dialogs, Languages,
-  cS_memstream;
+  cS_memstream, TIReadPlugin_Types, TIReadPlugin_Types_conv_UNICODE;
 
 const
-  DLLVNumber = 29;
+  DLLVNumber = 100;
 
 {
+  V100: completly renewed!
+        independent string lengths...
+        utf8!
+        compatible with c-language ( by theory )
+
   V29: isCommander in UniCheck
 
   V28: Count in TStats
@@ -30,39 +35,71 @@ const
 type
   // ------------------------ DLL Interface ------------------------------------
 
-  TStartDllFunction = function(const inifile: PAnsiChar;
-    var Version: integer;
-    const uniDomain: PAnsiChar;
-    const AUserIniFile: PAnsiChar;
-    const AUserIniFileSection: PAnsiChar): Boolean;
-  TEndDllFunction = function: boolean;
-  TScanToStrFunction = function(scan_buf: pointer; scan_size: cardinal;
-    AsTable: Boolean): THandle;
-  TRunOptions = procedure();
-  TStrToStatus = function(s: ShortString): TStatus;
-  TStatusToStr = function(Status: TStatus): ShortString;
-  TReadRaidAuftrag = function(s: PAnsiChar; var Auftrag: TRaidAuftrag): Boolean;
-
-  TCheckUni = function(Handle: Integer; var isCommander: Boolean): Boolean;
-  TCallFleet = function(pos: TPlanetPosition; job: TFleetEventType): Boolean;
-  TCallFleetEx = function(fleet: pointer): Boolean;
-  TOpenSolSys = function(pos: TSolSysPosition): Boolean;
-  //Scans
-  TReadScansFunction = function(Handle: Integer): integer;
-  TGetScanFunction = function(Handle: integer; Scan: Pointer; scan_size: cardinal;
-    var AskMoon: Boolean): Boolean;
-  //Sonnensystem
-  TReadSystemFunction = function(Handle: integer; var Sys_X: TSystemCopy_utf8): Boolean;
-  //Statistiken
-  TReadStats = function(Handle: Integer; var Stats: TStat_utf8; var typ: TStatTypeEx): Boolean;
   //Phalanx-> Besserer Name: Ereignisse
-  TReadPhalanxScan = function(Handle: integer): TFleetsInfoSource;
-  TGetPhalaxScan = function(fleet: pointer): Boolean; //use Read/WriteBufScan for FleetData!
+  Tdll_readFleetEventList = function(rs_handle: integer;
+        info: PPPortableFleetsInfoSource): Boolean; stdcall;
+  Tdll_getFleetEvent = function(rs_handle: integer;
+        index: integer; fleet: pointer): Boolean; stdcall;
 
-  TReadSource_NewFunction = function: integer;
-  TReadSource_FreeFunction = procedure (Handle: Integer);
-  TReadSource_SetTextFunction = function (Handle: Integer; text: PAnsiChar; server_time: int64): Boolean;
-  TReadSource_SetHTMLFuncktion = function (Handle: Integer; html: PAnsiChar; server_time: int64): Boolean;
+  Tdll_doStrToStatus = function(input_s: PAnsiChar): TStatus; stdcall;
+  Tdll_doStatusToStr = function(rs_handle: integer; Status: TStatus): PAnsiChar; stdcall;
+
+  Tdll_startDll = function(const inifile: PAnsiChar;
+        pVersion: PInteger;
+        const uniDomain: PAnsiChar;
+        const AUserIniFile: PAnsiChar;
+        const AUserIniFileSection: PAnsiChar): Boolean; stdcall;
+  Tdll_endDll = function: boolean; stdcall;
+
+  Tdll_doScanToStr = function(rs_handle: integer;
+        asTable: Boolean;
+        p_scan_head: PPortableScanHead;
+        p_scan_body: PPortableScanBody): PAnsiChar; stdcall;
+  //Scans
+  Tdll_readScans = function(rs_handle: Integer): integer; stdcall;
+  Tdll_getScan = function(
+        rs_handle: integer;
+        scan_index: integer;
+        p_scan_head: PPortableScanHead;
+        p_scan_body: PPortableScanBody;
+        askMoon: PBoolean): Boolean; stdcall;
+
+  Tdll_runOptions = procedure; stdcall;
+  Tdll_checkUni = function(rs_handle: Integer;
+        isCommander: PBoolean): Boolean; stdcall;
+
+  Tdll_callFleet = function(pos: PPortablePlanetPosition;
+        job: Integer): Boolean; stdcall;
+  Tdll_callFleetExtended = function(fleet: pointer): Boolean; stdcall;
+  Tdll_directCallFleet = function(pos: PPortablePlanetPosition;
+        job: Integer): Boolean; stdcall;
+
+  Tdll_openSolSys = function(pos: PPortablePlanetPosition): Boolean; stdcall;
+
+
+  //Sonnensystem
+  Tdll_readSolarSystem = function(rs_handle: integer;
+        p_sys_head: PPPortableSolarSystemHead): Boolean; stdcall;
+  Tdll_getSolarSystemPlanet = function(rs_handle: integer;
+        index: integer;
+        p_sys_planet: PPPortableSolarSystemPlanet): Boolean; stdcall;
+
+
+  //Statistiken
+  Tdll_readStatistics = function(rs_handle: Integer;
+        p_stats: PPPortableStatisticPageHead): Boolean; stdcall;
+  Tdll_getStatisticEntry = function(rs_handle: Integer;
+        index: integer;
+        p_stat_entry: PPPortableStatisticEntry): Boolean; stdcall;
+
+  Tdll_ReadSource_New = function: integer; stdcall;
+  Tdll_ReadSource_Free = procedure(rs_handle: Integer); stdcall;
+  Tdll_ReadSource_SetText = function(rs_handle: Integer;
+        text: PAnsiChar; server_time_u: int64): Boolean; stdcall;
+  Tdll_ReadSource_SetHTML = function(rs_handle: Integer;
+        html: PAnsiChar; server_time_u: int64): Boolean; stdcall;
+
+  Tdll_testReadSource = procedure(rs_handle: Integer); stdcall;
 
   // ------------------------ DLL Interface ende -------------------------------
 
@@ -78,31 +115,43 @@ type
   protected
     DllHandle: THandle;
     DllLoaded: boolean;
-    
+
     //Dll-Funktionen:
-    PScanToStr: TScanToStrFunction;
-    PScanToStrTable: TScanToStrFunction;
-    PStartDll: TStartDllFunction;
-    PEndDll: TEndDllFunction;
-    PReadScans: TReadScansFunction;
-    PGetScan: TGetScanFunction;
-    PReadSystem: TReadSystemFunction;
-    PReadRaidAuftrag: TReadRaidAuftrag;
-    PReadStats: TReadStats;
-    PCheckUni: TCheckUni;
-    PCallFleet: TCallFleet;
-    PCallFleetEx: TCallFleetEx;
-    PdirectCallFleet: TCallFleet;
-    POpenSolSys: TOpenSolSys;
-    PRunOptions: TRunOptions;
-    PStrToStatus: TStrToStatus;
-    PStatusToStr: TStatusToStr;
-    PReadPhalanxScan: TReadPhalanxScan;
-    PGetPhalaxScan: TGetPhalaxScan;
-    PReadSource_New: TReadSource_NewFunction;
-    PReadSource_Free: TReadSource_FreeFunction;
-    PReadSource_SetText: TReadSource_SetTextFunction;
-    PReadSource_SetHTML: TReadSource_SetHTMLFuncktion;
+    pdll_readFleetEventList: Tdll_readFleetEventList;
+    pdll_getFleetEvent: Tdll_getFleetEvent;
+
+    pdll_doStrToStatus: Tdll_doStrToStatus;
+    pdll_doStatusToStr: Tdll_doStatusToStr;
+
+    pdll_startDll: Tdll_startDll;
+    pdll_endDll: Tdll_endDll;
+
+    pdll_doScanToStr: Tdll_doScanToStr;
+
+    pdll_readScans: Tdll_readScans;
+    pdll_getScan: Tdll_getScan;
+
+    pdll_runOptions: Tdll_runOptions;
+
+    pdll_checkUni: Tdll_checkUni;
+
+    pdll_callFleet: Tdll_callFleet;
+    pdll_callFleetExtended: Tdll_callFleetExtended;
+    pdll_directCallFleet: Tdll_directCallFleet;
+    pdll_openSolSys : Tdll_openSolSys;
+
+    pdll_readSolarSystem: Tdll_readSolarSystem;
+    pdll_getSolarSystemPlanet: Tdll_getSolarSystemPlanet;
+
+    pdll_readStatistics: Tdll_readStatistics;
+    pdll_getStatisticEntry: Tdll_getStatisticEntry;
+
+    pdll_ReadSource_New: Tdll_ReadSource_New;
+    pdll_ReadSource_Free: Tdll_ReadSource_Free;
+    pdll_ReadSource_SetText: Tdll_ReadSource_SetText;
+    pdll_ReadSource_SetHTML: Tdll_ReadSource_SetHTML;
+
+    pdll_testReadSource: Tdll_testReadSource;
 
     SaveInf: AnsiString;
     function OpenDll: Boolean;
@@ -119,12 +168,13 @@ type
     SBItems: array[TScanGroup] of TStringList;
     property has_commander: boolean read isCommander;
     function ReadSource_New: integer;
+    procedure test_ShowReadSourceContent(handle: integer);
     procedure ReadSource_Free(handle: integer);
     function CallFleet_(pos: TPlanetPosition; job: TFleetEventType): Boolean;
     function CallFleetEx(fleet: TFleetEvent): Boolean;
     function directCallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
     function OpenSolSys(pos: TSolSysPosition): Boolean;
-    function GetReport(handle: integer; Bericht: TScanBericht;
+    function GetReport(handle: integer; index: integer; Bericht: TScanBericht;
       out moon_unknown: Boolean): Boolean;
     function ReadReports(handle: integer): Integer;
     constructor Create;
@@ -134,7 +184,6 @@ type
     function ReadSystem(handle: integer;
       var Sys: TSystemCopy; creator: string): Boolean;
     destructor Destroy; override;
-    function ReadRaidAuftrag(s: AnsiString; var Auftrag: TRaidAuftrag): Boolean;
     function ReadStats(handle: integer;
       var Stat: TStat; var typ: TStatTypeEx): Boolean;
     function CheckClipboardUni(handle: integer): Boolean;
@@ -142,7 +191,9 @@ type
     function StrToStatus(s: string): TStatus;
     function StatusToStr(Status: TStatus): string;
     function ReadPhalanxScan(handle: integer): TFleetsInfoSource;
-    function ReadPhalanxScanGet(out fleet: TFleetEvent): Boolean;
+    function ReadPhalanxScanGet(const handle: integer;
+      const index: integer;
+      out fleet: TFleetEvent): Boolean;
     procedure SetReadSourceText(handle: integer;
       text_utf8: AnsiString; server_time: int64);
     procedure SetReadSourceHTML(handle: integer;
@@ -155,45 +206,60 @@ uses global_options, cS_utf8_conv;
 
 procedure TLangPlugIn.AssignProcedures;
 begin
-  @PStartDll := GetProcAddress(DllHandle, 'StartDll');
-  @PEndDll := GetProcAddress(DllHandle, 'EndDll');
-  @PScanToStr := GetProcAddress(DllHandle, 'ScanToStr');
-  @PScanToStrTable := GetProcAddress(DllHandle, 'ScanToStrTable');
-  @PReadScans := GetProcAddress(DllHandle, 'ReadScans');
-  @PGetScan := GetProcAddress(DllHandle, 'GetScan');
-  @PReadSystem := GetProcAddress(DllHandle, 'ReadSystem');
-  @PReadRaidAuftrag := GetProcAddress(DllHandle, 'ReadRaidAuftrag');
-  @PReadStats := GetProcAddress(DllHandle, 'ReadStats');
-  @PCheckUni := GetProcAddress(DllHandle, 'CheckUni');
-  @PCallFleet := GetProcAddress(DllHandle, 'CallFleet');
-  @PCallFleetEx := GetProcAddress(DllHandle, 'CallFleetEx');
-  @PdirectCallFleet := GetProcAddress(DllHandle, 'directCallFleet');
-  @POpenSolSys := GetProcAddress(DllHandle, 'OpenSolSys');
-  @PRunOptions := GetProcAddress(DllHandle, 'RunOptions');
-  @PStrToStatus := GetProcAddress(DllHandle, 'StrToStatus');
-  @PStatusToStr := GetProcAddress(DllHandle, 'StatusToStr');
-  @PReadPhalanxScan := GetProcAddress(DllHandle, 'ReadPhalanxScan');
-  @PGetPhalaxScan := GetProcAddress(DllHandle, 'GetPhalaxScan');
+  @pdll_readFleetEventList := GetProcAddress(DllHandle, 'dll_readFleetEventList');
+  @pdll_getFleetEvent      := GetProcAddress(DllHandle, 'dll_getFleetEvent');
 
-  @PReadSource_New := GetProcAddress(DllHandle, 'ReadSource_New');
-  @PReadSource_Free := GetProcAddress(DllHandle, 'ReadSource_Free');
-  @PReadSource_SetText := GetProcAddress(DllHandle, 'ReadSource_SetText');
-  @PReadSource_SetHTML := GetProcAddress(DllHandle, 'ReadSource_SetHTML');
+  @pdll_doStrToStatus := GetProcAddress(DllHandle, 'dll_doStrToStatus');
+  @pdll_doStatusToStr := GetProcAddress(DllHandle, 'dll_doStatusToStr');
 
+  @pdll_startDll := GetProcAddress(DllHandle, 'dll_startDll');
+  @pdll_endDll   := GetProcAddress(DllHandle, 'dll_endDll');
+
+  @pdll_doScanToStr := GetProcAddress(DllHandle, 'dll_doScanToStr');
+
+  @pdll_readScans := GetProcAddress(DllHandle, 'dll_readScans');
+  @pdll_getScan   := GetProcAddress(DllHandle, 'dll_getScan');
+
+  @pdll_runOptions := GetProcAddress(DllHandle, 'dll_runOptions');
+
+  @pdll_checkUni   := GetProcAddress(DllHandle, 'dll_checkUni');
+
+  @pdll_callFleet          := GetProcAddress(DllHandle, 'dll_callFleet');
+  @pdll_callFleetExtended  := GetProcAddress(DllHandle, 'dll_callFleetExtended');
+  @pdll_directCallFleet    := GetProcAddress(DllHandle, 'dll_directCallFleet');
+  @pdll_openSolSys         := GetProcAddress(DllHandle, 'dll_openSolSys');
+
+  @pdll_readSolarSystem      := GetProcAddress(DllHandle, 'dll_readSolarSystem');
+  @pdll_getSolarSystemPlanet := GetProcAddress(DllHandle, 'dll_getSolarSystemPlanet');
+
+  @pdll_readStatistics     := GetProcAddress(DllHandle, 'dll_readStatistics');
+  @pdll_getStatisticEntry  := GetProcAddress(DllHandle, 'dll_getStatisticEntry');
+
+  @pdll_ReadSource_New     := GetProcAddress(DllHandle, 'dll_ReadSource_New');
+  @pdll_ReadSource_Free    := GetProcAddress(DllHandle, 'dll_ReadSource_Free');
+  @pdll_ReadSource_SetText := GetProcAddress(DllHandle, 'dll_ReadSource_SetText');
+  @pdll_ReadSource_SetHTML := GetProcAddress(DllHandle, 'dll_ReadSource_SetHTML');
+
+  @pdll_testReadSource     := GetProcAddress(DllHandle, 'dll_testReadSource');
 end;
 
 function TLangPlugIn.CallFleet_(pos: TPlanetPosition; job: TFleetEventType): Boolean;
+var p_pos: TPortablePlanetPosition;
 begin
-  if Assigned(PCallFleet) then
-    Result := PCallFleet(pos, job)
+  if Assigned(pdll_callFleet) then
+  begin
+    createPortable_PlanetPosition(pos, p_pos);
+    Result := pdll_callFleet(@p_pos, Integer(job))
+  end
   else
     raise Exception.Create('TLangPlugIn.CallFleet(): dll does not support this feature');
 end;
 
 function TLangPlugIn.directCallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
 var cs_light: boolean;
+    p_pos: TPortablePlanetPosition;
 begin
-  if Assigned(PdirectCallFleet) then
+  if Assigned(pdll_directCallFleet) then
   begin
     cs_light := StrToBool(cS_getGlobalOption('main', 'cs_light', BoolToStr(true)));
     if (cs_light) and (pos.Mond) and (not isCommander) then
@@ -204,7 +270,8 @@ begin
       exit;
     end;
 
-    Result := PdirectCallFleet(pos, job)
+    createPortable_PlanetPosition(pos, p_pos);
+    Result := pdll_directCallFleet(@p_pos, Integer(job))
   end
   else
     raise Exception.Create('TLangPlugIn.directCallFleet(): dll does not support this feature');
@@ -212,15 +279,15 @@ end;
 
 function TLangPlugIn.CheckClipboardUni(handle: integer): Boolean;
 begin
-  Result := Assigned(PCheckUni) and
-            PCheckUni(handle, isCommander);
+  Result := Assigned(pdll_checkUni) and
+            pdll_checkUni(handle, @isCommander);
 end;
 
 procedure TLangPlugIn.CloseDll;
 begin
   if DllHandle <> 0 then
   begin
-    if Assigned(PEndDll) then PEndDll;
+    if Assigned(pdll_endDll) then pdll_endDll();
     FreeLibrary(DllHandle);
     DllHandle := 0;
   end;
@@ -347,8 +414,8 @@ begin
   if DllLoaded then
   begin
     AssignProcedures;
-    if not(Assigned(PStartDll)and
-       PStartDll(PAnsiChar(dllconfig),V,PAnsiChar(trnsltoUTF8(ServerURL)),
+    if not(Assigned(pdll_startDll)and
+       pdll_startDll(PAnsiChar(dllconfig),@V,PAnsiChar(trnsltoUTF8(ServerURL)),
                  PAnsiChar(SaveInf),PAnsiChar(trnsltoUTF8(PlugInName)))) then
     begin
       //Irgend ein Fehler
@@ -372,32 +439,23 @@ begin
   Result := DllLoaded;
 end;
 
-function TLangPlugIn.ReadRaidAuftrag(s: AnsiString; var Auftrag: TRaidAuftrag): Boolean;
-begin
-  if Assigned(PReadRaidAuftrag) then
-    Result := PReadRaidAuftrag(PAnsiChar(s),Auftrag)
-  else Result := False;
-end;
-
-function TLangPlugIn.GetReport(handle: integer; Bericht: TScanBericht;
-  out moon_unknown: Boolean): Boolean;
+function TLangPlugIn.GetReport(handle: integer; index: integer;
+  Bericht: TScanBericht; out moon_unknown: Boolean): Boolean;
 var stream: TFixedMemoryStream_out;
+    p_scan_head: PPortableScanHead;
+    p_scan_body: PPortableScanBody;
 begin
-  //Speicher reservieren
-  stream := TFixedMemoryStream_out.Create(Bericht.serialize_size());
-  try
-    //DLL aufrufen:
-    if Assigned(PGetScan) then
-      Result := PGetScan(handle, stream.p, stream.size, moon_unknown)
-    else Result := False;
+  //DLL aufrufen:
+  if Assigned(pdll_getScan) then
+    Result := pdll_getScan(handle, index,
+                  @p_scan_head,
+                  @p_scan_body,
+                  @moon_unknown)
+  else Result := False;
 
-    if Result then
-    begin
-      Bericht.deserialize(stream);
-    end;
-
-  finally
-    stream.Free;
+  if Result then
+  begin
+    makeFromPortable_Scan(p_scan_head^, p_scan_body^, Bericht);
   end;
 end;
 
@@ -405,36 +463,47 @@ function TLangPlugIn.ReadReports(handle: integer): Integer;
 begin
   Result := 0;
   //Dll aufrufen:
-  if Assigned(PReadScans) then
+  if Assigned(pdll_readScans) then
   begin
-    Result := PReadScans(handle);
+    Result := pdll_readScans(handle);
   end;
 end;
 
 procedure TLangPlugIn.ReadSource_Free(handle: integer);
 begin
-  if Assigned(PReadSource_Free) then
-    PReadSource_Free(handle);
+  if Assigned(pdll_ReadSource_Free) then
+    pdll_ReadSource_Free(handle);
 end;
 
 function TLangPlugIn.ReadSource_New: integer;
 begin
-  if Assigned(PReadSource_New) then
-    Result := PReadSource_New()
+  if Assigned(pdll_ReadSource_New) then
+    Result := pdll_ReadSource_New()
   else
     Result := -1;
 end;
 
 function TLangPlugIn.ReadStats(handle: integer;
   var Stat: TStat; var typ: TStatTypeEx): Boolean;
-var stat_utf8: TStat_utf8;
+var p_stat: PPortableStatisticPageHead;
+    p_entry: PPortableStatisticEntry;
+    i: Integer;
 begin
-  if Assigned(PReadStats) then
+  if Assigned(pdll_readStatistics) and
+     Assigned(pdll_getStatisticEntry) then
   begin
-    Result := PReadStats(handle, stat_utf8, typ);
+    Result := pdll_readStatistics(handle, @p_stat);
     if Result then
     begin
-      decodeStatUTF8(stat_utf8, Stat);
+      makeFromPortable_StatisticPageHead(p_stat^, Stat, typ);
+
+      for i := 0 to 99 do
+      begin
+        if (pdll_getStatisticEntry(handle, i, @p_entry)) then
+        begin
+          makeFromPortable_StatisticEntry(p_entry^, stat.Stats[i]);
+        end;
+      end;
     end;
   end
   else Result := False;
@@ -442,14 +511,22 @@ end;
 
 function TLangPlugIn.ReadSystem(handle: integer;
   var Sys: TSystemCopy; creator: string): Boolean;
-var sys_utf8: TSystemCopy_utf8;
+var p_solsys_head: PPortableSolarSystemHead;
+    p_solsys_planet: PPortableSolarSystemPlanet;
+    i: integer;
 begin
-  if Assigned(PReadSystem) then
+  if Assigned(pdll_readSolarSystem) and
+     Assigned(pdll_getSolarSystemPlanet) then
   begin
-    Result := PReadSystem(handle, sys_utf8);
+    Result := pdll_readSolarSystem(handle, @p_solsys_head);
     if Result then
     begin
-      decodeSysUTF8(sys_utf8, Sys);
+      makeFromPortable_SolarSystemHead(p_solsys_head^, Sys);
+      for i := 1 to length(Sys.Planeten) do
+      begin
+        pdll_getSolarSystemPlanet(handle, i, @p_solsys_planet);
+        makeFromPortable_SolarSystemPlanet(p_solsys_planet^, sys.Planeten[i]);
+      end;
       Sys.Creator := creator;
     end;
   end
@@ -458,48 +535,62 @@ end;
 
 procedure TLangPlugIn.RunOptions;
 begin
-  if Assigned(PRunOptions) then PRunOptions
+  if Assigned(pdll_runOptions) then pdll_runOptions()
   else ShowMessage('No options available');
 end;
 
 function TLangPlugIn.ScanToStr(SB: TScanBericht; AsTable: Boolean): String;
-var stream: TFixedMemoryStream_out;
-    gh: THandle; //GlobalMemory
+var rs_handle: Integer;
+    pc: PAnsiChar;
+    p_scan_head: TPortableScanHead;
+    p_scan_body: TPortableScanBody;
+    container: TUtf8StringContainer;
 begin
-  stream := TFixedMemoryStream_out.Create(SB.serialize_size());
-  SB.serialize(stream);
+  container := TUtf8StringContainer.Create;
+  rs_handle := Self.ReadSource_New();
   try
-    if Assigned(PScanToStr) then
+    if Assigned(pdll_doScanToStr) then
     begin
-      gh := PScanToStr(stream.p, stream.size, AsTable);
-      Result := trnslShortStr(PAnsiChar(GlobalLock(gh)));
-      GlobalUnlock(gh);
-      GlobalFree(gh);
+      createPortable_Scan(SB, p_scan_head, p_scan_body, container);
+      pc := pdll_doScanToStr(rs_handle, AsTable, @p_scan_head, @p_scan_body);
+      Result := trnslShortStr(pc);
     end
     else Result := '';
   finally
-    stream.Free;
+    ReadSource_Free(rs_handle);
+    container.Free;
   end;
 end;
 
 procedure TLangPlugIn.SetReadSourceHTML(handle: integer;
   html_utf8: AnsiString; server_time: int64);
 begin
-  if Assigned(PReadSource_SetHTML) then
+  if Assigned(pdll_ReadSource_SetHTML) then
   begin
-    PReadSource_SetHTML(handle, PAnsiChar(html_utf8), server_time);
+    pdll_ReadSource_SetHTML(handle, PAnsiChar(html_utf8), server_time);
   end
   else
     raise TLangPluginNoPluginException.Create(
       'TLangPlugIn.SetReadSourceHTML: Plugin fehlerhaft, oder kein Plugin geladen!');
 end;
 
+procedure TLangPlugIn.test_ShowReadSourceContent(handle: integer);
+begin
+  if Assigned(pdll_testReadSource) then
+  begin
+    pdll_testReadSource(handle);
+  end
+  else
+    raise TLangPluginNoPluginException.Create(
+      'TLangPlugIn.test_ShowReadSourceContent: Plugin fehlerhaft, oder kein Plugin geladen!');
+end;
+
 procedure TLangPlugIn.SetReadSourceText(handle: integer;
   text_utf8: AnsiString; server_time: int64);
 begin
-  if Assigned(PReadSource_SetText) then
+  if Assigned(pdll_ReadSource_SetText) then
   begin
-    PReadSource_SetText(handle, PAnsiChar(text_utf8), server_time);
+    pdll_ReadSource_SetText(handle, PAnsiChar(text_utf8), server_time);
   end
   else
     raise TLangPluginNoPluginException.Create(
@@ -507,42 +598,59 @@ begin
 end;
 
 function TLangPlugIn.StatusToStr(Status: TStatus): string;
+var rs_handle: Integer;
 begin
-  if Assigned(PStatusToStr) then
+  if Assigned(pdll_doStatusToStr) then
   begin
-    Result := trnslShortStr(PStatusToStr(Status));
+    rs_handle := Self.ReadSource_New;
+    try
+      Result := trnslShortStr(pdll_doStatusToStr(rs_handle, Status));
+    finally
+      Self.ReadSource_Free(rs_handle);
+    end;
   end
   else Result := '';
 end;
 
 function TLangPlugIn.StrToStatus(s: string): TStatus;
 begin
-  if Assigned(PStrToStatus) then
+  if Assigned(pdll_doStrToStatus) then
   begin
-    Result := PStrToStatus(trnslToUtf8(s));
+    Result := pdll_doStrToStatus(PAnsiChar(trnslToUtf8(s)));
   end
   else Result := [];
 end;
 
 function TLangPlugIn.ReadPhalanxScan(handle: integer): TFleetsInfoSource;
+var info: PPortableFleetsInfoSource;
+    success: boolean;
 begin
-  if Assigned(PReadPhalanxScan) then
-    Result := PReadPhalanxScan(handle)
-  else
+  if Assigned(pdll_readFleetEventList) then
   begin
-    Result.Count := 0;
-    Result.typ := fist_none;
+    success := pdll_readFleetEventList(handle, @info);
+    if success then
+    begin
+      makeFromPortable_FleetInfoSource(info^, Result);
+      // if success: exit here
+      Exit();
+    end
   end;
+
+  // if failed: clear result
+  Result.Count := 0;
+  Result.typ := fist_none;
 end;
 
-function TLangPlugIn.ReadPhalanxScanGet(out fleet: TFleetEvent): Boolean;
+function TLangPlugIn.ReadPhalanxScanGet(const handle: integer;
+  const index: integer;
+  out fleet: TFleetEvent): Boolean;
 var buf: pointer;
 begin
-  if Assigned(PGetPhalaxScan) then
+  if Assigned(pdll_getFleetEvent) then
   begin
     GetMem(buf, BufFleetSize());
     try
-      Result := PGetPhalaxScan(buf);
+      Result := pdll_getFleetEvent(handle, index, buf);
       fleet := ReadBufFleet(buf);
     finally
       FreeMem(buf);
@@ -552,9 +660,16 @@ begin
 end;
 
 function TLangPlugIn.OpenSolSys(pos: TSolSysPosition): Boolean;
+var p_pos: TPortablePlanetPosition;
 begin
-  if Assigned(POpenSolSys) then
-    Result := POpenSolSys(pos)
+  if Assigned(pdll_openSolSys) then
+  begin
+    p_pos[0] := pos[0];
+    p_pos[1] := pos[1];
+    p_pos[2] := 1;
+    p_pos[3] := 0;
+    Result := pdll_openSolSys(@p_pos);
+  end
   else
     raise Exception.Create(
       'TLangPlugIn.OpenSolSys(): dll does not support this feature');
@@ -563,12 +678,12 @@ end;
 function TLangPlugIn.CallFleetEx(fleet: TFleetEvent): Boolean;
 var buf: pointer;
 begin
-  if Assigned(PCallFleetEx) then
+  if Assigned(pdll_callFleetExtended) then
   begin
     GetMem(buf, BufFleetSize());
     try
       WriteBufFleet(fleet, buf);
-      Result := PCallFleetEx(buf);
+      Result := pdll_callFleetExtended(buf);
     finally
       FreeMem(buf);
     end;
