@@ -1,9 +1,9 @@
 object FRM_MainTest: TFRM_MainTest
   Left = 687
   Top = 502
-  Width = 508
-  Height = 237
   Caption = 'DLL_plugin_TEST'
+  ClientHeight = 201
+  ClientWidth = 492
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -112,7 +112,7 @@ object FRM_MainTest: TFRM_MainTest
   object GroupBox2: TGroupBox
     Left = 8
     Top = 144
-    Width = 477
+    Width = 476
     Height = 49
     Caption = 'GroupBox2'
     TabOrder = 4

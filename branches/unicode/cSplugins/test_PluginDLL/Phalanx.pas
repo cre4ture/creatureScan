@@ -17,7 +17,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure vst_fleetsGetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-      var CellText: WideString);
+      var CellText: String);
     procedure vst_fleetsFocusChanged(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex);
     procedure FormCreate(Sender: TObject);
@@ -51,11 +51,12 @@ begin
   ComboBox1.ItemIndex := byte(info.typ);
 
   SetLength(fleets, 0);
-  while plugin.ReadPhalanxScanGet(afleet) do
+  i := 0;
+  while plugin.ReadPhalanxScanGet(FRM_Sources.plugin_handle, i, afleet) do
   begin
-    i := length(fleets);
     SetLength(fleets,i+1);
     fleets[i] := afleet;
+    inc(i);
   end;
 
   vst_fleets.RootNodeCount := length(fleets);
@@ -64,7 +65,7 @@ end;
 
 procedure TFRM_Phalanx.vst_fleetsGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: WideString);
+  var CellText: String);
 var index: cardinal;
 begin
   index := Node.Index;

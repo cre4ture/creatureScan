@@ -7,10 +7,11 @@ uses
 
 type
   TcSFleetFileFormat =
-  (cff_none,           cff_20 , cff_30           );
+  (cff_none,           cff_20 , cff_30, cff_31           );
 const
   cSFleetFileFormatstr: array[TcSFleetFileFormat] of shortstring =
-  ( 'error', 'cscan_fleet_2.0', 'creatureScan_fleetDB_3.0');
+  ( 'error', 'cscan_fleet_2.0', 'creatureScan_fleetDB_3.0',
+    'creatureScan_fleetDB_3.1');
 
   new_file_ident = 'new_file';
 
@@ -43,6 +44,22 @@ type
   end;
   TcSFleetItem_20 = packed record
     head: TcSFleetItemHead_20;
+    ress: packed array[0..2] of integer;
+    ships: packed array[1..14] of integer;
+  end;
+
+  TcSFleetItemHead_31 = packed record
+    unique_id: integer;  //ID from ogame database
+    eventtype: Byte;
+    eventflags: Byte;
+    origin, target: TcSFleetItem_20_Head_PlanetPos;
+    time_u: Int64;
+    player: string[50];
+    joined_id: integer;  //set an id > 0 if Fleet belongs to a "Verbands-Angriff"
+    alert: Boolean; // is set if gui should alert arrival of this fleet
+  end;
+  TcSFleetItem_31 = packed record
+    head: TcSFleetItemHead_31;
     ress: packed array[0..2] of integer;
     ships: packed array[1..14] of integer;
   end;
@@ -152,6 +169,46 @@ begin
   Result.head.arrival_time_u := Item.Head.time_u;
   Result.head.player := trnslShortStr(Item.Head.player);
   Result.head.joined_id := Item.Head.joined_id;
+  Result.head.alert := true;
+
+  SetLength(Result.ress,length(Item.ress));
+  for i := 0 to length(Item.ress)-1 do
+  begin
+    Result.ress[i] := Item.ress[i];
+  end;
+
+  SetLength(Result.ships,length(Item.ships));
+  for i := 1 to length(Item.ships) do
+  begin
+    Result.ships[i-1] := Item.ships[i];
+  end;
+end;
+
+function cSFleetItem_to_Fleet_31(const ItemBuf: pointer): TFleetEvent;
+var Item: TcSFleetItem_31;
+    i: integer;
+begin
+  Item := TcSFleetItem_31(ItemBuf^);
+  FillChar(Result, SizeOf(Result), 0);
+
+  Result.head.unique_id := Item.head.unique_id;
+  Result.head.eventtype := TFleetEventType(Item.Head.eventtype);
+  Result.head.eventflags := TFleetEventFlags(Item.Head.eventflags);
+
+  Result.head.origin.P[0] := Item.Head.origin.Position[0];
+  Result.head.origin.P[1] := Item.Head.origin.Position[1];
+  Result.head.origin.P[2] := Item.Head.origin.Position[2];
+  Result.head.origin.Mond := Item.Head.origin.P_Mond;
+
+  Result.head.target.P[0] := Item.Head.target.Position[0];
+  Result.head.target.P[1] := Item.Head.target.Position[1];
+  Result.head.target.P[2] := Item.Head.target.Position[2];
+  Result.head.target.Mond := Item.Head.target.P_Mond;
+
+  Result.head.arrival_time_u := Item.Head.time_u;
+  Result.head.player := trnslShortStr(Item.Head.player);
+  Result.head.joined_id := Item.Head.joined_id;
+  Result.head.alert := Item.head.alert;
 
   SetLength(Result.ress,length(Item.ress));
   for i := 0 to length(Item.ress)-1 do
@@ -203,6 +260,44 @@ begin
   TcSFleetItem_20(ItemBuf^) := Item;
 end;
 
+procedure Fleet_to_cSFleetItem_31(const Fleet: TFleetEvent;
+  const ItemBuf: pointer);
+var Item: TcSFleetItem_31;
+    i: integer;
+begin
+  FillChar(Item, SizeOf(Item), 0);
+
+  Item.Head.unique_id := Fleet.head.unique_id;
+  Item.Head.eventtype := Byte(Fleet.head.eventtype);
+  Item.Head.eventflags := Byte(Fleet.head.eventflags);
+
+  Item.Head.origin.Position[0] := Fleet.head.origin.P[0];
+  Item.Head.origin.Position[1] := Fleet.head.origin.P[1];
+  Item.Head.origin.Position[2] := Fleet.head.origin.P[2];
+  Item.Head.origin.P_Mond := Fleet.head.origin.Mond;
+
+  Item.Head.target.Position[0] := Fleet.head.target.P[0];
+  Item.Head.target.Position[1] := Fleet.head.target.P[1];
+  Item.Head.target.Position[2] := Fleet.head.target.P[2];
+  Item.Head.target.P_Mond := Fleet.head.target.Mond;
+
+  Item.Head.time_u := Fleet.head.arrival_time_u;
+  Item.Head.player := trnsltoUTF8(Fleet.head.player);
+  Item.Head.joined_id := Fleet.head.joined_id;
+  Item.head.alert := Fleet.head.alert;
+
+  for i := 0 to length(Item.ress)-1 do
+  begin
+    Item.ress[i] := Fleet.ress[i];
+  end;
+  for i := 1 to length(Item.ships) do
+  begin
+    Item.ships[i] := Fleet.ships[i-1];
+  end;
+
+  TcSFleetItem_31(ItemBuf^) := Item;
+end;
+
 procedure TcSFleetDBFile.DisposeItemPtr(const p: pointer);
 begin
   Dispose(PFleetEvent_(p));
@@ -239,6 +334,13 @@ begin
       FItemSize := SizeOf(TcSFleetItem_20);
       FFleetToItem := Fleet_to_cSFleetItem_20;
       FItemToFleet := cSFleetItem_to_Fleet_20;
+    end;
+    cff_31:
+    begin
+      // FHeaderSize := SizeOf(TcSFleetHeader_20); -> this is the default value
+      FItemSize := SizeOf(TcSFleetItem_31);
+      FFleetToItem := Fleet_to_cSFleetItem_31;
+      FItemToFleet := cSFleetItem_to_Fleet_31;
     end;
     else
       raise Exception.Create(

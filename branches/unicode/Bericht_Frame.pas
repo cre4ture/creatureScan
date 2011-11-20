@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   ExtCtrls, OGame_Types, Prog_Unit, Menus, StdCtrls, Buttons, RaidBoard, Clipbrd,
-  IniFiles, DateUtils, TIReadPlugin, UniTree, html;
+  IniFiles, DateUtils, TIReadPlugin, UniTree, creax_html;
 
 type
   TFrame_Bericht = class(TFrame)

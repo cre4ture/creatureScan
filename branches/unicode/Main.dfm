@@ -40,6 +40,7 @@ object FRM_Main: TFRM_Main
       HorzScrollBar.Style = ssHotTrack
       VertScrollBar.Style = ssHotTrack
       Align = alBottom
+      AutoScroll = True
       Color = clBlack
       ParentBackground = False
       ParentColor = False
@@ -50,18 +51,18 @@ object FRM_Main: TFRM_Main
       ExplicitWidth = 541
       ExplicitHeight = 129
       inherited PB_B: TPaintBox
-        Width = 541
+        Width = 524
         ExplicitWidth = 524
       end
       inherited Panel1: TPanel
-        Width = 541
-        ExplicitWidth = 541
+        Width = 524
+        ExplicitWidth = 524
         inherited LBL_Raid24_Info: TLabel
-          Left = 371
+          Left = 354
           ExplicitLeft = 354
         end
         inherited BTN_Last24: TSpeedButton
-          Left = 455
+          Left = 438
           ExplicitLeft = 438
         end
       end
@@ -99,6 +100,7 @@ object FRM_Main: TFRM_Main
         HorzScrollBar.Style = ssHotTrack
         VertScrollBar.Style = ssHotTrack
         Align = alClient
+        AutoScroll = True
         Color = clBlack
         ParentBackground = False
         ParentColor = False
@@ -1057,6 +1059,13 @@ object FRM_Main: TFRM_Main
         ShortCut = 16503
         OnClick = commander1Click
       end
+      object N12: TMenuItem
+        Caption = '-'
+      end
+      object testShowReadSource1: TMenuItem
+        Caption = 'test_ShowReadSource'
+        OnClick = testShowReadSource1Click
+      end
     end
   end
   object TrayIconPopup: TPopupMenu
@@ -1098,7 +1107,7 @@ object FRM_Main: TFRM_Main
     Left = 12
     Top = 276
     Bitmap = {
-      494C010102000400240010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101020004002C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       00000000000000000000000000000000000000000000C0C0C000BABABA00B4B4
       B400ADADAD00A4A4A4009B9B9B009D9D9D008B8B8B0026262600090909001010
@@ -1274,7 +1283,7 @@ object FRM_Main: TFRM_Main
     Left = 468
     Top = 120
     Bitmap = {
-      494C010106000800240006000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101060008002C0006000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000180000001A0000000100200000000000C009
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

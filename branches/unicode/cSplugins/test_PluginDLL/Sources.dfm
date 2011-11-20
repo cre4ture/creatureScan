@@ -1,9 +1,9 @@
 object FRM_Sources: TFRM_Sources
   Left = 212
   Top = 222
-  Width = 692
-  Height = 403
   Caption = 'Sources'
+  ClientHeight = 378
+  ClientWidth = 684
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

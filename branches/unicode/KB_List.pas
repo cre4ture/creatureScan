@@ -580,7 +580,8 @@ begin
       end;
 
       //Zeige Fenster an:
-      if not (cS_light and (fef_hostile in fleet.head.eventflags)) then
+      if (not (cS_light and (fef_hostile in fleet.head.eventflags))) and
+         (fleet.head.alert) then
       begin
         zeit := fleet.head.arrival_time_u - gameNow_u;
         if (zeit < FRM_Main.PlayerOptions.Fleet_AMSG_Time_s)or

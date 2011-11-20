@@ -83,13 +83,15 @@ uses
   ActivityFinder in 'ActivityFinder.pas',
   global_options in 'global_options.pas',
   cpp_dll_interface in '..\lib\uli\htmllib\cpp_dll_interface.pas',
-  html in '..\lib\uli\htmllib\html.pas',
+  creax_html in '..\lib\uli\htmllib\creax_html.pas',
   parser_types in '..\lib\uli\htmllib\parser_types.pas',
   fast_strings in '..\lib\uli\htmllib\fast_strings.pas',
   xml_parser_unicode in 'xml_parser_unicode.pas',
   cS_utf8_conv in 'cS_utf8_conv.pas',
   Vcl.Themes,
-  Vcl.Styles;
+  Vcl.Styles,
+  TIReadPlugin_Types_conv_UNICODE in 'ReadPlugins\TIReadPlugin_Types_conv_UNICODE.pas',
+  TIReadPlugin_Types in 'ReadPlugins\TIReadPlugin_Types.pas';
 
 {$R *.RES}
 

@@ -7,7 +7,7 @@ uses
   Dialogs, OGame_Types, StdCtrls, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdHTTP, IdURI, DateUtils, cS_XML, XMLDoc, xmldom,
   XMLIntf, msxmldom, shellapi, ExtCtrls, clientlogin, IdAuthentication,
-  ComCtrls, xml_parser_unicode, Prog_unit, Spin, Inifiles, html, Stat_Points;
+  ComCtrls, xml_parser_unicode, Prog_unit, Spin, Inifiles, creax_html, Stat_Points;
 
 type
   TStatsPartTime = class

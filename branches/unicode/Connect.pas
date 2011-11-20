@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, Prog_Unit, inifiles, Menus, html;
+  StdCtrls, Prog_Unit, inifiles, Menus, creax_html;
 
 type
   TFRM_Connect = class(TForm)

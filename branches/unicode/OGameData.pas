@@ -3,7 +3,7 @@ unit OGameData;
 interface
 
 uses
-  html, classes, sysutils;
+  creax_html, classes, sysutils;
 
 type
   TGameUniverse = class
