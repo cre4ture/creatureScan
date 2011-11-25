@@ -15,7 +15,6 @@ const
 type
   TReadReport_Text = class
   private
-  protected
     STR_Mond: string;
     STR_RegExp_Header: string;
     STR_RegExp_cspio: string;
@@ -26,7 +25,6 @@ type
     function _ScanToStrAsTable(SB: TScanBericht): string;
     function _ScanToStrAsTable_v2(SB: TScanBericht): string;
     function _ReadScanHeader_RegEx(var s1: string; var Head: TScanHead; out AskMond: Boolean): Boolean;
-    function _ReadScanHeaders(var s1: string; var Head: TScanHead): Boolean;
     function _LeseGanzenScanBericht(var _s: String; Bericht: TScanBericht; var AskMond: Boolean): Boolean;
     function _ScanToStr(SB: TScanBericht): string;
     function _ScanHeadToStr(Head: TScanHead): string;
@@ -414,98 +412,6 @@ begin
       Result := True;                                  
     end;
   end;
-end;
-
-function TReadReport_Text._ReadScanHeaders(var s1: string; var Head: TScanHead): Boolean;
-var p,p2 : integer;
-    month, day: integer;
-    TimePos : TPlanetPosition;
-    s, delemch : string;
-
-    function readPlayerName: boolean;
-    var p: integer;
-    begin
-      result := false;
-
-      p := pos(SB_KWords[6], s); //"(Spieler '"
-      if (p <= 0)or(p > 10) then exit;
-      p := p+length(SB_KWords[6])-1;
-      Delete(s, 1, p);
-      p := pos(SB_KWords[7], s); //"')"
-      if p <= 0 then exit;
-      Head.Spieler := copy(s,1,p-1);
-      Delete(s, 1, p+length(SB_KWords[7])-1);
-      {p := pos(SB_KWords[8],s);   //"am "
-      Delete(s, 1, p-1); }
-
-      result := true;
-    end;
-    //10.01.2009 -> veraltet! siehe _RegExp
-begin             //liest den kopf eines Scans
-  Result := false;
-  Head.Spieler := '';
-  Head.Creator := '';
-  {Head.geraidet := false;
-  Head.von := ''; }
-
-
-  p := pos(SB_KWords[0],s1);  //'Rohstoffe auf '
-  delete(s1,1,p-1);          //kürzt den Ursprungsstring bis zum ersten Scanbericht!
-  s := s1;
-  if p = 0 then              //wenn keiner gefunden dann Exit!
-    Exit;
-  p2 := pos(SB_KWords[1],s);  //' ['
-  if p2 = 0 then             //wenn keine Koordinaten dann exit!
-    Exit;
-  p := length(SB_KWords[0]) + 1;      //'Rohstoffe auf '[p] .... [p2]' ['
-  Head.Planet := copy(s,p,p2-p);     //Planetname
-  //----nachtrag:---------------------------------------------------------------
-  delemch := Head.Planet;
-  //----------------------------------------------------------------------------
-  //----Ogame version 0.75------Monde: namelala (Mond)---------------------------
-  p := pos('(' + STR_Mond + ')',delemch);
-  Head.Position.Mond := p > 0;
-  if Head.Position.Mond then
-    Delete(delemch,p,high(integer));
-  //----------------------------------------------------------------------------
-  DeleteEmptyChar(delemch);   //nur für türkische version muss auch #13 und #10 noch enfernt werden
-  Head.Planet := delemch;     //kann wieder abgestellt werden, sobalt die datfiles auch zeilenumbrüche können!
-  //----------------------------------------------------------------------------
-  p := p2 + length(SB_KWords[1]);     //[p2]' ['[p].......
-  readPosOrTime(s,p,Head.Position);  //Position
-  p := pos(SB_KWords[2],s);           //[p]'] '
-  if p = 0 then
-    Exit;
-  p := p + length(SB_KWords[2]);      //'] '[p]
-  delete(s,1,p-1);                   //String bis dahin löschen
-  readPlayerName;
-  p := pos(SB_KWords[8],s) + length(SB_KWords[8]);          //'am '[p]'.......
-  //Zeit und Datum:
-  ReadPosOrTime(s,p,TimePos);        //DatumEinlesen
-  month := TimePos.P[1];
-  day := TimePos.P[0];
-  p := PosEx(SB_KWords[3],s,p);           //[p]' '.......
-  if p = 0 then Exit;
-  p := p + length(SB_KWords[3]);      //' '[p].....
-  ReadPosOrTime(s,p,TimePos);        //Uhrzeiteinlesen
-  Head.Time_u := _SetTime(month,day,TimePos.P[0],TimePos.P[1],TimePos.P[2]);
-  //---------------------------------------------------------------------------------------------------------------------
-  //ShowMessage('Rest in read Head: ' + s);
-  p := pos(SB_KWords[4],s);           //[p]'Chance auf Spionageabwehr:'...
-  if p = 0 then
-    Exit                             //dann is der Scan nicht Vollständig, und es fehlen womöglich Forschungen am Schluss!
-  else
-  begin
-    p := p + length(SB_KWords[4]);    //'Chance auf Spionageabwehr:'[p]...
-    Head.Spionageabwehr := ReadInt(s,p);    //Einlesen der Spioabwehr
-    delete(s,1,p+1);                        //Gesammten eingelesenen Scan aus s Löschen
-    s1 := copy(s1,1,length(s1)-length(s));  //da length(s) den reststring angibt, wird dieser von der gesamtlänge abgezogen. Dadurch ist in s1 nurnoch der scan!
-  end;
-  Result := true;                    //da alles funzt Result := true;
-
-  //14.02.2008: Einlesen der Aktivität auf dem Planeten (Anomalie usw...)
-  if not _ReadActivity(Head, s1) then
-    Head.Activity := -1;
 end;
 
 function TReadReport_Text._LeseGanzenScanBericht(var _s: String; Bericht: TScanBericht; var AskMond: Boolean): Boolean;

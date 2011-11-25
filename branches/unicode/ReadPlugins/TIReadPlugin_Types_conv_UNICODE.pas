@@ -87,7 +87,7 @@ begin
   // head
   scan.Head.Planet := UTF8ToWideString(portableHead.PlanetName);
   makeFromPortable_PlanetPosition(portableHead.Position, scan.Head.Position);
-  scan.Head.Time_u := scan.Head.Time_u;
+  scan.Head.Time_u := portableHead.Time_u;
   scan.Head.Spieler := UTF8ToWideString(portableHead.Player);
   scan.Head.SpielerId := portableHead.PlayerId; 
   scan.Head.Spionageabwehr := portableHead.Spionageabwehr;
