@@ -52,6 +52,7 @@ type
 
   TStatisticDBFile = class(TSimpleDBCachedFile)
   protected
+    fType: TStatTypeEx;
     FHeader: TStatFileInf_20;
     function GetUni: string;
     procedure SetUni(u: string);
@@ -62,7 +63,7 @@ type
     procedure PtrToItem(const p: pointer; var Buf); override;
     procedure DisposeItemPtr(const p: pointer); override;
   public
-    constructor Create(aFilename: string);
+    constructor Create(aFilename: string; aType: TStatTypeEx);
     property UniDomain: string read GetUni write SetUni;
     property Stats[nr: Cardinal]: TStat read GetStat write SetStat; default;
   end;
@@ -81,7 +82,7 @@ type
     function GetCount: Integer;
     procedure SetCount(c: integer);
   public
-    constructor Create(AFile: String; UniDomain: String);
+    constructor Create(AFile: String; UniDomain: String; aType: TStatTypeEx);
     function AddStat(Stats: TStat): boolean; virtual;
     property Statistik[Platz: Word]: TStatPlayer read GetPlayerAtPlace;
     property Datum[Platz: Word]: TDateTime read GetDateAtPos;
@@ -160,16 +161,16 @@ begin
   else Result := -1;
 end;
 
-constructor TStatPoints.Create(AFile: String; UniDomain: String);
+constructor TStatPoints.Create(AFile: String; UniDomain: String; aType: TStatTypeEx);
 begin
   inherited Create;
   try
-    FStats := TStatisticDBFile.Create(AFile);
+    FStats := TStatisticDBFile.Create(AFile, aType);
   except
     on EcSStatsWrongFormat do // bei falschem oder altem Format
     begin  // (convertierung lohnt sich nicht bei stats)
       DeleteFile(AFile);  // -> löschen und neu erstellen!
-      FStats := TStatisticDBFile.Create(AFile);
+      FStats := TStatisticDBFile.Create(AFile, aType);
     end;
   end;
   
@@ -360,10 +361,11 @@ begin
   FStats.Count := c;
 end;
 
-constructor TStatisticDBFile.Create(aFilename: string);
+constructor TStatisticDBFile.Create(aFilename: string; aType: TStatTypeEx);
 begin
   FHeaderSize := SizeOf(FHeader);
   FItemSize := SizeOf(TStatFileStat_11);
+  fType := aType;
 
   inherited Create(aFilename);
   
@@ -411,8 +413,16 @@ begin
       TStat(p^).Stats[i].Name := trnslShortStr(Stats[i].Name);
       TStat(p^).Stats[i].NameId := Stats[i].NameId;
       TStat(p^).Stats[i].Punkte := Stats[i].Punkte;
-      TStat(p^).Stats[i].Ally := trnslShortStr(Stats[i].Ally);
-      TStat(p^).Stats[i].Mitglieder := Stats[i].Mitglieder;
+      if fType.NameType = sntPlayer then
+      begin
+        TStat(p^).Stats[i].Ally := trnslShortStr(Stats[i].Ally);
+        TStat(p^).Stats[i].Mitglieder := 0;
+      end
+      else
+      begin
+        TStat(p^).Stats[i].Ally := '';
+        TStat(p^).Stats[i].Mitglieder := Stats[i].Mitglieder;
+      end;
     end;
   end;
 end;
@@ -435,8 +445,10 @@ begin
       Stats[i].Name := trnsltoUTF8(TStat(p^).Stats[i].Name);
       Stats[i].NameId := TStat(p^).Stats[i].NameId;
       Stats[i].Punkte := TStat(p^).Stats[i].Punkte;
-      Stats[i].Ally := trnsltoUTF8(TStat(p^).Stats[i].Ally);
-      Stats[i].Mitglieder := TStat(p^).Stats[i].Mitglieder;
+      if fType.NameType = sntPlayer then
+        Stats[i].Ally := trnsltoUTF8(TStat(p^).Stats[i].Ally)
+      else
+        Stats[i].Mitglieder := TStat(p^).Stats[i].Mitglieder;
     end;
   end;
 end;
@@ -513,7 +525,7 @@ end;
 constructor TStatPointsNet.Create(AFile: String; UniDomain: String;
   cSServer: TcSServer; aStatTyp: TStatTypeEx);
 begin
-  inherited Create(AFile, UniDomain);
+  inherited Create(AFile, UniDomain, aStatTyp);
   StatTyp := aStatTyp;
   cS_Serv := cSServer;
   StatMerge := TMergeSocket.Create;
