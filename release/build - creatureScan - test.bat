@@ -10,6 +10,6 @@ set sekunde=%time:~6,2%
 
 set datestr=%jahr%%monat%%tag%%stunde%%minute%%sekunde%
 
-D:\devel\creatureScan\release\build_creatureScan_zip.bat creatureScan_build_%datestr%.zip "-DPRERELEASE"
+build_creatureScan_zip.bat creatureScan_build_%datestr%.zip "-DPRERELEASE" TestRelease
 
 endlocal
