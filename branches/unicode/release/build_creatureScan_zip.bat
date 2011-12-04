@@ -4,12 +4,16 @@ setlocal
 
 set zipfile=%1
 set extraparams=%2
+set config=%3
+
+rem build plugin fullhtml_betauni with old Delphi7 compiler
 
 call project_build.bat ../cSplugins/fullhtml_betauni/ fullhtml_betauni %extraparams%
 if errorlevel 1 exit /B 1
-call project_build.bat ../cSplugins/fullhtml/ fullhtml %extraparams%
-if errorlevel 1 exit /B 1
-call project_build.bat ../ creatureScan %extraparams%
+
+rem build creatureScan with new Delphi XE2 compiler
+
+call project_build_XE2.bat ../ creatureScan %config%
 if errorlevel 1 exit /B 1
 
 rem collect all data in creatureScan folder

@@ -1790,6 +1790,7 @@ end;
 procedure TFRM_Main.intelligentReadData(const text, html: string);
 var handle: integer;
     isUni: Boolean;
+    result: Boolean;
 begin
   handle := ODataBase.LanguagePlugIn.ReadSource_New();
   try
@@ -1813,10 +1814,14 @@ begin
 
     if (isUni) then
     begin
-      if (ODataBase.LeseMehrereScanberichte(handle) > 0)or
-         (ODataBase.LeseSystem(handle))or
-         (ODataBase.LeseStats(handle))or
-         (ODataBase.LeseFleets(handle)) then
+      result := false;
+
+      result := result or (ODataBase.LeseMehrereScanberichte(handle) > 0);
+      result := result or (ODataBase.LeseSystem(handle));
+      result := result or (ODataBase.LeseStats(handle));
+      result := result or (ODataBase.LeseFleets(handle));
+
+      if result then
       begin
         //Erfolgreich Eingelesen
         if soBeepByWatchClipboard in Einstellungen then
