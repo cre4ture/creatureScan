@@ -47,6 +47,7 @@ object FRM_Stats_Einlesen: TFRM_Stats_Einlesen
         Top = 24
         Width = 125
         Height = 425
+        OnMouseDown = pb_pointsMouseDown
         OnPaint = pb_pointsPaint
       end
       object pb_fleet: TPaintBox
@@ -55,6 +56,7 @@ object FRM_Stats_Einlesen: TFRM_Stats_Einlesen
         Top = 24
         Width = 125
         Height = 425
+        OnMouseDown = pb_pointsMouseDown
         OnPaint = pb_pointsPaint
       end
       object pb_place_range: TPaintBox
@@ -70,6 +72,7 @@ object FRM_Stats_Einlesen: TFRM_Stats_Einlesen
         Top = 24
         Width = 125
         Height = 425
+        OnMouseDown = pb_pointsMouseDown
         OnPaint = pb_pointsPaint
       end
       object Label5: TLabel

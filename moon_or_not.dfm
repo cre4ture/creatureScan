@@ -87,6 +87,7 @@ object frm_report_basket: Tfrm_report_basket
     HorzScrollBar.Style = ssHotTrack
     VertScrollBar.Style = ssHotTrack
     Anchors = [akLeft, akTop, akRight, akBottom]
+    AutoScroll = True
     Color = clBlack
     ParentBackground = False
     ParentColor = False
