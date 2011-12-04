@@ -3,7 +3,7 @@ unit ReadSolsysStats_fullhtml_betauni;
 interface
 
 uses
-  Inifiles, OGame_Types, html, cpp_dll_interface,
+  Inifiles, OGame_Types, creax_html, cpp_dll_interface,
   DateUtils, SysUtils, readsource, parser_types;
 
 const

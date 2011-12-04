@@ -20,7 +20,7 @@ uses
   readsource_cs in '..\readsource_cs.pas',
   creaturesStrUtils in '..\..\..\lib\uli\creaturesStrUtils.pas',
   cS_memstream in '..\..\cS_memstream.pas',
-  html in '..\..\..\lib\uli\htmllib\html.pas',
+  creax_html in '..\..\..\lib\uli\htmllib\creax_html.pas',
   cpp_dll_interface in '..\..\..\lib\uli\htmllib\cpp_dll_interface.pas',
   CoordinatesRanges in '..\..\CoordinatesRanges.pas';
 
