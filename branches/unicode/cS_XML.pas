@@ -151,7 +151,7 @@ function XML_attrToPlanetPosition(parser: TUnicodeXmlParser): TPlanetPosition;
 
 implementation
 
-uses Math, ComObj;
+uses Math, ComObj, cS_utf8_conv;
 
 function PlanetPositionToXML_attr(pos: TPlanetPosition): string;
 begin
@@ -1207,7 +1207,7 @@ begin
   AddAttribute(xflt_group_mission,FleetJobToString(Fleet.head.eventtype));
   AddAttribute(xflt_group_mission_flags,
                FleetJobFlagsToString(Fleet.head.eventflags));
-  AddAttribute(xflt_group_player,Fleet.head.player);
+  AddAttribute(xflt_group_player, trnslShortStr(Fleet.head.player));
   Result := Result + '>';
 
   Result := Result +
@@ -1278,7 +1278,7 @@ begin
                    parser.attrAsString(xflt_group_mission_flags));
     Fleet.head.eventtype := StringToFleetJob(parser.attrAsString(xflt_group_mission));
     Fleet.head.arrival_time_u := StrToInt64(parser.attrAsString(xflt_group_arrivaltime));
-    Fleet.head.player := parser.attrAsString(xflt_group_player);
+    Fleet.head.player := trnsltoUTF8(parser.attrAsString(xflt_group_player));
 
     if parser.CurPartType <> ptEmptyTag then
     while (parser.Scan)and(parser.CurPartType <> ptEndTag) do

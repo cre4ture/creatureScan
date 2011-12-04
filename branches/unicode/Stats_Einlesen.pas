@@ -38,6 +38,8 @@ type
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure Button2Click(Sender: TObject);
+    procedure pb_pointsMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     place_hundred_count: integer;
     nt: TStatNameType;
@@ -48,7 +50,7 @@ type
 
 implementation
 
-uses main;
+uses main, stats_view;
 
 {$R *.DFM}
 
@@ -66,6 +68,35 @@ begin
         IntToStr((i*100)+1) + ' - ' + IntToStr((i*100)+100));
       inc(i);
     end;
+  end;
+end;
+
+procedure TFRM_Stats_Einlesen.pb_pointsMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var i: integer;
+    frm: Tfrm_stats_view;
+    St: TStatPoints;
+    pt: TStatPointType;
+    typ: TStatTypeEx;
+begin
+  case TComponent(Sender).Tag of
+    0: pt := sptPoints;
+    1: pt := sptFleet;
+    2: pt := sptResearch;
+  else
+    Exit;
+  end;
+
+  St := ODataBase.Statistic.StatisticType[nt, pt];
+  typ.NameType := nt;
+  typ.PointType := pt;
+
+  i := y div 16;
+  frm := Tfrm_stats_view.Create(self, St.Stats[i], typ);
+  try
+    frm.showModal();
+  finally
+    frm.free;
   end;
 end;
 

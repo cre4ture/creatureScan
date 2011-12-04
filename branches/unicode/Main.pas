@@ -187,6 +187,7 @@ type
     commander1: TMenuItem;
     N12: TMenuItem;
     testShowReadSource1: TMenuItem;
+    togglecSlight1: TMenuItem;
     procedure btn_lastClick(Sender: TObject);
     procedure btn_nextClick(Sender: TObject);
     procedure LblWikiLinkClick(Sender: TObject);
@@ -281,6 +282,7 @@ type
     procedure commander1Click(Sender: TObject);
     procedure Panel1Resize(Sender: TObject);
     procedure testShowReadSource1Click(Sender: TObject);
+    procedure togglecSlight1Click(Sender: TObject);
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
@@ -1492,6 +1494,14 @@ begin
 
   // start cshl_server
   frm_cshelper_ctrl.update(PlayerOptions.cshl_port, PlayerOptions.cshl_active);
+end;
+
+procedure TFRM_Main.togglecSlight1Click(Sender: TObject);
+var active: boolean;
+begin
+  active := not StrToBool(global_options.cS_getGlobalOption('main', 'cs_light', BoolToStr(true)));
+  global_options.cS_setGlobalOption('main', 'cs_light', BoolToStr(active));
+  ShowMessage(BoolToStr(active, true));
 end;
 
 procedure TFRM_Main.Zwischenablageberwachen1Click(Sender: TObject);

@@ -91,7 +91,8 @@ uses
   Vcl.Themes,
   Vcl.Styles,
   TIReadPlugin_Types_conv_UNICODE in 'ReadPlugins\TIReadPlugin_Types_conv_UNICODE.pas',
-  TIReadPlugin_Types in 'ReadPlugins\TIReadPlugin_Types.pas';
+  TIReadPlugin_Types in 'ReadPlugins\TIReadPlugin_Types.pas',
+  stats_view in 'stats_view.pas' {frm_stats_view};
 
 {$R *.RES}
 
@@ -250,6 +251,7 @@ begin
   Application.CreateForm(Tfrm_sync_cS_db_engine, frm_sync_cS_db_engine);
   Application.CreateForm(Tfrm_postErrorReport, frm_postErrorReport);
   Application.CreateForm(Tfrm_report_basket, frm_report_basket);
+  Application.CreateForm(Tfrm_stats_view, frm_stats_view);
   Application.Run;
 
   FRM_Notizen.Free;
