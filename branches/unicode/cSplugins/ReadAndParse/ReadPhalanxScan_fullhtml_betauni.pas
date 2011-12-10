@@ -85,17 +85,18 @@ procedure ThtmlPhalanxRead_betauni.readSourceInfo(html: string;
   var info: TFleetsInfoSource);
 var p1,p2,p3: integer;
 begin
-  p1 := pos('SourceURL:', html);
-  p2 := PosEx(str_url_key_events, html, p1);
-  p3 := PosEx(#13, html, p1);
+  info.typ := fist_phalanx;
 
-  if (p1 > 0)and(p2 > p1)and(p3 > p2) then
+  p1 := pos('SourceURL:', html);
+  if (p1 > 0) then
   begin
-    info.typ := fist_events;
-  end
-  else
-  begin
-    info.typ := fist_phalanx;
+    p2 := PosEx(str_url_key_events, html, p1);
+    p3 := PosEx(#13, html, p1);
+
+    if (p2 > p1)and(p3 > p2) then
+    begin
+      info.typ := fist_events;
+    end;
   end;
 
   info.planet.P[0] := 1;
