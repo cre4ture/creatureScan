@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Gauges, StdCtrls, ExtCtrls, ComCtrls, Mask, Tabnotbk, OGame_Types, Prog_Unit, ImgList,
-  Menus, Galaxy_Explorer, VirtualTrees, Galaxien_Rechte, VSTPopup, inifiles,
+  Menus, Galaxy_Explorer, VirtualTrees, VSTPopup, inifiles,
   clipbrd, VTHeaderPopup, Math, FavFilter, langmodform, frm_pos_size_ini,
   PlanetListInterface, topmost_uh, FetchStats, IdBaseComponent,
   IdThreadComponent;

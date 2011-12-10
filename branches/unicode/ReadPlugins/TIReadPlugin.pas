@@ -441,8 +441,7 @@ end;
 
 function TLangPlugIn.GetReport(handle: integer; index: integer;
   Bericht: TScanBericht; out moon_unknown: Boolean): Boolean;
-var stream: TFixedMemoryStream_out;
-    p_scan_head: PPortableScanHead;
+var p_scan_head: PPortableScanHead;
     p_scan_body: PPortableScanBody;
 begin
   //DLL aufrufen:

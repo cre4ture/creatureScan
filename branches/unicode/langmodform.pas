@@ -36,7 +36,7 @@ begin
   Result := S;
   for i := length(S) downto 0 do
   begin
-    if not(s[i] in ['0'..'9','_']) then
+    if not(AnsiChar(s[i]) in ['0'..'9','_']) then
       Break;
     if s[i] = '_' then
     begin

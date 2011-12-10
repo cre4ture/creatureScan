@@ -344,7 +344,7 @@ type
     eventflags: TFleetEventFlags;
     origin, target: TPlanetPosition;
     arrival_time_u: Int64;
-    player: TPlayerName_utf8;
+    player: string;
     joined_id: integer;  //set an id > 0 if Fleet belongs to a "Verbands-Angriff"
     alert: boolean;
   end;
@@ -740,12 +740,12 @@ var apos : integer;
 begin
   apos := p;
   val := '';
-  while (apos <= length(s))and(s[apos] in TrimChars) do
+  while (apos <= length(s))and(AnsiChar(s[apos]) in TrimChars) do
     inc(apos);
   while (apos <= length(s))and
-        (    (s[apos] in ['0'..'9'])or(pos(s[apos],IgnoreChars) > 0)    ) do
+        (    (AnsiChar(s[apos]) in ['0'..'9'])or(pos(s[apos],IgnoreChars) > 0)    ) do
   begin
-    if (s[apos] in ['0'..'9']) then
+    if (AnsiChar(s[apos]) in ['0'..'9']) then
       val := val + s[apos];
     inc(apos);
   end;
@@ -839,9 +839,9 @@ end;
 
 procedure DeleteEmptyChar(var s: string);
 begin
-  while (length(s) > 0)and(s[1] in [' ',#9,#13,#10]) do
+  while (length(s) > 0)and(AnsiChar(s[1]) in [' ',#9,#13,#10]) do
     delete(s,1,1);
-  while (length(s) > 0)and(s[length(s)] in [' ',#9,#13,#10]) do
+  while (length(s) > 0)and(AnsiChar(s[length(s)]) in [' ',#9,#13,#10]) do
     delete(s,length(s),1);
 end;
 
@@ -863,9 +863,9 @@ begin
   val := '';
   i := 0;
   l := length(s);
-  while (pos <= l) and (s[pos] in ['0'..'9',':','-']) do
+  while (pos <= l) and (AnsiChar(s[pos]) in ['0'..'9',':','-']) do
   begin
-    if s[pos] in ['-',':'] then
+    if AnsiChar(s[pos]) in ['-',':'] then
     begin
       if val <> '' then
         Position.P[i] := strtoint(val)

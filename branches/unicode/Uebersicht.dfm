@@ -1,12 +1,12 @@
 object FRM_Uebersicht: TFRM_Uebersicht
   Left = 256
   Top = 338
-  Width = 800
-  Height = 295
   HorzScrollBar.Size = 8
   VertScrollBar.Size = 8
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Universums'#252'bersicht'
+  ClientHeight = 270
+  ClientWidth = 792
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

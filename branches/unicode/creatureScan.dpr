@@ -24,7 +24,6 @@ uses
   Info in 'Info.pas' {FRM_Info},
   Uebersicht in 'Uebersicht.pas' {FRM_Uebersicht},
   Spielerdaten in 'Spielerdaten.pas' {FRM_Spielerdaten},
-  Connections in 'Connections.pas' {FRM_Connections},
   Einstellungen in 'Einstellungen.pas' {FRM_Einstellungen},
   Export in 'Export.pas' {FRM_Export},
   ImportProgress in 'ImportProgress.pas' {FRM_ImportProgress},
@@ -33,12 +32,9 @@ uses
   AddNotiz in 'AddNotiz.pas' {FRM_AddNotiz},
   Suchen_Ersetzen in 'Suchen_Ersetzen.pas' {FRM_Suchen_Ersetzen},
   ClientLogin in 'ClientLogin.pas' {FRM_ClientLogin},
-  Galaxien_Rechte in 'Galaxien_Rechte.pas' {FRM_Galaxy_Rights},
-  Group_Rights in 'Group_Rights.pas' {FRM_Group_Rights},
   KB_List in 'KB_List.pas' {FRM_KB_List},
   Add_KB in 'Add_KB.pas' {FRM_Add_Raid},
   Languages in 'Languages.pas',
-  Connect in 'Connect.pas' {FRM_Connect},
   OGame_Types in 'OGame_Types.pas',
   Notizen_Images_Einstellungen in 'Notizen_Images_Einstellungen.pas' {FRM_Notizen_Images_einstellungen},
   SelectLanguage in 'SelectLanguage.pas' {FRM_SelectLanguage},
@@ -56,7 +52,6 @@ uses
   oFight in 'oFight.pas',
   cS_DB_reportFile in 'cS_DB_reportFile.pas',
   cS_DB in 'cS_DB.pas',
-  cS_networking in 'cS_networking.pas',
   cS_DB_solsysFile in 'cS_DB_solsysFile.pas',
   TIReadPlugin in 'ReadPlugins\TIReadPlugin.pas',
   UniTree in 'UniverseTree\UniTree.pas',
@@ -201,16 +196,24 @@ begin
   end
   else ShowMessage('XML-iniData not found!');
 
+{$ifdef CS_USE_NET_COMPS}
   Protocol := TThreadProtocol.Create(ExtractFilePath(Application.ExeName) +
     userdatadir + LastUser + '\proto');
   Protocol.OnIdentifySender := LogSenderToStr;
 
   cSServer := TcSServer.Create(Protocol, GetCurrentDir + '/' + userdatadir + LastUser + '/server.ini');
+{$endif}
 
   startup_success := false;
   try
+{$ifdef CS_USE_NET_COMPS}
     ODataBase := TOgameDataBase.Create(GetCurrentDir + '/' + userdatadir + LastUser + '/',
         cSServer, XML_InitFile);
+{$else}
+    ODataBase := TOgameDataBase.Create(GetCurrentDir + '/' + userdatadir + LastUser + '/',
+        XML_InitFile);
+{$endif}
+
     startup_success := true;
   except
     on EcSDBUnknownSysFileFormat do
@@ -243,7 +246,6 @@ begin
   Application.CreateForm(TFRM_Delete_Scans, FRM_Delete_Scans);
   Application.CreateForm(TFRM_Filter, FRM_Filter);
   Application.CreateForm(TFRM_POST_TEST, FRM_POST_TEST);
-  Application.CreateForm(TFRM_Connections, FRM_Connections);
   Application.CreateForm(TFRM_Uebersicht, FRM_Uebersicht);
   Application.CreateForm(TFRM_Favoriten, FRM_Favoriten);
   Application.CreateForm(TFRM_Info, FRM_Info);
@@ -255,13 +257,17 @@ begin
   Application.Run;
 
   FRM_Notizen.Free;
+{$ifdef CS_USE_NET_COMPS}
   FRM_Connections.Free;
+{$endif}
   FRM_KB_List.Free;
   FRM_KB_List := nil;
   FRM_Main.Free;
   ODataBase.Free;
+{$ifdef CS_USE_NET_COMPS}
   cSServer.Free;
   Protocol.Free;
+{$endif}
   if login then
     WinExec(PAnsiChar(AnsiString('"' + Application.Exename + '" -selectuser')), SW_SHOWNORMAL);
 

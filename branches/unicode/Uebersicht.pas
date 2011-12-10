@@ -225,7 +225,7 @@ begin
             if sts > 0 then
             begin
               Pixels[x+s,y + dy*(g-1) + 2 + p] :=
-                dPunkteToColor((sts - ODataBase.Stats_own),
+                dPunkteToColor((Cardinal(sts) - ODataBase.Stats_own),
                   ODataBase.redHours[rh_Points]);
             end
             else

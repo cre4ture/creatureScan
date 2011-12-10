@@ -19,7 +19,7 @@ type
     typ: TStatTypeEx;
     { Private-Deklarationen }
   public
-    constructor Create(AOwner: TComponent; aStat: TStat; aTyp: TStatTypeEx);
+    constructor Create(AOwner: TComponent; aStat: TStat; aTyp: TStatTypeEx); reintroduce;
   end;
 
 var

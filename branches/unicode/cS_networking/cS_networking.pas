@@ -8,7 +8,7 @@ uses
 
 const
   crOVersionName = 'cS_networking';
-  crOVersionID = 8;        
+  crOVersionID = 8;
 
 type
   TRight = (gr_Scan,gr_System,gr_Raids,gr_Chat,gr_Stats);
@@ -193,7 +193,7 @@ begin
   Rights.ScanGalaxys := [];
   Rights.SystemGalaxys := [];
   r := low(r);
-  while (r <= high(r))and(s[1] in ['0','1']) do
+  while (r <= high(r))and(AnsiChar(s[1]) in ['0','1']) do
   begin
     if s[1] = '1' then include(Rights.Rights,r);
     delete(s,1,1);
@@ -201,7 +201,7 @@ begin
   end;
   delete(s,1,1);
   gr := 1;
-  while (gr <= max_Galaxy)and(s[1] in ['0','1']) do
+  while (gr <= max_Galaxy)and(AnsiChar(s[1]) in ['0','1']) do
   begin
     if s[1] = '1' then include(Rights.ScanGalaxys,gr);
     delete(s,1,1);
@@ -209,7 +209,7 @@ begin
   end;
   delete(s,1,1);
   gr := 1;
-  while (gr <= max_Galaxy)and(length(s)>0)and(s[1] in ['0','1']) do
+  while (gr <= max_Galaxy)and(length(s)>0)and(AnsiChar(s[1]) in ['0','1']) do
   begin
     if s[1] = '1' then include(Rights.SystemGalaxys,gr);
     delete(s,1,1);
@@ -697,15 +697,15 @@ procedure TcSServer.DoWork_idle(out Ready: Boolean);
 var i: Integer;
 begin
   Ready := True;
-  for i := 0 to cSServer.FSocketMList.Count-1 do
+  for i := 0 to self.FSocketMList.Count-1 do
   begin
     try
-      if DoSocket(cSServer.FSocketMList.Sockets[i]) then
+      if DoSocket(self.FSocketMList.Sockets[i]) then
         Ready := False;
     except
       on E: Exception do
       begin
-        cSServer.log.AddEntry(cSServer.FSocketMList.Sockets[i],
+        self.log.AddEntry(self.FSocketMList.Sockets[i],
           'Exception(' + E.ClassName + '): ' + E.Message,llNormal);
       end;
     end;
@@ -770,12 +770,14 @@ procedure TcSServer.FGetConInfo_ForEachSplitSocket(Sender: TObject;
 begin
   if Socket.WorkProcessIndex = pi_uni then
   begin
+{$ifdef CS_USE_NET_COMPS}
     with TNetUniTreeSocketData(Socket.LockData('TcSServer.FGetConInfo_ForEachSplitSocket')) do
     try
       TConInf(Data^).UniSyncPos := SyncPos;
     finally
       Socket.UnlockData;
     end;
+{$endif}
   end;
 end;
 
