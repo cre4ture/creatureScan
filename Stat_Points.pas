@@ -3,7 +3,7 @@ unit Stat_Points;
 interface
 
 uses classes, OGame_Types, Windows, SysUtils, MergeSocket, SDBFile, SplitSocket,
-  cS_networking, LibXmlParser, LibXmlComps, xml_parser_unicode;
+  {$ifdef CS_USE_NET_COMPS}cS_networking,{$endif} LibXmlParser, LibXmlComps, xml_parser_unicode;
 
 const
   StatFileV = 'creatureScan_StatisticBD_2.1';
@@ -68,11 +68,13 @@ type
     property Stats[nr: Cardinal]: TStat read GetStat write SetStat; default;
   end;
 
+{$ifdef CS_USE_NET_COMPS}
   TStatPointsNet_SplitSocketData = class
   public
     Synced: Boolean;
     constructor Create;
   end;
+{$endif}
   TStatPoints = class(TObject)
   protected
     FStats: TStatisticDBFile;
@@ -95,6 +97,7 @@ type
     property Count: Integer read GetCount write SetCount;
     procedure DoWork_Idle(out Ready: Boolean); virtual;
   end;
+{$ifdef CS_USE_NET_COMPS}
   TStatPointsNet = class(TStatPoints)
   private
     cS_Serv: TcSServer;
@@ -121,6 +124,7 @@ type
     procedure DoWork_Idle(out Ready: Boolean); override;
     function AddStat(Stats: TStat): boolean; override;
   end;
+{$endif}
   TStatisticDB = class
   protected
     FStats: array[TStatNameType,TStatPointType] of TStatPoints;
@@ -315,8 +319,13 @@ begin
       end;
       tex.NameType := nt;
       tex.PointType := pt;
+{$ifdef CS_USE_NET_COMPS}
       FStats[nt,pt] := TStatPointsNet.Create(Format(filenameMask,[s]),
                           UniDomain, cSServer, tex);
+{$else}
+      FStats[nt,pt] := TStatPoints.Create(Format(filenameMask,[s]),
+                          UniDomain, tex);
+{$endif}
     end;
 end;
 
@@ -469,6 +478,7 @@ begin
   Ready := True;
 end;
 
+{$ifdef CS_USE_NET_COMPS}
 constructor TStatPointsNet_SplitSocketData.Create;
 begin
   inherited;
@@ -736,6 +746,7 @@ begin
   Socket.SetData_locked_(nil);
   Socket.UnlockData;
 end;
+{$endif}
 
 procedure TStatisticDB.DoWork_idle(out Ready: Boolean);
 var re: Boolean;

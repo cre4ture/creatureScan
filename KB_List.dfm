@@ -26,6 +26,10 @@ object FRM_KB_List: TFRM_KB_List
     OnChange = PageControl1Change
     object TS_KB_laufend: TTabSheet
       Caption = 'aktuell'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object VST_RAID: TVirtualStringTree
         Left = 0
         Top = 0
@@ -101,7 +105,7 @@ object FRM_KB_List: TFRM_KB_List
           end
           item
             Position = 6
-            Width = 127
+            Width = 131
             WideText = 'Username'
           end>
       end
@@ -378,7 +382,7 @@ object FRM_KB_List: TFRM_KB_List
     Left = 256
     Top = 116
     Bitmap = {
-      494C0101080009001C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010108000900200010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

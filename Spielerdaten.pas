@@ -163,7 +163,7 @@ end;
 
 procedure TFRM_Spielerdaten.E_GalaKeyPress(Sender: TObject; var Key: Char);
 begin
-  if not (key in ['0'..'9',#8]) then
+  if not (AnsiChar(key) in ['0'..'9',#8]) then
     Key := #0;
 end;
 

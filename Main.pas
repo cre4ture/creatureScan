@@ -238,7 +238,6 @@ type
     procedure Languagefile1Click(Sender: TObject);
     procedure Scanslschen1Click(Sender: TObject);
     procedure Einlesen1Click(Sender: TObject);
-    procedure NetConnections1Click(Sender: TObject);
     procedure ApplicationEvents1Message(var Msg: tagMSG;
       var Handled: Boolean);
     procedure TIM_afterClipboardchangeTimer(Sender: TObject);
@@ -374,7 +373,11 @@ procedure callLink(url: string);
 implementation
 
 uses Notizen, Favoriten, Info,
-  Uebersicht, Connections, Export, Einstellungen, Suchen_Ersetzen,
+  Uebersicht,
+{$ifdef CS_USE_NET_COMPS}
+  Connections,
+{$endif}
+  Export, Einstellungen, Suchen_Ersetzen,
   KB_List, Add_KB, Languages, Delete_Scans,
   DateUtils, _test_POST, ComConst, StrUtils, sync_cS_db_engine,
   SDBFile, Mond_Abfrage, moon_or_not, chelper_server, global_options,
@@ -965,6 +968,7 @@ begin
   form.se_engine_1.Value := PlayerOptions.websim_engines[1];
   form.se_engine_2.Value := PlayerOptions.websim_engines[2];
 
+{$ifdef CS_USE_NET_COMPS}
   with cSServer.Users do
   begin
     LockUsers;
@@ -985,6 +989,7 @@ begin
       UnlockUsers;
     end;
   end;
+{$endif}
 
   form.TXT_Allysuche.Text := PlayerOptions.SuchInet.Allianz;
   form.TXT_Spielersuche.Text := PlayerOptions.SuchInet.Spieler;
@@ -1055,6 +1060,7 @@ begin
     if form.CH_AutoUpdate.Checked then include(Einstellungen,soAutoUpdateCheck);
     CloseToSystray := form.CH_MiniSysTray.Checked;
 
+{$ifdef CS_USE_NET_COMPS}
     with cSServer.Users do
     begin
       LockUsers;
@@ -1071,6 +1077,7 @@ begin
         UnlockUsers;
       end;
     end;
+{$endif}
 
     PlayerOptions.SuchInet.Allianz := form.TXT_Allysuche.Text;
     PlayerOptions.SuchInet.Spieler := form.TXT_Spielersuche.Text;
@@ -1479,11 +1486,14 @@ begin
         callLink('http://www.creatureScan.creax.de');
       end;
   end;
+
+{$ifdef CS_USE_NET_COMPS}
   if (soStartupServer in Einstellungen) then
   begin
     FRM_Connections.SpinEdit1.Value := PlayerOptions.ServerPort;
     FRM_Connections.CheckBox1.Checked := True;
   end;
+{$endif}
 
   if (PlayerOptions.StartSystray) then
   begin
@@ -1760,11 +1770,6 @@ end;
 procedure TFRM_Main.FormClipboardContentChanged(Sender: TObject);
 begin
   TIM_afterClipboardchange.Enabled := True;
-end;
-
-procedure TFRM_Main.NetConnections1Click(Sender: TObject);
-begin
-  FRM_Connections.show;
 end;
 
 procedure TFRM_Main.Angriff1Click(Sender: TObject);

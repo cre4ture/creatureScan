@@ -1013,7 +1013,9 @@ begin
       2: //Playername
          begin
            if (PlayerPunkte > 0) and (ODataBase.Stats_own > 0) then
-             TargetCanvas.Font.Color := dPunkteToColor(integer(PlayerPunkte)-ODataBase.Stats_own,ODataBase.RedHours[rh_Points])
+             TargetCanvas.Font.Color := dPunkteToColor(
+                                          cardinal(PlayerPunkte)-ODataBase.Stats_own,
+                                          ODataBase.RedHours[rh_Points])
            else TargetCanvas.Font.Color := Sender.Font.Color;
 
            {if (VST_ScanList.HotNode = Node) then
@@ -1110,7 +1112,7 @@ procedure TFRM_Favoriten.VST_ScanListKeyPress(Sender: TObject;
   var Key: Char);
 var node : PVirtualNode;
 begin
-  if Key in ['0'..'9'] then
+  if AnsiChar(Key) in ['0'..'9'] then
   begin
     node := VST_ScanList.GetFirstSelected;
     if node <> nil then

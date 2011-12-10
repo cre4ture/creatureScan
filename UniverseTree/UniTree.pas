@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, OGame_Types, cS_DB, MergeSocket, LibXmlParser,
-  LibXmlComps, SplitSocket, cS_networking, StatusThread,
+  LibXmlComps, SplitSocket, {$ifdef CS_USE_NET_COMPS}cS_networking,{$endif} StatusThread,
   Windows, Forms, DateUtils, xml_parser_unicode;
 
 type
@@ -109,6 +109,7 @@ type
     function PlanetPositionToAbsPlanetNr(pos: TPlanetPosition): TAbsPlanetNr;
     function FindReport(pos: TPlanetPosition; time_u: int64): Integer;
   end;
+{$ifdef CS_USE_NET_COMPS}
   TNetUniTreeSocketData = class
   public
     SyncPos: TAbsPlanetNr;
@@ -153,6 +154,7 @@ type
     procedure DoWork_idle(out Ready: Boolean); override;
     function AddNewReport(report: TScanBericht): Integer; override;
   end;
+{$endif}
 
 implementation
 
@@ -900,6 +902,7 @@ begin
   end;
 end;
 
+{$ifdef CS_USE_NET_COMPS}
 function TNetUniTree.AddNewSolSys(Sys: TSystemCopy): Integer;
 begin
   Result := inherited AddNewSolSys(Sys);
@@ -1108,6 +1111,7 @@ begin
 
   Socket.SendPacket(PAnsiChar(xmla)^,length(xmla));
 end;
+{$endif}
 
 { -> Is Old!!! New: GetPlanetReportList
 procedure TUniverseTree.GetPlanetScanList(List: PPlanetScanList);
@@ -1184,6 +1188,7 @@ begin      //Schon sortierte Liste (neueren Scans zu erst)!!!
   end;}
 end;
 
+{$ifdef CS_USE_NET_COMPS}
 procedure TNetUniTree.FSendSolSysToSocket(Sys: TSystemCopy;
   Socket: TSplitSocket);
 var s: AnsiString;
@@ -1309,6 +1314,7 @@ begin
     Socket.UnlockData;
   end;
 end;
+{$endif}
 
 function TUniverseTree.AbsPlanetNrToPlanetPosition(nr: TAbsPlanetNr): TPlanetPosition;
 begin
@@ -1316,9 +1322,9 @@ begin
 
   Result.Mond := (nr mod 2) = 1;
   nr := nr div 2;
-  Result.P[2] := 1+ (nr mod TreeDim[2]);
+  Result.P[2] := 1+ (nr mod Cardinal(TreeDim[2]));
   nr := nr div max_Planeten;
-  Result.P[1] := 1+ (nr mod TreeDim[1]);
+  Result.P[1] := 1+ (nr mod Cardinal(TreeDim[1]));
   nr := nr div max_Systems;
   if (1+nr > high(Result.P[0])) then
     raise Exception.Create('AbsPlanetNrToPlanetPosition: Bereich für P[0] ist überschritten!');
@@ -1336,6 +1342,7 @@ begin
     inc(Result);
 end;
 
+{$ifdef CS_USE_NET_COMPS}
 constructor TNetUniTreeSocketData.Create;
 begin
   inherited;
@@ -1455,6 +1462,7 @@ begin
     Socket.SendPacket(PChar(xml)^,length(xml));
   end;
 end;
+{$endif}
 
 function TUniverseTree.NextPlanet(var Pos: TPlanetPosition): Boolean;
 begin
@@ -1477,6 +1485,7 @@ begin
   end;
 end;
 
+{$ifdef CS_USE_NET_COMPS}
 procedure TNetUniTree.DoSync_RecvSyncInfo(Parser: TXMLParser; Socket: TSplitSocket);
 var time: int64;
     nulllist: TReportTimeList;
@@ -1683,6 +1692,7 @@ begin
     end;
   end;
 end;
+{$endif}
 
 procedure TUniverseTree.DoWork_idle(out Ready: Boolean);
 var c, i: integer;

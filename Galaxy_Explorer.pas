@@ -221,7 +221,7 @@ begin
     Reload;
     TEdit(Sender).SelectAll;
   end;
-  if not(key in ['0'..'9',#8]) then
+  if not(AnsiChar(key) in ['0'..'9',#8]) then
   begin
     Key := #0;
   end;
@@ -368,7 +368,7 @@ begin
   ClientHeight := PaintBox1.Height + LBL_SysHead.Height +
                   Panel1.Height + StatusBar1.Height +
                   VST_System.Header.Height +
-                  VST_System.DefaultNodeHeight*max_Planeten;
+                  Integer(VST_System.DefaultNodeHeight)*max_Planeten;
   //StatusBar1.Panels[0].Width := tablewidth div 3;
 end;
 
@@ -617,7 +617,7 @@ begin
     i := Node^.Index+1;
     points := getPlayerStatPoints(i);
     if (points > 0) and (ODataBase.Stats_own > 0) then
-      TargetCanvas.Font.Color := dPunkteToColor(points-ODataBase.Stats_own,ODataBase.RedHours[rh_Points])
+      TargetCanvas.Font.Color := dPunkteToColor(Cardinal(points)-ODataBase.Stats_own,ODataBase.RedHours[rh_Points])
     else TargetCanvas.Font.Color := VST_System.Font.Color;
   end;
 end;

@@ -8,7 +8,7 @@ uses
   menus, comctrls, OGame_Types, VirtualTrees, SelectPlugin, Stat_Points, TThreadSocketSplitter,
   ThreadProtocolObject, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdHTTP, DateUtils, LibXmlParser, cS_DB, cS_DB_reportFile,
-  SelectUSer, UniTree, cS_networking, MergeSocket, SplitSocket, cS_DB_solsysFile, TIReadPlugin,
+  SelectUSer, UniTree, {$ifdef CS_USE_NET_COMPS}cS_networking,{$endif} MergeSocket, SplitSocket, cS_DB_solsysFile, TIReadPlugin,
   SyncObjs, RaidBoard, frm_pos_size_ini, OGameData;
 
 
@@ -94,7 +94,9 @@ type
   EUserCanceledInit = class(Exception);
   TOgameDataBase = class(TObject)
   protected
+{$ifdef CS_USE_NET_COMPS}
     cS_NetServ: TcSServer;
+{$endif}
     function FUniRead(G, S: Integer): TSonnensystem;
     function InitStatFiles: Boolean;
   private
@@ -148,8 +150,12 @@ type
 
     function LeseFleets(handle: integer): Boolean;
     function GetPlayerAtPos(planet: TPlanetPosition; addstatus: boolean = true): string;
+{$ifdef CS_USE_NET_COMPS}
     constructor Create(UserDir: string; ACLHost: TcSServer;
       xml_data_file: string);
+{$else}
+    constructor Create(UserDir: string; xml_data_file: string);
+{$endif}
     function doInitialisation: Boolean;
     destructor Destroy; override;
     procedure ImportFile(Filename: String);
@@ -181,8 +187,10 @@ type
 
 var ODataBase: TOgameDataBase;
     login: boolean;  //wird verwendet um beim beenden weider neu zum starten mit login!
+{$ifdef CS_USE_NET_COMPS}
     cSServer: TcSServer;
     Protocol: TThreadProtocol;
+{$endif}
     userdatadir: string;
 var
   DefaultUser: String;
@@ -204,7 +212,7 @@ function Time_To_AgeStr_Ex(a_now, time: TDateTime): String;
 
 implementation
 
-uses Languages, Connections, cS_XML, export,
+uses Languages, {$ifdef CS_USE_NET_COMPS}Connections,{$endif} cS_XML, export,
   SDBFile, OtherTime, Math, cS_utf8_conv;
 
 
@@ -325,13 +333,19 @@ begin
 end;
 
 
+{$ifdef CS_USE_NET_COMPS}
 constructor TOgameDataBase.Create(UserDir: string;
   ACLHost: TcSServer; xml_data_file: string);
+{$else}
+constructor TOgameDataBase.Create(UserDir: string; xml_data_file: string);
+{$endif}
 begin
   inherited Create;
   OnAskMoon := nil;
   check_solsys_data_before_askMoon := false;
+{$ifdef CS_USE_NET_COMPS}
   cS_NetServ := ACLHost;
+{$endif}
   self.xml_data_file := xml_data_file;
 
   {CThreadHost.AddNoThreadDataProc(pi_nTScans,CThreadHostNoThreadScan_R);
@@ -348,8 +362,13 @@ begin
   if not doInitialisation then
     raise Exception.Create('TOgameDataBase.Create: Init failed!');
 
+{$ifdef CS_USE_NET_COMPS}
   UniTree := TNetUniTree.Create(max_Galaxy, max_Systems, max_Planeten,
                               Systeme, Berichte, cS_NetServ);
+{$else}
+  UniTree := TUniverseTree.Create(max_Galaxy, max_Systems, max_Planeten,
+                              Systeme, Berichte);
+{$endif}
 
   // assign this event after initialisation:
   Application.OnIdle := ApplicationOnIdle;
@@ -1243,6 +1262,7 @@ begin
   Done := True;
 //  if Initialised then
   begin
+{$ifdef CS_USE_NET_COMPS}
     cS_NetServ.DoWork_idle(Ready);
     if not Ready then
       Done := False;
@@ -1254,6 +1274,7 @@ begin
       if not Ready then
         Done := False;
     end;
+{$endif}
 
     Statistic.DoWork_idle(Ready);
     if not Ready then
@@ -1316,7 +1337,11 @@ end;
 
 function TOgameDataBase.initFleetBoard: Boolean;
 begin
-  FleetBoard := TFleetBoard_NET.Create(SaveDir, Self.UniDomain, cS_NetServ); // TODO
+{$ifdef CS_USE_NET_COMPS}
+  FleetBoard := TFleetBoard_NET.Create(SaveDir, Self.UniDomain, cS_NetServ);
+{$else}
+  FleetBoard := TFleetBoard.Create(SaveDir, Self.UniDomain);
+{$endif}
   Result := True;
 end;
 

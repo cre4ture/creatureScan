@@ -48,8 +48,8 @@ begin
   begin
     c := text[i];
     if ((c < #$20) and
-       (not (c in [#$9, #$A, #$D]))) or
-       (c in ['"', '<', '>', '\']) then // stupid stuff don't work!!
+       (not (AnsiChar(c) in [#$9, #$A, #$D]))) or
+       (AnsiChar(c) in ['"', '<', '>', '\']) then // stupid stuff don't work!!
     begin
       text[i] := '?';
     end;
