@@ -137,7 +137,9 @@ begin
   if SaveCaptions then SaveAllCaptions(Self,LangFile);
   if LoadCaptions then LoadAllCaptions(Self,LangFile);
 
+{$ifdef CS_USE_NET_COMPS}
   cSServer.FChatMerge := ChatMerge.MergeSocket;
+{$endif}
 end;
 
 procedure TFRM_Chat.Edit1KeyPress(Sender: TObject; var Key: Char);
@@ -293,7 +295,9 @@ end;
 
 procedure TFRM_Chat.FormDestroy(Sender: TObject);
 begin
+{$ifdef CS_USE_NET_COMPS}
   cSServer.FChatMerge := nil;
+{$endif}
 end;
 
 procedure TFRM_Chat.Button2Click(Sender: TObject);

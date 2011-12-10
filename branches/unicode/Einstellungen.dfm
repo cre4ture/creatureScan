@@ -34,7 +34,7 @@ object FRM_Einstellungen: TFRM_Einstellungen
     Top = 0
     Width = 531
     Height = 200
-    ActivePage = TS_GalaxieExplorer
+    ActivePage = TS_Direktverbindung
     Anchors = [akLeft, akTop, akRight, akBottom]
     MultiLine = True
     ParentShowHint = False

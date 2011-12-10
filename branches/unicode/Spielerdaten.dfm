@@ -114,7 +114,6 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
       Hint = 
         'w'#228'hle hier ob du in den deutschen Unis (ogame.de) oder in den en' +
         'lischen (ogame.or) oder.... spielst'
-      ItemHeight = 13
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
@@ -136,7 +135,6 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
       Hint = 
         'Wieviel Prozent der Kosten einer Flotte kommen ins TF? (auch bel' +
         'iebige Werte m'#246'glich)'
-      ItemHeight = 13
       TabOrder = 4
       Text = '30 (default)'
       Items.Strings = (
@@ -147,7 +145,6 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
       Top = 83
       Width = 201
       Height = 21
-      ItemHeight = 13
       TabOrder = 1
       OnChange = E_UniChange
     end
@@ -168,7 +165,6 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
       Hint = 
         'Wieviel Prozent der Kosten einer Flotte kommen ins TF? (auch bel' +
         'iebige Werte m'#246'glich)'
-      ItemHeight = 13
       TabOrder = 5
       Text = '0 (default)'
       Items.Strings = (
@@ -190,7 +186,6 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
       Hint = 
         'Wieviel Prozent der Kosten einer Flotte kommen ins TF? (auch bel' +
         'iebige Werte m'#246'glich)'
-      ItemHeight = 13
       TabOrder = 6
       Text = '9 (normal)'
       Items.Strings = (
@@ -204,7 +199,6 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
       Hint = 
         'Wieviel Prozent der Kosten einer Flotte kommen ins TF? (auch bel' +
         'iebige Werte m'#246'glich)'
-      ItemHeight = 13
       TabOrder = 7
       Text = '499 (normal)'
       Items.Strings = (
@@ -218,7 +212,6 @@ object FRM_Spielerdaten: TFRM_Spielerdaten
       Hint = 
         'Wieviel Prozent der Kosten einer Flotte kommen ins TF? (auch bel' +
         'iebige Werte m'#246'glich)'
-      ItemHeight = 13
       TabOrder = 3
       Text = '1.0'
       Items.Strings = (

@@ -3,7 +3,7 @@ unit RaidBoard;
 interface
 
 uses
-  cS_networking, OGame_Types, cS_DB, cS_DB_fleetfile, OtherTime, MergeSocket,
+  {$ifdef CS_USE_NET_COMPS}cS_networking,{$endif} OGame_Types, cS_DB, cS_DB_fleetfile, OtherTime, MergeSocket,
   SysUtils, SplitSocket, LibXmlParser, LibXmlComps, xml_parser_unicode;
 
 type
@@ -32,6 +32,7 @@ type
     function GetLast24HoursRaidCount(Position: TPlanetPosition): integer;
     function GetRaidCount(Position: TPlanetPosition): integer;
   end;
+{$ifdef CS_USE_NET_COMPS}
   TFleetBoard_NET_SData = class
   public
     Synchronised: Boolean;
@@ -64,6 +65,7 @@ type
     function AddFleet(fleet: TFleetEvent): Integer; override;
     destructor Destroy; override;
   end;
+{$endif}
 
 function FindFleet(Start, Ziel: TPlanetPosition;
       Auftrag: TFleetEventType; Ankunft: Int64; Spieler: String;
@@ -184,6 +186,7 @@ begin
   History.DeleteLastFleet;
 end;
 
+{$ifdef CS_USE_NET_COMPS}
 procedure TFleetBoard_NET.DeletePlayerFleets(Player: String);
 var i: Integer;
 begin
@@ -198,6 +201,7 @@ begin
     else inc(i);
   end;
 end;
+{$endif}
 
 destructor TFleetBoard.Destroy;
 begin
@@ -285,6 +289,7 @@ begin
   end;
 end;
 
+{$ifdef CS_USE_NET_COMPS}
 function TFleetBoard_NET.AddFleet(fleet: TFleetEvent): Integer;
 var s: string;
 begin
@@ -507,5 +512,6 @@ begin
   Synchronised := false;
   PlayerName := '';
 end;
+{$endif}
 
 end.

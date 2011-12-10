@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   ExtCtrls, ComCtrls, Grids, VirtualTrees, OGame_Types, Prog_Unit, StdCtrls,
-  Menus, Add_KB, TThreadSocketSplitter, syncobjs, MergeSocket, cS_networking,
+  Menus, Add_KB, TThreadSocketSplitter, syncobjs, MergeSocket, {$ifdef CS_USE_NET_COMPS}cS_networking,{$endif}
   SplitSocket, RaidBoard, cS_DB, notifywindow, notify_fleet_arrival,
   ImgList, zeit_sync, StatusThread, IdExceptionCore;
 
@@ -115,7 +115,7 @@ var
 
 implementation
 
-uses Main, Languages, Connections, Math,
+uses Main, Languages, {$ifdef CS_USE_NET_COMPS}Connections,{$endif} Math,
  DateUtils, OtherTime, IdException, global_options;
 
 {$R *.DFM}

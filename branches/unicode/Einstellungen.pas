@@ -4,7 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ComCtrls, Tabnotbk, Prog_Unit, OGame_Types, Spin, ExtCtrls, cS_networking, inifiles,
+  StdCtrls, ComCtrls, Tabnotbk, Prog_Unit, OGame_Types, Spin, ExtCtrls,
+  {$ifdef CS_USE_NET_COMPS}cS_networking,{$endif} inifiles,
   Mask;
                                                                    
 type
@@ -192,15 +193,17 @@ type
   public
     FDRessValues: array of Integer;
     FDValues: array of integer;
+{$ifdef CS_USE_NET_COMPS}
     ClientGroup: TGroup;
     Groups: array of TGroup;
+{$endif}
     RedHours: TRedHours;
     { Public-Deklarationen }
   end;
 
 implementation
 
-uses Galaxien_Rechte, Group_Rights, Languages, Notizen, Uebersicht, Main;
+uses {$ifdef CS_USE_NET_COMPS}Galaxien_Rechte, Group_Rights,{$endif} Languages, Notizen, Uebersicht, Main;
 
 {$R *.DFM}
 
@@ -231,7 +234,7 @@ end;
 procedure TFRM_Einstellungen.KeyPress_OnlyNumbers(Sender: TObject;
   var Key: Char);
 begin
-  if not(Key in ['0'..'9',#8]) then
+  if not(AnsiChar(Key) in ['0'..'9',#8]) then
     Key := #0;
 end;
 
@@ -246,11 +249,15 @@ begin
   LB_FD.ItemIndex := 0;
   LB_FDClick(self);
   TC_Farben.OnChange(self);
+{$ifdef CS_USE_NET_COMPS}
   sync_scans.Checked := (gr_Scan in ClientGroup.Rights);
   sync_systems.Checked := (gr_System in ClientGroup.Rights);
   sync_Raids.Checked := (gr_Raids in ClientGroup.Rights);
   CH_Chat.Checked := (gr_Chat in ClientGroup.Rights);
   sync_Stats.Checked := (gr_Stats in ClientGroup.Rights);
+{$else}
+  TS_Direktverbindung.Visible := false;
+{$endif}
   CH_UnicheckClick(CH_Unicheck);
 end;
 
@@ -306,11 +313,12 @@ end;
 procedure TFRM_Einstellungen.TXT_RaidStartKeyPress(Sender: TObject;
   var Key: Char);
 begin
-  if not(Key in ['0'..'9',#8,':',' ','M']) then
+  if not(AnsiChar(Key) in ['0'..'9',#8,':',' ','M']) then
     Key := #0;
 end;
 
 procedure TFRM_Einstellungen.BTN_ScanGalaxy_RightsClick(Sender: TObject);
+{$ifdef CS_USE_NET_COMPS}
 var form: TFRM_Galaxy_Rights;
 begin
   form := TFRM_Galaxy_Rights.Create(self);
@@ -332,9 +340,13 @@ begin
       ClientGroup.SystemGalaxys := form.GRights;
   end;
   form.Release;
+{$else}
+begin
+{$endif}
 end;
 
 procedure TFRM_Einstellungen.Button3Click(Sender: TObject);
+{$ifdef CS_USE_NET_COMPS}
 var form: TFRM_Group_Rights;
     i: integer;
 begin
@@ -349,6 +361,9 @@ begin
       Groups[i] := form.Groups[i];
   end;
   form.Release;
+{$else}
+begin
+{$endif}
 end;
 
 procedure TFRM_Einstellungen.Button4Click(Sender: TObject);
@@ -423,12 +438,14 @@ procedure TFRM_Einstellungen.FormHide(Sender: TObject);
 var b: boolean;
 begin
   TC_Farben.OnChanging(Self,b);
+{$ifdef CS_USE_NET_COMPS}
   ClientGroup.Rights := [];
   if sync_scans.Checked then include(ClientGroup.Rights,gr_Scan);
   if sync_systems.Checked then include(ClientGroup.Rights,gr_System);
   if CH_Chat.Checked then include(ClientGroup.Rights,gr_Chat);
   if sync_Raids.Checked then include(ClientGroup.Rights,gr_Raids);
   if sync_Stats.Checked then include(ClientGroup.Rights,gr_Stats);
+{$endif}
 end;
 
 procedure TFRM_Einstellungen.btn_plugin_optionsClick(Sender: TObject);
@@ -499,4 +516,5 @@ begin
 end;
 
 end.
+
 
