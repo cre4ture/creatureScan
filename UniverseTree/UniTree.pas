@@ -3,8 +3,8 @@ unit UniTree;
 interface
 
 uses
-  SysUtils, Classes, OGame_Types, cS_DB, MergeSocket, LibXmlParser,
-  LibXmlComps, SplitSocket, {$ifdef CS_USE_NET_COMPS}cS_networking,{$endif} StatusThread,
+  SysUtils, Classes, OGame_Types, cS_DB, LibXmlParser,
+  LibXmlComps, {$ifdef CS_USE_NET_COMPS}MergeSocket, SplitSocket, cS_networking, StatusThread,{$endif}
   Windows, Forms, DateUtils, xml_parser_unicode;
 
 type

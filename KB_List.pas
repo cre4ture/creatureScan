@@ -5,9 +5,10 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   ExtCtrls, ComCtrls, Grids, VirtualTrees, OGame_Types, Prog_Unit, StdCtrls,
-  Menus, Add_KB, TThreadSocketSplitter, syncobjs, MergeSocket, {$ifdef CS_USE_NET_COMPS}cS_networking,{$endif}
-  SplitSocket, RaidBoard, cS_DB, notifywindow, notify_fleet_arrival,
-  ImgList, zeit_sync, StatusThread, IdExceptionCore;
+  Menus, Add_KB, syncobjs, StatusThread, {$ifdef CS_USE_NET_COMPS}cS_networking,
+  TThreadSocketSplitter, MergeSocket,
+  SplitSocket,{$endif} RaidBoard, cS_DB, notifywindow, notify_fleet_arrival,
+  ImgList, zeit_sync, IdExceptionCore;
 
 type
   TSyncResultData = record
@@ -188,7 +189,7 @@ procedure TFRM_KB_List.VST_RAIDGetText(Sender: TBaseVirtualTree;
           if (ships[i] > 0) then
           begin
             inc(c);
-            if c = Node.Index then
+            if Cardinal(c) = Node.Index then
               break;
           end;
           inc(i);
@@ -212,16 +213,16 @@ end;
 
 procedure TFRM_KB_List.ListRefreshTimer(Sender: TObject);
 begin
-  while (VST_RAID.RootNodeCount > ODataBase.FleetBoard.Fleets.Count) do
+  while (Integer(VST_RAID.RootNodeCount) > ODataBase.FleetBoard.Fleets.Count) do
     VST_RAID.DeleteNode(Node_Find(VST_RAID.RootNodeCount-1,VST_RAID));
 
-  while (VST_HISTORY.RootNodeCount > ODataBase.FleetBoard.History.Count) do
+  while (Integer(VST_HISTORY.RootNodeCount) > ODataBase.FleetBoard.History.Count) do
     VST_HISTORY.DeleteNode(Node_Find(VST_HISTORY.RootNodeCount-1,VST_HISTORY));
 
-  while (VST_RAID.RootNodeCount < ODataBase.FleetBoard.Fleets.Count) do
+  while (Integer(VST_RAID.RootNodeCount) < ODataBase.FleetBoard.Fleets.Count) do
     Integer(VST_RAID.GetNodeData(VST_RAID.AddChild(nil))^) := VST_RAID.RootNodeCount-1;
 
-  while (VST_HISTORY.RootNodeCount < ODataBase.FleetBoard.History.Count) do
+  while (Integer(VST_HISTORY.RootNodeCount) < ODataBase.FleetBoard.History.Count) do
     Integer(VST_HISTORY.GetNodeData(VST_HISTORY.AddChild(nil))^) := VST_HISTORY.RootNodeCount-1;
 
   VST_RAID.Refresh;

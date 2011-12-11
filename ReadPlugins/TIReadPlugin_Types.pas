@@ -4,6 +4,8 @@ interface
 
 uses OGame_Types, Classes;
 
+const MaxListSize = MaxInt div 16;
+
 type
   // 0 -> gala, 1 -> sys, 2 -> pos, 3 -> planet(0), moon(1), tf(2)
   PPortablePlanetPosition = ^TPortablePlanetPosition;

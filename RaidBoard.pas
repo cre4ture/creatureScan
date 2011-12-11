@@ -3,8 +3,8 @@ unit RaidBoard;
 interface
 
 uses
-  {$ifdef CS_USE_NET_COMPS}cS_networking,{$endif} OGame_Types, cS_DB, cS_DB_fleetfile, OtherTime, MergeSocket,
-  SysUtils, SplitSocket, LibXmlParser, LibXmlComps, xml_parser_unicode;
+  {$ifdef CS_USE_NET_COMPS}cS_networking, SplitSocket, MergeSocket,{$endif} OGame_Types, cS_DB, cS_DB_fleetfile, OtherTime,
+  SysUtils, LibXmlParser, LibXmlComps, xml_parser_unicode;
 
 type
   TFleetBoard_NotifyFleetArrival = procedure(Sender: TObject; Nr: Integer) of object;

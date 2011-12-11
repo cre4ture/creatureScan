@@ -1,11 +1,11 @@
 object FRM_EditScan: TFRM_EditScan
   Left = 562
   Top = 389
-  Width = 403
-  Height = 340
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Caption = 'Add new espionage report....'
+  ClientHeight = 315
+  ClientWidth = 395
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,7 +17,7 @@ object FRM_EditScan: TFRM_EditScan
   OnShow = FormShow
   DesignSize = (
     395
-    313)
+    315)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
