@@ -1,16 +1,16 @@
-unit ReadSolsysStats_fullhtml_betauni;
+unit ReadSolsysStats_fullhtml_2x;
 
 interface
 
 uses
   Inifiles, OGame_Types, creax_html, cpp_dll_interface,
-  DateUtils, SysUtils, readsource, parser_types;
+  DateUtils, SysUtils, readsource, parser_types, ReadClassFactory;
 
 const
    HTMLTrimChars = [' ',#$D, #$A, #9];
 
 type
-  ThtmlStatRead_betauni = class
+  ThtmlStatRead_betauni = class(TStatsReadClassInterface)
   protected
     function ReadStatType(root_div: THTMLElement;
       var typ: TStatTypeEx): Boolean;
@@ -27,7 +27,7 @@ type
     function ReadFullHtml(doc_html: THTMLElement; var stats: TStat;
       var Typ: TStatTypeEx): Boolean;
     function ReadFromRS(rs: TReadSource; var Stats: TStat;
-      var Typ: TStatTypeEx): Boolean;
+      var Typ: TStatTypeEx): Boolean; override;
 
   end;
   ThtmlSysRead_betauni = class
