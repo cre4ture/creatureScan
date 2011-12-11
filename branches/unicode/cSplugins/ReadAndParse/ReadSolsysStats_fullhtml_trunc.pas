@@ -623,6 +623,11 @@ function ThtmlStatRead_betauni.ReadFromRS(rs: TReadSource; var Stats: TStat;
 begin
   try
     Result := ReadFullHtml(rs.GetHTMLRoot, Stats, Typ);
+    if Result then
+    begin
+      if Stats.Time_u = 0 then
+        Stats.Time_u := rs.GetServerTime;
+    end;
   except
     Result := False;
   end;
@@ -634,7 +639,7 @@ var tbody: THTMLElement;
     root_div, tag: THTMLElement;
     table: THTMLTable;
     s: string;
-    i, first, p: Integer;
+    i, first, p, rowoffset: Integer;
 begin
   Result := False;
   //Leeren:
@@ -677,21 +682,28 @@ begin
     if tbody <> nil then
       tbody.ChildsMove(table);
 
-    first := ReadInt(table.Cells[1,0].FullTagContent,1);
+    // find first rank in table (skip header etc...)
+    rowoffset := -1;
+    repeat
+      inc(rowoffset);
+      if (rowoffset > table.RowCount) then exit;
+      first := ReadInt(table.Cells[rowoffset,0].FullTagContent,1);
+    until (first > 0);
+
     stats.first := first;
     stats.count := 0;
     for i := 0 to 99 do
     begin
       try
-        s := table.Cells[i+1,0].FullTagContent;
+        s := table.Cells[i+rowoffset,0].FullTagContent;
         if ReadInt(s,1) <> i+first then
           break
         else
         begin
           case (Typ.NameType) of
-            sntPlayer: if not readStatEntry_player(table.Rows[i+1],Typ,stats.Stats[i]) then
+            sntPlayer: if not readStatEntry_player(table.Rows[i+rowoffset],Typ,stats.Stats[i]) then
                           Exit;
-            sntAlliance: if not readStatEntry_ally(table.Rows[i+1],Typ,stats.Stats[i]) then
+            sntAlliance: if not readStatEntry_ally(table.Rows[i+rowoffset],Typ,stats.Stats[i]) then
                             Exit;
           end;
           inc(stats.count);
@@ -778,17 +790,6 @@ begin
               tag.ClearChilds;
               tag.Content := '';
             end
-            else
-            begin
-              // versuche Ally tag aus erstem <a> element zu lesen
-              if tag_cell.ChildNameCount('a') = 2 then
-              begin
-                tag := tag_cell.FindChildTag('a',0);
-                statentry.Ally := trim(tag.FullTagContent);
-                tag.ClearChilds;
-                tag.Content := '';
-              end;
-            end;
           end;
 
           statentry.Name := trim(tag_cell.FullTagContent);
