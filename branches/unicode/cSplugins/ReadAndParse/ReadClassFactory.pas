@@ -21,7 +21,7 @@ type
   public
     function getStatsReadClass(version: TOGameVersion): TStatsReadClassInterface;
     constructor Create(ini: TIniFile);
-    destructor Destroy;
+    destructor Destroy; override;
   end;
 
 implementation
