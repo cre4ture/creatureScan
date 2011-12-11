@@ -26,7 +26,7 @@ type
 
 implementation
 
-uses ReadSolsysStats_fullhtml_2x, ReadSolsysStats_fullhtml_trunc, SysUtils;
+uses ReadSolsysStats_fullhtml_2x, ReadStats_fullhtml_trunc, SysUtils;
 
 { TReadClassFactory }
 
@@ -68,7 +68,7 @@ begin
     // create new instance for selected version
     case version of
     ogv_2xx: fStatsRead := ReadSolsysStats_fullhtml_2x.ThtmlStatRead_betauni.Create(fini);
-    ogv_3xx: fStatsRead := ReadSolsysStats_fullhtml_trunc.ThtmlStatRead.Create(fini);
+    ogv_3xx: fStatsRead := ReadStats_fullhtml_trunc.ThtmlStatRead.Create(fini);
     else
       raise Exception.Create('TReadClassFactory.getStatsReadClass: internal error');
     end;
