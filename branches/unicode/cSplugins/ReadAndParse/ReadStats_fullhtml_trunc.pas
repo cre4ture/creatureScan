@@ -87,6 +87,8 @@ var form, tag: THTMLElement;
     typ_l: array[TStatPointType] of string[255];
     sn: TStatNameType;
     sp: TStatPointType;
+    snb, spb: boolean;
+    i: integer;
 begin
   //Result ist immer False, da kein bestimmtes element gefunden werden soll!
   Result := False;
@@ -95,7 +97,9 @@ begin
     Exit;
 
   typ.NameType := sntPlayer;
+  snb := false;
   typ.PointType := sptPoints;
+  spb := false;
 
   who_l[sntPlayer] := 'player';
   who_l[sntAlliance] := 'alliance';
@@ -112,6 +116,7 @@ begin
     if pos('active', tag.AttributeValue['class']) > 0 then
     begin
       typ.NameType := sn;
+      snb := true;
       break;
     end;
   end;
@@ -125,11 +130,26 @@ begin
     if pos('active', tag.AttributeValue['class']) > 0 then
     begin
       typ.PointType := sp;
+      spb := true;
       break;
     end;
   end;
 
-  Result := true;
+  // be sure there is no "subnav"-button selected:
+  tag := HTMLFindRoutine_NameAttribute(form, 'div', 'id', 'subnav_fleet');
+  if tag <> nil then
+  begin
+    for i := 0 to tag.ChildCount-1 do
+    begin
+      if pos('active', tag.ChildElements[i].AttributeValue['class']) > 0 then
+      begin
+        spb := false; // subnav-types not suported!
+        break;
+      end;
+    end;
+  end;
+
+  Result := snb and spb; // beide parameter bestimmt?
 end;
 
 function ThtmlStatRead.CheckForTable(CurElement: THTMLElement;

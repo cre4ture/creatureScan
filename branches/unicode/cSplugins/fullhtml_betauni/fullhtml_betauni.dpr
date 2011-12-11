@@ -14,7 +14,6 @@ uses
   StrUtils,
   ReadPhalanxScan_fullhtml_betauni in '..\ReadAndParse\ReadPhalanxScan_fullhtml_betauni.pas',
   ReadReport_Text in '..\ReadAndParse\ReadReport_Text.pas',
-  ReadSolsysStats_fullhtml_betauni in '..\ReadAndParse\ReadSolsysStats_fullhtml_betauni.pas',
   readsource in '..\readsource.pas',
   call_fleet in '..\ReadAndParse\call_fleet.pas',
   readsource_cs in '..\readsource_cs.pas',
@@ -23,7 +22,12 @@ uses
   creax_html in '..\..\..\lib\uli\htmllib\creax_html.pas',
   cpp_dll_interface in '..\..\..\lib\uli\htmllib\cpp_dll_interface.pas',
   TIReadPlugin_Types in '..\..\ReadPlugins\TIReadPlugin_Types.pas',
-  TIReadPlugin_Types_conv in '..\..\ReadPlugins\TIReadPlugin_Types_conv.pas';
+  TIReadPlugin_Types_conv in '..\..\ReadPlugins\TIReadPlugin_Types_conv.pas',
+  ReadSolsysStats_fullhtml_2x in '..\ReadAndParse\ReadSolsysStats_fullhtml_2x.pas',
+  OGameVersionDetector in '..\ReadAndParse\OGameVersionDetector.pas',
+  ReadClassFactory in '..\ReadAndParse\ReadClassFactory.pas',
+  ReadSolsys_fullhtml_trunc in '..\ReadAndParse\ReadSolsys_fullhtml_trunc.pas',
+  ReadStats_fullhtml_trunc in '..\ReadAndParse\ReadStats_fullhtml_trunc.pas';
 
 type
   TScanReadOptions = record
@@ -57,9 +61,10 @@ var
 
   StatusItems: string;
 
+  ini: TIniFile;
   Sys_Options: TSys_Read_Options;
   ReportRead: TReadReport_Text;
-  StatRead: ThtmlStatRead_betauni;
+  myReadClassFactory: TReadClassFactory;
   SysRead: ThtmlSysRead_betauni;
   PhalanxRead: ThtmlPhalanxRead_betauni;
 
@@ -69,9 +74,6 @@ var
   DisableUniCheck: Boolean; //Damit die Meldung nur einmal kommt!
   STR_DisableUniCheck_MSG: String;
   Run_Options: TRun_Options;
-
-  //---FireFoxOptions-----------------------------------------------------------
-  FFO_FoxGame_active: Boolean;
 
 function _get_RS(const Handle: integer; var rs: TReadSource_cS): Boolean;
 begin
@@ -143,29 +145,12 @@ begin
   end;
 end;
 
-
-procedure _LoadFireFoxOptions(ini: TInifile; section: String);
-begin
-  FFO_FoxGame_active := ini.ReadBool(section,'FFO_FoxGame_active',False);
-end;
-
-procedure _LoadOptions;
-var ini: TIniFile;
-begin
-  ini := TIniFile.Create(UserIniFile);
-  case Run_Options.Typ of
-  ro_FireFoxOptions: _LoadFireFoxOptions(ini,UserIniFileSection);
-  end;
-  ini.Free;
-end;
-
 function dll_startDll(const inifile: PAnsiChar;
   pVersion: PInteger;
   const uniDomain: PAnsiChar;
   const AUserIniFile: PAnsiChar;
   const AUserIniFileSection: PAnsiChar): Boolean; stdcall;
-var ini: TIniFile;
-    i: Integer;
+var i: Integer;
     s: string;
 begin
   pVersion^ := iopluginVersion;
@@ -196,11 +181,9 @@ begin
   s := ini.ReadString('dllOptions','Run_Options','None');
   if s = 'FireFoxOptions' Then Run_Options.Typ := ro_FireFoxOptions;
 
-  _LoadOptions;
-
   SB_tsep := ini.ReadString('Espionage report','tsep','');
 
-  StatRead := ThtmlStatRead_betauni.Create(ini);
+  myReadClassFactory := TReadClassFactory.Create(ini);
   SysRead := ThtmlSysRead_betauni.Create(ini);
   ReportRead := TReadReport_Text.Create(ini);
   PhalanxRead := ThtmlPhalanxRead_betauni.Create(ini, ReportRead);
@@ -211,18 +194,18 @@ begin
     RA_KWords[i-1] := {TrimStringChar(}ini.ReadString('Raidstart','Z'+inttostr(i),'---n/a---'){,'"')};
   end;
 
-  ini.free;
   Result := True;
 end;
 
 function dll_endDll: boolean; stdcall;
 begin
-  StatRead.Free;
+  myReadClassFactory.Free;
   SysRead.Free;
   ReportRead.Free;
   PhalanxRead.Free;
   UniCheck.Free;
-
+  ini.free;
+  
   Result := True;
 end;
 
@@ -296,7 +279,8 @@ begin
   Result := False;
   if not _get_RS(rs_handle, rs) then Exit;
 
-  Result := StatRead.ReadFromRS(rs,rs.stats,typ);
+  Result := myReadClassFactory.getStatsReadClass(rs.getOGameVersion)
+                                                  .ReadFromRS(rs,rs.stats,typ);
 
   if Result then
   begin
@@ -423,11 +407,11 @@ begin
 end;
 
 procedure dll_runOptions; stdcall;
-var ini: TIniFile;
+//var ini: TIniFile;
 begin
-  ini := TIniFile.Create(UserIniFile);
+//  ini := TIniFile.Create(UserIniFile);
   ShowMessage('No options available!');
-  ini.Free;
+//  ini.Free;
 end;
 
 function dll_ReadSource_New: integer; stdcall;
