@@ -2,8 +2,9 @@ unit Stat_Points;
 
 interface
 
-uses classes, OGame_Types, Windows, SysUtils, MergeSocket, SDBFile, SplitSocket,
-  {$ifdef CS_USE_NET_COMPS}cS_networking,{$endif} LibXmlParser, LibXmlComps, xml_parser_unicode;
+uses classes, OGame_Types, Windows, SysUtils, SDBFile,
+  {$ifdef CS_USE_NET_COMPS}MergeSocket, SplitSocket,
+  cS_networking,{$endif} LibXmlParser, LibXmlComps, xml_parser_unicode;
 
 const
   StatFileV = 'creatureScan_StatisticBD_2.1';
