@@ -5,10 +5,10 @@ interface
 uses
   Windows, Sysutils, classes, Forms, IniFiles, graphics, Dialogs, spielerdaten,
   FileCtrl, scktcomp, ImportProgress, stdctrls, buttons,
-  menus, comctrls, OGame_Types, VirtualTrees, SelectPlugin, Stat_Points, TThreadSocketSplitter,
+  menus, comctrls, OGame_Types, VirtualTrees, SelectPlugin, Stat_Points,
   ThreadProtocolObject, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdHTTP, DateUtils, LibXmlParser, cS_DB, cS_DB_reportFile,
-  SelectUSer, UniTree, {$ifdef CS_USE_NET_COMPS}cS_networking,{$endif} MergeSocket, SplitSocket, cS_DB_solsysFile, TIReadPlugin,
+  SelectUSer, UniTree, {$ifdef CS_USE_NET_COMPS}TThreadSocketSplitter, cS_networking, MergeSocket, SplitSocket,{$endif} cS_DB_solsysFile, TIReadPlugin,
   SyncObjs, RaidBoard, frm_pos_size_ini, OGameData;
 
 
@@ -56,8 +56,10 @@ const release_number = 'a';
 {$DEFINE oanzahl}  //ohne Anzahl!! -- brauchts nirgends mehr!
 
 type
+{$ifdef CS_USE_NET_COMPS}
   TProgressEvent = procedure(Sender: TObject; ClientThread: TSplitSocket; Prozent: Byte) of object;
   TProgressNewAction = procedure(Sender: TObject; ClientThread: TSplitSocket; Action: String) of object;
+{$endif}
   TPlanet = record
     ScanBericht : Integer;
     {$IFNDEF oanzahl} Anzahl : word; {$ENDIF}
@@ -306,6 +308,7 @@ function LogSenderToStr(Sender, SenderToIdentify: TObject;
     var SenderName: string): Boolean;
 begin
   Result := True;
+{$ifdef CS_USE_NET_COMPS}
   if (SenderToIdentify is TSocketMultiplex) then
   begin
     with SenderToIdentify as TSocketMultiplex do
@@ -315,6 +318,7 @@ begin
       SenderName := 'NCon_S_' + IntToHex(Handle,6);
   end
   else
+{$endif}
   if (SenderToIdentify is TThread) then
     SenderName := 'Thread_' + IntToHex(TThread(SenderToIdentify).Handle,6)
   else

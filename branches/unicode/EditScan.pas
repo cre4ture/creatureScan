@@ -124,7 +124,7 @@ end;
 procedure TFRM_EditScan.TXT_KeyPress(Sender: TObject;
   var Key: Char);
 begin
-  if not (Key in ['0'..'9','-',#8]) then
+  if not (AnsiChar(Key) in ['0'..'9','-',#8]) then
     Key := #0;
 end;
 
