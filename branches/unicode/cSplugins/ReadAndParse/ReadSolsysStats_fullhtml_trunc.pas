@@ -1,16 +1,16 @@
-unit ReadSolsysStats_fullhtml_betauni;
+unit ReadSolsysStats_fullhtml_trunc;
 
 interface
 
 uses
   Inifiles, OGame_Types, creax_html, cpp_dll_interface,
-  DateUtils, SysUtils, readsource, parser_types;
+  DateUtils, SysUtils, readsource, parser_types, ReadClassFactory;
 
 const
    HTMLTrimChars = [' ',#$D, #$A, #9];
 
 type
-  ThtmlStatRead_betauni = class
+  ThtmlStatRead = class(TStatsReadClassInterface)
   protected
     function ReadStatType(root_div: THTMLElement;
       var typ: TStatTypeEx): Boolean;
@@ -27,10 +27,10 @@ type
     function ReadFullHtml(doc_html: THTMLElement; var stats: TStat;
       var Typ: TStatTypeEx): Boolean;
     function ReadFromRS(rs: TReadSource; var Stats: TStat;
-      var Typ: TStatTypeEx): Boolean;
+      var Typ: TStatTypeEx): Boolean; override;
 
   end;
-  ThtmlSysRead_betauni = class
+  ThtmlSysRead = class
   protected
     StatusItems_HTML: array[TStati] of string;
     function CheckForTable(CurElement: THTMLElement; Data: pointer): Boolean;
@@ -99,7 +99,7 @@ begin
   Result := sysutils.Trim(s);
 end;
 
-function ThtmlStatRead_betauni.ReadStatType(root_div: THTMLElement;
+function ThtmlStatRead.ReadStatType(root_div: THTMLElement;
   var typ: TStatTypeEx): Boolean;
 var form, tag: THTMLElement;
     who_l: array[TStatNameType] of string[255];
@@ -151,7 +151,7 @@ begin
   Result := true;
 end;
 
-function ThtmlStatRead_betauni.CheckForTable(CurElement: THTMLElement;
+function ThtmlStatRead.CheckForTable(CurElement: THTMLElement;
   Data: pointer): Boolean;
 var body: THTMLElement;
     rc: Integer;
@@ -175,7 +175,7 @@ begin
   end;
 end;
 
-function ThtmlStatRead_betauni.CheckForFormTable(CurElement: THTMLElement;
+function ThtmlStatRead.CheckForFormTable(CurElement: THTMLElement;
   Data: pointer): Boolean;
 var body: THTMLElement;
     rc: Integer;
@@ -199,17 +199,17 @@ begin
   end;
 end;
 
-constructor ThtmlStatRead_betauni.Create(ini: TIniFile);
+constructor ThtmlStatRead.Create(ini: TIniFile);
 begin
   inherited Create;
 end;
 
-destructor ThtmlStatRead_betauni.Destroy;
+destructor ThtmlStatRead.Destroy;
 begin
   inherited;
 end;
 
-function ThtmlStatRead_betauni.Read(text, html: string; var stats: TStat;
+function ThtmlStatRead.Read(text, html: string; var stats: TStat;
   var Typ: TStatTypeEx): Boolean;
 var doc_html: THTMLElement;
 begin
@@ -236,7 +236,7 @@ begin
   if Result > l then Result := 0;
 end;
 
-function ThtmlSysRead_betauni.CheckForTable(CurElement: THTMLElement;
+function ThtmlSysRead.CheckForTable(CurElement: THTMLElement;
   Data: pointer): Boolean;
 begin
   Result := False;
@@ -252,7 +252,7 @@ begin
   end;
 end;
 
-function ThtmlSysRead_betauni._read_HTMLStatusStr(s: string): TStatus;
+function ThtmlSysRead._read_HTMLStatusStr(s: string): TStatus;
 var i: TStati;
 begin
   Result := [];
@@ -263,7 +263,7 @@ begin
     end;
 end;
 
-function ThtmlSysRead_betauni.CheckStatusSpans(CurElement: THTMLElement;
+function ThtmlSysRead.CheckStatusSpans(CurElement: THTMLElement;
   Data: pointer): Boolean;
 begin
   //Result ist immer False, da kein bestimmtes element gefunden werden soll!
@@ -279,7 +279,7 @@ begin
   end; }
 end;
 
-constructor ThtmlSysRead_betauni.Create(ini: TIniFile);
+constructor ThtmlSysRead.Create(ini: TIniFile);
 var i: integer;
 begin
   inherited Create;
@@ -289,7 +289,7 @@ begin
   end;
 end;
 
-function ThtmlSysRead_betauni.Read(text, html: string;
+function ThtmlSysRead.Read(text, html: string;
   var solsys: TSystemCopy): Boolean;
 var doc_html: THTMLElement;
 begin
@@ -303,7 +303,7 @@ begin
   doc_html.Free;
 end;
 
-function ThtmlSysRead_betauni.ReadFromRS(rs: TReadSource;
+function ThtmlSysRead.ReadFromRS(rs: TReadSource;
   var solsys: TSystemCopy): Boolean;
 begin
   try
@@ -314,7 +314,7 @@ begin
   end;
 end;
 
-function ThtmlSysRead_betauni.ReadFullHTML(doc_html: THTMLElement;
+function ThtmlSysRead.ReadFullHTML(doc_html: THTMLElement;
   var solsys: TSystemCopy): Boolean;
 var tbody, tag, tag_row, tag_pos, tag_a: THTMLElement;
     table: THTMLTable;
@@ -453,7 +453,7 @@ begin
   end;
 end;
 
-function ThtmlSysRead_betauni.ReadRow_PlanetInfo(CurElement: THTMLElement;
+function ThtmlSysRead.ReadRow_PlanetInfo(CurElement: THTMLElement;
   Data: pointer): Boolean;
 var
   row: PSystemPlanet;
@@ -618,7 +618,7 @@ begin
   end;
 end;
 
-function ThtmlStatRead_betauni.ReadFromRS(rs: TReadSource; var Stats: TStat;
+function ThtmlStatRead.ReadFromRS(rs: TReadSource; var Stats: TStat;
   var Typ: TStatTypeEx): Boolean;
 begin
   try
@@ -633,7 +633,7 @@ begin
   end;
 end;
 
-function ThtmlStatRead_betauni.ReadFullHtml(doc_html: THTMLElement; var stats: TStat;
+function ThtmlStatRead.ReadFullHtml(doc_html: THTMLElement; var stats: TStat;
   var Typ: TStatTypeEx): Boolean;
 var tbody: THTMLElement;
     root_div, tag: THTMLElement;
@@ -717,43 +717,64 @@ begin
   Result := True;
 end;
 
-function ThtmlStatRead_betauni.readStatEntry_ally(row_tag: THTMLElement; stattype: TStatTypeEx;
+function ThtmlStatRead.readStatEntry_ally(row_tag: THTMLElement; stattype: TStatTypeEx;
   var statentry: TStatPlayer): Boolean;
 var tag_cell, atag: THTMLElement;
-    s: string;
-    p: integer;
+    s, tdclass: string;
+    p, i: integer;
 begin
   Result := False;
   statentry.NameId := -1;
 
-  tag_cell := row_tag.FindChildTag('td',1);
-  if tag_cell = nil then Exit;
-  s := tag_cell.FullTagContent;
-  statentry.Name := trim(s);
-
-  // --- extract allyid
-  atag := tag_cell.FindChildTag('a',0);
-  if atag <> nil then
+  for i := 0 to row_tag.ChildCount-1 do
   begin
-    s := atag.AttributeValue['href'];
-    p := pos('?allyid=', s);
-    s := copy(s, p+8, 99999);
-    statentry.NameId := StrToIntDef(s, -1);
+    tag_cell := row_tag.ChildElements[i];
+    if tag_cell.TagName = 'td' then
+    begin
+      tdclass := tag_cell.AttributeValue['class'];
+
+      if pos('score', tdclass) > 0 then
+      begin
+        statentry.Punkte := readint(trim(tag_cell.FullTagContent),1);
+      end;
+
+      if pos('name tipsStan', tdclass) > 0 then
+      begin
+        statentry.Mitglieder := readint(trim(tag_cell.FullTagContent),1);
+      end;
+
+      if 'name' = tdclass then
+      begin
+        // --- extract allyid + name
+        atag := tag_cell.FindChildTag('span',0);
+        if atag = nil then
+          atag := tag_cell.FindChildTag('a',0); // try a (this is the case when own ally)
+
+        if atag <> nil then
+        begin
+          // --- get ally name
+          s := atag.FullTagContent;
+          statentry.Name := trim(s);
+
+          // get ally id
+          atag := atag.FindChildTag('a',0);
+          if atag <> nil then
+          begin
+            s := atag.AttributeValue['href'];
+            p := pos('?allyid=', s);
+            s := copy(s, p+8, 99999);
+            statentry.NameId := StrToIntDef(s, -1);
+          end;
+        end;
+      end;
+
+    end;
   end;
-  // --- end
-
-  tag_cell := row_tag.FindChildTag('td',3);
-  if tag_cell = nil then Exit;
-  statentry.Punkte := readint(trim(tag_cell.FullTagContent),1);
-
-  tag_cell := row_tag.FindChildTag('td',4);
-  if tag_cell = nil then Exit;
-  statentry.Mitglieder := readint(trim(tag_cell.FullTagContent),1);
 
   Result := True;
 end;
 
-function ThtmlStatRead_betauni.readStatEntry_player(row_tag: THTMLElement; stattype: TStatTypeEx;
+function ThtmlStatRead.readStatEntry_player(row_tag: THTMLElement; stattype: TStatTypeEx;
   var statentry: TStatPlayer): Boolean;
 var i: integer;
     tag_cell, tag: THTMLElement;
@@ -826,7 +847,7 @@ begin
   Result := b_name and b_score;
 end;
 
-function ThtmlSysRead_betauni.CheckForRankElement(CurElement: THTMLElement;
+function ThtmlSysRead.CheckForRankElement(CurElement: THTMLElement;
   Data: pointer): Boolean;
 begin
   with (CurElement) do
@@ -841,7 +862,7 @@ begin
   end;
 end;
 
-procedure ThtmlSysRead_betauni.Test(text, html: string;
+procedure ThtmlSysRead.Test(text, html: string;
   var solsys: TSystemCopy);
 var doc_html: THTMLElement;
 begin
