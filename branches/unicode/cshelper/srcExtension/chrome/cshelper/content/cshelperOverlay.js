@@ -226,15 +226,19 @@ function cshelper_pageLoad(event_pageload) {
 
 	var inhalt_ajax_handler_stats = function (event) 
 				{
-					if (event.target.className == "content")
+//					var tag = event.target.parentNode;
+//					cshelper_myTestLog(document, 'TEST');
+//					cshelper_myTestLog(document, tag.id);
+					var list = event.target.getElementsByClassName("changeSite");
+					if ((list.length >= 1)||(event.target.className == "content"))
 					{
-						//cshelper_myTestLog(document, 'COPY START');
+//						cshelper_myTestLog(document, 'COPY START');
 						if (cshelper.BrowserOverlay.doWeUseTCP(document)) {
 							cshelper.BrowserOverlay.sendHTML_To_cS_TCPIP(document.body.innerHTML, event_pageload, document);
 						} else {
 							copyToClipboard(document.body.innerHTML, event_pageload, document);
 						}
-						//cshelper_myTestLog(document, 'COPY SUCCESS');
+//						cshelper_myTestLog(document, 'COPY SUCCESS');
 					}
 				};
 
@@ -260,7 +264,7 @@ function cshelper_pageLoad(event_pageload) {
 		cshelper_myTestLog(document, 'Messages detected!');
 	}
 	
-	else if ((document.location.href.search("page=statistics") > -1)) {
+	else if ((document.location.href.search("page=statistics") > -1)||(document.location.href.search("page=highscore") > -1)) {
 		var inhalt = document.getElementById('inhalt'); 
 		inhalt.addEventListener("DOMNodeInserted", inhalt_ajax_handler_stats, true);
 		cshelper_myTestLog(document, 'Statistics detected!');
