@@ -617,7 +617,7 @@ begin
     i := Node^.Index+1;
     points := getPlayerStatPoints(i);
     if (points > 0) and (ODataBase.Stats_own > 0) then
-      TargetCanvas.Font.Color := dPunkteToColor(Cardinal(points)-ODataBase.Stats_own,ODataBase.RedHours[rh_Points])
+      TargetCanvas.Font.Color := dPunkteToColor(points-Integer(ODataBase.Stats_own),ODataBase.RedHours[rh_Points])
     else TargetCanvas.Font.Color := VST_System.Font.Color;
   end;
 end;

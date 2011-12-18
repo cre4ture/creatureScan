@@ -1144,19 +1144,19 @@ begin
     Canvas.Font.Color := clWhite;
     Canvas.Brush.Color := clBlue;
     dy := Canvas.TextHeight('[]')+6;
-    Canvas.Rectangle(0,y,Width,y+dy);
+    Canvas.Rectangle(0,y,Width,y+(dy*2));
     player := fplanetInfo.Player;
     if ODataBase <> nil then
       player := player + '(' +
         ODataBase.LanguagePlugIn.StatusToStr(fplanetInfo.Status) + ')';
-        
-    if not Bericht.Head.Position.Mond then
-      Canvas.TextOut(3,y+3,'[' + PositionToStrMond(Bericht.Head.Position) + '] '
-                       + fplanetInfo.PlanetName + ' (' + player + ')')
-    else
-      Canvas.TextOut(3,y+3,'[' + PositionToStrMond(Bericht.Head.Position) + '] '
-                       + STR_Mond + ' (' + player + ')');
 
+    if Bericht.Head.Position.Mond then
+      Canvas.TextOut(3, y+3, '[' + PositionToStrMond(Bericht.Head.Position) + '] ' + STR_Mond)
+    else
+      Canvas.TextOut(3, y+3, '[' + PositionToStrMond(Bericht.Head.Position) + '] ' + fplanetInfo.PlanetName);
+
+    inc(y, dy);
+    Canvas.TextOut(3, y+3, player);
     inc(y,dy);
     PB_B.Height := y;
   end;
@@ -1177,19 +1177,24 @@ begin
   begin
     //Letze Aktivität:
     Brush.Color := clBlack;
-    if Bericht.Head.Activity > 0 then
+    if Bericht.Head.Activity > activity_lt_15min then
     begin
       s := ' l.a. ' + IntToStr(Bericht.Head.Activity div 60) + ' min ';
       Font.Color := clred;
-      TextOut(x,y,s);
     end
     else
-    if Bericht.Head.Activity = 0 then
+    if Bericht.Head.Activity = activity_gt_60min then
     begin
       s := ' l.a. > 1h ';
       Font.Color := clgreen;
-      TextOut(x,y,s);
+    end
+    else
+    if Bericht.Head.Activity = activity_lt_15min then
+    begin
+      s := ' l.a. < 15min ';
+      Font.Color := clred;
     end;
+    TextOut(x,y,s);
     inc(x, TextWidth(s));
    end;
 end;

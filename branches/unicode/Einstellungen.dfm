@@ -34,7 +34,7 @@ object FRM_Einstellungen: TFRM_Einstellungen
     Top = 0
     Width = 531
     Height = 200
-    ActivePage = TS_Direktverbindung
+    ActivePage = ts_Flotten
     Anchors = [akLeft, akTop, akRight, akBottom]
     MultiLine = True
     ParentShowHint = False
@@ -1265,7 +1265,9 @@ object FRM_Einstellungen: TFRM_Einstellungen
         Top = 72
         Width = 377
         Height = 17
-        Hint = 'das blinkt nach Ankunft und man kann es per Klick schlie'#223'en-'
+        Hint = 
+          'Das Alert-Fenster blinkt nach Ankunft und man kann es per Klick ' +
+          'oder automatisch schlie'#223'en.'
         Caption = 'Nach Ankunft schlie'#223'en'
         TabOrder = 7
       end

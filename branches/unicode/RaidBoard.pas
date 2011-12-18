@@ -73,7 +73,7 @@ function FindFleet(Start, Ziel: TPlanetPosition;
 
 implementation
 
-uses cS_XML, Classes, Prog_Unit;
+uses cS_XML, Classes, Prog_Unit, Windows;
 
 function TFleetBoard.AddFleet(fleet: TFleetEvent): Integer;
 begin
@@ -129,7 +129,6 @@ constructor TFleetBoard.Create(const SaveDir: String; const UniDomainID: string)
   var old: TcSFleetDB_for_File;
       i: integer;
   begin
-    Result := false;
     old := TcSFleetDB_for_File.Create(Filename, UniDomainID);
     try
       for i := 0 to old.Count-1 do
@@ -151,7 +150,7 @@ constructor TFleetBoard.Create(const SaveDir: String; const UniDomainID: string)
       RenameFile(Filename,Filename+'.old');
       result := TcSFleetDB_for_File.Create(Filename, UniDomainID);
       if __importold(Filename+'.old', result) then
-        DeleteFile(Filename+'.old');
+        SysUtils.DeleteFile(Filename+'.old');
     end;
   end;
 

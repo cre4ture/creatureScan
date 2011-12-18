@@ -47,7 +47,7 @@ type
     lpa, lpi: integer;
     thePlayerID: TNameID;
     theAllyID: TNameID;
-    anomalie: Integer;
+    anomalie_: Integer;
   end;
   TPlanetItem = class
   private
@@ -790,7 +790,14 @@ begin
         24: CellText := IntToStrKP(tf[0] + tf[1] + tf[2]);
         //Berechnete Rohstoffe (Produktion mit einberechnet!)
         25..29,31,32,lpa_col,lpi_col: CellText := IntToStrKP(getIntValColumn(Column, fav));
-        33: if (anomalie > 0) then CellText := IntToStrKP(anomalie) else CellText := ' > 1h';
+        33: if (anomalie_ > activity_lt_15min) then
+              CellText := IntToStrKP(anomalie_)
+            else
+              if (anomalie_ = activity_gt_60min) then
+                CellText := ' > 1h'
+              else
+                if anomalie_ = activity_lt_15min then
+                  CellText := ' <= 15min ';
       end;
     end;
   end;
@@ -844,10 +851,12 @@ begin
       Fav1.TF[0]+Fav1.TF[1]+Fav1.TF[2] > Fav2.TF[0]+Fav2.TF[1]+Fav2.TF[2],
       1,-1);
     //Berechnete Rohstoffe (Produktion mit einberechnet!)
-    25..29,31,32,33,lpa_col,lpi_col: if getIntValColumn(Column, Fav1) > getIntValColumn(Column, Fav2) then
+    25..29,31,32,lpa_col,lpi_col: if getIntValColumn(Column, Fav1) > getIntValColumn(Column, Fav2) then
               Result := 1 else Result := -1;
 //    30: if Fav1.notes then, ka wie des genau mit den notizen klappen soll (nach welcher regel?)
-        
+    33: if Fav1.anomalie_ > Fav2.anomalie_ then
+          Result := 1 else Result := -1;
+
   else
     VST_ScanListGetText(Sender,Node1,Column,ttNormal,s1);
     VST_ScanListGetText(Sender,Node2,Column,ttNormal,s2);
@@ -914,7 +923,7 @@ begin
           Fleet := FleetPoints(report);
           Def := DefPoints(report);
 
-          anomalie := report.Head.Activity;
+          anomalie_ := report.Head.Activity;
 
           for i := 0 to 3 do
             Ress[i] := report.Bericht[sg_Rohstoffe,i];
@@ -1014,7 +1023,7 @@ begin
          begin
            if (PlayerPunkte > 0) and (ODataBase.Stats_own > 0) then
              TargetCanvas.Font.Color := dPunkteToColor(
-                                          cardinal(PlayerPunkte)-ODataBase.Stats_own,
+                                          PlayerPunkte-Integer(ODataBase.Stats_own),
                                           ODataBase.RedHours[rh_Points])
            else TargetCanvas.Font.Color := Sender.Font.Color;
 

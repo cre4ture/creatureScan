@@ -106,6 +106,11 @@ const
   sys_playerstat_noob = 4;
   sys_playerstat_hard = 5;
 
+  activity_no_info = -1;
+  activity_gt_60min = 0;
+  activity_lt_15min = 1;
+//  activity_15min = (15*60);
+
 type
   TNameID = Int64;
   TPlayerName_utf8 = String[25]; //vermutlich 20
@@ -142,7 +147,13 @@ type
     MondSize: Word;
     MondTemp: SmallInt;
     TF: array[0..1] of Cardinal;
-    Activity: Integer; {Time in Seconds (min*60) befor Time_u, -15 -> (*) within last 15min, 0 -> activity > 60 minutes}
+    Activity: Integer;
+    {  Activity:
+          Time in Seconds (min*60) before Time_u
+          activity_no_info -> no info,
+          activity_gt_60min > 60 minutes,
+          activtiy_lt_15min < 15 minutes
+    }
   end;
   TSystemCopy_utf8 = record
     Time_u : Int64;  //Unix
@@ -150,7 +161,7 @@ type
     Planeten : Array[1..max_Planeten] of TSystemPlanet_utf8;
     Creator: TPlayerName_utf8;
   end;
-  PSystemCopy = ^TSystemCopy; 
+  PSystemCopy = ^TSystemCopy;
   TSystemCopy = record
     Time_u : Int64;  //Unix
     System : TPlanetPosition; //nur 0,1 wird dann verwendet!
@@ -167,9 +178,13 @@ type
     SpielerId: TNameID;
     Spionageabwehr: integer;
     Creator: string;
-    {geraidet: Boolean;
-    von: TPlayerName;}
-    Activity: Integer; {Time in Seconds (min*60) befor Time_u, -1 -> no info, 0 -> activity > 60 minutes}
+    Activity: Integer;
+    {  Activity:
+          Time in Seconds (min*60) before Time_u
+          activity_no_info -> no info,
+          activity_gt_60min > 60 minutes,
+          activtiy_lt_15min < 15 minutes
+    }
   end;
   TScanHead_utf8 = record
     Planet: TPlanetName_utf8;

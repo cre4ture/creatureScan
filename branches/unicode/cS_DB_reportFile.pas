@@ -255,7 +255,7 @@ begin
     Creator := trnslShortStr(Item.Head.Creator);
     {geraidet := Item.Head.Raid;
     von := Item.Head.Raid_Von; 14.04.2008: abgeschafft!, Neu: Activity}
-    Activity := -1;
+    Activity := activity_gt_60min;
   end;
 
   for i := 1 to length(Item.g0_resources) do
@@ -323,7 +323,7 @@ begin
     Creator := trnslShortStr(Item.Head.Creator);
     {geraidet := Item.Head.Raid;
     von := Item.Head.Raid_Von; 14.04.2008: abgeschafft!, Neu: Activity}
-    Activity := -1;
+    Activity := activity_gt_60min;
   end;
 
   for i := 1 to length(Item.g0_resources) do
@@ -471,7 +471,7 @@ begin
     Creator := trnslShortStr(Item.Head.Creator);
     {geraidet := Item.Head.Raid;
     von := Item.Head.Raid_Von;  14.04.2008: abgeschafft!, Neu: Activity}
-    Activity := -1;
+    Activity := activity_gt_60min;
   end;
 
   for i := 1 to length(Item.g0_resources) do
