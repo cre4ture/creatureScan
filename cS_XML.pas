@@ -1020,27 +1020,27 @@ begin
   fxml.addAttribute(xstat_group_first, Stat.first);
   fxml.addAttribute(xstat_group_count, Stat.count);
 
-  for i := 0 to length(Stat.Stats)-1 do
+  if stat.count > length(Stat.Stats) then
+    raise Exception.Create('StatToXML_fxml(): Count has an invalid value!');
+
+  for i := 0 to Stat.count-1 do
   begin
-    if Stat.Stats[i].Name <> '' then
-    begin
-      fxml.beginTag(xstat_rank);
-      fxml.addAttribute(xstat_rank_position, Stat.first+i);
-      fxml.addAttribute(xstat_rank_name, Stat.Stats[i].Name);
-      fxml.addAttribute(xstat_rank_points, Stat.Stats[i].Punkte);
+    fxml.beginTag(xstat_rank);
+    fxml.addAttribute(xstat_rank_position, Stat.first+i);
+    fxml.addAttribute(xstat_rank_name, Stat.Stats[i].Name);
+    fxml.addAttribute(xstat_rank_points, Stat.Stats[i].Punkte);
 
-      if (Stat.Stats[i].NameId > 0) then
-        fxml.addAttribute(xstat_rank_name_id, Stat.Stats[i].NameId);
+    if (Stat.Stats[i].NameId > 0) then
+      fxml.addAttribute(xstat_rank_name_id, Stat.Stats[i].NameId);
 
-      case StatType.NameType of
-        sntPlayer:
-          if Stat.Stats[i].Ally <> '' then
-            fxml.addAttribute(xstat_rank_alliance, Stat.Stats[i].Ally);
-        sntAlliance:
-          fxml.addAttribute(xstat_rank_members, Stat.Stats[i].Mitglieder);
-      end;
-      fxml.endTag(xstat_rank);
+    case StatType.NameType of
+      sntPlayer:
+        if Stat.Stats[i].Ally <> '' then
+          fxml.addAttribute(xstat_rank_alliance, Stat.Stats[i].Ally);
+      sntAlliance:
+        fxml.addAttribute(xstat_rank_members, Stat.Stats[i].Mitglieder);
     end;
+    fxml.endTag(xstat_rank);
   end;
   fxml.endTag(xstat_group);
 end;
