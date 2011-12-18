@@ -94,7 +94,7 @@ begin
   Result.Head.Position := StrToPosition(TXT_Position.Text);
   Result.Head.Spieler := TXT_Player.Text;
   Result.Head.Spionageabwehr := -2;
-  Result.Head.Activity := -1;
+  Result.Head.Activity := activity_no_info;
   Result.Head.Time_u := DateTimeToUnix(now);
   for sg := low(sg) to high(sg) do
   begin

@@ -380,7 +380,7 @@ begin
 
         //Lese Aktivität:
         if not _ReadActivity(Head, s1) then
-          Head.Activity := -1;
+          Head.Activity := activity_no_info;
 
         Result := True;
       end;
@@ -408,7 +408,7 @@ begin
     p := pos(SB_KWords[SB_no_activity], scan_body);
     if p > 0 then
     begin
-      Head.Activity := 0;
+      Head.Activity := activity_gt_60min;
       Result := True;                                  
     end;
   end;

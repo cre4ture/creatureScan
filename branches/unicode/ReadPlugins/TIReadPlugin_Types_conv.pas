@@ -74,7 +74,7 @@ begin
   makeFromPortable_PlanetPosition(portableHead.Position, scan.Head.Position);
   scan.Head.Time_u := scan.Head.Time_u;
   scan.Head.Spieler := portableHead.Player;
-  scan.Head.SpielerId := portableHead.PlayerId; 
+  scan.Head.SpielerId := portableHead.PlayerId;
   scan.Head.Spionageabwehr := portableHead.Spionageabwehr;
   scan.Head.Creator := portableHead.Creator;
   scan.Head.Activity := portableHead.Activity;
