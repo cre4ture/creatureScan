@@ -1,12 +1,13 @@
-unit call_fleet;
+unit call_fleet_trunc;
 
 interface
 
 uses
-  OGame_Types, IniFiles, SysUtils, StrUtils, ShellApi, Dialogs, Windows, creax_html;
+  OGame_Types, IniFiles, SysUtils, StrUtils, ShellApi, Dialogs, Windows,
+  creax_html, ReadClassFactory;
 
 type
-  TUniCheck = class
+  TUniCheck = class(TUniCheckClassInterface)
   private
     UniServer: String;
     CheckUniKeyword: String;
@@ -20,19 +21,16 @@ type
 
     msg_daten_einlesen: string;
 
-    fsession_id: string;
-    procedure get_parse_session_ID_html(html: string);
     function fillVarsInLink(url: string;
       pos: TPlanetPosition; job: TFleetEventType): string;
   public
-    property session_id: string read fsession_id write fsession_id;
     constructor Create(ini: TIniFile; serverURL: String);
     function _CheckUni_HTML(html: string;
-      html_tree: THTMLElement; var isCommander: Boolean): Boolean;
-    function CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
-    function CallFleetEx(fleet: TFleetEvent): Boolean;
-    function SendSpio(pos: TPlanetPosition): Boolean;
-    function OpenSolSys(spos: TSystemPosition): Boolean;
+      html_tree: THTMLElement; var isCommander: Boolean): Boolean; override;
+    function CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean; override;
+    function CallFleetEx(fleet: TFleetEvent): Boolean; override;
+    function SendSpio(pos: TPlanetPosition): Boolean; override;
+    function OpenSolSys(spos: TSystemPosition): Boolean; override;
   end;
 
 implementation
@@ -52,9 +50,9 @@ begin
   end;    }
   //ShowMessage(UniServer);
 
-  CallFleetLinkTemplate := ini.ReadString('UniCheck','callfleet','');
-  SendSpioLinkTemplate := ini.ReadString('UniCheck','sendspio','');
-  OpenSolSysLinkTemplate := ini.ReadString('UniCheck','opensolsys','');
+  CallFleetLinkTemplate := ini.ReadString('UniCheck','callfleet_2','');
+  SendSpioLinkTemplate := ini.ReadString('UniCheck','sendspio_2','');
+  OpenSolSysLinkTemplate := ini.ReadString('UniCheck','opensolsys_2','');
   CheckUniKeyword := ini.ReadString('UniCheck','Keyword','<<<empty>>>');
   msg_daten_einlesen := ini.ReadString('UniCheck', 'msg_read_data', 'First, turn >>uni check<< on. Second, read data.');
   typ_planet := ini.ReadString('UniCheck','typ_planet','');
@@ -76,8 +74,6 @@ begin
 
   if Result then
   begin
-    get_parse_session_ID_html(html);
-
     // check for commander
     // search for menue
     menuTable := HTMLFindRoutine_NameAttribute(html_tree, 'ul', 'id', 'menuTable');
@@ -95,41 +91,10 @@ begin
   end;
 end;
 
-procedure TUniCheck.get_parse_session_ID_html(html: string);
-var p,p2,p3,pe,pet,i: integer;
-const url_session_id = 'session=';
-      term_chars: string = '& #'; // alle zeichen die der ID folgen können
-begin
-  p := pos(CheckUniKeyword+UniServer,html);
-  p2 := PosEx(url_session_id, html, p);
-  p3 := PosEx(#$A, html, p); // new line
-  if (p2 > 0)and(p3 > p2) then
-  begin
-    pe := p3; // ende
-
-    for i := 1 to length(term_chars) do // string!!! 1 start index
-    begin
-      pet := PosEx(term_chars[i], html, p2);
-      if (pet > 0)and(pet < pe) then pe := pet;
-    end;
-
-    if pe > 0 then
-    begin
-      p2 := p2+length(url_session_id);
-      session_id := Trim(copy(html,p2,pe-p2));
-    end;
-  end;
-end;
-
 function TUniCheck.CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
 var url: string;
 begin
   Result := False;
-  if session_id = '' then
-  begin
-    ShowMessage(msg_daten_einlesen);
-    Exit;
-  end;
 
   url := fillVarsInLink(CallFleetLinkTemplate,pos,job);
   ShellExecute(0,'open',PChar(url),'','',0);
@@ -150,8 +115,6 @@ begin
   else
     url := StringReplace(url, '{type}', typ_planet, [rfReplaceAll, rfIgnoreCase]);
 
-  url := StringReplace(url, '{session}', session_id, [rfReplaceAll, rfIgnoreCase]);
-
   url := StringReplace(url, '{mission}', JobNrs[job], [rfReplaceAll, rfIgnoreCase]);
 
   Result := url;
@@ -161,11 +124,6 @@ function TUniCheck.SendSpio(pos: TPlanetPosition): Boolean;
 var url: string;
 begin
   Result := False;
-  if session_id = '' then
-  begin
-    ShowMessage(msg_daten_einlesen);
-    Exit;
-  end;
 
   url := fillVarsInLink(SendSpioLinkTemplate,pos,fet_espionage);
   ShellExecute(0,'open',PChar(url),'','',SW_SHOWNA);
@@ -178,11 +136,6 @@ var pos: TPlanetPosition;
     url: string;
 begin
   Result := false;
-  if session_id = '' then
-  begin
-    ShowMessage(msg_daten_einlesen);
-    Exit;
-  end;
 
   pos.P[0] := spos[0];
   pos.P[1] := spos[1];
@@ -214,11 +167,6 @@ var url: string;
 var i: integer;
 begin
   Result := False;
-  if session_id = '' then
-  begin
-    ShowMessage(msg_daten_einlesen);
-    Exit;
-  end;
 
   url := fillVarsInLink(CallFleetLinkTemplate,fleet.head.target,
     fleet.head.eventtype);
