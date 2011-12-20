@@ -15,7 +15,6 @@ uses
   ReadPhalanxScan_fullhtml_betauni in '..\ReadAndParse\ReadPhalanxScan_fullhtml_betauni.pas',
   ReadReport_Text in '..\ReadAndParse\ReadReport_Text.pas',
   readsource in '..\readsource.pas',
-  call_fleet in '..\ReadAndParse\call_fleet.pas',
   readsource_cs in '..\readsource_cs.pas',
   creaturesStrUtils in '..\..\..\lib\uli\creaturesStrUtils.pas',
   cS_memstream in '..\..\cS_memstream.pas',
@@ -27,7 +26,9 @@ uses
   OGameVersionDetector in '..\ReadAndParse\OGameVersionDetector.pas',
   ReadClassFactory in '..\ReadAndParse\ReadClassFactory.pas',
   ReadSolsys_fullhtml_trunc in '..\ReadAndParse\ReadSolsys_fullhtml_trunc.pas',
-  ReadStats_fullhtml_trunc in '..\ReadAndParse\ReadStats_fullhtml_trunc.pas';
+  ReadStats_fullhtml_trunc in '..\ReadAndParse\ReadStats_fullhtml_trunc.pas',
+  call_fleet_2x in '..\ReadAndParse\call_fleet_2x.pas',
+  call_fleet_trunc in '..\ReadAndParse\call_fleet_trunc.pas';
 
 type
   TScanReadOptions = record
@@ -67,8 +68,6 @@ var
   myReadClassFactory: TReadClassFactory;
   SysRead: ThtmlSysRead_betauni;
   PhalanxRead: ThtmlPhalanxRead_betauni;
-
-  UniCheck: TUniCheck;
 
   UniCheck_Options: TUniCheck_Options;
   DisableUniCheck: Boolean; //Damit die Meldung nur einmal kommt!
@@ -187,7 +186,6 @@ begin
   SysRead := ThtmlSysRead_betauni.Create(ini);
   ReportRead := TReadReport_Text.Create(ini);
   PhalanxRead := ThtmlPhalanxRead_betauni.Create(ini, ReportRead);
-  UniCheck := TUniCheck.Create(ini, serverURL);
 
   for i := 1 to RA_KeyWord_Count do
   begin
@@ -203,7 +201,6 @@ begin
   SysRead.Free;
   ReportRead.Free;
   PhalanxRead.Free;
-  UniCheck.Free;
   ini.free;
   
   Result := True;
@@ -346,8 +343,9 @@ begin
   if not _get_RS(rs_handle,rs) then Exit;
 
   case UniCheck_Options.CheckType of
-    UnictHtml: Result := UniCheck._CheckUni_HTML(rs.GetHTMLString,
-                            rs.GetHTMLRoot, isCommander^);
+    UnictHtml: Result := myReadClassFactory.getUniCheckClass(rs.getOGameVersion(),serverURL
+                            )._CheckUni_HTML(rs.GetHTMLString,
+                                      rs.GetHTMLRoot, isCommander^);
 
     else
       //UnictNone:
@@ -368,7 +366,8 @@ var i_pos: TPlanetPosition;
 begin
   i_job := TFleetEventType(job);
   makeFromPortable_PlanetPosition(pos^, i_pos);
-  Result := UniCheck.CallFleet(i_pos, i_job);
+  Result := myReadClassFactory.getUniCheckClass(ogv_unknown,serverURL
+                            ).CallFleet(i_pos, i_job);
 end;
 
 function dll_callFleetExtended(fleet: pointer): Boolean; stdcall;
@@ -377,7 +376,8 @@ begin
   if (fleet <> nil) then
   begin
     afleet := ReadBufFleet(fleet);
-    Result := UniCheck.CallFleetEx(afleet);
+    Result := myReadClassFactory.getUniCheckClass(ogv_unknown,serverURL
+                            ).CallFleetEx(afleet);
   end
   else
     Result := False;
@@ -391,7 +391,8 @@ begin
   i_job := TFleetEventType(job);
   makeFromPortable_PlanetPosition(pos^, i_pos);
   if i_job = fet_espionage then
-    Result := UniCheck.SendSpio(i_pos)
+    Result := myReadClassFactory.getUniCheckClass(ogv_unknown,serverURL
+                            ).SendSpio(i_pos)
   else
     Result := false;
 end;
@@ -403,7 +404,8 @@ begin
   makeFromPortable_PlanetPosition(pos^, i_pos);
   spos[0] := i_pos.P[0];
   spos[1] := i_pos.P[1];
-  Result := UniCheck.OpenSolSys(spos);
+  Result := myReadClassFactory.getUniCheckClass(ogv_unknown,serverURL
+                            ).OpenSolSys(spos);
 end;
 
 procedure dll_runOptions; stdcall;
