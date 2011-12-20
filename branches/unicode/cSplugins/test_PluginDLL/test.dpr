@@ -18,9 +18,7 @@ uses
   CoordinatesRanges in '..\..\CoordinatesRanges.pas',
   Languages in '..\..\Languages.pas',
   SelectLanguage in '..\..\SelectLanguage.pas' {FRM_SelectLanguage},
-  cS_networking in '..\..\cS_networking.pas',
   ThreadProtocolObject in '..\..\ThreadProtocolObject.pas',
-  NetUniverseTree in '..\..\UniverseTree\NetUniverseTree.pas',
   UniTree in '..\..\UniverseTree\UniTree.pas',
   TIReadPlugin in '..\..\ReadPlugins\TIReadPlugin.pas',
   Bericht_Frame in '..\..\Bericht_Frame.pas' {Frame_Bericht: TFrame},
@@ -33,7 +31,10 @@ uses
   TIReadPlugin_Types in '..\..\ReadPlugins\TIReadPlugin_Types.pas',
   TIReadPlugin_Types_conv_UNICODE in '..\..\ReadPlugins\TIReadPlugin_Types_conv_UNICODE.pas',
   zeit_sync in '..\..\..\Ogame_tools\zeit_sync\zeit_sync.pas',
-  Connect in '..\..\Connect.pas' {FRM_Connect};
+  Connect in '..\..\Connect.pas' {FRM_Connect},
+  UnitTestDB in 'UnitTestDB.pas',
+  UnitTestFactory in 'UnitTestFactory.pas',
+  CSUnitTest_httpOnly in 'CSUnitTest_httpOnly.pas';
 
 {$R *.res}
 
