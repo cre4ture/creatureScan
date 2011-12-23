@@ -19,7 +19,7 @@ type
     function readStatEntry_ally(row_tag: THTMLElement; stattype: TStatTypeEx;
       var statentry: TStatPlayer): Boolean;
     function readStatEntry_player(row_tag: THTMLElement; stattype: TStatTypeEx;
-      var statentry: TStatPlayer): Boolean;
+      var statentry: TStatPlayer; own_player_id: int64): Boolean;
   public
     constructor Create(ini: TIniFile);
     destructor Destroy; override;
@@ -33,7 +33,7 @@ type
   
 implementation
 
-uses StrUtils;
+uses StrUtils, cshelper_tag_reader;
 
 function extractPlayerIdFromSendMSGUrl(url: string): int64;
 var s: string;
@@ -259,11 +259,15 @@ var tbody: THTMLElement;
     table: THTMLTable;
     s: string;
     i, first, p, rowoffset: Integer;
+    playername: string;
+    playerid: int64;
 begin
   Result := False;
   //Leeren:
   FillChar(stats,SizeOf(Stats),0);
 
+  // get own player information
+  get_cshelper_info(doc_html, playername, playerid);
 
   //Find Root DIV
   root_div := HTMLFindRoutine_NameAttribute(doc_html,'div','class','contentbox');
@@ -320,7 +324,9 @@ begin
         else
         begin
           case (Typ.NameType) of
-            sntPlayer: if not readStatEntry_player(table.Rows[i+rowoffset],Typ,stats.Stats[i]) then
+            sntPlayer: if not readStatEntry_player(table.Rows[i+rowoffset],
+                                          Typ,
+                                          stats.Stats[i],playerid) then
                           Exit;
             sntAlliance: if not readStatEntry_ally(table.Rows[i+rowoffset],Typ,stats.Stats[i]) then
                             Exit;
@@ -342,7 +348,6 @@ var tag_cell, atag: THTMLElement;
     s, tdclass: string;
     p, i: integer;
 begin
-  Result := False;
   statentry.NameId := -1;
 
   for i := 0 to row_tag.ChildCount-1 do
@@ -394,7 +399,7 @@ begin
 end;
 
 function ThtmlStatRead.readStatEntry_player(row_tag: THTMLElement; stattype: TStatTypeEx;
-  var statentry: TStatPlayer): Boolean;
+  var statentry: TStatPlayer; own_player_id: int64): Boolean;
 var i: integer;
     tag_cell, tag: THTMLElement;
     tag_class: string;
@@ -432,8 +437,12 @@ begin
             end
           end;
 
-          statentry.Name := trim(tag_cell.FullTagContent);
-          b_name := true;
+          tag := tag_cell.FindChildTagPath('a:0/span:0');
+          b_name := tag <> nil;
+          if b_name then
+          begin
+            statentry.Name := trim(tag.FullTagContent);
+          end;
         end
         else
         if tag_class = 'score' then
@@ -449,6 +458,14 @@ begin
           begin
             statentry.NameId := extractPlayerIdFromSendMSGUrl(
               tag.AttributeValue['href']);
+          end
+          else
+          begin
+            if tag_cell.ChildNameCount('a') = 0 then
+            begin
+              // own player
+              statentry.NameId := own_player_id;
+            end;
           end;
         end;
       end;
