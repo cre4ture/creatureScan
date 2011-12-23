@@ -94,8 +94,6 @@ end;
 function TUniCheck.CallFleet(pos: TPlanetPosition; job: TFleetEventType): Boolean;
 var url: string;
 begin
-  Result := False;
-
   url := fillVarsInLink(CallFleetLinkTemplate,pos,job);
   ShellExecute(0,'open',PChar(url),'','',0);
 
@@ -123,7 +121,6 @@ end;
 function TUniCheck.SendSpio(pos: TPlanetPosition): Boolean;
 var url: string;
 begin
-  Result := False;
 
   url := fillVarsInLink(SendSpioLinkTemplate,pos,fet_espionage);
   ShellExecute(0,'open',PChar(url),'','',SW_SHOWNA);
@@ -135,7 +132,6 @@ function TUniCheck.OpenSolSys(spos: TSystemPosition): Boolean;
 var pos: TPlanetPosition;
     url: string;
 begin
-  Result := false;
 
   pos.P[0] := spos[0];
   pos.P[1] := spos[1];
@@ -166,7 +162,6 @@ var url: string;
 
 var i: integer;
 begin
-  Result := False;
 
   url := fillVarsInLink(CallFleetLinkTemplate,fleet.head.target,
     fleet.head.eventtype);

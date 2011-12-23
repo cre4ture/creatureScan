@@ -28,7 +28,8 @@ uses
   ReadSolsys_fullhtml_trunc in '..\ReadAndParse\ReadSolsys_fullhtml_trunc.pas',
   ReadStats_fullhtml_trunc in '..\ReadAndParse\ReadStats_fullhtml_trunc.pas',
   call_fleet_2x in '..\ReadAndParse\call_fleet_2x.pas',
-  call_fleet_trunc in '..\ReadAndParse\call_fleet_trunc.pas';
+  call_fleet_trunc in '..\ReadAndParse\call_fleet_trunc.pas',
+  cshelper_tag_reader in '..\ReadAndParse\cshelper_tag_reader.pas';
 
 type
   TScanReadOptions = record
@@ -66,7 +67,7 @@ var
   Sys_Options: TSys_Read_Options;
   ReportRead: TReadReport_Text;
   myReadClassFactory: TReadClassFactory;
-  SysRead: ThtmlSysRead_betauni;
+  SysRead: ThtmlSysRead;
   PhalanxRead: ThtmlPhalanxRead_betauni;
 
   UniCheck_Options: TUniCheck_Options;
@@ -183,7 +184,7 @@ begin
   SB_tsep := ini.ReadString('Espionage report','tsep','');
 
   myReadClassFactory := TReadClassFactory.Create(ini);
-  SysRead := ThtmlSysRead_betauni.Create(ini);
+  SysRead := ThtmlSysRead.Create(ini);
   ReportRead := TReadReport_Text.Create(ini);
   PhalanxRead := ThtmlPhalanxRead_betauni.Create(ini, ReportRead);
 

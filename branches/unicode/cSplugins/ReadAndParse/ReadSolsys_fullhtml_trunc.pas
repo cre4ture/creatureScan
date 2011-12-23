@@ -4,12 +4,17 @@ interface
 
 uses
   Inifiles, OGame_Types, creax_html, cpp_dll_interface,
-  DateUtils, SysUtils, readsource, parser_types, ReadClassFactory;
+  DateUtils, SysUtils, readsource, parser_types, ReadClassFactory,
+  cshelper_tag_reader;
 
 const
    HTMLTrimChars = [' ',#$D, #$A, #9];
 
 type
+  TRowDataHelper = record
+    row: PSystemPlanet;
+    own_player_id: int64;
+  end;
   ThtmlSysRead = class
   protected
     StatusItems_HTML: array[TStati] of string;
@@ -177,8 +182,14 @@ var tbody, tag, tag_row, tag_pos, tag_a: THTMLElement;
     i, row_nr, r_nr, p, j: Integer;
     got_koords: boolean;
     s: string;
+    player_name: string;
+    player_id: int64;
+    row_data: TRowDataHelper;
 begin
   Result := false;
+
+  // get own player informations:
+  get_cshelper_info(doc_html, player_name, player_id);
 
   //Clear Solsys
   FillChar(solsys, sizeof(solsys), 0);
@@ -241,11 +252,13 @@ begin
           if r_nr = row_nr then
           begin
             // clear
-            solsys.Planeten[row_nr].PlayerId := -1;
-            solsys.Planeten[row_nr].AllyId := -1;
+            solsys.Planeten[row_nr].PlayerId := 0;
+            solsys.Planeten[row_nr].AllyId := 0;
 
             //Lese Zeile Ein:
-            tag_row.FindTagRoutine(ReadRow_PlanetInfo, @solsys.Planeten[row_nr]);
+            row_data.row := @solsys.Planeten[row_nr];
+            row_data.own_player_id := player_id;
+            tag_row.FindTagRoutine(ReadRow_PlanetInfo, @row_data);
 
             // Suche nach Sonnensystem-Koordinaten:
             if (not got_koords)and(solsys.Planeten[row_nr].PlanetName <> '') then
@@ -316,12 +329,15 @@ var
   p: integer;
   attr_class, s: string;
   tag_, tag_b : THTMLElement;
+  row_data: ^TRowDataHelper;
 begin
   Result := False; //Nur durchlaufen!!
 
+  row_data := Data;
+
   if CurElement.TagName = 'td' then
   begin
-    row := Data;
+    row := row_data^.row;
     attr_class := CurElement.AttributeValue['class'];
 
     if attr_class = 'position' then
@@ -435,7 +451,10 @@ begin
         row^.Player := trim(CurElement.FullTagContent);
       end;
 
-        //PLAYER ID: tag_.AttributeValue['rel']  (rel="#playerXXXXX")
+      if CurElement.ChildNameCount('a') = 0 then
+      begin
+        row^.PlayerId := row_data^.own_player_id;
+      end;
 
       //---------------------STATUS------------------
       row^.Status := _read_HTMLStatusStr(attr_class);
