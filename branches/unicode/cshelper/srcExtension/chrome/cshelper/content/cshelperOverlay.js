@@ -148,6 +148,9 @@ cshelper.BrowserOverlay = {
 	sendHTML_To_cS_TCPIP : function(string, event, document)
 	{
 		string = "SourceURL:" + event.originalTarget.location.href + " " + string;
+		var playerID = event.originalTarget.cookie.split("login_")[1].split("=")[0];
+		var playerName = event.originalTarget.cookie.split("login_")[1].split("=")[0]; // TODO
+		string = "<cshelper_playerinfo id=\"" + playerID + "\" name=\"" + playerName + "\"/>" + string;
 		this.sendStringThroughTCPIP(string, this.getUniUrl(document));
 	}
 
