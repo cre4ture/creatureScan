@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Bericht_Frame, DLL_plugin_TEST, OGame_Types,
   VirtualTrees, Spin, cS_DB_reportFile, cS_XML, LibXmlParser, FileUtils_UH,
-  DateUtils;
+  DateUtils, UnitTestDB;
 
 type
   TScanTest = class(TReadReport)
@@ -34,6 +34,7 @@ type
     Frame_Bericht2: TFrame_Bericht;
     Label1: TLabel;
     lbl_scancount: TLabel;
+    Button1: TButton;
     procedure btn_readClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
@@ -49,12 +50,15 @@ type
     procedure VST_testsDblClick(Sender: TObject);
     procedure Button6Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     Scans: TReadReportList;
     function GetNewScanFilename(Scan: TScanBericht): string;
     function CheckTestScan(st: TScanTest): Boolean;
+
   public
     testScanDir: string;
+    unitTestDB: TCSUnitTestDB;
     db: TcSReportDBFile;
     procedure LoadTestDir(dir: string);
     function ReadScans(): Integer;
@@ -69,16 +73,14 @@ function RemoveYear_u(time_u: int64): int64;
 
 implementation
 
-uses Sources, Math, cS_utf8_conv, xml_parser_unicode;
+uses Sources, Math, cS_utf8_conv, xml_parser_unicode, CSUnitTest_ScanBerichtHTTP;
 
 {$R *.dfm}
 
 function TFRM_Scan.ReadScans(): Integer;
-var s: string;
-    i: integer;
+var i: integer;
     Scan: TReadReport;
 begin
-  s := FRM_Sources.M_Text.Text;
   i := 0;
   ListBox1.Clear;
   Scans.clear;
@@ -110,6 +112,8 @@ end;
 procedure TFRM_Scan.FormCreate(Sender: TObject);
 begin
   Scans := TReadReportList.Create;
+  unitTestDB := TCSUnitTestDB.Create(
+        ExtractFilePath(Application.ExeName) + 'ReportUnitTests.xml');
 
   Frame_Bericht1.DontShowRaids := True;
   Frame_Bericht1.plugin := plugin;
@@ -161,6 +165,21 @@ begin
     inc(i);
 
   Result := Result + IntToStr(i) + '.txt';
+end;
+
+procedure TFRM_Scan.Button1Click(Sender: TObject);
+var test: TCSUnitTest_ScanBericht;
+  i: Integer;
+begin
+  test := TCSUnitTest_ScanBericht.Create(
+            UTF8Encode(FRM_Sources.M_Text.Text), UTF8Encode(FRM_Sources.m_Html.Text),
+            FRM_Sources.last_change_time);
+  for i := 0 to Scans.Count-1 do
+  begin
+    test.addResultReport(Scans[i], Scans[i].AskMoon); // copy scan
+  end;
+  unitTestDB.addUnitTest(test);
+  unitTestDB.saveToFile();
 end;
 
 procedure TFRM_Scan.Button2Click(Sender: TObject);
@@ -370,6 +389,7 @@ end;
 procedure TFRM_Scan.FormDestroy(Sender: TObject);
 begin
   Scans.Free;
+  unitTestDB.Free;
 end;
 
 end.

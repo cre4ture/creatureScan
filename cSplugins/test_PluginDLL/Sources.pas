@@ -42,6 +42,7 @@ type
   public
     plugin_handle: Integer;
     lastsourcefile: string;
+    last_change_time: Int64;
     procedure OnPluginRefresh;
     procedure LoadFromFile(filename: string);
     procedure SaveToFile(filename: string);
@@ -66,7 +67,8 @@ end;
 procedure TFRM_Sources.m_HtmlChange(Sender: TObject);
 begin
   try
-    plugin.SetReadSourceHTML(plugin_handle, trnsltoUTF8(m_Html.Text), datetimetounix(now));
+    last_change_time := DateTimeToUnix(Now);
+    plugin.SetReadSourceHTML(plugin_handle, trnsltoUTF8(m_Html.Text), last_change_time);
     Color := clGreen;
   except
     Color := clRed;
@@ -76,7 +78,7 @@ end;
 procedure TFRM_Sources.m_TextChange(Sender: TObject);
 begin
   try
-    plugin.SetReadSourceText(plugin_handle, trnsltoUTF8(m_Text.Text), datetimetounix(now));
+    plugin.SetReadSourceText(plugin_handle, trnsltoUTF8(m_Text.Text), last_change_time);
     Color := clGreen;
   except
     Color := clRed;

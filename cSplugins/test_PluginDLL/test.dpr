@@ -34,7 +34,8 @@ uses
   Connect in '..\..\Connect.pas' {FRM_Connect},
   UnitTestDB in 'UnitTestDB.pas',
   UnitTestFactory in 'UnitTestFactory.pas',
-  CSUnitTest_httpOnly in 'CSUnitTest_httpOnly.pas';
+  CSUnitTest_ScanBerichtHTTP in 'CSUnitTest_ScanBerichtHTTP.pas',
+  cS_XML in '..\..\cS_XML.pas';
 
 {$R *.res}
 

@@ -219,6 +219,15 @@ object FRM_Scan: TFRM_Scan
       end
     end
   end
+  object Button1: TButton
+    Left = 104
+    Top = 3
+    Width = 25
+    Height = 25
+    Caption = 'Add'
+    TabOrder = 12
+    OnClick = Button1Click
+  end
   object OpenDialog1: TOpenDialog
     Left = 128
     Top = 65535
