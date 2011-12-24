@@ -80,11 +80,13 @@ begin
 end;
 
 procedure TFRM_MainTest.FormCreate(Sender: TObject);
+var filename: string;
 begin
   max_Galaxy := 20;
   plugin := TLangPlugIn.Create;
 
-  Initialise('D:\devel\creatureScan\creatureScan\data\ogame_consts.xml');
+  filename := ExtractFilePath(Application.ExeName) + '../../creatureScan/data/ogame_consts.xml';
+  Initialise(filename);
 end;
 
 procedure TFRM_MainTest.FormDestroy(Sender: TObject);
