@@ -165,7 +165,7 @@ begin
   ot_tousandsseperator := ini.ReadString('dllOptions','tsep'
     ,ot_tousandsseperator);
 
-  StatusItems := ini.ReadString('Solar system','StatusItems','igIuns');
+  StatusItems := ini.ReadString('Solar system','StatusItems','igIunsoe');
 
 //---Sys_Options----------------------------------------------------------------
   s := ini.ReadString('dllOptions','Sys_Read_Options_ReadType','Tabs');
