@@ -21,7 +21,7 @@ const
   ( 'error', {'cscan_sys_2.1',} 'cscan_sys_2.2', 'creatureScan_SolSysDB_3.0',
     'creatureScan_SolSysDB_3.1');
 
-  StatusItems_21_22: AnsiString = 'igIuns';
+  StatusItems_21_22: AnsiString = 'igIunsoe';
 
   new_file_ident = 'new_file';
 
