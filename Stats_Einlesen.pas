@@ -195,6 +195,7 @@ end;
 procedure TFRM_Stats_Einlesen.Button1Click(Sender: TObject);
 begin
   ODataBase.Stats_own := ReadInt(TXT_punkte.Text, 1);
+  ODataBase.SaveUserOptions;
 end;
 
 procedure TFRM_Stats_Einlesen.refreshOwnPoints;

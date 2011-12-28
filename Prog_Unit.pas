@@ -1225,7 +1225,7 @@ begin
   if Result then
   begin
     // Suche nach eigenen Punkten:
-    for i := 0 to 99 do
+    for i := 0 to st.count-1 do
     begin
       if st.Stats[i].Name = Self.Username then
       begin
@@ -1241,6 +1241,7 @@ begin
         break;
       end;
     end;
+    ODataBase.SaveUserOptions;
   end;
 end;
 
