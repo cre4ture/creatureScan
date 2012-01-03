@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <data>
   <creaturescan>
     <updatecheck url="http://creaturescan.creax.de/update/latest.txt"/>
@@ -19,6 +19,7 @@
       <uni name="jupiter" urlname="uni110" tfdeffactor="0.3"/>
       <uni name="kassiopeia" urlname="uni111" gamespeedfactor="2.0"/>
       <uni name="leo" urlname="uni112"/>
+      <uni name="mizar" urlname="uni113"/>
       <uni name="uni$" symbol="$" index="1" to="13"/>
       <uni name="uni14" tfdeffactor="0.3"/>
       <uni name="uni15" tfdeffactor="0.3"/>
@@ -34,7 +35,7 @@
       <uni name="uni60" gamespeedfactor="2.0"/>
       <uni name="uni$" symbol="$" index="61" to="69"/>
       <uni name="uni70" gamespeedfactor="2.0" tffleetfactor="0.7"/>
-      <uni name="uni$" symbol="$" index="71" to="78"/>
+      <uni name="uni$" symbol="$" index="71" to="79"/>
     </site>
     <site index="1" name="ogame.org">
       <uni name="andromeda" urlname="uni101"/>
@@ -46,7 +47,9 @@
       <uni name="gemini" urlname="uni107"/>
       <uni name="hydra" urlname="uni108" tfdeffactor="0.3" tffleetfactor="0.3" galaxyCount="12"/>
       <uni name="io" urlname="uni109" tffleetfactor="0.7"/>
-      <uni name="jupiter" urlname="uni110"/>
+      <uni name="jupiter" urlname="uni110" gamespeedfactor="2.0" tffleetfactor="0.6"/>
+      <uni name="kassiopeia" urlname="uni111"/>
+      <uni name="leo" urlname="uni112"/>
       <uni name="uni$" symbol="$" index="1" to="29"/>
       <uni name="uni30" gamespeedfactor="2.0"/>
       <uni name="uni$" symbol="$" index="31" to="34"/>

@@ -30,7 +30,7 @@ cp -r ../creatureScan/ioplugins creatureScan
 rem remove unwanted files
 
 rm creatureScan/ioplugins/*.rsm
-find creatureScan -name ".svn" | xargs rm -r
+rem find creatureScan -name ".svn" | xargs rm -r
 
 7zip\7za.exe a %zipfile% creatureScan
 
