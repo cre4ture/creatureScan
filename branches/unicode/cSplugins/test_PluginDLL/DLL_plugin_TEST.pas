@@ -27,6 +27,7 @@ type
     txt_serverURL: TEdit;
     Button10: TButton;
     Button11: TButton;
+    Button12: TButton;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -41,6 +42,7 @@ type
     procedure Button9Click(Sender: TObject);
     procedure Button10Click(Sender: TObject);
     procedure Button11Click(Sender: TObject);
+    procedure Button12Click(Sender: TObject);
   private
     { Private-Deklarationen }
   public
@@ -242,6 +244,11 @@ end;
 procedure TFRM_MainTest.Button11Click(Sender: TObject);
 begin
   frm_cshelper_ctrl.Show;
+end;
+
+procedure TFRM_MainTest.Button12Click(Sender: TObject);
+begin
+  FRM_Scan.Button6Click(Sender);
 end;
 
 end.
