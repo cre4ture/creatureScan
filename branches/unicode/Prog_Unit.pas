@@ -40,7 +40,7 @@ const
   pi_TSyncRaids      = 1029;
   pi_TSyncStats      = 1030;
 
-const main_ver = '2.1';
+const main_ver = '2.2';
 const release_number = 'a';
 
 {$ifdef PRERELEASE}
