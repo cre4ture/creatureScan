@@ -1,0 +1,451 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{09538d1c-e139-4a2e-b452-ec2eb82cdc4f}</ProjectGuid>
+			<MainSource>creatureScan.dpr</MainSource>
+			<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+			<DCC_DependencyCheckOutputName>creatureScan\creatureScan.exe</DCC_DependencyCheckOutputName>
+			<FrameworkType>VCL</FrameworkType>
+			<ProjectVersion>13.4</ProjectVersion>
+			<Base>True</Base>
+			<Config Condition="'$(Config)'==''">Debug</Config>
+			<Platform Condition="'$(Platform)'==''">Win32</Platform>
+			<TargetedPlatforms>1</TargetedPlatforms>
+			<AppType>Application</AppType>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+			<Base_Win64>true</Base_Win64>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+			<Base_Win32>true</Base_Win32>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+			<Cfg_1>true</Cfg_1>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
+			<Cfg_1_Win32>true</Cfg_1_Win32>
+			<CfgParent>Cfg_1</CfgParent>
+			<Cfg_1>true</Cfg_1>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+			<Cfg_2>true</Cfg_2>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+			<Cfg_2_Win32>true</Cfg_2_Win32>
+			<CfgParent>Cfg_2</CfgParent>
+			<Cfg_2>true</Cfg_2>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='TestRelease' or '$(Cfg_3)'!=''">
+			<Cfg_3>true</Cfg_3>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_3)'=='true') or '$(Cfg_3_Win32)'!=''">
+			<Cfg_3_Win32>true</Cfg_3_Win32>
+			<CfgParent>Cfg_3</CfgParent>
+			<Cfg_3>true</Cfg_3>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_Define>delphi;$(DCC_Define)</DCC_Define>
+			<Icon_MainIcon>creatureScan_Icon1.ico</Icon_MainIcon>
+			<Manifest_File>None</Manifest_File>
+			<VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
+			<VerInfo_MajorVer>2</VerInfo_MajorVer>
+			<DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;System.Win;Winapi;Xml.Win;FMXTee;$(DCC_Namespace)</DCC_Namespace>
+			<VerInfo_Locale>1031</VerInfo_Locale>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=2.0.0.163;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+			<VerInfo_Build>163</VerInfo_Build>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base_Win64)'!=''">
+			<Icon_MainIcon>creatureScan_Icon1.ico</Icon_MainIcon>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base_Win32)'!=''">
+			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+			<DCC_Namespace>Data.Win;Datasnap.Win;Web.Win;Soap.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+			<VerInfo_Locale>1033</VerInfo_Locale>
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_1)'!=''">
+			<DCC_DcuOutput>.\dcu\release</DCC_DcuOutput>
+			<Version>7.0</Version>
+			<DCC_DebugInformation>False</DCC_DebugInformation>
+			<DCC_WriteableConstants>True</DCC_WriteableConstants>
+			<DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
+			<DCC_IntegerOverflowCheck>True</DCC_IntegerOverflowCheck>
+			<DCC_RangeChecking>True</DCC_RangeChecking>
+			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+			<DCC_ExeOutput>.\creatureScan</DCC_ExeOutput>
+			<DCC_UnitSearchPath>.\cSdeps;.\ReadPlugins;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_ResourcePath>.\cSdeps;.\ReadPlugins;$(DCC_ResourcePath)</DCC_ResourcePath>
+			<DCC_ObjPath>.\cSdeps;.\ReadPlugins;$(DCC_ObjPath)</DCC_ObjPath>
+			<DCC_IncludePath>.\cSdeps;.\ReadPlugins;$(DCC_IncludePath)</DCC_IncludePath>
+			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+			<DCC_UNIT_PLATFORM>False</DCC_UNIT_PLATFORM>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+			<VerInfo_Locale>1033</VerInfo_Locale>
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<DCC_DcuOutput>.\dcu\debug</DCC_DcuOutput>
+			<DCC_DcpOutput>.\dcu\debug</DCC_DcpOutput>
+			<Version>7.0</Version>
+			<DCC_WriteableConstants>True</DCC_WriteableConstants>
+			<DCC_IntegerOverflowCheck>True</DCC_IntegerOverflowCheck>
+			<DCC_RangeChecking>True</DCC_RangeChecking>
+			<DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
+			<DCC_ExeOutput>.\creatureScan</DCC_ExeOutput>
+			<DCC_UnitSearchPath>.\cSdeps;.\ReadPlugins;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_ResourcePath>.\cSdeps;.\ReadPlugins;$(DCC_ResourcePath)</DCC_ResourcePath>
+			<DCC_ObjPath>.\cSdeps;.\ReadPlugins;$(DCC_ObjPath)</DCC_ObjPath>
+			<DCC_IncludePath>.\cSdeps;.\ReadPlugins;$(DCC_IncludePath)</DCC_IncludePath>
+			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+			<DCC_UNIT_PLATFORM>False</DCC_UNIT_PLATFORM>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+			<DCC_RemoteDebug>true</DCC_RemoteDebug>
+			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+			<VerInfo_Locale>1033</VerInfo_Locale>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_3)'!=''">
+			<DCC_DcuOutput>.\dcu\testrelease</DCC_DcuOutput>
+			<DCC_Define>PRERELEASE;$(DCC_Define)</DCC_Define>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_3_Win32)'!=''">
+			<DCC_ExeOutput>./creatureScan</DCC_ExeOutput>
+			<DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+			<DCC_DebugInformation>false</DCC_DebugInformation>
+			<DCC_WriteableConstants>true</DCC_WriteableConstants>
+			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+			<VerInfo_Locale>1033</VerInfo_Locale>
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+		</PropertyGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Delphi.Personality.12</Borland.Personality>
+			<Borland.ProjectType>VCLApplication</Borland.ProjectType>
+			<BorlandProject>
+				<Delphi.Personality>
+					<Parameters>
+						<Parameters Name="UseLauncher">False</Parameters>
+						<Parameters Name="LoadAllSymbols">True</Parameters>
+						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+					</Parameters>
+					<Language>
+						<Language Name="ProjectLang">$00000407</Language>
+					</Language>
+					<VersionInfo>
+						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>
+						<VersionInfo Name="AutoIncBuild">True</VersionInfo>
+						<VersionInfo Name="MajorVer">2</VersionInfo>
+						<VersionInfo Name="MinorVer">0</VersionInfo>
+						<VersionInfo Name="Release">0</VersionInfo>
+						<VersionInfo Name="Build">229</VersionInfo>
+						<VersionInfo Name="Debug">False</VersionInfo>
+						<VersionInfo Name="PreRelease">False</VersionInfo>
+						<VersionInfo Name="Special">False</VersionInfo>
+						<VersionInfo Name="Private">False</VersionInfo>
+						<VersionInfo Name="DLL">False</VersionInfo>
+						<VersionInfo Name="Locale">1031</VersionInfo>
+						<VersionInfo Name="CodePage">1252</VersionInfo>
+					</VersionInfo>
+					<VersionInfoKeys>
+						<VersionInfoKeys Name="CompanyName"/>
+						<VersionInfoKeys Name="FileDescription"/>
+						<VersionInfoKeys Name="FileVersion">2.0.0.229</VersionInfoKeys>
+						<VersionInfoKeys Name="InternalName"/>
+						<VersionInfoKeys Name="LegalCopyright"/>
+						<VersionInfoKeys Name="LegalTrademarks"/>
+						<VersionInfoKeys Name="OriginalFilename"/>
+						<VersionInfoKeys Name="ProductName"/>
+						<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="Comments"/>
+					</VersionInfoKeys>
+					<Source>
+						<Source Name="MainSource">creatureScan.dpr</Source>
+					</Source>
+				</Delphi.Personality>
+				<Platforms>
+					<Platform value="Win64">False</Platform>
+					<Platform value="Win32">True</Platform>
+				</Platforms>
+				<Deployment>
+					<DeployFile Class="DebugSymbols" Configuration="Debug" LocalName="creatureScan\creatureScan.rsm">
+						<Platform Name="Win32">
+							<RemoteName>creatureScan.rsm</RemoteName>
+						</Platform>
+					</DeployFile>
+					<DeployFile Class="ProjectOutput" Configuration="Debug" LocalName="creatureScan\creatureScan.exe">
+						<Platform Name="Win32"/>
+					</DeployFile>
+					<DeployClass Name="ProjectOutput" Required="true">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="DependencyPackage" Required="true">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+							<Extensions>.dylib</Extensions>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+							<Extensions>.bpl</Extensions>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="DependencyModule">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+							<Extensions>.dylib</Extensions>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+							<Extensions>.dll;.bpl</Extensions>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="ProjectOSXInfoPList">
+						<Platform Name="OSX32">
+							<RemoteDir>Contents</RemoteDir>
+							<Operation>1</Operation>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="File">
+						<Platform Name="OSX32">
+							<Operation>0</Operation>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="DebugSymbols">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="DependencyFramework">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+							<Extensions>.framework</Extensions>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="AdditionalDebugSymbols">
+						<Platform Name="OSX32">
+							<Operation>1</Operation>
+						</Platform>
+						<Platform Name="Win32">
+							<Operation>0</Operation>
+						</Platform>
+					</DeployClass>
+					<DeployClass Name="ProjectOSXResource">
+						<Platform Name="OSX32">
+							<RemoteDir>Contents\Resources</RemoteDir>
+							<Operation>1</Operation>
+						</Platform>
+					</DeployClass>
+					<ProjectRoot Name="$(PROJECTNAME)" Platform="OSX32"/>
+					<ProjectRoot Name="$(PROJECTNAME)" Platform="Win64"/>
+					<ProjectRoot Name="$(PROJECTNAME)" Platform="Win32"/>
+				</Deployment>
+				<ModelSupport>False</ModelSupport>
+			</BorlandProject>
+			<ProjectFileVersion>12</ProjectFileVersion>
+		</ProjectExtensions>
+		<Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets"/>
+		<ItemGroup>
+			<DelphiCompile Include="$(MainSource)">
+				<MainSource>MainSource</MainSource>
+			</DelphiCompile>
+			<DCCReference Include="Main.pas">
+				<Form>FRM_Main</Form>
+			</DCCReference>
+			<DCCReference Include="Galaxy_Explorer.pas">
+				<Form>Explorer</Form>
+			</DCCReference>
+			<DCCReference Include="Bericht_Frame.pas">
+				<Form>Frame_Bericht</Form>
+				<DesignClass>TFrame</DesignClass>
+			</DCCReference>
+			<DCCReference Include="Notizen.pas">
+				<Form>FRM_Notizen</Form>
+			</DCCReference>
+			<DCCReference Include="Suche.pas">
+				<Form>TFRM_Suche</Form>
+			</DCCReference>
+			<DCCReference Include="Favoriten.pas">
+				<Form>FRM_Favoriten</Form>
+			</DCCReference>
+			<DCCReference Include="Mond_Abfrage.pas">
+				<Form>FRM_Mond</Form>
+			</DCCReference>
+			<DCCReference Include="Info.pas">
+				<Form>FRM_Info</Form>
+			</DCCReference>
+			<DCCReference Include="Uebersicht.pas">
+				<Form>FRM_Uebersicht</Form>
+			</DCCReference>
+			<DCCReference Include="Spielerdaten.pas">
+				<Form>FRM_Spielerdaten</Form>
+			</DCCReference>
+			<DCCReference Include="Einstellungen.pas">
+				<Form>FRM_Einstellungen</Form>
+			</DCCReference>
+			<DCCReference Include="Export.pas">
+				<Form>FRM_Export</Form>
+			</DCCReference>
+			<DCCReference Include="ImportProgress.pas">
+				<Form>FRM_ImportProgress</Form>
+			</DCCReference>
+			<DCCReference Include="SelectUser.pas">
+				<Form>FRM_SelectUser</Form>
+			</DCCReference>
+			<DCCReference Include="UeberSichtOptions.pas">
+				<Form>FRM_Marker</Form>
+			</DCCReference>
+			<DCCReference Include="AddNotiz.pas">
+				<Form>FRM_AddNotiz</Form>
+			</DCCReference>
+			<DCCReference Include="Suchen_Ersetzen.pas">
+				<Form>FRM_Suchen_Ersetzen</Form>
+			</DCCReference>
+			<DCCReference Include="ClientLogin.pas">
+				<Form>FRM_ClientLogin</Form>
+			</DCCReference>
+			<DCCReference Include="KB_List.pas">
+				<Form>FRM_KB_List</Form>
+			</DCCReference>
+			<DCCReference Include="Add_KB.pas">
+				<Form>FRM_Add_Raid</Form>
+			</DCCReference>
+			<DCCReference Include="Languages.pas"/>
+			<DCCReference Include="OGame_Types.pas"/>
+			<DCCReference Include="Notizen_Images_Einstellungen.pas">
+				<Form>FRM_Notizen_Images_einstellungen</Form>
+			</DCCReference>
+			<DCCReference Include="SelectLanguage.pas">
+				<Form>FRM_SelectLanguage</Form>
+			</DCCReference>
+			<DCCReference Include="SelectPlugin.pas">
+				<Form>FRM_SelectPlugin</Form>
+			</DCCReference>
+			<DCCReference Include="Delete_Scans.pas">
+				<Form>FRM_Delete_Scans</Form>
+			</DCCReference>
+			<DCCReference Include="Stat_Points.pas"/>
+			<DCCReference Include="Stats_Einlesen.pas">
+				<Form>FRM_Stats_Einlesen</Form>
+			</DCCReference>
+			<DCCReference Include="ThreadProtocolObject.pas"/>
+			<DCCReference Include="cS_XML.pas"/>
+			<DCCReference Include="VSTPopup.pas"/>
+			<DCCReference Include="Prog_Unit.pas"/>
+			<DCCReference Include="CoordinatesRanges.pas"/>
+			<DCCReference Include="FavFilter.pas">
+				<Form>FRM_Filter</Form>
+			</DCCReference>
+			<DCCReference Include="_test_POST.pas">
+				<Form>FRM_POST_TEST</Form>
+			</DCCReference>
+			<DCCReference Include="oFight.pas"/>
+			<DCCReference Include="cS_DB_reportFile.pas"/>
+			<DCCReference Include="cS_DB.pas"/>
+			<DCCReference Include="cS_DB_solsysFile.pas"/>
+			<DCCReference Include="ReadPlugins\TIReadPlugin.pas"/>
+			<DCCReference Include="UniverseTree\UniTree.pas"/>
+			<DCCReference Include="RaidBoard.pas"/>
+			<DCCReference Include="cS_DB_fleetfile.pas"/>
+			<DCCReference Include="OtherTime.pas"/>
+			<DCCReference Include="languagemodul.pas"/>
+			<DCCReference Include="langmodform.pas"/>
+			<DCCReference Include="notify_fleet_arrival.pas">
+				<Form>frm_fleet_arrival</Form>
+			</DCCReference>
+			<DCCReference Include="EditScan.pas">
+				<Form>FRM_EditScan</Form>
+			</DCCReference>
+			<DCCReference Include="..\Ogame_tools\zeit_sync\zeit_sync.pas"/>
+			<DCCReference Include="config_cS_db_engine.pas">
+				<Form>frm_config_cS_engine</Form>
+			</DCCReference>
+			<DCCReference Include="sync_cS_db_engine.pas">
+				<Form>frm_sync_cS_db_engine</Form>
+			</DCCReference>
+			<DCCReference Include="OGameData.pas"/>
+			<DCCReference Include="PlanetListInterface.pas"/>
+			<DCCReference Include="PostErrorReport.pas">
+				<Form>frm_postErrorReport</Form>
+			</DCCReference>
+			<DCCReference Include="quickupdate.pas">
+				<Form>frm_quickupdate</Form>
+			</DCCReference>
+			<DCCReference Include="moon_or_not.pas">
+				<Form>frm_report_basket</Form>
+			</DCCReference>
+			<DCCReference Include="FetchStats.pas"/>
+			<DCCReference Include="chelper_server.pas">
+				<Form>frm_cshelper_ctrl</Form>
+			</DCCReference>
+			<DCCReference Include="cS_memstream.pas"/>
+			<DCCReference Include="..\lib\uli\SDBFile.pas"/>
+			<DCCReference Include="fast_xml_writer.pas"/>
+			<DCCReference Include="ActivityFinder.pas"/>
+			<DCCReference Include="global_options.pas"/>
+			<DCCReference Include="..\lib\uli\htmllib\cpp_dll_interface.pas"/>
+			<DCCReference Include="..\lib\uli\htmllib\creax_html.pas"/>
+			<DCCReference Include="..\lib\uli\htmllib\parser_types.pas"/>
+			<DCCReference Include="..\lib\uli\htmllib\fast_strings.pas"/>
+			<DCCReference Include="xml_parser_unicode.pas"/>
+			<DCCReference Include="cS_utf8_conv.pas"/>
+			<DCCReference Include="ReadPlugins\TIReadPlugin_Types_conv_UNICODE.pas"/>
+			<DCCReference Include="ReadPlugins\TIReadPlugin_Types.pas"/>
+			<DCCReference Include="stats_view.pas">
+				<Form>frm_stats_view</Form>
+			</DCCReference>
+			<BuildConfiguration Include="Debug">
+				<Key>Cfg_2</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+			<BuildConfiguration Include="TestRelease">
+				<Key>Cfg_3</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Base">
+				<Key>Base</Key>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Release">
+				<Key>Cfg_1</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+		</ItemGroup>
+		<Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
+		<Import Condition="Exists('$(MSBuildProjectName).deployproj')" Project="$(MSBuildProjectName).deployproj"/>
+	</Project>

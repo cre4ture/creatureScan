@@ -47,6 +47,7 @@ object FRM_Stats_Einlesen: TFRM_Stats_Einlesen
         Top = 24
         Width = 125
         Height = 425
+        Cursor = crHandPoint
         OnMouseDown = pb_pointsMouseDown
         OnPaint = pb_pointsPaint
       end
@@ -56,6 +57,7 @@ object FRM_Stats_Einlesen: TFRM_Stats_Einlesen
         Top = 24
         Width = 125
         Height = 425
+        Cursor = crHandPoint
         OnMouseDown = pb_pointsMouseDown
         OnPaint = pb_pointsPaint
       end
@@ -72,6 +74,7 @@ object FRM_Stats_Einlesen: TFRM_Stats_Einlesen
         Top = 24
         Width = 125
         Height = 425
+        Cursor = crHandPoint
         OnMouseDown = pb_pointsMouseDown
         OnPaint = pb_pointsPaint
       end
