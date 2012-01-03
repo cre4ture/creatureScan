@@ -8,8 +8,8 @@ uses UnitTestDB, Xml.XMLIntf, OGame_Types, xml_parser_unicode, TIReadPlugin,
 type
   TCSUnitTest_ScanBericht = class(TCSUnitTest)
   protected
-    text: UTF8String;
-    html: UTF8String;
+    text: AnsiString;
+    html: AnsiString;
     test_time_u: Int64;
     reports: TList<TReadReport>;
 
@@ -18,13 +18,13 @@ type
     class function constructTestFromXML(xml: IXMLNode): TCSUnitTest; override;
     procedure saveToXML(xml: IXMLNode); override;
     function addResultReport(scan: TScanBericht; askMoon: Boolean): integer; // adds a copy of scan
-    constructor Create(a_text, a_html: UTF8String; a_time_u: Int64);
+    constructor Create(a_text, a_html: AnsiString; a_time_u: Int64);
     destructor Destroy; override;
   end;
 
 implementation
 
-uses UnitTestFactory, cS_XML, SysUtils;
+uses UnitTestFactory, cS_XML, SysUtils, DateUtils;
 
 { TCSUnitTest_httpOnly }
 
@@ -40,9 +40,9 @@ end;
 
 class function TCSUnitTest_ScanBericht.constructTestFromXML(
   xml: IXMLNode): TCSUnitTest;
-var node, report_node: IXMLNode;
-    a_text: string;
-    a_html: string;
+var node, result_node: IXMLNode;
+    a_text: AnsiString;
+    a_html: AnsiString;
     a_testtime: Int64;
     a_result: AnsiString;
     a_result_askMoon: Boolean;
@@ -51,19 +51,19 @@ var node, report_node: IXMLNode;
     i: integer;
     inst: TCSUnitTest_ScanBericht;
 begin
-  a_text := xml.ChildValues['text'];
-  a_html := xml.ChildValues['html'];
+  a_text := UTF8Encode(WideString(xml.ChildValues['text']));
+  a_html := UTF8Encode(WideString(xml.ChildValues['html']));
   a_testtime := xml.ChildValues['time_u'];
 
-  inst := TCSUnitTest_ScanBericht.Create(UTF8Encode(a_text), UTF8Encode(a_html),
+  inst := TCSUnitTest_ScanBericht.Create(a_text, a_html,
                                          a_testtime);
 
-  report_node := xml.ChildNodes.FindNode('result');
-  if report_node <> nil then
+  result_node := xml.ChildNodes.FindNode('result');
+  if result_node <> nil then
   begin
-    for i := 0 to report_node.ChildNodes.Count-1 do
+    for i := 0 to result_node.ChildNodes.Count-1 do
     begin
-      node := xml.ChildNodes[i];
+      node := result_node.ChildNodes[i];
       a_result := utf8Encode(node.ChildValues['scan']);
       a_result_askMoon := node.ChildValues['askmoon'];
       a_report := TScanBericht.Create;
@@ -86,7 +86,7 @@ begin
   Result := inst;
 end;
 
-constructor TCSUnitTest_ScanBericht.Create(a_text, a_html: UTF8String; a_time_u: Int64);
+constructor TCSUnitTest_ScanBericht.Create(a_text, a_html: AnsiString; a_time_u: Int64);
 begin
   inherited Create;
   html := a_html;
@@ -116,18 +116,28 @@ var handle, count: integer;
 begin
   handle := plugin.ReadSource_New;
   report := TScanBericht.Create;
+  cmp_result := '';
   try
     plugin.SetReadSourceText(handle, text, test_time_u);
     plugin.SetReadSourceHTML(handle, html, test_time_u);
     count := plugin.ReadReports(handle);
-    for i := 0 to count-1 do
+    if count <> reports.count then
     begin
-      plugin.GetReport(handle, i, report, askMoon);
-
-      cmp_result := CompareScans(reports[i],report);
-      if reports[i].AskMoon <> askMoon then
+      cmp_result := cmp_result + 'count != count';
+    end
+    else
+    begin
+      for i := 0 to count-1 do
       begin
-        cmp_result := cmp_result + '; askMoon!';
+        plugin.GetReport(handle, i, report, askMoon);
+
+        cmp_result := cmp_result + #13 + #10 + IntToStr(i) + ': { '
+                       + CompareScans(reports[i],report);
+        if reports[i].AskMoon <> askMoon then
+        begin
+          cmp_result := cmp_result + '; askMoon!';
+        end;
+        cmp_result := cmp_result + ' }';
       end;
     end;
   finally
@@ -142,9 +152,11 @@ var node, result_node, report_node: IXMLNode;
   i: Integer;
 begin
   node := xml.AddChild('text');
-  node.Text := text;
+  node.Text := UTF8ToString(text);
   node := xml.AddChild('html');
-  node.Text := html;
+  node.Text := UTF8ToString(html);
+  node := xml.AddChild('time_u');
+  node.NodeValue := test_time_u;
 
   result_node := xml.AddChild('result');
   for i := 0 to reports.Count-1 do

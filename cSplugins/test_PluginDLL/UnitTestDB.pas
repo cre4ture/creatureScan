@@ -17,7 +17,7 @@ type
   TCSUnitTestDB = class
   private
     my_filename: string;
-    xmldoc: TXMLDocument;
+    xmldoc: IXMLDocument;
     ftestlist: TList<TCSUnitTest>;
     function getTest(index: integer): TCSUnitTest;
 
@@ -32,7 +32,7 @@ type
 
 implementation
 
-uses SysUtils;
+uses SysUtils, UnitTestFactory, xmldom;
 
 { TCSUnitTestDB }
 
@@ -47,17 +47,32 @@ begin
 end;
 
 constructor TCSUnitTestDB.Create(filename: string);
+var
+  i: Integer;
+  factory: TUnitTestFactory;
+  test: TCSUnitTest;
 begin
   inherited Create;
   my_filename := filename;
   ftestlist := TList<TCSUnitTest>.Create;
+  xmldoc := NewXMLDocument();
   if FileExists(filename) then
-    xmldoc := TXMLDocument.Create(filename)
-  else
-    xmldoc := TXMLDocument.Create(nil);
+    xmldoc.LoadFromFile(filename);
 
   xmldoc.Active := true;
-  xmldoc.ChildNodes
+  factory := TUnitTestFactory.Create;
+  try
+    for i := 0 to xmldoc.DocumentElement.ChildNodes.Count-1 do
+    begin
+      test := factory.createFromXML(xmldoc.DocumentElement.ChildNodes[i]);
+      if test <> nil then
+      begin
+        addUnitTest(test);
+      end;
+    end;
+  finally
+    factory.Free;
+  end;
 end;
 
 destructor TCSUnitTestDB.Destroy;
@@ -68,8 +83,6 @@ begin
   begin
     ftestlist[i].Free;
   end;
-
-  xmldoc.Free;
   ftestlist.Free;
   inherited;
 end;
@@ -82,12 +95,13 @@ end;
 procedure TCSUnitTestDB.saveToFile;
 var
   i: Integer;
-  node: IXMLNode;
+  node, root: IXMLNode;
 begin
   xmldoc.ChildNodes.Clear;
+  root := xmldoc.AddChild('root');
   for i := 0 to count-1 do
   begin
-    node := xmldoc.AddChild('test');
+    node := root.AddChild('test');
     node.Attributes['class'] := tests[i].ClassName;
     tests[i].saveToXML(node);
   end;
