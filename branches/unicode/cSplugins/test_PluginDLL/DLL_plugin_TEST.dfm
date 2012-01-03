@@ -82,7 +82,7 @@ object FRM_MainTest: TFRM_MainTest
       OnClick = Button4Click
     end
     object Button6: TButton
-      Left = 248
+      Left = 311
       Top = 16
       Width = 75
       Height = 25
@@ -98,6 +98,15 @@ object FRM_MainTest: TFRM_MainTest
       Caption = 'UniCheck'
       TabOrder = 4
       OnClick = Button7Click
+    end
+    object Button12: TButton
+      Left = 249
+      Top = 16
+      Width = 35
+      Height = 25
+      Caption = 'UT'
+      TabOrder = 5
+      OnClick = Button12Click
     end
   end
   object Button5: TButton

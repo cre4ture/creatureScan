@@ -303,18 +303,17 @@ end;
 procedure TFRM_Scan.Button6Click(Sender: TObject);
 var node: PVirtualNode;
     allok: Boolean;
+  i: Integer;
+  result: string;
 begin
-  allok := true;
-  node := VST_tests.GetFirst;
-  while node <> nil do
+  for i := 0 to unitTestDB.count-1 do
   begin
-    if not TestVSTNode(node) then
-      allok := False;
-    node := VST_tests.GetNext(node);
+    result := unitTestDB.tests[i].runUnitTest(plugin);
+    if result <> '' then
+    begin
+      ShowMessage(result);
+    end;
   end;
-  if allok then
-    ShowMessage('alle Tests OK!');
-  VST_tests.Refresh;
 end;
 
 procedure TFRM_Scan.Button7Click(Sender: TObject);
