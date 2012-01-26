@@ -78,7 +78,7 @@ function Tfrm_quickupdate.getUpdates: boolean;
 var net: TIdHTTP;
     mem: TMemoryStream;
     xml, node, filenode: THTMLElement;
-    text: PChar;
+    text: PAnsiChar;
     zero: byte;
     i: integer;
     localPath: string;
@@ -96,7 +96,7 @@ begin
     try
       vst_files.BeginUpdate;
       vst_files.Clear;
-      xml.ParseHTMLCode(text);
+      xml.ParseHTMLCodeUTF8(text);
       node := xml.FindChildTagPath('quickupdate/files');
       if node <> nil then
       begin
