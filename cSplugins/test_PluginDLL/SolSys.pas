@@ -114,7 +114,6 @@ end;
 
 procedure TFRM_Solsys.OnPluginInitialised;
 var filename: string;
-    mode: word;
 begin
   filename := ExtractFilePath(Application.ExeName) +
     FRM_MainTest.txt_serverURL.Text + '\sys_tests.cssys';
@@ -122,9 +121,6 @@ begin
   if not DirectoryExists(ExtractFilePath(filename)) then
     CreateDir(ExtractFilePath(filename));
 
-  if FileExists(filename) then
-    mode := fmOpenReadWrite
-  else mode := fmCreate;
   SysTestFile := TcSSolSysDB_for_File.Create(filename,FRM_MainTest.txt_serverURL.Text);
 
   VST_Tests.RootNodeCount := SysTestFile.SysCount;
