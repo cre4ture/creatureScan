@@ -301,9 +301,7 @@ begin
 end;
 
 procedure TFRM_Scan.Button6Click(Sender: TObject);
-var node: PVirtualNode;
-    allok: Boolean;
-  i: Integer;
+var i: Integer;
   result: string;
 begin
   for i := 0 to unitTestDB.count-1 do
@@ -322,7 +320,7 @@ begin
   s := testScanDir;
   if InputQuery('Dir','Dir',s) then
   begin
-    if not (s[length(s)] in ['\','/']) then
+    if not (AnsiChar(s[length(s)]) in ['\','/']) then
       s := s + '/';
       
     testScanDir := s;

@@ -153,12 +153,12 @@ end;
 
 procedure TFRM_Sources.LoadFromFile(filename: string);
 
-  function ReadStringFromStream(stream: TStream): String;
+  function ReadStringFromStream(stream: TStream): AnsiString;
   var i: integer;
   begin
     stream.ReadBuffer(i,SizeOf(i));
     SetLength(Result,i);
-    stream.ReadBuffer(PChar(Result)^,i);
+    stream.ReadBuffer(PAnsiChar(Result)^,i);
   end;
 
 var stream: TFileStream;
@@ -166,23 +166,23 @@ var stream: TFileStream;
 begin
   stream := TFileStream.Create(filename,fmopenread);
   try
-    s := ReadStringFromStream(stream);
+    s := trnslShortStr(ReadStringFromStream(stream));
     if s = 'cS - clipbrdfile' then
     begin
-      m_Text.Text := ReadStringFromStream(stream);
-      m_Html.Text := ReadStringFromStream(stream);
+      m_Text.Text := trnslShortStr(ReadStringFromStream(stream));
+      m_Html.Text := trnslShortStr(ReadStringFromStream(stream));
 
       m_fileinfo.Clear;
-      s := ReadStringFromStream(stream);
+      s := trnslShortStr(ReadStringFromStream(stream));
       m_fileinfo.lines.Add('PluginfFile: ' + s);
-      s := ReadStringFromStream(stream);
+      s := trnslShortStr(ReadStringFromStream(stream));
       m_fileinfo.lines.Add('PluginName: ' + s);
-      s := ReadStringFromStream(stream);
+      s := trnslShortStr(ReadStringFromStream(stream));
       m_fileinfo.lines.Add('LangIndex: ' + s);
-      s := ReadStringFromStream(stream);
+      s := trnslShortStr(ReadStringFromStream(stream));
       m_fileinfo.lines.Add('UserUni: ' + s);
 
-      s := ReadStringFromStream(stream);
+      s := trnslShortStr(ReadStringFromStream(stream));
       if s = 'ClipbrdCopy' then  //Bei Alten geht das nich!!
         clpCopy.LoadFromStream(stream);
 

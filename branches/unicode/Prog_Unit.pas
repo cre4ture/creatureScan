@@ -41,7 +41,7 @@ const
   pi_TSyncStats      = 1030;
 
 const main_ver = '2.2';
-const release_number = 'a';
+const release_number = 'b';
 
 {$ifdef PRERELEASE}
   const VNumber = 'PRE-' + main_ver + release_number;
