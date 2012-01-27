@@ -1,1 +1,1 @@
-build_creatureScan_zip.bat creatureScan_2_2a.zip "-DRELEASE" Release
+build_creatureScan_zip.bat creatureScan_2_2b.zip "-DRELEASE" Release
