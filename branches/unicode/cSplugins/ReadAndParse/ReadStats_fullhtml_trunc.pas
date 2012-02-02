@@ -410,7 +410,7 @@ end;
 
 function ThtmlStatRead.readStatEntry_player(row_tag: THTMLElement; stattype: TStatTypeEx;
   var statentry: TStatPlayer; const meta: TOGameMetaInfo): Boolean;
-var i: integer;
+var i, p: integer;
     tag_cell, tag: THTMLElement;
     tag_class: string;
     b_name, b_score: Boolean;
@@ -459,6 +459,11 @@ begin
         begin
           statentry.Punkte := ReadInt(Trim(tag_cell.FullTagContent),1);
           b_score := true;
+          if stattype.PointType = sptFleet then
+          begin
+            statentry.Elemente := ReadIntEx(tag_cell.AttributeValue['title'],
+                                       1, '.',['|','a'..'z','A'..'Z',':',' ']);
+          end;
         end
         else
         if tag_class = 'sendmsg' then

@@ -22,9 +22,6 @@ type
     constructor Create(AOwner: TComponent; aStat: TStat; aTyp: TStatTypeEx); reintroduce;
   end;
 
-var
-  frm_stats_view: Tfrm_stats_view;
-
 implementation
 
 {$R *.dfm}
@@ -51,6 +48,8 @@ end;
 procedure Tfrm_stats_view.FormCreate(Sender: TObject);
 begin
   vst_stats.RootNodeCount := 100;
+  Label1.Caption := StatNameTypeTranslate_[typ.NameType] + '/' + StatPointTypeTranslate_[typ.PointType] + ': '+
+    IntToStr(stats.first) + ' - ' + IntToStr(stats.first + stats.count-1);
 end;
 
 procedure Tfrm_stats_view.vst_statsGetText(Sender: TBaseVirtualTree;
@@ -63,7 +62,7 @@ begin
     0: CellText := IntToStrKP(stats.first + i);
     1: CellText := stats.Stats[i].Name;
     2: CellText := IntToStrKP(stats.Stats[i].Punkte);
-    3: CellText := IntToStrKP(stats.Stats[i].NameId);
+    3: CellText := IntToStr(stats.Stats[i].NameId);
     4: CellText := stats.Stats[i].Ally;
     5: CellText := IntToStrKP(stats.Stats[i].Elemente);
   end;
