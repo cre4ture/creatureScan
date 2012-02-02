@@ -63,8 +63,8 @@ begin
     CellText := IntToStrKP(stats.stats[node^.Index].Punkte);
   3: //Ally
     CellText := stats.stats[node^.Index].Ally;
-  4: //Mitglieder
-    CellText := IntToStr(stats.stats[node^.Index].Elemente);
+  4: //Elemente
+    CellText := IntToStrKP(stats.stats[node^.Index].Elemente);
   5: // ID
     CellText := IntToStr(stats.stats[node^.Index].NameId);
   end;

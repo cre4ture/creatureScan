@@ -282,6 +282,16 @@ type
   end;
   TStatNameType = (sntPlayer, sntAlliance);
   TStatPointType = (sptPoints, sptFleet, sptResearch);
+const
+  StatNameTypeTranslate_: array[TStatNameType] of string =
+  (
+    'Spieler', 'Allianz'
+  );
+  StatPointTypeTranslate_: array[TStatPointType] of string =
+  (
+    'Punkte', 'Militär', 'Forschung'
+  );
+type
   TStatTypeEx = record
     NameType: TStatNameType;
     PointType: TStatPointType;

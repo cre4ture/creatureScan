@@ -480,10 +480,8 @@ begin
       Stats[i].Name := trnsltoUTF8(TStat(p^).Stats[i].Name);
       Stats[i].NameId := TStat(p^).Stats[i].NameId;
       Stats[i].Punkte := TStat(p^).Stats[i].Punkte;
-      if fType.NameType = sntPlayer then
-        Stats[i].Ally := trnsltoUTF8(TStat(p^).Stats[i].Ally)
-      else
-        Stats[i].Mitglieder := TStat(p^).Stats[i].Elemente;
+      Stats[i].Ally := trnsltoUTF8(TStat(p^).Stats[i].Ally);
+      Stats[i].Mitglieder := TStat(p^).Stats[i].Elemente;
     end;
   end;
 end;

@@ -253,7 +253,6 @@ begin
   Application.CreateForm(Tfrm_sync_cS_db_engine, frm_sync_cS_db_engine);
   Application.CreateForm(Tfrm_postErrorReport, frm_postErrorReport);
   Application.CreateForm(Tfrm_report_basket, frm_report_basket);
-  Application.CreateForm(Tfrm_stats_view, frm_stats_view);
   Application.Run;
 
   FRM_Notizen.Free;

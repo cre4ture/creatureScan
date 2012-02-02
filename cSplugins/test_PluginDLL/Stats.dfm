@@ -66,6 +66,7 @@ object FRM_Stats: TFRM_Stats
     OnGetText = VST_StatsGetText
     Columns = <
       item
+        Alignment = taRightJustify
         Position = 0
         Width = 35
         WideText = '#'
@@ -76,6 +77,7 @@ object FRM_Stats: TFRM_Stats
         WideText = 'Name'
       end
       item
+        Alignment = taRightJustify
         Position = 2
         Width = 100
         WideText = 'Punkte'
@@ -86,11 +88,13 @@ object FRM_Stats: TFRM_Stats
         WideText = 'Ally'
       end
       item
+        Alignment = taRightJustify
         Position = 4
         Width = 75
-        WideText = 'Mitglieder'
+        WideText = 'Elemente'
       end
       item
+        Alignment = taRightJustify
         Position = 5
         WideText = 'ID'
       end>
