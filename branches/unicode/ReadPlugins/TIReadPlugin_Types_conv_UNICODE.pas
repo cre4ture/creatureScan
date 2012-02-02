@@ -138,7 +138,7 @@ begin
   stats.NameId := portable.NameId;
   stats.Punkte := portable.Points;
   stats.Ally := UTF8ToWideString(portable.Ally);
-  stats.Mitglieder := portable.Members;
+  stats.Elemente := portable.Elements;
 end;
 
 procedure makeFromPortable_FleetInfoSource(

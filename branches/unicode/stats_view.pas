@@ -36,7 +36,13 @@ begin
   typ := aTyp;
 
   case typ.NameType of
-    sntPlayer: vst_stats.Header.Columns.Items[5].Options := [];
+    sntPlayer:
+      begin
+        if (typ.PointType = sptFleet) then
+           vst_stats.Header.Columns.Items[5].Text := 'Schiffe'
+         else
+           vst_stats.Header.Columns.Items[5].Options := [];
+      end;
     sntAlliance: vst_stats.Header.Columns.Items[4].Options := [];
   end;
 
@@ -59,7 +65,7 @@ begin
     2: CellText := IntToStrKP(stats.Stats[i].Punkte);
     3: CellText := IntToStrKP(stats.Stats[i].NameId);
     4: CellText := stats.Stats[i].Ally;
-    5: CellText := IntToStrKP(stats.Stats[i].Mitglieder);
+    5: CellText := IntToStrKP(stats.Stats[i].Elemente);
   end;
 end;
 

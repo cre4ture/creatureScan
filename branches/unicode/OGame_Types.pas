@@ -257,7 +257,8 @@ type
   TReportTimeList = array of TReportTime;
   TPlanetScanListSortType = (pslst_Nummer, pslst_Alter);
   TStatType = (st_Player, st_Fleet, st_Ally);
-  TStatPlayer_utf8 = record
+  TStatPointIntType = Int64;
+  TStatPlayer_utf8_old = record
     Name: TPlayerName_utf8;
     NameId: TNameID;
     Punkte: Cardinal;
@@ -265,12 +266,19 @@ type
     st_Player: (Ally: TAllyName_utf8);    //nur für spielerstats! bei allystats wird der allyname in den Spielernamen geschrieben!
     st_Ally: (Mitglieder: Word);
   end;
+  TStatPlayer_utf8_new = record
+    Name: TPlayerName_utf8;
+    NameId: TNameID;
+    Punkte: TStatPointIntType;
+    Elemente: TStatPointIntType;    // Anzahl Member oder Anzahl Schiffe
+    Ally: TAllyName_utf8;    //nur für spielerstats! bei allystats wird der allyname in den Spielernamen geschrieben!
+  end;
   TStatPlayer = record
     Name: string;
     NameId: TNameID;
-    Punkte: Cardinal;
+    Punkte: TStatPointIntType;
+    Elemente: TStatPointIntType;  // Anzahl Member oder Anzahl Schiffe
     Ally: string;    //nur für spielerstats! bei allystats wird der allyname in den Spielernamen geschrieben!
-    Mitglieder: Word; // nur für allystats!
   end;
   TStatNameType = (sntPlayer, sntAlliance);
   TStatPointType = (sptPoints, sptFleet, sptResearch);
@@ -278,11 +286,11 @@ type
     NameType: TStatNameType;
     PointType: TStatPointType;
   end;
-  TStat_utf8 = record
+  TStat_utf8_new = record
     first: Word;
-    count: byte; 
-    Stats: array[0..99] of TStatPlayer_utf8;
+    count: Word;
     Time_u: Int64;
+    Stats: array[0..99] of TStatPlayer_utf8_new;
   end;
   PStat = ^TStat;
   TStat = record
@@ -476,14 +484,14 @@ function GetScanGrpCount(Scan: TScanBericht): integer;
 function domainTolangindex(domain: string): integer;
 procedure decodeSysUTF8(const sys_utf8: TSystemCopy_utf8;
   out sys: TSystemCopy);
-procedure decodeStatUTF8(const stat_utf8: TStat_utf8;
+procedure decodeStatUTF8(const stat_utf8: TStat_utf8_new;
   out stat: TStat);
 
 implementation
 
 uses xml_parser_unicode, cS_utf8_conv;
 
-procedure decodeStatUTF8(const stat_utf8: TStat_utf8;
+procedure decodeStatUTF8(const stat_utf8: TStat_utf8_new;
   out stat: TStat);
 var i: integer;
 begin
@@ -496,7 +504,7 @@ begin
     stat.Stats[i].NameId := stat_utf8.Stats[i].NameId;
     stat.Stats[i].Punkte := stat_utf8.Stats[i].Punkte;
     stat.Stats[i].Ally := trnslShortStr(stat_utf8.Stats[i].Ally);
-    stat.Stats[i].Mitglieder := stat_utf8.Stats[i].Mitglieder;
+    stat.Stats[i].Elemente := stat_utf8.Stats[i].Elemente;
   end;
 end;
 

@@ -3,7 +3,7 @@ object FRM_Stats_Einlesen: TFRM_Stats_Einlesen
   Top = 115
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Statistiken'
-  ClientHeight = 361
+  ClientHeight = 351
   ClientWidth = 519
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -24,7 +24,7 @@ object FRM_Stats_Einlesen: TFRM_Stats_Einlesen
     Left = 0
     Top = 0
     Width = 519
-    Height = 361
+    Height = 351
     Align = alClient
     TabOrder = 0
     Tabs.Strings = (
@@ -32,16 +32,18 @@ object FRM_Stats_Einlesen: TFRM_Stats_Einlesen
       'Alliance')
     TabIndex = 0
     OnChange = TabControl1Change
+    ExplicitHeight = 361
     object ScrollBox1: TScrollBox
       Left = 4
       Top = 24
       Width = 511
-      Height = 278
+      Height = 268
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
       BorderStyle = bsNone
       TabOrder = 0
+      ExplicitHeight = 278
       object pb_points: TPaintBox
         Left = 108
         Top = 24
@@ -102,12 +104,13 @@ object FRM_Stats_Einlesen: TFRM_Stats_Einlesen
     end
     object Panel1: TPanel
       Left = 4
-      Top = 302
+      Top = 292
       Width = 511
       Height = 55
       Align = alBottom
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitTop = 302
       object Label3: TLabel
         Left = 16
         Top = 4

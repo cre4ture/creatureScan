@@ -7,7 +7,9 @@ uses classes, OGame_Types, Windows, SysUtils, SDBFile,
   cS_networking,{$endif} LibXmlParser, LibXmlComps, xml_parser_unicode;
 
 const
-  StatFileV = 'creatureScan_StatisticBD_2.1';
+  StatFileV = 'creatureScan_StatisticBD_2.2';
+
+  // log: 2.2: Neues Format mit Int64
 
   new_file_ident = 'new_file';
 
@@ -49,6 +51,20 @@ type
     first: Word;
     Time_u: Int64;
     Stats: packed array[0..99] of TStatFilePlayer_11;
+  end;
+
+  TStatFilePlayer_22 = packed record
+    NameId: Int64;
+    Punkte: Int64;
+    Mitglieder: Int64;
+    Name: string[127];
+    Ally: string[127];
+  end;
+  TStatFileStat_22 = packed record
+    first: Integer;
+    count: Integer;
+    Time_u: Int64;
+    Stats: packed array[0..99] of TStatFilePlayer_22;
   end;
 
   TStatisticDBFile = class(TSimpleDBCachedFile)
@@ -374,10 +390,10 @@ end;
 constructor TStatisticDBFile.Create(aFilename: string; aType: TStatTypeEx);
 begin
   FHeaderSize := SizeOf(FHeader);
-  FItemSize := SizeOf(TStatFileStat_11);
+  FItemSize := SizeOf(TStatFileStat_22);
   fType := aType;
 
-  inherited Create(aFilename);
+  inherited Create(aFilename, false);
   
   if GetHeader(FHeader) then
   begin
@@ -394,6 +410,7 @@ begin
     FHeader.dummy_buffer := '';
     SetHeader(FHeader);
   end;
+  LoadList;
 end;
 
 procedure TStatisticDBFile.DisposeItemPtr(const p: pointer);
@@ -414,9 +431,10 @@ end;
 procedure TStatisticDBFile.ItemToPtr(var Buf; const p: pointer);
 var i: integer;
 begin
-  with TStatFileStat_11(buf) do
+  with TStatFileStat_22(buf) do
   begin
     TStat(p^).first := first;
+    TStat(p^).count := count;
     TStat(p^).Time_u := Time_u;
     for i := 0 to length(Stats)-1 do
     begin
@@ -426,12 +444,15 @@ begin
       if fType.NameType = sntPlayer then
       begin
         TStat(p^).Stats[i].Ally := trnslShortStr(Stats[i].Ally);
-        TStat(p^).Stats[i].Mitglieder := 0;
+        if sptFleet = fType.PointType then
+          TStat(p^).Stats[i].Elemente := Stats[i].Mitglieder
+        else
+          TStat(p^).Stats[i].Elemente := 0;
       end
       else
       begin
         TStat(p^).Stats[i].Ally := '';
-        TStat(p^).Stats[i].Mitglieder := Stats[i].Mitglieder;
+        TStat(p^).Stats[i].Elemente := Stats[i].Mitglieder;
       end;
     end;
   end;
@@ -446,9 +467,13 @@ end;
 procedure TStatisticDBFile.PtrToItem(const p: pointer; var Buf);
 var i: integer;
 begin
-  with TStatFileStat_11(Buf) do
+  // clear all to 0
+  FillChar(buf, FItemSize,0);
+  // fill with data
+  with TStatFileStat_22(Buf) do
   begin
     first := TStat(p^).first;
+    count := TStat(p^).count;
     Time_u := TStat(p^).Time_u;
     for i := 0 to length(Stats)-1 do
     begin
@@ -458,7 +483,7 @@ begin
       if fType.NameType = sntPlayer then
         Stats[i].Ally := trnsltoUTF8(TStat(p^).Stats[i].Ally)
       else
-        Stats[i].Mitglieder := TStat(p^).Stats[i].Mitglieder;
+        Stats[i].Mitglieder := TStat(p^).Stats[i].Elemente;
     end;
   end;
 end;

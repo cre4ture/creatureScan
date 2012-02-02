@@ -13,7 +13,7 @@ const
 type
   TRowDataHelper = record
     row: PSystemPlanet;
-    own_player_id: int64;
+    meta: TOGameMetaInfo;
   end;
   ThtmlSysRead = class
   protected
@@ -182,14 +182,13 @@ var tbody, tag, tag_row, tag_pos, tag_a: THTMLElement;
     i, row_nr, r_nr, p, j: Integer;
     got_koords: boolean;
     s: string;
-    player_name: string;
-    player_id: int64;
+    meta: TOGameMetaInfo;
     row_data: TRowDataHelper;
 begin
   Result := false;
 
   // get own player informations:
-  get_cshelper_info(doc_html, player_name, player_id);
+  meta := getOGameMeta(doc_html);
 
   //Clear Solsys
   FillChar(solsys, sizeof(solsys), 0);
@@ -257,7 +256,7 @@ begin
 
             //Lese Zeile Ein:
             row_data.row := @solsys.Planeten[row_nr];
-            row_data.own_player_id := player_id;
+            row_data.meta := meta;
             tag_row.FindTagRoutine(ReadRow_PlanetInfo, @row_data);
 
             // Suche nach Sonnensystem-Koordinaten:
@@ -453,7 +452,7 @@ begin
 
       if CurElement.ChildNameCount('a') = 0 then
       begin
-        row^.PlayerId := row_data^.own_player_id;
+        row^.PlayerId := row_data^.meta.playerid;
       end;
 
       //---------------------STATUS------------------

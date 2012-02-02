@@ -110,7 +110,7 @@ begin
   portable.NameId := stats.NameId;
   portable.Points := stats.Punkte;
   portable.Ally := PAnsiChar(stats.Ally);
-  portable.Members := stats.Mitglieder;
+  portable.Elements := stats.Elemente;
 end;
 
 procedure createPortable_FleetInfoSource(const info: TFleetsInfoSource;
