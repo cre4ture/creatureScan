@@ -7,9 +7,10 @@ uses
   cS_memstream, TIReadPlugin_Types, TIReadPlugin_Types_conv_UNICODE;
 
 const
-  DLLVNumber = 100;
+  DLLVNumber = 110;
 
 {
+  V110: Stats now with Int64!
   V100: completly renewed!
         independent string lengths...
         utf8!

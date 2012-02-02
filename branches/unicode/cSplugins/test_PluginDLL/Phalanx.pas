@@ -89,7 +89,7 @@ var scan: TScanBericht;
 begin
   Scan := TScanBericht.Create;
   try
-    if (Node = nil) or (Node.Index >= length(fleets)) then Exit;
+    if (Node = nil) or (Node.Index >= Cardinal(length(fleets))) then Exit;
 
     with fleets[Node.Index] do
     begin

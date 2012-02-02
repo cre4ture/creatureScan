@@ -47,7 +47,7 @@ type
 
 
 const
-  iopluginVersion = 100;
+  iopluginVersion = 110;
 
   RA_KeyWord_Count = 5;
   ST_KeyWord_Count = 2;

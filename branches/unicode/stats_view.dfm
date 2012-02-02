@@ -58,8 +58,9 @@ object frm_stats_view: Tfrm_stats_view
         WideText = 'Punkte'
       end
       item
+        Alignment = taRightJustify
         Position = 3
-        Width = 100
+        Width = 80
         WideText = 'ID'
       end
       item
@@ -70,7 +71,7 @@ object frm_stats_view: Tfrm_stats_view
       item
         Alignment = taRightJustify
         Position = 5
-        Width = 58
+        Width = 80
         WideText = 'Mitglieder'
       end>
   end
