@@ -4,7 +4,8 @@ interface
 
 uses
   Inifiles, OGame_Types, creax_html, cpp_dll_interface,
-  DateUtils, SysUtils, readsource, parser_types, ReadClassFactory;
+  DateUtils, SysUtils, readsource, parser_types, ReadClassFactory,
+  cshelper_tag_reader;
 
 const
    HTMLTrimChars = [' ',#$D, #$A, #9];
@@ -17,9 +18,9 @@ type
     function CheckForTable(CurElement: THTMLElement; Data: pointer): Boolean;
     function CheckForFormTable(CurElement: THTMLElement; Data: pointer): Boolean;
     function readStatEntry_ally(row_tag: THTMLElement; stattype: TStatTypeEx;
-      var statentry: TStatPlayer): Boolean;
+      var statentry: TStatPlayer; const meta: TOGameMetaInfo): Boolean;
     function readStatEntry_player(row_tag: THTMLElement; stattype: TStatTypeEx;
-      var statentry: TStatPlayer; own_player_id: int64): Boolean;
+      var statentry: TStatPlayer; const meta: TOGameMetaInfo): Boolean;
   public
     constructor Create(ini: TIniFile);
     destructor Destroy; override;
@@ -33,7 +34,7 @@ type
   
 implementation
 
-uses StrUtils, cshelper_tag_reader;
+uses StrUtils;
 
 function extractPlayerIdFromSendMSGUrl(url: string): int64;
 var s: string;
@@ -45,7 +46,7 @@ begin
   Result := StrToIntDef(s, -1);
 end;
 
-function ReadInt(s: string; p: integer; tsep: Boolean = True): integer;
+function ReadInt(s: string; p: integer; tsep: Boolean = True): Int64;
 //Spezial for HTML!
 begin
   if tsep then
@@ -259,15 +260,14 @@ var tbody: THTMLElement;
     table: THTMLTable;
     s: string;
     i, first, p, rowoffset: Integer;
-    playername: string;
-    playerid: int64;
+    meta: TOGameMetaInfo;
 begin
   Result := False;
   //Leeren:
   FillChar(stats,SizeOf(Stats),0);
 
   // get own player information
-  get_cshelper_info(doc_html, playername, playerid);
+  meta := getOGameMeta(doc_html);
 
   //Find Root DIV
   root_div := HTMLFindRoutine_NameAttribute(doc_html,'div','class','contentbox');
@@ -326,9 +326,9 @@ begin
           case (Typ.NameType) of
             sntPlayer: if not readStatEntry_player(table.Rows[i+rowoffset],
                                           Typ,
-                                          stats.Stats[i],playerid) then
+                                          stats.Stats[i],meta) then
                           Exit;
-            sntAlliance: if not readStatEntry_ally(table.Rows[i+rowoffset],Typ,stats.Stats[i]) then
+            sntAlliance: if not readStatEntry_ally(table.Rows[i+rowoffset],Typ,stats.Stats[i], meta) then
                             Exit;
           end;
           inc(stats.count);
@@ -343,7 +343,7 @@ begin
 end;
 
 function ThtmlStatRead.readStatEntry_ally(row_tag: THTMLElement; stattype: TStatTypeEx;
-  var statentry: TStatPlayer): Boolean;
+  var statentry: TStatPlayer; const meta: TOGameMetaInfo): Boolean;
 var tag_cell, atag: THTMLElement;
     s, tdclass: string;
     p, i: integer;
@@ -364,7 +364,7 @@ begin
 
       if pos('name tipsStan', tdclass) > 0 then
       begin
-        statentry.Mitglieder := readint(trim(tag_cell.FullTagContent),1);
+        statentry.Elemente := readint(trim(tag_cell.FullTagContent),1);
       end;
 
       if 'name' = tdclass then
@@ -386,8 +386,18 @@ begin
           begin
             s := atag.AttributeValue['href'];
             p := pos('?allyid=', s);
-            s := copy(s, p+8, 99999);
-            statentry.NameId := StrToIntDef(s, -1);
+            if p > 0 then
+            begin
+              s := copy(s, p+8, 99999);
+              statentry.NameId := StrToIntDef(s, -1);
+            end
+            else
+            begin
+              // eigene ally?
+              p := pos('/game/index.php?page=alliance', s);
+              if p > 0 then
+                statentry.NameId := meta.allyid;
+            end;
           end;
         end;
       end;
@@ -399,7 +409,7 @@ begin
 end;
 
 function ThtmlStatRead.readStatEntry_player(row_tag: THTMLElement; stattype: TStatTypeEx;
-  var statentry: TStatPlayer; own_player_id: int64): Boolean;
+  var statentry: TStatPlayer; const meta: TOGameMetaInfo): Boolean;
 var i: integer;
     tag_cell, tag: THTMLElement;
     tag_class: string;
@@ -445,7 +455,7 @@ begin
           end;
         end
         else
-        if tag_class = 'score' then
+        if pos('score', tag_class) > 0 then
         begin
           statentry.Punkte := ReadInt(Trim(tag_cell.FullTagContent),1);
           b_score := true;
@@ -464,7 +474,7 @@ begin
             if tag_cell.ChildNameCount('a') = 0 then
             begin
               // own player
-              statentry.NameId := own_player_id;
+              statentry.NameId := meta.playerid;
             end;
           end;
         end;

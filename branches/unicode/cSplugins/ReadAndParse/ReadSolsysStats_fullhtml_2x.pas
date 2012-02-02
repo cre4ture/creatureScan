@@ -736,7 +736,7 @@ begin
 
   tag_cell := row_tag.FindChildTag('td',4);
   if tag_cell = nil then Exit;
-  statentry.Mitglieder := readint(trim(tag_cell.FullTagContent),1);
+  statentry.Elemente := readint(trim(tag_cell.FullTagContent),1);
 
   Result := True;
 end;

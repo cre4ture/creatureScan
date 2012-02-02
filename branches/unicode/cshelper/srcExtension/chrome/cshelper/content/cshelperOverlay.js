@@ -11,6 +11,11 @@ function cshelper_myTestLog(document, msg) {
 	log.innerHTML += '<br>'+msg;
 }
 
+function cshelper_getPageSourceCode(document)
+{
+	return "<head>" + document.head.innerHTML + "</head><body>" + document.body.innerHTML + "</body>";
+}
+
 /**
 * Controls the browser overlay for the Hello World extension.
 */
@@ -218,9 +223,9 @@ function cshelper_pageLoad(event_pageload) {
 					if (event.target.id == "galaxytable")
 					{
 						if (cshelper.BrowserOverlay.doWeUseTCP(document)) {
-							cshelper.BrowserOverlay.sendHTML_To_cS_TCPIP(document.body.innerHTML, event_pageload, document);
+							cshelper.BrowserOverlay.sendHTML_To_cS_TCPIP(cshelper_getPageSourceCode(document), event_pageload, document);
 						} else {
-							copyToClipboard(document.body.innerHTML, event_pageload, document);
+							copyToClipboard(cshelper_getPageSourceCode(document), event_pageload, document);
 						}
 						//cshelper_myTestLog(document, 'COPY SUCCESS');			
 					}
@@ -237,9 +242,9 @@ function cshelper_pageLoad(event_pageload) {
 					{
 //						cshelper_myTestLog(document, 'COPY START');
 						if (cshelper.BrowserOverlay.doWeUseTCP(document)) {
-							cshelper.BrowserOverlay.sendHTML_To_cS_TCPIP(document.body.innerHTML, event_pageload, document);
+							cshelper.BrowserOverlay.sendHTML_To_cS_TCPIP(cshelper_getPageSourceCode(document), event_pageload, document);
 						} else {
-							copyToClipboard(document.body.innerHTML, event_pageload, document);
+							copyToClipboard(cshelper_getPageSourceCode(document), event_pageload, document);
 						}
 //						cshelper_myTestLog(document, 'COPY SUCCESS');
 					}
@@ -250,9 +255,9 @@ function cshelper_pageLoad(event_pageload) {
 					if (event.target.tagName == "FORM")
 					{
 						if (cshelper.BrowserOverlay.doWeUseTCP(document)) {
-							cshelper.BrowserOverlay.sendHTML_To_cS_TCPIP(document.body.innerHTML, event_pageload, document);
+							cshelper.BrowserOverlay.sendHTML_To_cS_TCPIP(cshelper_getPageSourceCode(document), event_pageload, document);
 						} else {
-							copyToClipboard(document.body.innerHTML, event_pageload, document);
+							copyToClipboard(cshelper_getPageSourceCode(document), event_pageload, document);
 						}
 						//cshelper_myTestLog(document, 'COPY SUCCESS');			
 					}
