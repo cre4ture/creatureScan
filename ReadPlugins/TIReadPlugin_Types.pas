@@ -51,11 +51,11 @@ type
   PPortableStatisticEntry = ^TPortableStatisticEntry;
   PPPortableStatisticEntry = ^PPortableStatisticEntry;
   TPortableStatisticEntry = packed record
-    Name: PAnsiChar;
     NameId: Int64;
-    Points: Cardinal;
+    Points: Int64;
+    Elements: Int64;    // Anzahl Spieler in Ally oder Anzahl Schiffe
+    Name: PAnsiChar;
     Ally: PAnsiChar;    //nur für spielerstats! bei allystats wird der allyname in den Spielernamen geschrieben!
-    Members: Integer;  // nur für allystats!
   end;
   
   PPortableStatisticPageHead = ^TPortableStatisticPageHead;

@@ -39,7 +39,6 @@ object frm_stats_view: Tfrm_stats_view
     Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
     TabOrder = 0
     OnGetText = vst_statsGetText
-    ExplicitWidth = 444
     Columns = <
       item
         Alignment = taRightJustify

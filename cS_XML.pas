@@ -58,6 +58,7 @@ const
   xstat_rank_points                = 'points';
   xstat_rank_alliance              = 'alliance';
   xstat_rank_members               = 'members';
+  xstat_rank_ships                 = 'ships';
   //Fleet_XML_idents:
   xflt_group                       = 'fleet';
   xflt_group_arrivaltime           = 'arrival';
@@ -1035,10 +1036,14 @@ begin
 
     case StatType.NameType of
       sntPlayer:
-        if Stat.Stats[i].Ally <> '' then
-          fxml.addAttribute(xstat_rank_alliance, Stat.Stats[i].Ally);
+        begin
+          if Stat.Stats[i].Ally <> '' then
+            fxml.addAttribute(xstat_rank_alliance, Stat.Stats[i].Ally);
+          if StatType.PointType = sptFleet then
+            fxml.addAttribute(xstat_rank_ships, Stat.Stats[i].Elemente);
+        end;
       sntAlliance:
-        fxml.addAttribute(xstat_rank_members, Stat.Stats[i].Mitglieder);
+        fxml.addAttribute(xstat_rank_members, Stat.Stats[i].Elemente);
     end;
     fxml.endTag(xstat_rank);
   end;
@@ -1064,9 +1069,13 @@ var i: integer;
         Stat.Stats[r].Punkte := StrToInt64Def(parser.attrAsString(xstat_rank_points), 0);
         case snt of
           sntPlayer:
-            Stat.Stats[r].Ally := parser.attrAsString(xstat_rank_alliance);
+            begin
+              Stat.Stats[r].Ally := parser.attrAsString(xstat_rank_alliance);
+              if spt = sptFleet then
+                Stat.Stats[r].Elemente := StrToInt64Def(parser.attrAsString(xstat_rank_ships), 0);
+            end;
           sntAlliance:
-            Stat.Stats[r].Mitglieder := StrToInt(parser.attrAsString(xstat_rank_members))
+            Stat.Stats[r].Elemente := StrToInt(parser.attrAsString(xstat_rank_members))
         end;
         inc(i);
       except
