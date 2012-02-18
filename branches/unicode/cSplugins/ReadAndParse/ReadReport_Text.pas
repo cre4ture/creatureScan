@@ -4,7 +4,7 @@ interface
 
 uses
   Inifiles, OGame_Types, SysUtils, DateUtils, Classes, regexpname,
-  creax_html;
+  creax_html, parser_types;
 
 const
   SB_KeyWord_Count = 12;
@@ -31,7 +31,8 @@ type
     function _ReadActivity(var Head: TScanHead; scan_body: string): Boolean;
     function _SetTime(month, day, h, m, s: integer): Int64;
     procedure analyseAndPrepareHTML(html: THTMLElement);
-    function checkTagAnalyseRoutine(CurElement: THTMLElement; Data: pointer): Boolean;
+    function checkTagAnalyseRoutine(CurElement: THTMLElement; Data: pointer): Boolean; // bestimmung von Mond oder Planet
+    function deleteAppleSpan(CurElement: THTMLElement; Data: pointer): Boolean; // löschen von chrome tags
   public
     constructor Create(ini: TIniFile);
     destructor Destroy; override;
@@ -517,6 +518,7 @@ end;
 procedure TReadReport_Text.analyseAndPrepareHTML(html: THTMLElement);
 begin
   html.DeleteTagRoutine(checkTagAnalyseRoutine, nil);
+  html.DeleteTagRoutine(deleteAppleSpan, nil);
 end;
 
 function TReadReport_Text.checkTagAnalyseRoutine(CurElement: THTMLElement;
@@ -564,6 +566,19 @@ begin
     end;
   except
     // nothing!
+  end;
+end;
+
+function TReadReport_Text.deleteAppleSpan(CurElement: THTMLElement;
+  Data: pointer): Boolean;
+begin
+  Result := false;
+  if (CurElement.TagName = 'span') and
+     (CurElement.AttributeValue['class'] = 'Apple-converted-space') then
+  begin
+    CurElement.ClearChilds;
+    CurElement.TagType := pttContent;
+    CurElement.Content := ' ';
   end;
 end;
 

@@ -60,6 +60,8 @@ type
     testScanDir: string;
     unitTestDB: TCSUnitTestDB;
     db: TcSReportDBFile;
+    procedure loadTestDB(filename: string);
+    procedure unloadTestDB();
     procedure LoadTestDir(dir: string);
     function ReadScans(): Integer;
     function TestVSTNode(node: PVirtualNode): Boolean;
@@ -112,8 +114,7 @@ end;
 procedure TFRM_Scan.FormCreate(Sender: TObject);
 begin
   Scans := TReadReportList.Create;
-  unitTestDB := TCSUnitTestDB.Create(
-        ExtractFilePath(Application.ExeName) + 'ReportUnitTests.xml');
+  unitTestDB := nil;
 
   Frame_Bericht1.DontShowRaids := True;
   Frame_Bericht1.plugin := plugin;
@@ -128,6 +129,14 @@ procedure TFRM_Scan.ListBox1Click(Sender: TObject);
 begin
   Frame_Bericht1.SetBericht(Scans[ListBox1.ItemIndex]);
   Frame_Bericht1.Refresh;
+end;
+
+procedure TFRM_Scan.loadTestDB(filename: string);
+begin
+  if unitTestDB <> nil then
+    unitTestDB.Free;
+
+  unitTestDB := TCSUnitTestDB.Create(filename);
 end;
 
 procedure TFRM_Scan.LoadTestDir(dir: string);
@@ -243,6 +252,15 @@ begin
   end;
 end;
 
+procedure TFRM_Scan.unloadTestDB;
+begin
+  if unitTestDB <> nil then
+  begin
+    unitTestDB.Free;
+    unitTestDB := nil;
+  end;
+end;
+
 function TFRM_Scan.CheckTestScan(st: TScanTest): Boolean;
 begin
   FRM_Sources.m_Text.Text := st.QuellText;
@@ -304,6 +322,9 @@ procedure TFRM_Scan.Button6Click(Sender: TObject);
 var i: Integer;
   result: string;
 begin
+  if unitTestDB = nil then
+    raise Exception.Create('Keine UnitTests geladen!');
+
   for i := 0 to unitTestDB.count-1 do
   begin
     result := unitTestDB.tests[i].runUnitTest(plugin);
