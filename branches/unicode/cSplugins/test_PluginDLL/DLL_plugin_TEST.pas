@@ -152,6 +152,7 @@ begin
     Label1.Caption := 'n/a';
 
     FRM_Solsys.OnPluginEjected;
+    FRM_Scan.unloadTestDB();
   end
   else
   begin
@@ -163,6 +164,9 @@ begin
       Button1.Caption := 'eject plugin';
 
       FRM_Solsys.OnPluginInitialised;
+      FRM_Scan.loadTestDB(
+          ExtractFilePath(Application.ExeName) + plugin.configGameDomain
+           + '_ReportUnitTests.xml');
     end
     else Label1.Caption := 'n/a';
   end;

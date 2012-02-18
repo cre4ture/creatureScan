@@ -56,23 +56,27 @@ begin
   my_filename := filename;
   ftestlist := TList<TCSUnitTest>.Create;
   xmldoc := NewXMLDocument();
-  if FileExists(filename) then
-    xmldoc.LoadFromFile(filename);
 
-  xmldoc.Active := true;
-  factory := TUnitTestFactory.Create;
-  try
-    for i := 0 to xmldoc.DocumentElement.ChildNodes.Count-1 do
-    begin
-      test := factory.createFromXML(xmldoc.DocumentElement.ChildNodes[i]);
-      if test <> nil then
+  if FileExists(filename) then
+  begin
+    xmldoc.LoadFromFile(filename);
+    xmldoc.Active := true;
+    factory := TUnitTestFactory.Create;
+    try
+      for i := 0 to xmldoc.DocumentElement.ChildNodes.Count-1 do
       begin
-        addUnitTest(test);
+        test := factory.createFromXML(xmldoc.DocumentElement.ChildNodes[i]);
+        if test <> nil then
+        begin
+          addUnitTest(test);
+        end;
       end;
+    finally
+      factory.Free;
     end;
-  finally
-    factory.Free;
-  end;
+  end
+  else
+    xmldoc.Active := true;
 end;
 
 destructor TCSUnitTestDB.Destroy;
