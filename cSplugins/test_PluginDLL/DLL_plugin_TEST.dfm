@@ -171,6 +171,7 @@ object FRM_MainTest: TFRM_MainTest
     OnClick = Button10Click
   end
   object OpenDialog1: TOpenDialog
-    Left = 8
+    Left = 120
+    Top = 8
   end
 end
