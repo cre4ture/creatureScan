@@ -10,7 +10,7 @@ uses
   clipbrd, ClipboardViewerForm, EditScan, stringlistedit, xmldom,
   XMLIntf, msxmldom, XMLDoc, cs_XML, oFight, clipbrdfunctions, UniTree,
   frm_pos_size_ini, MusiPlayer, TIReadPlugin, PlanetListInterface,
-  TrayIcon, PostErrorReport, quickupdate, Stats_Einlesen;
+  TrayIcon, PostErrorReport, quickupdate, Stats_Einlesen, stat_explorer;
 
 const
   Transporter_space = 25000;
@@ -188,6 +188,7 @@ type
     N12: TMenuItem;
     testShowReadSource1: TMenuItem;
     togglecSlight1: TMenuItem;
+    AnzeigenundSuchen1: TMenuItem;
     procedure btn_lastClick(Sender: TObject);
     procedure btn_nextClick(Sender: TObject);
     procedure LblWikiLinkClick(Sender: TObject);
@@ -282,6 +283,7 @@ type
     procedure Panel1Resize(Sender: TObject);
     procedure testShowReadSource1Click(Sender: TObject);
     procedure togglecSlight1Click(Sender: TObject);
+    procedure AnzeigenundSuchen1Click(Sender: TObject);
   published
     procedure FormClipboardContentChanged(Sender: TObject);
   private
@@ -320,6 +322,7 @@ type
       override;
   public
     frm_statistics: TFRM_Stats_Einlesen;
+    frm_stat_explorer: Tfrm_stat_explorer;
     frm_quickupdate: Tfrm_quickupdate;
     TrayIco: TTrayIcon;
     DockExplorer: TExplorer;
@@ -398,6 +401,7 @@ end;
 procedure TFRM_Main.FormDestroy(Sender: TObject);
 begin
   frm_statistics.Free;
+  frm_stat_explorer.Free;
   mLatestPlanetListSource := nil; // remove free notification
   ODataBase.OnAskMoon := nil;
 
@@ -591,6 +595,7 @@ begin
 
   StatusBar1.DoubleBuffered := True;
   frm_statistics := TFRM_Stats_Einlesen.Create(Self);
+  frm_stat_explorer := Tfrm_stat_explorer.Create(Self);
 end;
 
 procedure TFRM_Main.lst_othersCompare(Sender: TObject; Item1,
@@ -1405,9 +1410,18 @@ begin
     FormStyle := fsStayOnTop
   else
     FormStyle := fsNormal;} //alt (hatt manchmal komische probleme mit Kernel.dll gemacht (erst nach winXP-themeunterstützung)
-  if topmost
-    then SetWindowPos(Handle,HWND_TOPMOST,0,0,0,0,SWP_NOMOVE OR SWP_NOSIZE)
-    else SetWindowPos(Handle,HWND_NOTOPMOST,0,0,0,0,SWP_NOMOVE OR SWP_NOSIZE);
+  if topmost then
+  begin
+    SetWindowPos(Handle                  ,HWND_TOPMOST,0,0,0,0,SWP_NOMOVE OR SWP_NOSIZE);
+    SetWindowPos(frm_statistics.Handle   ,HWND_TOPMOST,0,0,0,0,SWP_NOMOVE OR SWP_NOSIZE);
+    SetWindowPos(frm_stat_explorer.Handle,HWND_TOPMOST,0,0,0,0,SWP_NOMOVE OR SWP_NOSIZE);
+  end
+  else
+  begin
+    SetWindowPos(Handle                  ,HWND_NOTOPMOST,0,0,0,0,SWP_NOMOVE OR SWP_NOSIZE);
+    SetWindowPos(frm_statistics.Handle   ,HWND_NOTOPMOST,0,0,0,0,SWP_NOMOVE OR SWP_NOSIZE);
+    SetWindowPos(frm_stat_explorer.Handle,HWND_NOTOPMOST,0,0,0,0,SWP_NOMOVE OR SWP_NOSIZE);
+  end;
 
   if topmost
     then StatusBar1.Panels[0].Text := STR_topmost
@@ -1776,6 +1790,11 @@ procedure TFRM_Main.Angriff1Click(Sender: TObject);
 begin
   ODataBase.LanguagePlugIn.CallFleet_(
     Frame_Bericht1.Bericht.Head.Position, fet_attack);
+end;
+
+procedure TFRM_Main.AnzeigenundSuchen1Click(Sender: TObject);
+begin
+  frm_stat_explorer.Show;
 end;
 
 procedure TFRM_Main.ApplicationEvents1Message(var Msg: tagMSG;

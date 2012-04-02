@@ -87,7 +87,8 @@ uses
   Vcl.Styles,
   TIReadPlugin_Types_conv_UNICODE in 'ReadPlugins\TIReadPlugin_Types_conv_UNICODE.pas',
   TIReadPlugin_Types in 'ReadPlugins\TIReadPlugin_Types.pas',
-  stats_view in 'stats_view.pas' {frm_stats_view};
+  stats_view in 'stats_view.pas' {frm_stats_view},
+  stat_explorer in 'stat_explorer.pas' {frm_stat_explorer};
 
 {$R *.RES}
 
