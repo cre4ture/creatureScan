@@ -13,17 +13,22 @@ uses
 const
   SearchiniSection = 'SearchWindow';
 
+  scol_player_ships = 15;
+  scol_lpa = scol_player_ships+1;
+  scol_lpi = scol_lpa+1;
+
 type
   TSearch_ND = record
     Player, Allianz, Planet: string;
     Status: TStatus;
     Koord: TPlanetPosition;
     Platz, FleetPlatz, AllyPlatz: Cardinal;
-    Punkte, FleetPunkte, AllyPunkte: Cardinal;
+    Punkte, FleetPunkte, AllyPunkte: Int64;
     Datum: TDateTime;
     LastPointsActivity_days: integer;
     LastPointsIncrease_days: integer;
     playerId: TNameID;
+    player_ships: Int64;
     TF: array[0..1] of Cardinal;
     scantime_u: Int64;
   end;
@@ -372,6 +377,7 @@ var s_punkte, s_flotte: Integer;
              ItemData^.Datum := UnixToDateTime(Time_u);
              ItemData^.LastPointsActivity_days := -1;
              ItemData^.LastPointsIncrease_days := -1;
+             ItemData^.player_ships := ODataBase.FleetStats.Statistik[fleetplace].Punkte;
              if p.Mond then
                ItemData^.Planet := STR_Mond
              else ItemData^.Planet := Planeten[Planet].PlanetName;
@@ -499,8 +505,8 @@ begin
   ts_specials.TabVisible := FRM_Main.Dir.Visible;
   if not ts_specials.TabVisible then
   begin
-    VST_Result.Header.Columns.Delete(16);
-    VST_Result.Header.Columns.Delete(15);
+    VST_Result.Header.Columns.Delete(scol_lpi);
+    VST_Result.Header.Columns.Delete(scol_lpa);
   end;
 end;
 
@@ -539,8 +545,9 @@ begin
      12: CellText := ODataBase.LanguagePlugIn.StatusToStr(Status);
      13: CellText := ODataBase.Time_To_AgeStr(Datum);
      14: CellText := IntToStr(playerId);
-     15: CellText := IntToStr(LastPointsActivity_days);
-     16: CellText := IntToStr(LastPointsIncrease_days);
+     scol_player_ships: CellText := IntToStrKP(player_ships);
+     scol_lpa: CellText := IntToStr(LastPointsActivity_days);
+     scol_lpi: CellText := IntToStr(LastPointsIncrease_days);
     end;
   end;
 end;
@@ -600,8 +607,9 @@ begin
   9, 10: if(nd1.AllyPunkte > nd2.AllyPunkte) then Result := 1 else Result := -1;
   11: if (nd1.TF[0]+nd1.TF[1] > nd2.TF[0]+nd2.Tf[1]) then Result := 1 else Result := -1;
   13: Result := CompareValue(nd1.Datum, nd2.Datum);
-  14: Result := CompareValue(nd1.LastPointsActivity_days, nd2.LastPointsActivity_days);
-  15: Result := CompareValue(nd1.LastPointsIncrease_days, nd2.LastPointsIncrease_days);
+  scol_player_ships: Result := CompareValue(nd1.player_ships, nd2.player_ships);
+  scol_lpa: Result := CompareValue(nd1.LastPointsActivity_days, nd2.LastPointsActivity_days);
+  scol_lpi: Result := CompareValue(nd1.LastPointsIncrease_days, nd2.LastPointsIncrease_days);
   else
     VST_ResultGetText(Sender,Node1,Column,ttNormal,S1);
     VST_ResultGetText(Sender,Node2,Column,ttNormal,S2);
