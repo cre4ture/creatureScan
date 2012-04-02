@@ -192,10 +192,6 @@ object FRM_Suche: TFRM_Suche
       object Search_Status: TTabSheet
         Caption = 'Status / TFs / Statistiken'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         DesignSize = (
           684
           73)
@@ -371,10 +367,6 @@ object FRM_Suche: TFRM_Suche
       object ts_specials: TTabSheet
         Caption = 'Specials'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object cb_lpa: TCheckBox
           Left = 8
           Top = 8
@@ -501,13 +493,17 @@ object FRM_Suche: TFRM_Suche
         WideText = 'PlayerID'
       end
       item
-        Alignment = taRightJustify
         Position = 15
-        WideText = 'LPA'
+        WideText = 'Schiffe(Spieler)'
       end
       item
         Alignment = taRightJustify
         Position = 16
+        WideText = 'LPA'
+      end
+      item
+        Alignment = taRightJustify
+        Position = 17
         WideText = 'LPI'
       end>
   end
@@ -515,7 +511,7 @@ object FRM_Suche: TFRM_Suche
     Left = 64
     Top = 184
     Bitmap = {
-      494C0101040009000C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010104000900100010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

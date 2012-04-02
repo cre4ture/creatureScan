@@ -11,8 +11,20 @@ uses
 const filetype = 'cS favlist 1.0';
 const filetypelength = 14;
 
-const lpa_col = 34;
-const lpi_col = 35;
+const col_koordinaten = 0;
+const col_planetname = col_koordinaten+1;
+const col_player = col_planetname+1;
+const col_status = col_player+1;
+const col_allianz = col_status+1;
+const col_scanalter = col_allianz+1;
+const col_raid = col_scanalter+1;
+const col_last_24h = col_raid+1;
+const col_metall = col_last_24h+1;
+const col_kristall = col_metall+1;
+// ...
+const col_player_ships = 34;
+const lpa_col = col_player_ships+1;
+const lpi_col = lpa_col+1;
 
 type
   TPlanetItem = class; // prototype
@@ -31,6 +43,7 @@ type
     Stars: Integer;
     Platz, FleetPlatz, Allyplatz: word;
     PlayerPunkte, FleetPunkte, Allypunkte: Cardinal;
+    PlayerShips: Int64;
     Ress: Array[0..4] of TcSResource;
     Ress_div_Def: TcSResource;
     MProduction: TSetRessources;
@@ -789,7 +802,10 @@ begin
         //TF (Flotte)
         24: CellText := IntToStrKP(tf[0] + tf[1] + tf[2]);
         //Berechnete Rohstoffe (Produktion mit einberechnet!)
-        25..29,31,32,lpa_col,lpi_col: CellText := IntToStrKP(getIntValColumn(Column, fav));
+        25..29,31,32,
+        col_player_ships,
+        lpa_col,lpi_col:
+          CellText := IntToStrKP(getIntValColumn(Column, fav));
         33: if (anomalie_ > activity_lt_15min) then
               CellText := IntToStrKP(anomalie_)
             else
@@ -851,8 +867,11 @@ begin
       Fav1.TF[0]+Fav1.TF[1]+Fav1.TF[2] > Fav2.TF[0]+Fav2.TF[1]+Fav2.TF[2],
       1,-1);
     //Berechnete Rohstoffe (Produktion mit einberechnet!)
-    25..29,31,32,lpa_col,lpi_col: if getIntValColumn(Column, Fav1) > getIntValColumn(Column, Fav2) then
-              Result := 1 else Result := -1;
+    25..29,31,32,
+    col_player_ships,
+    lpa_col,lpi_col:
+       if getIntValColumn(Column, Fav1) > getIntValColumn(Column, Fav2) then
+          Result := 1 else Result := -1;
 //    30: if Fav1.notes then, ka wie des genau mit den notizen klappen soll (nach welcher regel?)
     33: if Fav1.anomalie_ > Fav2.anomalie_ then
           Result := 1 else Result := -1;
@@ -986,6 +1005,7 @@ begin
           if Statistik[FleetPlatz].Name <> Player then
             FleetPlatz := StatPlace(Player,thePlayerID);
           FleetPunkte := Statistik[FleetPlatz].Punkte;
+          PlayerShips := Statistik[FleetPlatz].Elemente;
         end;
 
         with ODataBase.AllyStats do
@@ -1391,6 +1411,7 @@ begin
       29: Result := v_Ress_div_Def;
       31: Result := RaidCount;
       32: Result := thePlayerID;
+      col_player_ships: Result := PlayerShips;
       lpa_col: Result := lpa;
       lpi_col: Result := lpi;
     else
