@@ -51,6 +51,7 @@ uses
   _test_POST in '_test_POST.pas' {FRM_POST_TEST},
   oFight in 'oFight.pas',
   cS_DB_reportFile in 'cS_DB_reportFile.pas',
+  cS_DB_generic in 'cS_DB_generic.pas',
   cS_DB in 'cS_DB.pas',
   cS_DB_solsysFile in 'cS_DB_solsysFile.pas',
   TIReadPlugin in 'ReadPlugins\TIReadPlugin.pas',

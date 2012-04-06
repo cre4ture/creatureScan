@@ -23,7 +23,6 @@ object FRM_Notizen: TFRM_Notizen
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 217
     DesignSize = (
       523
       53)
@@ -98,7 +97,6 @@ object FRM_Notizen: TFRM_Notizen
     OnGetImageIndex = VST_NotizenGetImageIndex
     OnGetNodeDataSize = VST_NotizenGetNodeDataSize
     OnHeaderClick = VST_NotizenHeaderClick
-    ExplicitHeight = 217
     Columns = <
       item
         Position = 0
@@ -111,7 +109,7 @@ object FRM_Notizen: TFRM_Notizen
       end
       item
         Position = 2
-        Width = 223
+        Width = 219
         WideText = 'Notiz'
       end
       item
