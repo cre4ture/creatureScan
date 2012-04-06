@@ -31,6 +31,18 @@ type
     procedure DeleteLastScan; virtual; abstract;
   end;
 
+  TcSGenericItemDB<T> = class
+  protected
+    function GetGenericItem(nr: cardinal): T; virtual; abstract;
+    procedure SetGenericItem(nr: cardinal; GenericItem: T); virtual; abstract;
+    function GetCount: Integer; virtual; abstract;
+  public
+    property GenericItems[nr: cardinal]: T read GetGenericItem write SetGenericItem; default;
+    property Count: Integer read GetCount;
+    function AddGenericItem(Item: T): Integer; virtual; abstract;
+    procedure DeleteLastGenericItem; virtual; abstract;
+  end;
+
   TcSSolSysDB = class
   protected
     function GetSolSys(nr: Cardinal): TSystemCopy; virtual; abstract;
