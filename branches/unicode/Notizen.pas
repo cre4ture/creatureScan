@@ -62,8 +62,9 @@ type
   private
     Images: array of TNoteImage;
     IniFile: String;
-    procedure LoadImages;
-    procedure SaveImages;
+    procedure LoadImages(ini: TCustomIniFile);
+    procedure SaveImages(ini: TCustomIniFile);
+    procedure SaveNotesToFile;
     { Private-Deklarationen }
   public
     procedure Add(Notiz: TNotiz);
@@ -143,11 +144,19 @@ procedure TFRM_Notizen.FormCreate(Sender: TObject);
 var ini : TMemIniFile;
     c,i : integer;
     node : PVirtualNode;
-    s: string;
+    s, filename: string;
 begin
-  IniFile := ODataBase.PlayerInf;
-  LoadImages;
+  filename := ODataBase.SaveDir + 'csnotes.ini';
+  if FileExists(filename) then
+  begin
+    IniFile := filename;
+  end
+  else
+  begin
+    IniFile := ODataBase.PlayerInf;
+  end;
   ini := TMemIniFile.Create(IniFile);
+  LoadImages(ini);
   c := ini.ReadInteger(NotizSection,'NoteCount',0);
   for i := 0 to c-1 do
   begin
@@ -174,16 +183,23 @@ begin
     end;
   end;
   ini.free;
+
+  // after import old data, use the new file:
+  IniFile := filename;
+
   if SaveCaptions then SaveAllCaptions(Self,LangFile);
   if LoadCaptions then LoadAllCaptions(Self,LangFile);
 end;
 
-procedure TFRM_Notizen.FormDestroy(Sender: TObject);
+procedure TFRM_Notizen.SaveNotesToFile;
 var ini : TMemIniFile;
     i : integer;
     node: PVirtualNode;
 begin
   ini := TMemIniFile.Create(IniFile);
+
+  SaveImages(ini);
+
   node := VST_Notizen.GetFirst;
   i := 0;
   while node <> nil do
@@ -203,6 +219,11 @@ begin
   ini.WriteInteger(NotizSection,'NoteCount',i);
   ini.UpdateFile;
   ini.free;
+end;
+
+procedure TFRM_Notizen.FormDestroy(Sender: TObject);
+begin
+  saveNotesToFile();
 end;
 
 procedure TFRM_Notizen.TXT_NotizKeyPress(Sender: TObject; var Key: Char);
@@ -442,12 +463,10 @@ begin
   end;
 end;
 
-procedure TFRM_Notizen.LoadImages;
-var ini: TIniFile;
-    i,c: integer;
+procedure TFRM_Notizen.LoadImages(ini: TCustomIniFile);
+var i,c: integer;
     bmp: TBitmap;
 begin
-  ini := TIniFile.Create(inifile);
   bmp := TBitmap.Create;
   bmp.Height := ImageList1.Height;
   bmp.Width := ImageList1.Width;
@@ -466,15 +485,12 @@ begin
     CB_Image.Items.Add(Name);
   end;
   bmp.free;
-  ini.free;
   if length(Images) = 0 then ClearAndLoadStandartImages;
 end;
 
-procedure TFRM_Notizen.SaveImages;
-var ini: TIniFile;
-    i,c: integer;
+procedure TFRM_Notizen.SaveImages(ini: TCustomIniFile);
+var i,c: integer;
 begin
-  ini := TIniFile.Create(inifile);
   c := length(images);
   ini.WriteInteger(NotizSection,'ITP_Count',c);
   for i := 0 to c-1 do
@@ -484,7 +500,6 @@ begin
     ini.WriteString(NotizSection,'ITP'+IntToStr(i)+'_file',filename);
     ini.WriteInteger(NotizSection,'ITP'+IntToStr(i)+'_co',BackgroundColor);
   end;
-  ini.free;
 end;
 
 procedure TFRM_Notizen.EditImages;
@@ -520,9 +535,10 @@ begin
       images[i].BackgroundColor := StrToInt(SubItems[2]);
       CB_Image.Items.Add(SubItems[0]);
     end;
-    SaveImages;
   end;
   frm.free;
+
+  SaveNotesToFile;
 end;
 
 function IMGFilename(i: integer): string;
@@ -572,8 +588,9 @@ begin
       CB_Image.Items.Add(Name);
     end;
   end;
-  SaveImages;
   bmp.free;
+
+  SaveNotesToFile;
 end;
 
 procedure TFRM_Notizen.Show;
