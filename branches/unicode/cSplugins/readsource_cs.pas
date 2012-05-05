@@ -6,7 +6,7 @@ uses
   readsource, ReadReport_Text, OGame_Types, TIReadPlugin_Types;
 
 type
-  TOGameVersion = (ogv_not_initialised, ogv_unknown, ogv_2xx, ogv_3xx);
+  TOGameVersion = (ogv_not_initialised, ogv_unknown, ogv_2xx, ogv_3xx, ogv_4xx);
 
   TReadSource_cS = class(TReadSource)
   private

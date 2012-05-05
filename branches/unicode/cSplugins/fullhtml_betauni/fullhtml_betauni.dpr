@@ -29,7 +29,8 @@ uses
   ReadStats_fullhtml_trunc in '..\ReadAndParse\ReadStats_fullhtml_trunc.pas',
   call_fleet_2x in '..\ReadAndParse\call_fleet_2x.pas',
   call_fleet_trunc in '..\ReadAndParse\call_fleet_trunc.pas',
-  cshelper_tag_reader in '..\ReadAndParse\cshelper_tag_reader.pas';
+  cshelper_tag_reader in '..\ReadAndParse\cshelper_tag_reader.pas',
+  ReadSolsys_fullhtml_3x in '..\ReadAndParse\ReadSolsys_fullhtml_3x.pas';
 
 type
   TScanReadOptions = record
@@ -67,7 +68,6 @@ var
   Sys_Options: TSys_Read_Options;
   ReportRead: TReadReport_Text;
   myReadClassFactory: TReadClassFactory;
-  SysRead: ThtmlSysRead;
   PhalanxRead: ThtmlPhalanxRead_betauni;
 
   UniCheck_Options: TUniCheck_Options;
@@ -184,7 +184,6 @@ begin
   SB_tsep := ini.ReadString('Espionage report','tsep','');
 
   myReadClassFactory := TReadClassFactory.Create(ini);
-  SysRead := ThtmlSysRead.Create(ini);
   ReportRead := TReadReport_Text.Create(ini);
   PhalanxRead := ThtmlPhalanxRead_betauni.Create(ini, ReportRead);
 
@@ -199,7 +198,6 @@ end;
 function dll_endDll: boolean; stdcall;
 begin
   myReadClassFactory.Free;
-  SysRead.Free;
   ReportRead.Free;
   PhalanxRead.Free;
   ini.free;
@@ -310,7 +308,9 @@ begin
   Result := False;
   if not _get_RS(rs_handle, rs) then Exit;
 
-  Result := SysRead.ReadFromRS(rs, rs.solsys);
+  Result := myReadClassFactory.getSolsysReadClass(rs.getOGameVersion)
+                    .ReadFromRS(rs, rs.solsys);
+
   if (Result) then
   begin
     createPortable_SolarSystemHead(rs.solsys, rs.portableSolSysHead);
