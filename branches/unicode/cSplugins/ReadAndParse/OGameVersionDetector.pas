@@ -13,6 +13,8 @@ type
 
 implementation
 
+uses SysUtils;
+
 { TOGameVersionDetector }
 
 function TOGameVersionDetector.detectOGameVersion(
@@ -20,6 +22,7 @@ function TOGameVersionDetector.detectOGameVersion(
 var versionNode, footerNode, tag: THTMLElement;
     regex: Tregexpn;
     s: string;
+    majorV: integer;
 begin
   Result := ogv_unknown;
   footerNode := HTMLFindRoutine_NameAttribute(html, 'div', 'id', 'siteFooter');
@@ -37,9 +40,11 @@ begin
           regex.setexpression('(?<major>[0-9]+).(?<minor1>[0-9]+).(?<minor2>[0-9]+)');
           if (regex.match(s)) then
           begin
-            case regex.getsubexpr('major')[1] of
-              '2': Result := ogv_2xx;
-              '3': Result := ogv_3xx;
+            majorV := StrToIntDef(regex.getsubexpr('major'), 0);
+            case majorV of
+              2: Result := ogv_2xx;
+              3: Result := ogv_3xx;
+              4..99: Result := ogv_latest;
             else
               Result := ogv_unknown;
             end;

@@ -606,7 +606,7 @@ begin
     else
     if attr_class = 'action' then
     begin
-      tag_ := HTMLFindRoutine_NameAttribute_Within(
+      tag_ := HTMLFindRoutine_NameAttribute_Value_Within(
         CurElement, 'a', 'href', '/game/index.php?page=writemessage&amp;');
       if tag_ <> nil then
       begin

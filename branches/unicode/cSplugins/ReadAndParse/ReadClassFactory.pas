@@ -84,9 +84,8 @@ begin
   case version of
   ogv_2xx: version := ogv_3xx;
   ogv_3xx: version := ogv_3xx;
-  ogv_4xx: version := ogv_4xx;
   else
-    version := high(TOGameVersion);
+    version := ogv_latest;
   end;
 
   // check version
@@ -99,7 +98,7 @@ begin
     // create new instance for selected version
     case version of
     ogv_3xx: fSolsysRead := ReadSolsys_fullhtml_3x.ThtmlSysRead_3x.Create(fini);
-    ogv_4xx: fSolsysRead := ReadSolsys_fullhtml_trunc.ThtmlSysRead.Create(fini);
+    ogv_latest: fSolsysRead := ReadSolsys_fullhtml_trunc.ThtmlSysRead.Create(fini);
     else
       raise Exception.Create('TReadClassFactory.getSolsysReadClass: internal error');
     end;
@@ -117,9 +116,8 @@ begin
   // select version
   case version of
   ogv_2xx: version := ogv_2xx;
-  ogv_3xx: version := ogv_3xx;
   else
-    version := high(TOGameVersion);
+    version := ogv_latest;
   end;
 
   // check version
@@ -132,7 +130,7 @@ begin
     // create new instance for selected version
     case version of
     ogv_2xx: fStatsRead := ReadSolsysStats_fullhtml_2x.ThtmlStatRead_betauni.Create(fini);
-    ogv_3xx: fStatsRead := ReadStats_fullhtml_trunc.ThtmlStatRead.Create(fini);
+    ogv_latest: fStatsRead := ReadStats_fullhtml_trunc.ThtmlStatRead.Create(fini);
     else
       raise Exception.Create('TReadClassFactory.getStatsReadClass: internal error');
     end;
@@ -150,11 +148,11 @@ begin
   // select version
   case version of
   ogv_2xx: version := ogv_2xx;
-  ogv_3xx: version := ogv_3xx;
+  ogv_3xx: version := ogv_latest;
   else
     // per default we use the latest detected version!
     if (fUniCheckVersion = ogv_not_initialised) then
-      version := high(version)
+      version := ogv_latest
     else
       version := fUniCheckVersion;
   end;
@@ -169,7 +167,7 @@ begin
     // create new instance for selected version
     case version of
     ogv_2xx: fUniCheck := call_fleet_2x.TUniCheck.Create(fini, serverURL);
-    ogv_3xx: fUniCheck := call_fleet_trunc.TUniCheck.Create(fini, serverURL);
+    ogv_latest: fUniCheck := call_fleet_trunc.TUniCheck.Create(fini, serverURL);
     else
       raise Exception.Create('TReadClassFactory.getUniCheckClass: internal error');
     end;
