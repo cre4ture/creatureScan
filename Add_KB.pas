@@ -43,6 +43,7 @@ type
     procedure FormShow(Sender: TObject);
   private
     GameTime: TDeltaSystemTime;
+    alert: boolean;
     
     function GetFleet: TFleetEvent;
     procedure SetFleet(fleet: TFleetEvent);
@@ -113,6 +114,7 @@ begin
     ress[3] := 0;
 
     head.eventtype := fet_attack;
+    head.alert := self.alert;
     SetLength(ships,fsc_1_Flotten);
   end;
 end;
@@ -129,6 +131,7 @@ begin
   TXT_Metall.Text := IntToStr(fleet.ress[0]);
   TXT_Kristall.Text := IntToStr(fleet.ress[1]);
   TXT_Deuterium.Text := IntToStr(fleet.ress[2]);
+  self.alert := fleet.head.alert;
 end;
 
 procedure TFRM_Add_Raid.ResetTime(time_u: Int64);

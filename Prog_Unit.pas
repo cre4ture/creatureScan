@@ -40,8 +40,8 @@ const
   pi_TSyncRaids      = 1029;
   pi_TSyncStats      = 1030;
 
-const main_ver = '2.2';
-const release_number = 'b';
+const main_ver = '2.3';
+const release_number = 'a';
 
 {$ifdef PRERELEASE}
   const VNumber = 'PRE-' + main_ver + release_number;
@@ -269,6 +269,7 @@ begin
         end;
 
         fleet.head.player := Username;
+        fleet.head.alert := True;
         FleetBoard.AddFleet(fleet);
       end;
     end;
