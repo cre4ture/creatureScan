@@ -11,6 +11,7 @@ function cshelper_myTestLog(document, msg) {
 	log.innerHTML += '<br>'+msg;
 }
 
+
 function cshelper_getPageSourceCode(document)
 {
 	return "<head>" + document.head.innerHTML + "</head><body>" + document.body.innerHTML + "</body>";
@@ -131,8 +132,8 @@ cshelper.BrowserOverlay = {
 			connection.outputStream = Components.classes["@mozilla.org/intl/converter-output-stream;1"]
 			             .createInstance(Components.interfaces.nsIConverterOutputStream);
 			connection.outputStream.init(
-						connection.transport.openOutputStream(1, 0, 0),
-						"UTF-8", 0, 0x0000);
+						connection.transport.openOutputStream(0, 0, 0),
+						"UTF-8", 4096, 0x0000);
 			connection.inputStream = connection.transport.openInputStream(1, 0, 0);
 			
 		}
@@ -276,6 +277,8 @@ function cshelper_pageLoad(event_pageload) {
 		var inhalt = document.getElementById('inhalt'); 
 		inhalt.addEventListener("DOMNodeInserted", inhalt_ajax_handler_stats, true);
 		cshelper_myTestLog(document, 'Statistics detected!');
+		// copy first page
+		inhalt_ajax_handler_stats(event_pageload);
 	}
 	
 	else if ((document.location.href.search("page=galaxy") > -1))
