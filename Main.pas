@@ -1677,6 +1677,7 @@ begin
   ini := TIniFile.Create(IniFile);
   Dir.Visible := ini.ReadBool(GeneralSection,'ShowDirButton',False);
   cS_setGlobalOption('developers', 'dirbutton', BoolToStr(Dir.Visible));
+  // per default disable cS_light
   cS_setGlobalOption('main', 'cs_light', BoolToStr(true));
   Test1.Visible := Dir.Visible;
   Einstellungen := [];

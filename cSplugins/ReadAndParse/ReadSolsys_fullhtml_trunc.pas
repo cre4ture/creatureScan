@@ -241,7 +241,7 @@ begin
     begin
       tag_row := table.ChildElements[i];
       if (tag_row.TagName = 'tr')and
-         (tag_row.AttributeValue['class'] = 'row') then
+         (tag_row.html_isClass('row')) then
       begin
         //Lese Planeten NR
         tag := tag_row.FindChildTagPath('td:1');
@@ -277,14 +277,14 @@ begin
             // Suche nach "Umsiedeln"-Tags auch für koords:
             if (not got_koords)and(solsys.Planeten[row_nr].Player = '') then
             begin
-              tag_pos := HTMLFindRoutine_NameAttribute(tag_row, 'td', 'class', 'planetname1');
+              tag_pos := HTMLFindRoutine_NameAndClass(tag_row, 'td', 'planetname1');
               if tag_pos <> nil then
               begin
                 for j := 0 to 1 do
                 begin
                   tag_a := tag_pos.FindChildTag('a', j);
                   if (tag_a <> nil) and
-                     (pos('planetMoveDefault',tag_a.AttributeValue['class']) > 0) then
+                     (tag_a.html_isClass('planetMoveDefault')) then
                   begin
                     s := tag_a.AttributeValue['onclick'];
                     p := pos('galaxy=',s);
@@ -357,7 +357,7 @@ begin
       tag_ := CurElement.FindChildTag('span');
       if tag_ <> nil then
       begin
-        if tag_.AttributeValue['class'] = 'undermark' then
+        if tag_.html_isClass('undermark') then
         begin
           s := Trim(tag_.FullTagContent);
           row^.Activity := StrToIntDef(s, 0)*60; // seconds!
@@ -396,7 +396,7 @@ begin
     else
     if CurElement.html_isClass('debris') then
     begin
-      tag_ := HTMLFindRoutine_NameAttribute(CurElement,'li','class','debris-content');
+      tag_ := HTMLFindRoutine_NameAndClass(CurElement,'li','debris-content');
       if tag_ <> nil then
       begin
         //Metall:
@@ -418,16 +418,16 @@ begin
     if CurElement.html_isClass('playername') then
     begin
       // remove status
-      tag_ := HTMLFindRoutine_NameAttribute(CurElement,'span','class','status');
+      tag_ := HTMLFindRoutine_NameAndClass(CurElement,'span','status');
       if tag_ <> nil then
         tag_.ClearChilds;
 
       // remove antigame rank 1.27
-      tag_ := HTMLFindRoutine_NameAttribute(CurElement,'a','class','anti_rank');
+      tag_ := HTMLFindRoutine_NameAndClass(CurElement,'a','anti_rank');
       if tag_ <> nil then
         tag_.ClearChilds;
       // remove antigame rank 1.28
-      tag_ := HTMLFindRoutine_NameAttribute(CurElement,'span','class','anti_rank');
+      tag_ := HTMLFindRoutine_NameAndClass(CurElement,'span','anti_rank');
       if tag_ <> nil then
         tag_.ClearChilds;
 
@@ -447,6 +447,11 @@ begin
 
       if row^.Player = '' then
       begin
+        // trim honorrank
+        tag_ := HTMLFindRoutine_NameAndClass(CurElement, 'span', 'honorRank');
+        if (tag_ <> nil) then
+          tag_.ClearChilds;
+
         row^.Player := trim(CurElement.FullTagContent);
       end;
 
@@ -480,7 +485,7 @@ begin
     else
     if CurElement.html_isClass('action') then
     begin
-      tag_ := HTMLFindRoutine_NameAttribute_Within(
+      tag_ := HTMLFindRoutine_NameAttribute_Value_Within(
         CurElement, 'a', 'href', '/game/index.php?page=writemessage&amp;');
       if tag_ <> nil then
       begin
@@ -500,7 +505,7 @@ begin
     Result := (TagType = pttStartTag)and
               (TagName = 'span')and
               (
-               (AttributeValue['class'] = 'rank') or
+               (html_isClass('rank')) or
                (copy(AttributeValue['style'], 1, 7) = 'color: ')
                //((length(FullTagContent) > 0)and(FullTagContent[1] = '#'))
               );
