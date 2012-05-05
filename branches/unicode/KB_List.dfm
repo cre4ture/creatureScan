@@ -109,6 +109,10 @@ object FRM_KB_List: TFRM_KB_List
     object TS_KB_fertig: TTabSheet
       Caption = 'History'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object VST_HISTORY: TVirtualStringTree
         Left = 0
         Top = 0
@@ -175,7 +179,7 @@ object FRM_KB_List: TFRM_KB_List
           end
           item
             Position = 5
-            Width = 223
+            Width = 227
             WideText = 'Auftrag'
           end>
       end
@@ -374,7 +378,7 @@ object FRM_KB_List: TFRM_KB_List
     Left = 256
     Top = 116
     Bitmap = {
-      494C010108000900280010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101080009002C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

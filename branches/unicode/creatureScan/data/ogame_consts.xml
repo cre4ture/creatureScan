@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <data>
   <creaturescan>
     <updatecheck url="http://creaturescan.creax.de/update/latest.txt"/>
@@ -20,6 +20,7 @@
       <uni name="kassiopeia" urlname="uni111" gamespeedfactor="2.0"/>
       <uni name="leo" urlname="uni112"/>
       <uni name="mizar" urlname="uni113"/>
+      <uni name="nekkar" urlname="uni114"/>
       <uni name="uni$" symbol="$" index="1" to="13"/>
       <uni name="uni14" tfdeffactor="0.3"/>
       <uni name="uni15" tfdeffactor="0.3"/>
