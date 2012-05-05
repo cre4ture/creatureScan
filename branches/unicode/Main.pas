@@ -1608,6 +1608,7 @@ begin
   rd.head.eventtype := fet_attack;
   rd.head.origin := PlayerOptions.StartPlanet;
   rd.head.target := Position;
+  rd.head.alert := true;
 
   g := ODataBase.UniTree.UniReport(Position);
   if g >= 0 then
