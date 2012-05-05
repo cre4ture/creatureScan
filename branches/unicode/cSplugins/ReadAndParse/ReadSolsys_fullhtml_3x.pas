@@ -1,4 +1,4 @@
-unit ReadSolsys_fullhtml_trunc;
+unit ReadSolsys_fullhtml_3x;
 
 interface
 
@@ -15,7 +15,7 @@ type
     row: PSystemPlanet;
     meta: TOGameMetaInfo;
   end;
-  ThtmlSysRead = class(TSolsysReadClassInterface)
+  ThtmlSysRead_3x = class(TSolsysReadClassInterface)
   protected
     StatusItems_HTML: array[TStati] of string;
     function CheckForTable(CurElement: THTMLElement; Data: pointer): Boolean;
@@ -97,7 +97,7 @@ begin
   if Result > l then Result := 0;
 end;
 
-function ThtmlSysRead.CheckForTable(CurElement: THTMLElement;
+function ThtmlSysRead_3x.CheckForTable(CurElement: THTMLElement;
   Data: pointer): Boolean;
 begin
   Result := False;
@@ -113,7 +113,7 @@ begin
   end;
 end;
 
-function ThtmlSysRead._read_HTMLStatusStr(s: string): TStatus;
+function ThtmlSysRead_3x._read_HTMLStatusStr(s: string): TStatus;
 var i: TStati;
 begin
   Result := [];
@@ -124,7 +124,7 @@ begin
     end;
 end;
 
-function ThtmlSysRead.CheckStatusSpans(CurElement: THTMLElement;
+function ThtmlSysRead_3x.CheckStatusSpans(CurElement: THTMLElement;
   Data: pointer): Boolean;
 begin
   //Result ist immer False, da kein bestimmtes element gefunden werden soll!
@@ -140,7 +140,7 @@ begin
   end; }
 end;
 
-constructor ThtmlSysRead.Create(ini: TIniFile);
+constructor ThtmlSysRead_3x.Create(ini: TIniFile);
 var i: integer;
 begin
   inherited Create;
@@ -150,7 +150,7 @@ begin
   end;
 end;
 
-function ThtmlSysRead.Read(text, html: string;
+function ThtmlSysRead_3x.Read(text, html: string;
   var solsys: TSystemCopy): Boolean;
 var doc_html: THTMLElement;
 begin
@@ -164,7 +164,7 @@ begin
   doc_html.Free;
 end;
 
-function ThtmlSysRead.ReadFromRS(rs: TReadSource;
+function ThtmlSysRead_3x.ReadFromRS(rs: TReadSource;
   var solsys: TSystemCopy): Boolean;
 begin
   try
@@ -175,7 +175,7 @@ begin
   end;
 end;
 
-function ThtmlSysRead.ReadFullHTML(doc_html: THTMLElement;
+function ThtmlSysRead_3x.ReadFullHTML(doc_html: THTMLElement;
   var solsys: TSystemCopy): Boolean;
 var tbody, tag, tag_row, tag_pos, tag_a: THTMLElement;
     table: THTMLTable;
@@ -321,7 +321,7 @@ begin
   end;
 end;
 
-function ThtmlSysRead.ReadRow_PlanetInfo(CurElement: THTMLElement;
+function ThtmlSysRead_3x.ReadRow_PlanetInfo(CurElement: THTMLElement;
   Data: pointer): Boolean;
 var
   row: PSystemPlanet;
@@ -492,7 +492,7 @@ begin
   end;
 end;
 
-function ThtmlSysRead.CheckForRankElement(CurElement: THTMLElement;
+function ThtmlSysRead_3x.CheckForRankElement(CurElement: THTMLElement;
   Data: pointer): Boolean;
 begin
   with (CurElement) do
@@ -507,7 +507,7 @@ begin
   end;
 end;
 
-procedure ThtmlSysRead.Test(text, html: string;
+procedure ThtmlSysRead_3x.Test(text, html: string;
   var solsys: TSystemCopy);
 var doc_html: THTMLElement;
 begin
