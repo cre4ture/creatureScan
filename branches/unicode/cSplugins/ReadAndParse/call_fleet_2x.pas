@@ -85,7 +85,7 @@ begin
     if (menuTable <> nil) then
     begin
       // search for imperium entry
-      imperium := HTMLFindRoutine_NameAttribute_Within(
+      imperium := HTMLFindRoutine_NameAttribute_Value_Within(
             html_tree, 'a', 'href', '/game/index.php?page=empire&amp');
       if imperium <> nil then
       begin
