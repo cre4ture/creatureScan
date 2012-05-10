@@ -35,7 +35,8 @@ uses
   UnitTestDB in 'UnitTestDB.pas',
   UnitTestFactory in 'UnitTestFactory.pas',
   CSUnitTest_ScanBerichtHTTP in 'CSUnitTest_ScanBerichtHTTP.pas',
-  cS_XML in '..\..\cS_XML.pas';
+  cS_XML in '..\..\cS_XML.pas',
+  unit_test_explorer in 'unit_test_explorer.pas' {frm_unit_test};
 
 {$R *.res}
 
@@ -49,5 +50,6 @@ begin
   Application.CreateForm(TFRM_Stats, FRM_Stats);
   Application.CreateForm(TFRM_Phalanx, FRM_Phalanx);
   Application.CreateForm(TFRM_ScanGen, FRM_ScanGen);
+  Application.CreateForm(Tfrm_unit_test, frm_unit_test);
   Application.Run;
 end.
