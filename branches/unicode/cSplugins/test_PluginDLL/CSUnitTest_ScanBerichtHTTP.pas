@@ -3,7 +3,7 @@ unit CSUnitTest_ScanBerichtHTTP;
 interface
 
 uses UnitTestDB, Xml.XMLIntf, OGame_Types, xml_parser_unicode, TIReadPlugin,
-  System.Generics.Collections;
+  System.Generics.Collections, System.Variants;
 
 type
   TCSUnitTest_ScanBericht = class(TCSUnitTest)
@@ -50,9 +50,19 @@ var node, result_node: IXMLNode;
     parser: TUnicodeXmlParser;
     i: integer;
     inst: TCSUnitTest_ScanBericht;
+    ole: OleVariant;
 begin
-  a_text := UTF8Encode(WideString(xml.ChildValues['text']));
-  a_html := UTF8Encode(WideString(xml.ChildValues['html']));
+  a_text := '';
+  a_html := '';
+
+  ole := xml.ChildValues['text'];
+  if not VarIsNull(ole) then
+    a_text := UTF8Encode(WideString(ole));
+
+  ole := xml.ChildValues['html'];
+  if not VarIsNull(ole) then
+    a_html := UTF8Encode(WideString(ole));
+
   a_testtime := xml.ChildValues['time_u'];
 
   inst := TCSUnitTest_ScanBericht.Create(a_text, a_html,
