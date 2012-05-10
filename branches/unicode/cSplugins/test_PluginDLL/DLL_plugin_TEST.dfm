@@ -152,6 +152,15 @@ object FRM_MainTest: TFRM_MainTest
       TabOrder = 2
       OnClick = Button11Click
     end
+    object Button13: TButton
+      Left = 329
+      Top = 16
+      Width = 75
+      Height = 25
+      Caption = 'UT_Explorer'
+      TabOrder = 3
+      OnClick = Button13Click
+    end
   end
   object txt_serverURL: TEdit
     Left = 8

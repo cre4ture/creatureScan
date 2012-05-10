@@ -25,6 +25,7 @@ type
     property tests[index: integer]: TCSUnitTest read getTest;
     function count: integer;
     function addUnitTest(test: TCSUnitTest): integer; // no copy! (auto-destroy all items)
+    procedure deleteUnitTest(i: integer);
     procedure saveToFile();
     constructor Create(filename: string);
     destructor Destroy; override;
@@ -77,6 +78,11 @@ begin
   end
   else
     xmldoc.Active := true;
+end;
+
+procedure TCSUnitTestDB.deleteUnitTest(i: integer);
+begin
+  ftestlist.Delete(i);
 end;
 
 destructor TCSUnitTestDB.Destroy;

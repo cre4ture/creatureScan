@@ -166,6 +166,10 @@
 			<DCCReference Include="UnitTestFactory.pas"/>
 			<DCCReference Include="CSUnitTest_ScanBerichtHTTP.pas"/>
 			<DCCReference Include="..\..\cS_XML.pas"/>
+			<DCCReference Include="unit_test_explorer.pas">
+				<Form>frm_unit_test</Form>
+				<FormType>dfm</FormType>
+			</DCCReference>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
