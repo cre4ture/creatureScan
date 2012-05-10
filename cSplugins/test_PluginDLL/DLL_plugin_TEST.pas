@@ -28,6 +28,7 @@ type
     Button10: TButton;
     Button11: TButton;
     Button12: TButton;
+    Button13: TButton;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -43,6 +44,7 @@ type
     procedure Button10Click(Sender: TObject);
     procedure Button11Click(Sender: TObject);
     procedure Button12Click(Sender: TObject);
+    procedure Button13Click(Sender: TObject);
   private
     { Private-Deklarationen }
   public
@@ -59,7 +61,7 @@ var
 
 implementation
 
-uses Sources, SolSys, Scan, Stats, Reports, Phalanx, chelper_server;
+uses Sources, SolSys, Scan, Stats, Reports, Phalanx, chelper_server, unit_test_explorer;
 
 {$R *.dfm}
 
@@ -253,6 +255,11 @@ end;
 procedure TFRM_MainTest.Button12Click(Sender: TObject);
 begin
   FRM_Scan.Button6Click(Sender);
+end;
+
+procedure TFRM_MainTest.Button13Click(Sender: TObject);
+begin
+  frm_unit_test.Show();
 end;
 
 end.

@@ -7,6 +7,8 @@ uses UnitTestDB, Xml.XMLIntf, OGame_Types, xml_parser_unicode, TIReadPlugin,
 
 type
   TCSUnitTest_ScanBericht = class(TCSUnitTest)
+  private
+    function getReport(i: integer): TReadReport;
   protected
     text: AnsiString;
     html: AnsiString;
@@ -20,6 +22,12 @@ type
     function addResultReport(scan: TScanBericht; askMoon: Boolean): integer; // adds a copy of scan
     constructor Create(a_text, a_html: AnsiString; a_time_u: Int64);
     destructor Destroy; override;
+
+    property cb_text: AnsiString read text;
+    property cb_html: AnsiString read html;
+
+    function result_count: integer;
+    property result_reports[i: integer]: TReadReport read getReport;
   end;
 
 implementation
@@ -96,6 +104,11 @@ begin
   Result := inst;
 end;
 
+function TCSUnitTest_ScanBericht.result_count: integer;
+begin
+  Result := reports.Count;
+end;
+
 constructor TCSUnitTest_ScanBericht.Create(a_text, a_html: AnsiString; a_time_u: Int64);
 begin
   inherited Create;
@@ -115,6 +128,11 @@ begin
   end;
   reports.Free;
   inherited;
+end;
+
+function TCSUnitTest_ScanBericht.getReport(i: integer): TReadReport;
+begin
+  Result := reports[i];
 end;
 
 function TCSUnitTest_ScanBericht.runUnitTest(plugin: TLangPlugIn): string;
