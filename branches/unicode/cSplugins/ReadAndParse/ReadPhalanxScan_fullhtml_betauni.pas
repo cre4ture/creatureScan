@@ -483,9 +483,9 @@ begin
   for i := 0 to tag_ul.ChildCount - 1 do
   begin
     el := tag_ul.ChildElements[i];
-    s := el.AttributeValue['class'];
+    //s := el.AttributeValue['class'];
 
-    if s = 'missionFleet' then
+    if el.html_isClass('missionFleet') then
     begin
       tag_x := el.FindChildTag('img');
       if (tag_x <> nil) then
@@ -526,12 +526,12 @@ begin
       end;
     end
     else
-    if s = 'icon_movement_reserve' then
+    if el.html_isClass('icon_movement_reserve') then
     begin
       include(fleet.head.eventflags, fef_return); 
     end
     else
-    if s = 'coordsOrigin' then
+    if el.html_isClass('coordsOrigin') then
     begin
       s := el.FullTagContent;
       p := pos('[',s);
@@ -541,21 +541,21 @@ begin
         p1.P := tmppos.P;
     end
     else
-    if s = 'originFleet' then
+    if el.html_isClass('originFleet') then
     begin
       s := Trim(el.FullTagContent);
       if s = str_moon then
         p1.Mond := true;
     end
     else
-    if s = 'destFleet' then
+    if el.html_isClass('destFleet') then
     begin
       s := Trim(el.FullTagContent);
       if s = str_moon then
         p2.Mond := true;
     end
     else
-    if s = 'destCoords' then
+    if el.html_isClass('destCoords') then
     begin
       s := el.FullTagContent;
       p := pos('[',s);
@@ -564,7 +564,7 @@ begin
       p2.P := tmppos.P;
     end
     else
-    if s = 'arrivalTime' then
+    if el.html_isClass('arrivalTime') then
     begin
       s := trim(el.FullTagContent);
       arrival_regexp.match(s);
@@ -573,19 +573,19 @@ begin
       timepos.P[2] := StrToInt(arrival_regexp.getsubexpr('sec'));
     end
     else
-    if (copy(s,1,9) = 'countDown')or
+    if (el.html_isClass('countDown'))or
        (copy(el.AttributeValue['id'],1,8) = 'counter-') then
     begin
       // read netral/friendly/hostile
-      if pos('friendly',s) > 0 then
+      if el.html_isClass('friendly') then
       begin
         include(fleet.head.eventflags, fef_friendly);
       end;
-      if pos('hostile',s) > 0 then
+      if el.html_isClass('hostile') then
       begin
         include(fleet.head.eventflags, fef_hostile);
       end;
-      if pos('neutral',s) > 0 then
+      if el.html_isClass('neutral') then
       begin
         include(fleet.head.eventflags, fef_neutral);
       end;
@@ -604,7 +604,7 @@ begin
       sec := sec + ReadInt(s,1);
     end
     else
-    if copy(s,1,9) = 'sendProbe' then
+    if el.html_isClass('sendProbe') then
     begin
       (*tag_x := el.FindChildTag('a');
       if (tag_x <> nil) then
