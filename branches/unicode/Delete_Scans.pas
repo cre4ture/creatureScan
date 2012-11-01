@@ -89,7 +89,7 @@ begin
   CB_ScanBereiche.Items.Clear;
   for sg := low(sg) to high(sg) do
     CB_ScanBereiche.Items.Add(ODataBase.LanguagePlugIn.SBItems[sg][0]);
-  CB_ScanBereiche.ItemIndex := 3;
+  CB_ScanBereiche.ItemIndex := 4;
 end;
 
 procedure TFRM_Delete_Scans.Button1Click(Sender: TObject);
@@ -103,12 +103,12 @@ end;
 
 procedure TFRM_Delete_Scans.DelByPlanet(Pos: TPlanetPosition);
 
-procedure DelScan(NR: Integer);
-begin
-  if (not CH_ScanBereiche.Checked)or
-     (ODataBase.Berichte[NR].Bericht[TScanGroup(CB_ScanBereiche.ItemIndex+1),0] < 0) then
-    ODataBase.UniTree.DeleteReport(NR);
-end;
+  procedure DelScan(NR: Integer);
+  begin
+    if (not CH_ScanBereiche.Checked)or
+       (ODataBase.Berichte[NR].Bericht[TScanGroup(CB_ScanBereiche.ItemIndex),0] < 0) then
+      ODataBase.UniTree.DeleteReport(NR);
+  end;
 
 var Liste: TReportTimeList;
     i, max, min: integer;
