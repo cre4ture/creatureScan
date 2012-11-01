@@ -377,7 +377,7 @@ var s_punkte, s_flotte: Integer;
              ItemData^.Datum := UnixToDateTime(Time_u);
              ItemData^.LastPointsActivity_days := -1;
              ItemData^.LastPointsIncrease_days := -1;
-             ItemData^.player_ships := ODataBase.FleetStats.Statistik[fleetplace].Punkte;
+             ItemData^.player_ships := ODataBase.FleetStats.Statistik[fleetplace].Elemente;
              if p.Mond then
                ItemData^.Planet := STR_Mond
              else ItemData^.Planet := Planeten[Planet].PlanetName;
