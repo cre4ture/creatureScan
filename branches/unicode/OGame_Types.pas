@@ -1574,7 +1574,7 @@ begin
   sg_Gebaeude:     buildings[index] := Value;
   sg_Forschung:    research [index] := Value;
   else
-    raise Exception.Create('TScanBericht.getElement(): unknown ScanGroup!');
+    raise Exception.Create('TScanBericht.setElement(): unknown ScanGroup!');
   end;
 end;
 
