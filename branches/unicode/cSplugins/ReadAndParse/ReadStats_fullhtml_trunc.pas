@@ -345,7 +345,7 @@ end;
 function ThtmlStatRead.readStatEntry_ally(row_tag: THTMLElement; stattype: TStatTypeEx;
   var statentry: TStatPlayer; const meta: TOGameMetaInfo): Boolean;
 var tag_cell, atag: THTMLElement;
-    s, tdclass: string;
+    s, h: string;
     p, i: integer;
 begin
   statentry.NameId := -1;
@@ -355,19 +355,17 @@ begin
     tag_cell := row_tag.ChildElements[i];
     if tag_cell.TagName = 'td' then
     begin
-      tdclass := tag_cell.AttributeValue['class'];
-
-      if pos('score', tdclass) > 0 then
+      if tag_cell.html_isClass('score') then
       begin
         statentry.Punkte := readint(trim(tag_cell.FullTagContent),1);
       end;
 
-      if pos('name tipsStan', tdclass) > 0 then
+      if tag_cell.html_isClass('member_count') then
       begin
         statentry.Elemente := readint(trim(tag_cell.FullTagContent),1);
       end;
 
-      if 'name' = tdclass then
+      if tag_cell.html_isClass('name') then
       begin
         // --- extract allyid + name
         atag := tag_cell.FindChildTag('span',0);
@@ -385,10 +383,11 @@ begin
           if atag <> nil then
           begin
             s := atag.AttributeValue['href'];
-            p := pos('?allyid=', s);
+            h := '?allianceId=';
+            p := pos(h, s);
             if p > 0 then
             begin
-              s := copy(s, p+8, 99999);
+              s := copy(s, p+length(h), 99999);
               statentry.NameId := StrToIntDef(s, -1);
             end
             else
