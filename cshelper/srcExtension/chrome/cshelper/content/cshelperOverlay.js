@@ -197,6 +197,24 @@ function copyToClipboard2(string, event, document)	{
 	clip.setData(trans,null,clipid.kGlobalClipboard);
 }
 
+function inject_cS_helper()
+{
+	var post_cmd = "$.post(contentLink, params, displayContentGalaxy);";
+	var code = loadContent.toString().split(post_cmd);
+	  
+	var newcode = code[0] + "var jobj = " + post_cmd
+	                      + "jobj.cs_req_params = params;"
+	                      + code[1];
+	window.location.href = "javascript:" + newcode;
+	var code = displayContentGalaxy.toString().split("displayContentGalaxy(c) {");
+	  
+	var newcode = code[0] + "displayContentGalaxy(c, status, jobj)"
+	                      + " { c = '<cshelper galaxy=' + jobj.cs_req_params.galaxy"
+	                      + " + ' system=' + jobj.cs_req_params.system + '/>' + c;"
+	                      + code[1];
+	window.location.href = "javascript:" + newcode;
+}
+
 function cshelper_pageLoad(event_pageload) {
 	
 	var document = event_pageload.target;
@@ -284,8 +302,11 @@ function cshelper_pageLoad(event_pageload) {
 	else if ((document.location.href.search("page=galaxy") > -1))
 	{
 		// inject some script functions to reliable access galaview-coordinates: <cshelper galaxy="X" system="XXX"/>
-		window.location.href = "javascript:var code = loadContent.toString().split(\"$.post(url, params, displayContent);\");var newcode = code[0] + \"var jobj = $.post(url, params, displayContent); jobj.req_params = params;\" + code[1];eval(newcode);var code = displayContent.toString().split(\"displayContent(data) {\");var newcode = code[0] + \"displayContent(data, status, jobj) { data = '<cshelper galaxy=' + jobj.req_params.galaxy + ' system=' + jobj.req_params.system + '/>' + data;\" + code[1];eval(newcode);"
-		
+		//window.location.href = "javascript:var code = loadContent.toString().split(\"$.post(url, params, displayContent);\");var newcode = code[0] + \"var jobj = $.post(url, params, displayContent); jobj.req_params = params;\" + code[1];eval(newcode);var code = displayContent.toString().split(\"displayContent(data) {\");var newcode = code[0] + \"displayContent(data, status, jobj) { data = '<cshelper galaxy=' + jobj.req_params.galaxy + ' system=' + jobj.req_params.system + '/>' + data;\" + code[1];eval(newcode);"
+		var code = inject_cS_helper.toString();
+		window.location.href = "javascript:" + code;
+		window.location.href = "javascript:" + "inject_cS_helper();";
+			
 		var inhalt = document.getElementById('inhalt'); 
 		inhalt.addEventListener("DOMNodeInserted", inhalt_ajax_handler_galaxy, true);
 		cshelper_myTestLog(document, 'Galaxy detected!');
