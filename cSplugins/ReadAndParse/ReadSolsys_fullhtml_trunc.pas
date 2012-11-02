@@ -431,26 +431,23 @@ begin
       if tag_ <> nil then
         tag_.ClearChilds;
 
-      tag_ := HTMLFindRoutine_NameAttribute(CurElement,'div','id','TTWrapper');
-      if tag_ <> nil then
+      // search full player name in ToolTip
+      tag_b := CurElement.FindChildTagPath('div:0/h1:0/span:0/');
+      if tag_b <> nil then
       begin
-        tag_b := tag_.FindChildTagPath('div:0/div:0/table:0/tbody:0/tr:0/th:0');
-        if tag_b <> nil then
-        begin
-          s := trim(tag_b.FullTagContent);
-          p := pos(' ',s);
-          if p > 0 then
-            row^.Player := copy(s,p+1,9999);
-        end;
-        tag_.ClearChilds;
+        s := trim(tag_b.FullTagContent);
+        row.Player := s;
       end;
 
+      // If ToolTip player name was not found, take name from table:
       if row^.Player = '' then
       begin
         // trim honorrank
         tag_ := HTMLFindRoutine_NameAndClass(CurElement, 'span', 'honorRank');
-        if (tag_ <> nil) then
-          tag_.ClearChilds;
+        if (tag_ <> nil) then tag_.ClearChilds;
+        // trim tooltips
+        tag_ := HTMLFindRoutine_NameAndClass(CurElement, 'div', 'htmlTooltip');
+        if (tag_ <> nil) then tag_.ClearChilds;
 
         row^.Player := trim(CurElement.FullTagContent);
       end;
