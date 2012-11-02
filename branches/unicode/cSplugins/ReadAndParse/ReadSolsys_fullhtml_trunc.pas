@@ -218,7 +218,7 @@ begin
 
 
     // try to find the "cshelper"-tag:
-    if (table.ParentElement <> nil) then
+    if true and (table.ParentElement <> nil) then
     begin
       tag := table.ParentElement.FindChildTag('cshelper');
       if (tag <> nil) then
@@ -275,39 +275,29 @@ begin
             end;
 
             // Suche nach "Umsiedeln"-Tags auch für koords:
-            if (not got_koords)and(solsys.Planeten[row_nr].Player = '') then
+            if (not got_koords) then
             begin
-              tag_pos := HTMLFindRoutine_NameAndClass(tag_row, 'td', 'planetname1');
-              if tag_pos <> nil then
+              tag_a := HTMLFindRoutine_NameAndClass(tag_row, 'a', 'planetMoveIcons');
+              if tag_a <> nil then
               begin
-                for j := 0 to 1 do
+                s := tag_a.AttributeValue['href'];        // try href
+                s := s + tag_a.AttributeValue['onclick']; // and on click to find params
+                p := pos('galaxy=',s);
+                if p > 0 then
                 begin
-                  tag_a := tag_pos.FindChildTag('a', j);
-                  if (tag_a <> nil) and
-                     (tag_a.html_isClass('planetMoveDefault')) then
-                  begin
-                    s := tag_a.AttributeValue['onclick'];
-                    p := pos('galaxy=',s);
-                    if p > 0 then
-                    begin
-                      solsys.System.P[0] := ReadInt(s,p+7);
-                      p := pos('system=',s);
+                  solsys.System.P[0] := ReadInt(s,p+7);
+                  p := pos('system=',s);
 
-                      got_koords := (p>0);
-                      if got_koords then
-                      begin
-                        solsys.System.P[1] := ReadInt(s,p+7);
-                        solsys.System.P[2] := 1;
-                        solsys.System.Mond := false;
-                      end;
-                    end;
-                  end;
+                  got_koords := (p>0);
                   if got_koords then
-                    break;
+                  begin
+                    solsys.System.P[1] := ReadInt(s,p+7);
+                    solsys.System.P[2] := 1;
+                    solsys.System.Mond := false;
+                  end;
                 end;
               end;
             end;
-              
 
             inc(row_nr);
           end;
