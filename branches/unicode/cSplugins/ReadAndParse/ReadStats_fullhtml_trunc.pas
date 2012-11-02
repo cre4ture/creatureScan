@@ -468,6 +468,10 @@ begin
         else
         if tag_class = 'sendmsg' then
         begin
+          tag := HTMLFindRoutine_NameAttribute(tag_cell, 'div', 'class', 'sendmsg_content');
+          if (tag <> nil) then
+            tag_cell := tag;
+
           tag := tag_cell.FindChildTagPath('a:0'); // nachricht schreiben
           if tag <> nil then
           begin
