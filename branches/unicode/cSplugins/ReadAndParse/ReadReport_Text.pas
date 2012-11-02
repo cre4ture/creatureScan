@@ -24,20 +24,24 @@ type
     tsep: char;
     function _ScanToStrAsTable(SB: TScanBericht): string;
     function _ScanToStrAsTable_v2(SB: TScanBericht): string;
-    function _ReadScanHeader_RegEx(var s1: string; var Head: TScanHead; out AskMond: Boolean): Boolean;
-    function _LeseGanzenScanBericht(var _s: String; Bericht: TScanBericht; var AskMond: Boolean): Boolean;
+    function _ReadScanHeader_RegEx(var s1: string; var Head: TScanHead;
+       out AskMond: Boolean; current_time: TDateTime): Boolean;
+    function _LeseGanzenScanBericht(var _s: String; Bericht: TScanBericht;
+       var AskMond: Boolean; current_time: TDateTime): Boolean;
     function _ScanToStr(SB: TScanBericht): string;
     function _ScanHeadToStr(Head: TScanHead): string;
     function _ReadActivity(var Head: TScanHead; scan_body: string): Boolean;
-    function _SetTime(month, day, h, m, s: integer): Int64;
+    function _SetTime(month, day, h, m, s: integer; current_time: TDateTime): Int64;
     procedure analyseAndPrepareHTML(html: THTMLElement);
     function checkTagAnalyseRoutine(CurElement: THTMLElement; Data: pointer): Boolean; // bestimmung von Mond oder Planet
     function deleteAppleSpan(CurElement: THTMLElement; Data: pointer): Boolean; // löschen von chrome tags
   public
     constructor Create(ini: TIniFile);
     destructor Destroy; override;
-    function Read(text: String;  reportlist: TReadReportList): integer;
-    function ReadHTML(html: THTMLElement;  reportlist: TReadReportList): integer;
+    function Read(text: String;  reportlist: TReadReportList;
+       current_time: TDateTime): integer;
+    function ReadHTML(html: THTMLElement;  reportlist: TReadReportList;
+       current_time: TDateTime): integer;
     function ReportToString(report: TScanBericht; table: Boolean): String;
 
     //for use in ReadPhalanxScan public:
@@ -80,14 +84,15 @@ begin
   inherited;
 end;
 
-function TReadReport_Text.Read(text: String; reportlist: TReadReportList): integer;
+function TReadReport_Text.Read(text: String; reportlist: TReadReportList;
+    current_time: TDateTime): integer;
 var rr: TReadReport;
     i: integer;
 begin
   i := 0;
   rr := TReadReport.Create;
   try
-    while _LeseGanzenScanBericht(text, rr, rr.AskMoon) do
+    while _LeseGanzenScanBericht(text, rr, rr.AskMoon, current_time) do
     begin
       reportlist.push_back(rr);
       inc(i);
@@ -264,17 +269,17 @@ end;
 
 
 function TReadReport_Text._SetTime(month, day, h, m,
-  s: integer): Int64;
+  s: integer; current_time: TDateTime): Int64;
 //Funktion um das richtige Jahr "herrauszufinden"
 var Y_,M_,D_: Word;
     Time_dt: TDateTime;
 begin
-  DecodeDate(now,Y_,M_,D_);
+  DecodeDate(current_time,Y_,M_,D_);
   Time_dt := EncodeDate(Y_,month,day);
-  if Time_dt > now+200 then        //200 tage darf uhr falschgehn  (auch nur am 31.12. wichtig!)
+  if Time_dt > current_time+200 then        //200 tage darf uhr falschgehn  (auch nur am 31.12. wichtig!)
     Time_dt := EncodeDate(Y_-1,month,day)
   else
-  if Time_dt < now-200 then        //200 tage darf uhr falschgehn  (auch nur am 01.01. wichtig!)
+  if Time_dt < current_time-200 then        //200 tage darf uhr falschgehn  (auch nur am 01.01. wichtig!)
     Time_dt := EncodeDate(Y_+1,month,day);
 
   Result := DateTimeToUnix(Time_dt + EncodeTime(h,m,s,0));
@@ -323,7 +328,7 @@ begin                                   //alles nur Beispiel Flotte:
 end;
 
 function TReadReport_Text._ReadScanHeader_RegEx(var s1: string;
-   var Head: TScanHead; out AskMond: Boolean): Boolean;
+   var Head: TScanHead; out AskMond: Boolean; current_time: TDateTime): Boolean;
 var regex: Tregexpn;
     p: integer;
     M,D,h,min,sec: integer;
@@ -364,7 +369,7 @@ begin
       h := StrToInt(regex.getsubexpr('h'));
       min := StrToInt(regex.getsubexpr('min'));
       sec := StrToInt(regex.getsubexpr('s'));
-      Head.Time_u := _SetTime(M,D,h,min,sec);
+      Head.Time_u := _SetTime(M,D,h,min,sec,current_time);
 
       Head.Spieler := regex.getsubexpr('player');
       Head.Creator := '';
@@ -415,15 +420,16 @@ begin
   end;
 end;
 
-function TReadReport_Text._LeseGanzenScanBericht(var _s: String; Bericht: TScanBericht; var AskMond: Boolean): Boolean;
-var j  : integer;
+function TReadReport_Text._LeseGanzenScanBericht(var _s: String;
+    Bericht: TScanBericht; var AskMond: Boolean; current_time: TDateTime): Boolean;
+var j: integer;
     sg: TScanGroup;
     s: string;
 begin
   AskMond := true;
   s := _s;
   //ShowMessage('All: ' + _S);
-  Result := _ReadScanHeader_RegEx(s,Bericht.Head,AskMond); //Head einlesen und Gesamtstring auf Scanbereich kürzen
+  Result := _ReadScanHeader_RegEx(s,Bericht.Head,AskMond,current_time); //Head einlesen und Gesamtstring auf Scanbereich kürzen
   //ShowMessage('Result von ReadHead: ' + inttostr(byte(Result)));
   //ShowMessage('Scan: ' + s);
   j := pos(s,_s);
@@ -507,12 +513,12 @@ begin
 end;
 
 function TReadReport_Text.ReadHTML(html: THTMLElement;
-  reportlist: TReadReportList): integer;
+  reportlist: TReadReportList; current_time: TDateTime): integer;
 var text: string;
 begin
   analyseAndPrepareHTML(html);
   text := HTMLGenerateHumanReadableText(html);
-  Result := Read(text, reportlist);
+  Result := Read(text, reportlist, current_time);
 end;
 
 procedure TReadReport_Text.analyseAndPrepareHTML(html: THTMLElement);

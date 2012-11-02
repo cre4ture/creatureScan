@@ -229,15 +229,17 @@ end;
 
 function dll_readScans(rs_handle: Integer): integer; stdcall;
 var rs: TReadSource_cS;
+    time_dt: TDateTime;
 begin
   Result := -1;
   if not _get_RS(rs_handle, rs) then Exit;
 
+  time_dt := UnixToDateTime(rs.GetServerTime);
   rs.readscanlist.clear;
   if (rs.GetHTMLString <> '') then
-    Result := ReportRead.ReadHTML(rs.GetHTMLRoot, rs.readscanlist)
+    Result := ReportRead.ReadHTML(rs.GetHTMLRoot, rs.readscanlist, time_dt)
   else
-    Result := ReportRead.Read(rs.GetText(), rs.readscanlist);
+    Result := ReportRead.Read(rs.GetText(), rs.readscanlist, time_dt);
 end;
 
 function dll_getScan(
