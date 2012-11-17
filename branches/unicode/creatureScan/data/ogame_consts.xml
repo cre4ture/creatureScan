@@ -11,7 +11,7 @@
       <uni name="barym" urlname="uni102"/>
       <uni name="capella" urlname="uni103"/>
       <uni name="draco" urlname="uni104"/>
-      <uni name="electra" urlname="uni105" gamespeedfactor="4.0" tffleetfactor="0.5" galaxyCount="11"/>
+      <uni name="electra" urlname="uni105" gamespeedfactor="4.0" tffleetfactor="0.5" galaxyCount="12"/>
       <uni name="fornax" urlname="uni106" gamespeedfactor="2.0"/>
       <uni name="gemini" urlname="uni107"/>
       <uni name="hydra" urlname="uni108"/>
@@ -21,6 +21,9 @@
       <uni name="leo" urlname="uni112"/>
       <uni name="mizar" urlname="uni113"/>
       <uni name="nekkar" urlname="uni114"/>
+      <uni name="orion" urlname="uni115" gamespeedfactor="4.0"/>
+      <uni name="pegasus" urlname="uni116"/>
+      <uni name="quantum" urlname="uni117" tffleetfactor="0.5"/>
       <uni name="uni$" symbol="$" index="1" to="13"/>
       <uni name="uni14" tfdeffactor="0.3"/>
       <uni name="uni15" tfdeffactor="0.3"/>
