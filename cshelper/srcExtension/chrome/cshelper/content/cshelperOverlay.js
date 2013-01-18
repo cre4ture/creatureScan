@@ -199,6 +199,7 @@ function copyToClipboard2(string, event, document)	{
 
 function inject_cS_helper()
 {
+	return;
 	var post_cmd = "$.post(contentLink, params, displayContentGalaxy);";
 	var code = loadContent.toString().split(post_cmd);
 	  
@@ -213,7 +214,7 @@ function inject_cS_helper()
 	                      + " + ' system=' + jobj.cs_req_params.system + '/>' + c;"
 	                      + code[1];
 	window.location.href = "javascript:" + newcode;
-}
+}               
 
 function cshelper_pageLoad(event_pageload) {
 	
@@ -239,7 +240,7 @@ function cshelper_pageLoad(event_pageload) {
 	
 	var inhalt_ajax_handler_galaxy = function (event) 
 				{
-					if (event.target.id == "galaxytable")
+					if ((event.target.id == "galaxytable") || (event.target.id == "mobileDiv"))
 					{
 						if (cshelper.BrowserOverlay.doWeUseTCP(document)) {
 							cshelper.BrowserOverlay.sendHTML_To_cS_TCPIP(cshelper_getPageSourceCode(document), event_pageload, document);
