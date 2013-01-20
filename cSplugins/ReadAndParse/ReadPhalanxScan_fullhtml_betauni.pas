@@ -462,6 +462,9 @@ begin
   Result := false;
   FillChar(fleet, sizeof(fleet), 0);
 
+  p1.Mond := false;
+  p2.Mond := false;
+
   //unique ID
   s := tag.AttributeValue['id'];
   p := pos('-',s);
@@ -606,16 +609,16 @@ begin
     else
     if el.html_isClass('sendProbe') then
     begin
-      (*tag_x := el.FindChildTag('a');
+      tag_x := el.FindChildTag('a');
       if (tag_x <> nil) then
       begin
         s := tag_x.AttributeValue['href'];
         if pos('&amp;planetType=1&amp;', s) > 0 then
-          fleet.head.target.Mond := true
+          p2.Mond := false
         else
-        if pos('&amp;planetType=0&amp;', s) > 0 then
-          fleet.head.target.Mond := false;
-      end;*)
+        if pos('&amp;planetType=3&amp;', s) > 0 then
+          p2.Mond := true;
+      end;
     end;
 
   end;
