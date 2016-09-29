@@ -157,7 +157,7 @@ object FRM_Scan: TFRM_Scan
     OnChange = SpinEdit1Change
   end
   object Button5: TButton
-    Left = 328
+    Left = 331
     Top = 3
     Width = 75
     Height = 25

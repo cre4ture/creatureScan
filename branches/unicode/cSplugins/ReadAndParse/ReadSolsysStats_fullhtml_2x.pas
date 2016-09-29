@@ -6,9 +6,6 @@ uses
   Inifiles, OGame_Types, creax_html, cpp_dll_interface,
   DateUtils, SysUtils, readsource, parser_types, ReadClassFactory;
 
-const
-   HTMLTrimChars = [' ',#$D, #$A, #9];
-
 type
   ThtmlStatRead_betauni = class(TStatsReadClassInterface)
   protected
@@ -52,7 +49,7 @@ type
 
 implementation
 
-uses StrUtils;
+uses StrUtils, lib_read_html;
 
 function extractPlayerIdFromSendMSGUrl(url: string): int64;
 var s: string;
@@ -62,41 +59,6 @@ begin
   p := Pos('&amp;to=', s);
   s := copy(s,p+8, PosEx('&', s, p+1)-8-p);
   Result := StrToIntDef(s, -1);
-end;
-
-function ReadInt(s: string; p: integer; tsep: Boolean = True): integer;
-//Spezial for HTML!
-begin
-  if tsep then
-    Result := ReadIntEx(s,p,ot_tousandsseperator, HTMLTrimChars)
-  else Result := ReadIntEx(s,p,'', HTMLTrimChars);
-end;
-
-procedure FindAndReplace(substring: string; var s: string; replace: string);
-var p: integer;
-begin
-  p := pos(substring, s);
-  while (p > 0) do
-  begin
-    s := copy(s, 1, p-1) + replace + copy(s, p+length(substring), high(integer));
-    p := Pos(substring, s);
-  end;
-end;
-
-function Trim(s: String): String;
-//Spezial for HTML!
-var p: integer;
-begin
-  FindAndReplace(#$D#$A, s, '');
-  FindAndReplace('&nbsp;', s, ' ');
-
-  p := pos(#160, s);
-  while (p > 0) do
-  begin
-    s[p] := ' ';
-    p := pos(#160, s);
-  end;
-  Result := sysutils.Trim(s);
 end;
 
 function ThtmlStatRead_betauni.ReadStatType(root_div: THTMLElement;
@@ -381,7 +343,7 @@ begin
         tag := tag_row.FindChildTagPath('td:1');
         if tag <> nil then
         begin
-          r_nr := ReadInt(trim(tag.FullTagContent),1);
+          r_nr := ReadInt(trim_html(tag.FullTagContent),1);
           if r_nr = row_nr then
           begin
             // clear
@@ -481,14 +443,14 @@ begin
       //Aktivitäten := Copy(s,p+1,high(Integer));
       if p > 0 then
         s := copy(s,1,p-1);
-      row^.PlanetName := trim(s);
+      row^.PlanetName := trim_html(s);
       //------------------AKTIVITÄT--------------------------
       tag_ := CurElement.FindChildTag('span');
       if tag_ <> nil then
       begin
         if tag_.AttributeValue['class'] = 'undermark' then
         begin
-          s := Trim(tag_.FullTagContent);
+          s := trim_html(tag_.FullTagContent);
           row^.Activity := StrToIntDef(s, 0)*60; // seconds!
           if (row^.Activity = 0)and(s = '*') then
           begin
@@ -566,7 +528,7 @@ begin
         tag_b := tag_.FindChildTagPath('div:0/div:0/table:0/tbody:0/tr:0/th:0');
         if tag_b <> nil then
         begin
-          s := trim(tag_b.FullTagContent);
+          s := trim_html(tag_b.FullTagContent);
           p := pos(' ',s);
           if p > 0 then
             row^.Player := copy(s,p+1,9999);
@@ -576,7 +538,7 @@ begin
 
       if row^.Player = '' then
       begin
-        row^.Player := trim(CurElement.FullTagContent);
+        row^.Player := trim_html(CurElement.FullTagContent);
       end;
 
         //PLAYER ID: tag_.AttributeValue['rel']  (rel="#playerXXXXX")
@@ -592,7 +554,7 @@ begin
       tag_ := CurElement.FindChildTagPath('span:0/><:0');
       if tag_ <> nil then
       begin
-        row^.Ally := trim(tag_.Content);
+        row^.Ally := trim_html(tag_.Content);
 
         // id
         tag_ := tag_.ParentElement;
@@ -717,7 +679,7 @@ begin
   tag_cell := row_tag.FindChildTag('td',1);
   if tag_cell = nil then Exit;
   s := tag_cell.FullTagContent;
-  statentry.Name := trim(s);
+  statentry.Name := trim_html(s);
 
   // --- extract allyid
   atag := tag_cell.FindChildTag('a',0);
@@ -732,11 +694,11 @@ begin
 
   tag_cell := row_tag.FindChildTag('td',3);
   if tag_cell = nil then Exit;
-  statentry.Punkte := readint(trim(tag_cell.FullTagContent),1);
+  statentry.Punkte := readint(trim_html(tag_cell.FullTagContent),1);
 
   tag_cell := row_tag.FindChildTag('td',4);
   if tag_cell = nil then Exit;
-  statentry.Elemente := readint(trim(tag_cell.FullTagContent),1);
+  statentry.Elemente := readint(trim_html(tag_cell.FullTagContent),1);
 
   Result := True;
 end;
@@ -773,7 +735,7 @@ begin
             if tag <> nil then
             begin
               //Ally-Tag einlesen
-              statentry.Ally := trim(tag.FullTagContent);
+              statentry.Ally := trim_html(tag.FullTagContent);
               //Ally-Tag "leeren"
               tag.ClearChilds;
               tag.Content := '';
@@ -784,20 +746,20 @@ begin
               if tag_cell.ChildNameCount('a') = 2 then
               begin
                 tag := tag_cell.FindChildTag('a',0);
-                statentry.Ally := trim(tag.FullTagContent);
+                statentry.Ally := trim_html(tag.FullTagContent);
                 tag.ClearChilds;
                 tag.Content := '';
               end;
             end;
           end;
 
-          statentry.Name := trim(tag_cell.FullTagContent);
+          statentry.Name := trim_html(tag_cell.FullTagContent);
           b_name := true;
         end
         else
         if tag_class = 'score' then
         begin
-          statentry.Punkte := ReadInt(Trim(tag_cell.FullTagContent),1);
+          statentry.Punkte := ReadInt(trim_html(tag_cell.FullTagContent),1);
           b_score := true;
         end
         else
@@ -816,7 +778,7 @@ begin
   {
   //Ally oder Mitglieder ---------------------------------------------
   if Typ.NameType = sntPlayer then
-    statentry.Ally := trim(table.Cells[i+1,3].FullTagContent)
+    statentry.Ally := trim_html(table.Cells[i+1,3].FullTagContent)
   else statentry.Mitglieder := ReadInt
          (table.Cells[i+1,3].FullTagContent,1);
   //Punkte -----------------------------------------------------------
