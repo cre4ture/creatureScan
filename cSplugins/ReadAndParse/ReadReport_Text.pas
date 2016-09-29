@@ -4,7 +4,7 @@ interface
 
 uses
   Inifiles, OGame_Types, SysUtils, DateUtils, Classes, regexpname,
-  creax_html, parser_types;
+  creax_html, parser_types, readsource_cs;
 
 const
   SB_KeyWord_Count = 12;
@@ -18,7 +18,12 @@ type
     STR_Mond: string;
     STR_RegExp_Header: string;
     STR_RegExp_cspio: string;
-    
+    V6_RegExp_datetime: string;
+    V6_regexp_planet_name_pos: string;
+    V6_regexp_player_name: string;
+    V6_regexp_report_header: string;
+    V6_token_no_info_report_part: string;
+
     SB_Items: array[TScanGroup] of TStringlist;
     SB_KWords: array[0..SB_KeyWord_Count-1] of string;
     tsep: char;
@@ -35,13 +40,37 @@ type
     procedure analyseAndPrepareHTML(html: THTMLElement);
     function checkTagAnalyseRoutine(CurElement: THTMLElement; Data: pointer): Boolean; // bestimmung von Mond oder Planet
     function deleteAppleSpan(CurElement: THTMLElement; Data: pointer): Boolean; // löschen von chrome tags
+    function __insert_moon_or_planet_V6(CurElement: THTMLElement; Data: pointer): Boolean; // löschen von chrome tags
+
+    function tryReadScanDirectlyFromHTML_OGameV6(html: THTMLElement;
+       rr: TReadReport): boolean;
+
+    function tryReadScanDirectlyFromHTML_OGameV6_ressources(html: THTMLElement;
+       rr: TReadReport): boolean;
+
+
+    function ReadHTML_intern(html: THTMLElement;  reportlist: TReadReportList;
+       current_time: TDateTime; gameversion: TOGameVersion): integer;
+
+    function Read_V6_splitter(text: String;  reportlist: TReadReportList;
+       current_time: TDateTime): integer;
+    function _LeseGanzenScanBericht_V6(_s: String; report: TReadReport; current_time: TDateTime): Boolean;
+
+    function _LeseTeilScanBericht_Flotte_bis_Forschung(
+       var s: string; report: TScanBericht): Integer;
+
+    function getUnixTimestampFromNamedRegex(regexp: Tregexpn): Int64;
+
+    function Read_PreV6(text: String;  reportlist: TReadReportList;
+       current_time: TDateTime): integer;
+
   public
     constructor Create(ini: TIniFile);
     destructor Destroy; override;
     function Read(text: String;  reportlist: TReadReportList;
        current_time: TDateTime): integer;
     function ReadHTML(html: THTMLElement;  reportlist: TReadReportList;
-       current_time: TDateTime): integer;
+       current_time: TDateTime; gameversion: TOGameVersion): integer;
     function ReportToString(report: TScanBericht; table: Boolean): String;
 
     //for use in ReadPhalanxScan public:
@@ -51,11 +80,15 @@ type
 
 implementation
 
-uses StrUtils;
+uses StrUtils, lib_read_html, Clipbrd;
 
 constructor TReadReport_Text.Create(ini: TIniFile);
 var i: Integer;
     sg: TScanGroup;
+
+const
+  ini_section_name = 'Espionage report';
+
 begin
   inherited Create;
 
@@ -68,9 +101,14 @@ begin
     SB_Items[sg] := TStringList.Create;
     ini.ReadSection('SB'+inttostr(integer(sg)),SB_Items[sg]);
   end;
-  STR_Mond := ini.ReadString('Espionage report','moon','---n/a---');
-  STR_RegExp_Header := ini.ReadString('Espionage report','regexp_header','---n/a---');
-  STR_RegExp_cspio := ini.ReadString('Espionage report','regexp_cspio','---n/a---');
+  STR_Mond := ini.ReadString(ini_section_name,'moon','---n/a---');
+  STR_RegExp_Header := ini.ReadString(ini_section_name,'regexp_header','---n/a---');
+  STR_RegExp_cspio := ini.ReadString(ini_section_name,'regexp_cspio','---n/a---');
+  V6_regexp_datetime := ini.ReadString(ini_section_name,'V6_regexp_datetime','---n/a---');
+  V6_regexp_planet_name_pos := ini.ReadString(ini_section_name,'V6_regexp_planet_name_pos','---n/a---');
+  V6_regexp_player_name := ini.ReadString(ini_section_name,'V6_regexp_player_name','---n/a---');
+  V6_regexp_report_header := ini.ReadString(ini_section_name,'V6_regexp_report_header','---n/a---');
+  V6_token_no_info_report_part := ini.ReadString(ini_section_name,'V6_token_no_info_report_part','---n/a---');
   tsep := (ini.ReadString('Espionage report','tsep','.'))[1];
 end;
 
@@ -84,7 +122,7 @@ begin
   inherited;
 end;
 
-function TReadReport_Text.Read(text: String; reportlist: TReadReportList;
+function TReadReport_Text.Read_PreV6(text: String; reportlist: TReadReportList;
     current_time: TDateTime): integer;
 var rr: TReadReport;
     i: integer;
@@ -287,7 +325,7 @@ end;
 
 function TReadReport_Text._LeseTeilScanBericht(var s: string;
   report: TScanBericht; Sorte: TScanGroup; const ForceHeader: boolean = true): Integer;
-var p, i, max : integer;                       //Result = Anzahl eingelesener Arten / oder -1 wenn Bereich nicht vorhanden
+var p, i, max, p2 : integer;                       //Result = Anzahl eingelesener Arten / oder -1 wenn Bereich nicht vorhanden
     followingchar: char; //UHO 29.12.2008: "Flotten" soll erkannt werden "Flottenkontakt" nicht!!
 begin                                   //alles nur Beispiel Flotte:
   max := 0; //max -> ende dieses "ScanTeils"
@@ -295,7 +333,12 @@ begin                                   //alles nur Beispiel Flotte:
 
   repeat
     p := PosEx(SB_Items[sorte][0],s,p+1);        //[p]'Flotten'.....   -> Kategorie
-    followingchar := s[p + length(SB_Items[sorte][0])];
+    if (p > 0) then
+    begin
+      p2 := p + length(SB_Items[sorte][0]);
+      if (p2 < length(s)) then
+        followingchar := s[p2];
+    end;
   until (p = 0) or
     (not (followingchar in ['a'..'z','A'..'Z']));
   
@@ -513,11 +556,11 @@ begin
 end;
 
 function TReadReport_Text.ReadHTML(html: THTMLElement;
-  reportlist: TReadReportList; current_time: TDateTime): integer;
+  reportlist: TReadReportList; current_time: TDateTime; gameversion: TOGameVersion): integer;
 var text: string;
 begin
   analyseAndPrepareHTML(html);
-  text := HTMLGenerateHumanReadableText(html);
+  text := trim_html(HTMLGenerateHumanReadableText(html));
   Result := Read(text, reportlist, current_time);
 end;
 
@@ -525,6 +568,7 @@ procedure TReadReport_Text.analyseAndPrepareHTML(html: THTMLElement);
 begin
   html.DeleteTagRoutine(checkTagAnalyseRoutine, nil);
   html.DeleteTagRoutine(deleteAppleSpan, nil);
+  html.DeleteTagRoutine(__insert_moon_or_planet_V6, nil);
 end;
 
 function TReadReport_Text.checkTagAnalyseRoutine(CurElement: THTMLElement;
@@ -542,7 +586,7 @@ begin
     begin
       koords_tag := CurElement.FindChildTagPath_e('table:0/tbody:0/tr:0/th:0/a:0/><:0');
       if (koords_tag = nil) then exit;
-      pos_header := StrToPositionEx(trim(koords_tag.Content));
+      pos_header := StrToPositionEx(trim_html(koords_tag.Content));
 
       btn_tag := HTMLFindRoutine_NameAttribute(CurElement, 'a', 'class', 'buttonSave');
       if (btn_tag = nil) then exit;
@@ -585,6 +629,414 @@ begin
     CurElement.ClearChilds;
     CurElement.TagType := pttContent;
     CurElement.Content := ' ';
+  end;
+end;
+
+function TReadReport_Text.tryReadScanDirectlyFromHTML_OGameV6(   // currently not used!!
+  html: THTMLElement; rr: TReadReport): boolean;
+var
+  root_div, date_span, title_span, figure_moon, a_tag, player_tag, activity_tag: THTMLElement;
+  text_content: string;
+  regexp: Tregexpn;
+  p: integer;
+begin
+  Result := true;
+
+  regexp := Tregexpn.Create;
+  try
+
+    root_div := HTMLFindRoutine_NameAndClass(html,'div','detail_msg');
+    if root_div <> nil then
+    begin
+      date_span := HTMLFindRoutine_NameAndClass(html,'span','msg_date');
+      if date_span <> nil then
+      begin
+        text_content := trim_html(date_span.FullTagContent);
+
+        regexp.setexpression(V6_RegExp_datetime);
+        Result := regexp.match(text_content);
+        if Result then
+        begin
+          rr.Head.Time_u := getUnixTimestampFromNamedRegex(regexp);
+
+          title_span := HTMLFindRoutine_NameAndClass(root_div,'span','msg_title');
+          if title_span <> nil then
+          begin
+            a_tag := HTMLFindRoutine_NameAndClass(title_span,'a','txt_link');
+            if a_tag <> nil then
+            begin
+              text_content := trim_html(a_tag.FullTagContent);
+
+              // read name an planet coordinates:
+              regexp.setexpression(V6_regexp_planet_name_pos);
+              Result := regexp.match(text_content);
+              if Result then
+              begin
+                rr.Head.Position.P[0] := StrToInt(regexp.getsubexpr('p0'));
+                rr.Head.Position.P[1] := StrToInt(regexp.getsubexpr('p1'));
+                rr.Head.Position.P[2] := StrToInt(regexp.getsubexpr('p2'));
+                rr.Head.Position.Mond := false;
+                rr.Head.Planet := regexp.getsubexpr('name');
+
+                // check for moon (moons have exta figure in HTML):
+                rr.AskMoon := false;
+                figure_moon := HTMLFindRoutine_NameAndClass(title_span,'figure','moon');
+                rr.Head.Position.Mond := (figure_moon <> nil);
+
+                player_tag := root_div.FindChildTagPath_e('div:1/div:0/div:0/div:0');
+                if player_tag <> nil then
+                begin
+                  text_content := trim_html(player_tag.FullTagContent);
+
+                  regexp.setexpression(V6_regexp_player_name);
+                  Result := regexp.match(text_content);
+                  if Result then
+                  begin
+                    rr.Head.Spieler := trim_html(regexp.getsubexpr('name'));
+
+                    activity_tag := root_div.FindChildTagPath_e('div:1/div:0/div:0/div:1');
+                    if activity_tag <> nil then
+                    begin
+                      text_content := trim_html(activity_tag.FullTagContent);
+
+                      regexp.setexpression('Chance auf Spionageabwehr:[ ]?(?<cspio>[0-9]+)[ ]?%');
+                      Result := regexp.match(text_content);
+                      if Result then
+                      begin
+                        rr.Head.Spionageabwehr := StrToInt(regexp.getsubexpr('cspio'));
+
+                        // Lese Aktivität:
+                        if not _ReadActivity(rr.Head, text_content) then
+                          rr.Head.Activity := activity_no_info;
+
+                        Result := tryReadScanDirectlyFromHTML_OGameV6_ressources(root_div, rr);
+                      end;
+                    end;
+                  end;
+                end;
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+  finally
+    regexp.Free;
+  end;
+end;
+
+function TReadReport_Text.ReadHTML_intern(html: THTMLElement;
+  reportlist: TReadReportList; current_time: TDateTime;
+  gameversion: TOGameVersion): integer;
+var rr: TReadReport;
+    i: integer;
+    success: boolean;
+begin
+  i := 0;
+  rr := TReadReport.Create;
+  try
+    success := tryReadScanDirectlyFromHTML_OGameV6(html, rr);
+    if success then
+    begin
+      reportlist.push_back(rr);
+      inc(i);
+    end;
+  finally
+    rr.Free;
+  end;
+  Result := i;
+end;
+
+function TReadReport_Text.tryReadScanDirectlyFromHTML_OGameV6_ressources(
+  html: THTMLElement; rr: TReadReport): boolean;
+
+  function readResource(nr: integer; name: string): boolean;
+  var
+    ressource_tag: THTMLElement;
+    text_ress: string;
+  begin
+    ressource_tag := HTMLFindRoutine_NameAndClass(html,'div','resourceIcon ' + name);
+    Result := ressource_tag <> nil;
+    if Result then
+    begin
+      text_ress := trim_html(ressource_tag.ParentElement.FullTagContent);
+      rr.resources[nr] := ReadInt(text_ress, 1);
+    end;
+  end;
+
+var
+  xtag: THTMLElement;
+  text_content: string;
+
+begin
+  Result := readResource(sb_Metall, 'metal');
+  if Result then
+    Result := readResource(sb_Kristall, 'crystal');
+  if Result then
+    Result := readResource(sb_Deuterium, 'deuterium');
+  if Result then
+    Result := readResource(sb_Energie, 'energy');
+
+  if Result then
+  begin
+    text_content := trim_html(html.FullTagContent);
+
+    _LeseTeilScanBericht_Flotte_bis_Forschung(text_content, rr);
+  end;
+end;
+
+function TReadReport_Text.Read_V6_splitter(text: String;
+  reportlist: TReadReportList; current_time: TDateTime): integer;
+var
+  parts: array of string;
+  regexp: Tregexpn;
+  p, partLen, count, i, matchLen: integer;
+  success: boolean;
+  rr: TReadReport;
+
+  procedure addPart(start, size: integer);
+  begin
+    inc(count);
+    SetLength(parts, count);
+    parts[count-1] := Copy(text, start, size);
+  end;
+
+begin
+  regexp := Tregexpn.Create;
+  try
+    // first: split available text into parts which each contains at max. one scan
+    regexp.setexpression(V6_regexp_report_header);
+    p := 1;
+    matchLen := 0;
+    count := 0;
+    while regexp.match(text, p+matchLen) do
+    begin
+      partLen := regexp.regexpr.MatchPos[0] - p;
+      addPart(p, partLen);
+      p := p + partLen;
+      matchLen := regexp.regexpr.MatchLen[0];
+    end;
+    addPart(p, length(text) - p);
+  finally
+    regexp.Free;
+  end;
+
+  Result := 0;
+  rr := TReadReport.Create;
+  try
+    for i := 0 to count-1 do
+    begin
+      success := _LeseGanzenScanBericht_V6(parts[i], rr, current_time);
+      if (success) then
+      begin
+        reportlist.push_back(rr);
+        inc(Result);
+      end;
+    end;
+  finally
+    rr.Free;
+  end;
+end;
+
+function TReadReport_Text._LeseGanzenScanBericht_V6(_s: String;
+  report: TReadReport; current_time: TDateTime): Boolean;
+var
+  regexp: Tregexpn;
+  moon_info, activity_info: string;
+
+  function readResource(nr: integer; name: string): boolean;
+  begin
+    report.resources[nr] := ReadInt(regexp.getsubexpr(name), 1);
+    Result := true;
+  end;
+
+begin
+  regexp := Tregexpn.Create;
+  try
+    regexp.setexpression(V6_regexp_report_header);
+    Result := regexp.match(_s, 1);
+    if Result then
+    begin
+      report.Head.Position.P[0] := StrToInt(regexp.getsubexpr('p0'));
+      report.Head.Position.P[1] := StrToInt(regexp.getsubexpr('p1'));
+      report.Head.Position.P[2] := StrToInt(regexp.getsubexpr('p2'));
+      report.Head.Planet := trim_html(regexp.getsubexpr('name'));
+
+      moon_info := trim_html(regexp.getsubexpr('kmoon'));
+      report.AskMoon := (moon_info = '');
+      report.Head.Position.Mond := (moon_info = 'M');
+
+      report.Head.Time_u := getUnixTimestampFromNamedRegex(regexp);
+      report.Head.Spieler := trim_html(regexp.getsubexpr('player'));
+      report.Head.Spionageabwehr := StrToInt(regexp.getsubexpr('cspio'));
+
+      report.Head.Activity := activity_no_info;
+      activity_info := regexp.getsubexpr('noactivity');
+      if (activity_info <> '') then
+        report.Head.Activity := activity_gt_60min
+      else
+      begin
+        activity_info := regexp.getsubexpr('activity');
+        report.Head.Activity := StrToInt(activity_info)*60;
+      end;
+
+      Result := readResource(sb_Metall, 'metal');
+      if Result then
+        Result := readResource(sb_Kristall, 'crystal');
+      if Result then
+        Result := readResource(sb_Deuterium, 'deuterium');
+      if Result then
+        Result := readResource(sb_Energie, 'energy');
+
+      if Result then
+      begin
+        // remove start and matched part of string:
+        Delete(_s, 1, regexp.regexpr.MatchPos[0] + regexp.regexpr.MatchLen[0]);
+        _LeseTeilScanBericht_Flotte_bis_Forschung(_s, report);
+      end;
+    end;
+  finally
+    regexp.Free;
+  end;
+end;
+
+function TReadReport_Text._LeseTeilScanBericht_Flotte_bis_Forschung(
+  var s: string; report: TScanBericht): Integer;
+var
+  sg_start, sg_prev, sg: TScanGroup;
+  regexp: Tregexpn;
+  success: boolean;
+  parts: array[TScanGroup] of string;
+  p, mlen, elements: integer;
+begin
+  regexp := Tregexpn.Create;
+  try
+
+    // first: split string into parts:
+    sg_prev := low(sg);
+    sg_start := sg_prev;
+    inc(sg_start); // skip ressources
+    p := 1;
+    mlen := 0;
+
+    for sg := sg_start to high(sg) do
+    begin
+      regexp.setexpression('[\s]+' + SB_Items[sg][0] + '[\s]');
+      
+      success := regexp.match(s, p + mlen);
+      if (success) then
+      begin
+        parts[sg_prev] := Copy(s, p, regexp.regexpr.MatchPos[0] - p);
+      end
+      else
+        break;
+
+      sg_prev := sg;
+      p := regexp.regexpr.MatchPos[0];
+      mlen := regexp.regexpr.MatchLen[0];
+    end;
+    parts[high(sg)] := Copy(s, p, length(s) - p);
+  finally
+    regexp.Free;
+  end;
+
+  // second: read parts:
+  for sg := sg_start to high(sg) do
+  begin
+    elements := _LeseTeilScanBericht(parts[sg], report, sg);
+    if elements = -1 then   //wenn gesamter scanbereich nicht vorhanden
+    begin
+      report.clearPart(sg);
+    end
+    else
+    begin
+      if (elements = 0) then
+      begin
+        p := Pos(V6_token_no_info_report_part, parts[sg]); // "Wir konnten für diesen Typ keine verlässlichen Daten beim Scannen ermitteln."
+        if (p <> 0) then
+        begin
+          report.clearPart(sg);
+        end;
+      end;
+    end;
+  end;
+
+  Result := 0;
+end;
+
+function TReadReport_Text.getUnixTimestampFromNamedRegex(
+  regexp: Tregexpn): Int64;
+var
+  dt: TDateTime;
+begin
+  dt := EncodeDateTime(
+    StrToInt(regexp.getsubexpr('y')),
+    StrToInt(regexp.getsubexpr('m')),
+    StrToInt(regexp.getsubexpr('d')),
+    StrToInt(regexp.getsubexpr('h')),
+    StrToInt(regexp.getsubexpr('min')),
+    StrToInt(regexp.getsubexpr('s')),
+    0 //msec
+    );
+
+  Result := DateTimeToUnix(dt);
+end;
+
+function TReadReport_Text.Read(text: String; reportlist: TReadReportList;
+    current_time: TDateTime): integer;
+begin
+  Result := Read_PreV6(text, reportlist, current_time);
+  if (Result = 0) then
+  begin
+    Result := Read_V6_splitter(text, reportlist, current_time);
+  end;
+end;
+
+function TReadReport_Text.__insert_moon_or_planet_V6(
+  CurElement: THTMLElement; Data: pointer): Boolean;
+var
+  figure_tag, koords_tag: THTMLElement;
+  text_content, pname: string;
+  moon: boolean;
+  pos_btn: TPlanetPosition;
+  regexp: Tregexpn;
+begin
+  Result := false;
+  try
+    if (CurElement.TagName = 'div') and
+       (CurElement.html_isClass('detail_msg_head')) then
+    begin
+      koords_tag := CurElement.FindChildTagPath('span:0/a:0/><:0/');
+      if (koords_tag = nil) then exit;
+      
+      text_content := trim_html(koords_tag.Content);
+      regexp := Tregexpn.Create;
+      try
+        regexp.setexpression(V6_regexp_planet_name_pos);
+        if (regexp.match(text_content)) then // be sure its the same report!
+        begin
+          pname := regexp.getsubexpr('name');
+          pos_btn.P[0] := StrToInt(regexp.getsubexpr('p0'));
+          pos_btn.P[1] := StrToInt(regexp.getsubexpr('p1'));
+          pos_btn.P[2] := StrToInt(regexp.getsubexpr('p2'));
+
+          figure_tag := CurElement.FindChildTagPath('span:0/a:0/figure:0');
+          moon := (figure_tag <> nil);
+          if moon then
+          begin
+            moon := (figure_tag.html_isClass('planetIcon') and
+                    figure_tag.html_isClass('moon'));
+          end;
+
+          pos_btn.Mond := moon;
+          koords_tag.Content := pname + ' [' + PositionToStrMondPlanet(pos_btn) + ']';
+        end;
+      finally
+        regexp.Free;
+      end;
+    end;
+  except
+    // nothing!
   end;
 end;
 

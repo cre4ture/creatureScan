@@ -30,7 +30,8 @@ uses
   call_fleet_2x in '..\ReadAndParse\call_fleet_2x.pas',
   call_fleet_trunc in '..\ReadAndParse\call_fleet_trunc.pas',
   cshelper_tag_reader in '..\ReadAndParse\cshelper_tag_reader.pas',
-  ReadSolsys_fullhtml_3x in '..\ReadAndParse\ReadSolsys_fullhtml_3x.pas';
+  ReadSolsys_fullhtml_3x in '..\ReadAndParse\ReadSolsys_fullhtml_3x.pas',
+  lib_read_html in '..\ReadAndParse\lib_read_html.pas';
 
 type
   TScanReadOptions = record
@@ -237,7 +238,7 @@ begin
   time_dt := UnixToDateTime(rs.GetServerTime);
   rs.readscanlist.clear;
   if (rs.GetHTMLString <> '') then
-    Result := ReportRead.ReadHTML(rs.GetHTMLRoot, rs.readscanlist, time_dt)
+    Result := ReportRead.ReadHTML(rs.GetHTMLRoot, rs.readscanlist, time_dt, rs.getOGameVersion())
   else
     Result := ReportRead.Read(rs.GetText(), rs.readscanlist, time_dt);
 end;

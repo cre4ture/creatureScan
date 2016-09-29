@@ -15,7 +15,7 @@ implementation
 
 uses SysUtils;
 
-{ TOGameVersionDetector }
+{ TOGameVersionDetector }    
 
 function TOGameVersionDetector.detectOGameVersion(
   html: THTMLElement): TOGameVersion;
@@ -44,7 +44,9 @@ begin
             case majorV of
               2: Result := ogv_2xx;
               3: Result := ogv_3xx;
-              4..99: Result := ogv_latest;
+              4: Result := ogv_4xx;
+              5: Result := ogv_5xx;
+              6..99: Result := ogv_latest;
             else
               Result := ogv_unknown;
             end;

@@ -82,6 +82,7 @@ uses Sources, Math, cS_utf8_conv, xml_parser_unicode, CSUnitTest_ScanBerichtHTTP
 function TFRM_Scan.ReadScans(): Integer;
 var i: integer;
     Scan: TReadReport;
+    text: string;
 begin
   i := 0;
   ListBox1.Clear;
@@ -93,10 +94,17 @@ begin
 
     while plugin.GetReport(FRM_Sources.plugin_handle, i, Scan, Scan.askMoon) do
     begin
+      text := IntToStr(i);
+      if (Scan.AskMoon) then
+        text := text + ' ask moon'
+      else
+        text := text + ' clear';
+
       Scans.push_back(Scan); // copy
-      ListBox1.Items.Add(IntToStr(i));
+      ListBox1.Items.Add(text);
       inc(i);
     end;
+
     Frame_Bericht1.Refresh;
     if Result <> i then
       raise Exception.Create('Fehler im Plugin: Anzahl Scans stimmt mit Rückgabewert nicht überein!');
@@ -127,8 +135,11 @@ end;
 
 procedure TFRM_Scan.ListBox1Click(Sender: TObject);
 begin
-  Frame_Bericht1.SetBericht(Scans[ListBox1.ItemIndex]);
-  Frame_Bericht1.Refresh;
+  if ListBox1.ItemIndex >= 0 then
+  begin
+    Frame_Bericht1.SetBericht(Scans[ListBox1.ItemIndex]);
+    Frame_Bericht1.Refresh;
+  end;
 end;
 
 procedure TFRM_Scan.loadTestDB(filename: string);

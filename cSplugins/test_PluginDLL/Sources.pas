@@ -47,6 +47,8 @@ type
     procedure LoadFromFile(filename: string);
     procedure SaveToFile(filename: string);
     procedure LoadOptions(ini: TInifile);
+
+    procedure setClipboardWatch(enabled: boolean);
     { Public-Deklarationen }
   end;
 
@@ -200,6 +202,12 @@ begin
       plugin.configGameDomain,plugin.ServerURL)
   else
     CopyFile(PChar(lastsourcefile),PChar(filename),False);
+end;
+
+procedure TFRM_Sources.setClipboardWatch(enabled: boolean);
+begin
+  CB_Clipboard.Checked := enabled;
+  CB_ClipboardClick(CB_Clipboard);
 end;
 
 procedure TFRM_Sources.Button2Click(Sender: TObject);
