@@ -331,6 +331,8 @@ begin                                   //alles nur Beispiel Flotte:
   max := 0; //max -> ende dieses "ScanTeils"
   p := 0;
 
+  followingchar := ' ';
+
   repeat
     p := PosEx(SB_Items[sorte][0],s,p+1);        //[p]'Flotten'.....   -> Kategorie
     if (p > 0) then
@@ -638,7 +640,6 @@ var
   root_div, date_span, title_span, figure_moon, a_tag, player_tag, activity_tag: THTMLElement;
   text_content: string;
   regexp: Tregexpn;
-  p: integer;
 begin
   Result := true;
 
@@ -765,7 +766,6 @@ function TReadReport_Text.tryReadScanDirectlyFromHTML_OGameV6_ressources(
   end;
 
 var
-  xtag: THTMLElement;
   text_content: string;
 
 begin

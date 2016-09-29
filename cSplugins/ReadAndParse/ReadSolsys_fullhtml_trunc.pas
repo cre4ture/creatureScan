@@ -179,7 +179,7 @@ function ThtmlSysRead.ReadFullHTML(doc_html: THTMLElement;
   var solsys: TSystemCopy): Boolean;
 var tbody, tag, tag_row, tag_pos, tag_a: THTMLElement;
     table: THTMLTable;
-    i, row_nr, r_nr, p, j: Integer;
+    i, row_nr, r_nr, p: Integer;
     got_koords: boolean;
     s: string;
     meta: TOGameMetaInfo;

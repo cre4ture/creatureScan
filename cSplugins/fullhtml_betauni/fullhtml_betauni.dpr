@@ -31,7 +31,10 @@ uses
   call_fleet_trunc in '..\ReadAndParse\call_fleet_trunc.pas',
   cshelper_tag_reader in '..\ReadAndParse\cshelper_tag_reader.pas',
   ReadSolsys_fullhtml_3x in '..\ReadAndParse\ReadSolsys_fullhtml_3x.pas',
-  lib_read_html in '..\ReadAndParse\lib_read_html.pas';
+  lib_read_html in '..\ReadAndParse\lib_read_html.pas',
+  CoordinatesRanges in '..\..\CoordinatesRanges.pas',
+  xml_parser_unicode in '..\..\xml_parser_unicode.pas',
+  cS_utf8_conv in '..\..\cS_utf8_conv.pas';
 
 type
   TScanReadOptions = record

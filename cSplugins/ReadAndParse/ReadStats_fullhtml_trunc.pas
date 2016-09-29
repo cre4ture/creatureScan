@@ -409,7 +409,7 @@ end;
 
 function ThtmlStatRead.readStatEntry_player(row_tag: THTMLElement; stattype: TStatTypeEx;
   var statentry: TStatPlayer; const meta: TOGameMetaInfo): Boolean;
-var i, p: integer;
+var i: integer;
     tag_cell, tag: THTMLElement;
     tag_class: string;
     b_name, b_score: Boolean;
