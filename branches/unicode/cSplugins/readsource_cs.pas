@@ -3,10 +3,16 @@ unit readsource_cs;
 interface
 
 uses
-  readsource, ReadReport_Text, OGame_Types, TIReadPlugin_Types;
+  readsource, OGame_Types, TIReadPlugin_Types;
 
 type
-  TOGameVersion = (ogv_not_initialised, ogv_unknown, ogv_2xx, ogv_3xx, ogv_latest);
+  TOGameVersion = (ogv_not_initialised,
+                   ogv_unknown,
+                   ogv_2xx,
+                   ogv_3xx,
+                   ogv_4xx,
+                   ogv_5xx,
+                   ogv_latest);
 
   TReadSource_cS = class(TReadSource)
   private
@@ -67,7 +73,7 @@ begin
       detector.Free;
     end;
   end;
-  Result := fOGameVersion;
+  Result := fOGameVersion;   
 end;
 
 end.

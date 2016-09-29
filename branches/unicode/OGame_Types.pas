@@ -223,6 +223,7 @@ type
     function copy(): TScanBericht;
     procedure copyFrom(scan: TScanBericht);
     procedure clear();
+    procedure clearPart(sg: TScanGroup);
     procedure serialize(stream: TAbstractFixedMemoryStream);
     procedure deserialize(stream: TAbstractFixedMemoryStream);
     function serialize_size(): cardinal;
@@ -1683,6 +1684,13 @@ begin
   myscan.copyFrom(scan);
   myscan.AskMoon := scan.AskMoon;
   result := flist.Add(myscan);
+end;
+
+procedure TScanBericht.clearPart(sg: TScanGroup);
+var j: integer;
+begin
+  for j := 0 to Count(sg)-1 do
+    setElement(sg, j, -1);
 end;
 
 initialization

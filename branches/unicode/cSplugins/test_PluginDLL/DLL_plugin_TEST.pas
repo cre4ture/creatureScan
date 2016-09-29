@@ -183,6 +183,8 @@ end;
 
 procedure TFRM_MainTest.FormActivate(Sender: TObject);
 var ini: TIniFile;
+  i, pcount: integer;
+  param: string;
 begin
   ini := TIniFile.Create(ExtractFilePath(Application.ExeName) + 'test.ini');
   LoadOptions(ini);
@@ -190,10 +192,25 @@ begin
   ini.Free;
 
   // Load plugin in parameters
-  if (ParamCount > 1) and (ParamStr(1) = '-plugin') then
+  i := 0;
+  pcount := ParamCount;
+  while (i < pcount) do
   begin
-    loadPlugin(ParamStr(2));
-    OpenDialog1.HistoryList.Add(ParamStr(2));
+    param := ParamStr(i);
+    if (param = '-plugin') and ((i+1) <= pcount) then
+    begin
+      inc(i);
+      loadPlugin(ParamStr(i));
+      OpenDialog1.HistoryList.Add(ParamStr(i));
+    end else
+    if (param = '-sourcefile') and ((i+1) <= pcount) then
+    begin
+      inc(i);
+      FRM_Sources.LoadFromFile(ParamStr(i));
+      FRM_Sources.setClipboardWatch(false);
+    end;
+
+    inc(i);
   end;
 end;
 
