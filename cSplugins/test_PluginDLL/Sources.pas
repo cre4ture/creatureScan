@@ -23,6 +23,7 @@ type
     Button3: TButton;
     Button4: TButton;
     Button5: TButton;
+    btn_to_clipboard: TButton;
     procedure Button5Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure ClipbrdChanged(Sender: TObject);

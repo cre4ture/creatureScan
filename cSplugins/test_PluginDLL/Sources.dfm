@@ -136,6 +136,14 @@ object FRM_Sources: TFRM_Sources
     TabOrder = 8
     OnClick = Button5Click
   end
+  object btn_to_clipboard: TButton
+    Left = 408
+    Top = 106
+    Width = 113
+    Height = 25
+    Caption = 'To Clipboard'
+    TabOrder = 9
+  end
   object OpenDialog1: TOpenDialog
     Left = 124
     Top = 248
