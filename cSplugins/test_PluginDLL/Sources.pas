@@ -35,6 +35,7 @@ type
     procedure FormResize(Sender: TObject);
     procedure m_TextChange(Sender: TObject);
     procedure m_HtmlChange(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
   private
     clpCopy: TClipbrdCopy;
     procedure cshelper_trigger(const text, html: string);
@@ -227,7 +228,7 @@ end;
 
 procedure TFRM_Sources.Button3Click(Sender: TObject);
 begin
-  clpCopy.WriteClipbrd;
+  clpCopy.WriteClipbrd(false);
 end;
 
 procedure TFRM_Sources.Button4Click(Sender: TObject);
@@ -238,6 +239,11 @@ end;
 procedure TFRM_Sources.Button5Click(Sender: TObject);
 begin
   m_Html.Text := m_Text.Text;
+end;
+
+procedure TFRM_Sources.Button6Click(Sender: TObject);
+begin
+  clpCopy.WriteClipbrd(true);
 end;
 
 procedure TFRM_Sources.FormResize(Sender: TObject);

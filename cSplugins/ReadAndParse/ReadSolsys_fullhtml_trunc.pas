@@ -244,7 +244,8 @@ begin
          (tag_row.html_isClass('row')) then
       begin
         //Lese Planeten NR
-        tag := tag_row.FindChildTagPath('td:1');
+        //tag := tag_row.FindChildTagPath('td:1');
+        tag := HTMLFindRoutine_NameAndClass(tag_row, 'td', 'position');
         if tag <> nil then
         begin
           r_nr := ReadInt(trim(tag.FullTagContent),1);
@@ -379,6 +380,15 @@ begin
           begin
             row^.MondSize := 1; // das Vorhandensein dieses Bildes beweist die Existenz eines Mondes... halt ohne Info über die Größe
           end;
+        end
+        else
+        begin
+          // ogame 6.3.0:
+          tag_ := HTMLFindRoutine_NameAndClass(CurElement, 'div', 'moon_a');
+          if (tag_ <> nil) then
+          begin
+            row^.MondSize := 1; // das Vorhandensein dieses Bildes beweist die Existenz eines Mondes... halt ohne Info über die Größe
+          end;
         end;
       end;
     end
@@ -478,6 +488,15 @@ begin
       begin
         row^.PlayerId := extractPlayerIdFromSendMSGUrl(
           tag_.AttributeValue['href']);
+      end
+      else
+      begin
+        // for ogame 6.3.0:
+        tag_ := HTMLFindRoutine_NameAndClass(CurElement, 'a', 'sendMail');
+        if tag_ <> nil then
+        begin
+          row^.PlayerId := ReadInt(tag_.AttributeValue['data-playerid'], 1, false);
+        end
       end;
     end
 
