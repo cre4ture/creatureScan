@@ -240,16 +240,21 @@ function cshelper_pageLoad(event_pageload) {
 	
 	var inhalt_ajax_handler_galaxy = function (event) 
 				{
-					if ((event.target.id == "galaxytable") || (event.target.id == "mobileDiv"))
+					if ((event.target.id == "galaxytable") || // pre V6.3.2
+					    (event.target.id == "galaxycontent") || // V6.3.2
+					    (event.target.id == "mobileDiv"))
 					{
+						//cshelper_myTestLog(document, 'detected solsys');			
 						if (cshelper.BrowserOverlay.doWeUseTCP(document)) {
+							//cshelper_myTestLog(document, 'COPY TCPIP');			
 							cshelper.BrowserOverlay.sendHTML_To_cS_TCPIP(cshelper_getPageSourceCode(document), event_pageload, document);
+							//cshelper_myTestLog(document, 'COPY SUCCESS');			
 						} else {
+							//cshelper_myTestLog(document, 'COPY CLIPBRD');			
 							copyToClipboard(cshelper_getPageSourceCode(document), event_pageload, document);
+							//cshelper_myTestLog(document, 'COPY SUCCESS');			
 						}
-						//cshelper_myTestLog(document, 'COPY SUCCESS');			
 					}
-				
 				};
 
 	var inhalt_ajax_handler_stats = function (event) 
@@ -257,23 +262,26 @@ function cshelper_pageLoad(event_pageload) {
 //					var tag = event.target.parentNode;
 //					cshelper_myTestLog(document, 'TEST');
 //					cshelper_myTestLog(document, tag.id);
-					var list = event.target.getElementsByClassName("changeSite");
-					if ((list.length >= 1)||(event.target.className == "content"))
+					//var list = event.target.getElementsByClassName("changeSite");
+					//if ((list.length >= 1)||(event.target.className == "content"))
+					var element = event.target.getElementById("ranks");
+					if (element != null)
 					{
-//						cshelper_myTestLog(document, 'COPY START');
+						//cshelper_myTestLog(document, 'COPY START');
 						if (cshelper.BrowserOverlay.doWeUseTCP(document)) {
 							cshelper.BrowserOverlay.sendHTML_To_cS_TCPIP(cshelper_getPageSourceCode(document), event_pageload, document);
 						} else {
 							copyToClipboard(cshelper_getPageSourceCode(document), event_pageload, document);
 						}
-//						cshelper_myTestLog(document, 'COPY SUCCESS');
+						//cshelper_myTestLog(document, 'COPY SUCCESS');
 					}
 				};
 
 	var inhalt_ajax_handler_msgs = function (event) 
 				{
-					if (event.target.tagName == "FORM")
+					if (event.target.className == "tab_inner ctn_with_trash clearfix")
 					{
+						//cshelper_myTestLog(document, 'COPY START');
 						if (cshelper.BrowserOverlay.doWeUseTCP(document)) {
 							cshelper.BrowserOverlay.sendHTML_To_cS_TCPIP(cshelper_getPageSourceCode(document), event_pageload, document);
 						} else {
@@ -287,9 +295,15 @@ function cshelper_pageLoad(event_pageload) {
 	cshelper_myTestLog(document, 'cSHelper active!');
 	
 	if ((document.location.href.search("page=messages") > -1)) {
-		var inhalt = document.getElementById('netz'); 
-		inhalt.addEventListener("DOMNodeInserted", inhalt_ajax_handler_msgs, true);
-		cshelper_myTestLog(document, 'Messages detected!');
+		var inhalt = document.getElementById('contentWrapper');
+		if (inhalt == null)
+			inhalt = document.getElementById('netz'); // backward compatibility
+		
+		if (inhalt != null)
+		{
+			inhalt.addEventListener("DOMNodeInserted", inhalt_ajax_handler_msgs, true);
+			cshelper_myTestLog(document, 'Messages detected!');
+		}
 	}
 	
 	else if ((document.location.href.search("page=statistics") > -1)||(document.location.href.search("page=highscore") > -1)) {
